@@ -190,11 +190,20 @@ async fn test_self_mutation_invariant_enforcement() {
     ).unwrap();
 
     // A layer that illegally mutates the workspace
-    let mutate_cmd = format!("echo '// mutated' >> {}/src/lib.rs", ws.display());
-    let layers = vec![LayerDefinition::new(
-        "mutating-layer",
-        vec!["sh".to_string(), "-c".to_string(), mutate_cmd],
-    )];
+    let command = if cfg!(windows) {
+        vec![
+            "cmd".to_string(),
+            "/C".to_string(),
+            "echo // mutated >> src\\lib.rs".to_string(),
+        ]
+    } else {
+        vec![
+            "sh".to_string(),
+            "-c".to_string(),
+            "echo '// mutated' >> src/lib.rs".to_string(),
+        ]
+    };
+    let layers = vec![LayerDefinition::new("mutating-layer", command)];
 
     let opts = GauntletOptions {
         task_id: Some("001-test".to_string()),

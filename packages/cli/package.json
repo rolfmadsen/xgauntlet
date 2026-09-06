@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "Universal cross-platform verification gauntlet & tamper-proof policy sidecar for AI coding agents",
   "bin": {
-    "xgauntlet": "./bin/xgauntlet.js",
-    "xg": "./bin/xgauntlet.js"
+    "xgauntlet": "bin/xgauntlet.js",
+    "xg": "bin/xgauntlet.js"
   },
   "type": "module",
   "files": [
