@@ -27,7 +27,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rolfmadsen/xGauntlet.git"
+    "url": "git+https://github.com/rolfmadsen/xgauntlet.git"
   },
   "engines": {
     "node": ">=18.0.0"

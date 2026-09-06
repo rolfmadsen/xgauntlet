@@ -15,7 +15,7 @@ const __dirname = path.dirname(__filename);
 const pkgJsonPath = path.resolve(__dirname, '../package.json');
 const pkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
 const VERSION = pkg.version;
-const REPO = 'rolfmadsen/xGauntlet';
+const REPO = 'rolfmadsen/xgauntlet';
 
 function getPlatformInfo() {
   const platform = os.platform();

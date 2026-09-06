@@ -20,7 +20,7 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/xgauntlet"><img src="https://img.shields.io/npm/v/xgauntlet.svg?color=blue" alt="NPM Version" /></a>
-  <a href="https://github.com/rolfmadsen/xGauntlet/actions/workflows/ci.yml"><img src="https://github.com/rolfmadsen/xGauntlet/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
+  <a href="https://github.com/rolfmadsen/xgauntlet/actions/workflows/ci.yml"><img src="https://github.com/rolfmadsen/xgauntlet/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
   <a href="docs/adr/0005-two-tier-verification-and-attestation-model.md"><img src="https://img.shields.io/badge/evidence-Two--Tier%20Trust%20Model-blue.svg" alt="Evidence Model" /></a>
   <a href="wit/gauntlet_policy.wit"><img src="https://img.shields.io/badge/WASM-Zero%20Ambient%20Authority-purple.svg" alt="WASM Policy" /></a>
   <a href="Cargo.toml"><img src="https://img.shields.io/badge/rust-2021%20edition-orange.svg" alt="Rust Version" /></a>
@@ -31,7 +31,7 @@
 
 **Dokumentation**: [Makro-Spec](spec.md) • [Domæne-Glossary](CONTEXT.md) • [Kodestandarder](CODING_STANDARDS.md) • [Arkitektur (ADRs)](docs/adr/)
 
-**Kildekode & Pakker**: [GitHub](https://github.com/rolfmadsen/xGauntlet) • [NPM Pakke](packages/cli)
+**Kildekode & Pakker**: [GitHub](https://github.com/rolfmadsen/xgauntlet) • [NPM Pakke](packages/cli)
 
 ---
 

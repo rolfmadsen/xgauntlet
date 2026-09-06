@@ -19,13 +19,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rolfmadsen/xGauntlet.git",
+    "url": "git+https://github.com/rolfmadsen/xgauntlet.git",
     "directory": "packages/cli"
   },
   "bugs": {
-    "url": "https://github.com/rolfmadsen/xGauntlet/issues"
+    "url": "https://github.com/rolfmadsen/xgauntlet/issues"
   },
-  "homepage": "https://github.com/rolfmadsen/xGauntlet#readme",
+  "homepage": "https://github.com/rolfmadsen/xgauntlet#readme",
   "keywords": [
     "ai-agent",
     "verification",
