@@ -114,3 +114,16 @@ _Avoid_: Merged docs, mixed styleguide, combined rules.
 **Workspace Diagnostics**:
 A fast inspection contract, that evaluates local host environment prerequisites, toolchain availability, Git repository state, and declarative governance health without side effects.
 _Avoid_: System audit, health check, env sniffer.
+
+**Phase Checkpoint**:
+A verified local Git commit, that binds the current workspace state to a specific TDD lifecycle phase (`SPEC`, `RED`, `GREEN`, `REFACTOR`, `GAUNTLET`) after confirming its phase-specific verification invariant.
+_Avoid_: Quick save, commit hook, progress tag.
+
+**Dynamic Response HUD**:
+A real-time telemetry card, that renders active task progression, Git dirty state, and execution scope boundaries at the top of an agent's interactive response.
+_Avoid_: Status badge, markdown header, info banner.
+
+**Task Package Lifecycle**:
+A deterministic sequence of operational states (`ACTIVE`, `BLOCKED`, `DONE`), that governs task progression from initial intent scoping to evidence sealing.
+_Avoid_: Ticket workflow, task pipeline, sprint state.
+
