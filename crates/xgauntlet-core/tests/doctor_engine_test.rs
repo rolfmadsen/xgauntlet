@@ -100,7 +100,17 @@ fn test_run_doctor_on_real_workspace() {
 
     let report = run_doctor(&options).expect("Doctor execution must succeed on real workspace");
 
-    assert_eq!(report.workspace, workspace);
+    let normalize = |p: &Path| -> String {
+        let s = p.to_string_lossy().to_string();
+        if let Some(stripped) = s.strip_prefix(r"\\?\UNC\") {
+            format!(r"\\{}", stripped)
+        } else if let Some(stripped) = s.strip_prefix(r"\\?\") {
+            stripped.to_string()
+        } else {
+            s
+        }
+    };
+    assert_eq!(normalize(&report.workspace), normalize(&workspace));
     assert!(!report.checks.is_empty(), "Must produce diagnostic checks");
     assert!(report.duration_total_ms > 0 || !report.checks.is_empty());
 

@@ -19,7 +19,21 @@ use std::time::Instant;
 pub fn run_doctor(options: &DoctorOptions) -> Result<DoctorReport, DoctorError> {
     let overall_start = Instant::now();
     let workspace = match options.workspace.canonicalize() {
-        Ok(canon) => canon,
+        Ok(canon) => {
+            #[cfg(windows)]
+            {
+                let s = canon.to_string_lossy();
+                if let Some(stripped) = s.strip_prefix(r"\\?\UNC\") {
+                    std::path::PathBuf::from(format!(r"\\{}", stripped))
+                } else if let Some(stripped) = s.strip_prefix(r"\\?\") {
+                    std::path::PathBuf::from(stripped)
+                } else {
+                    canon
+                }
+            }
+            #[cfg(not(windows))]
+            canon
+        }
         Err(_) => options.workspace.clone(),
     };
 

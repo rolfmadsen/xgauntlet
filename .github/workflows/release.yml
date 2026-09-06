@@ -27,7 +27,7 @@ jobs:
             artifact_name: xgauntlet-darwin-arm64.tar.gz
             archive_cmd: tar -czvf xgauntlet-darwin-arm64.tar.gz -C target/aarch64-apple-darwin/release xgauntlet
 
-          - os: macos-13
+          - os: macos-latest
             target: x86_64-apple-darwin
             artifact_name: xgauntlet-darwin-x64.tar.gz
             archive_cmd: tar -czvf xgauntlet-darwin-x64.tar.gz -C target/x86_64-apple-darwin/release xgauntlet
