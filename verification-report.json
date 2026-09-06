@@ -1,0 +1,108 @@
+{
+  "$schema": "https://agent-gauntlet.dev/schemas/v2/verification-report.json",
+  "schema_version": "2.0.0",
+  "execution_origin": "LOCAL",
+  "verdict": "PARTIAL",
+  "task_contract": {
+    "task_id": "011-audit-remediation",
+    "task_title": "Task 011: Code Review & Architecture Audit Remediation",
+    "task_digest": "4d0e0ba84753c7558cc2eab99107f236624f6d6a6858c38513518d9c556a08fe",
+    "acceptance_criteria": [
+      "Ingen forekomster af `.unwrap()` eller `.expect()` i produktionskode under `crates/*/src/`.",
+      "ISO 8601 UTC tidslogik er konsolideret i `features/evidence/time.rs` og genbrugt på tværs af `gauntlet` og `doctor`.",
+      "`cargo doc --workspace --no-deps` eksekverer uden advarsler.",
+      "`docs/supervisor-systemd.md` er fjernet.",
+      "Samtlige eksisterende tests (84 Rust-tests + 4 Node-tests) forbliver 100% grønne.",
+      "`check-spec` validerer `tasks/011-audit-remediation.md` med 0 fejl.",
+      "`verification-report.json` og `evidence.md` opdateres og forsegles med `xgauntlet verify --save`."
+    ],
+    "unresolved_criteria": []
+  },
+  "workspace_state": {
+    "manifest_version": "1.0",
+    "source_content_digest": "fcacad7ecb6d9f0fd84adf5bc49fd925b568d33b6608351359e0c3459126fe79",
+    "source_manifest_digest_pre": "8bdb21d17fa5f9917b5e0339881ecfd2d593a44a60226aee08091776aedffb34",
+    "source_manifest_digest_post": "8bdb21d17fa5f9917b5e0339881ecfd2d593a44a60226aee08091776aedffb34",
+    "config_digest": "bc4d85d3526289b69ab9b554f62d22f6e9247816a8c3b5cf57f83244207dc849",
+    "task_digest": "4d0e0ba84753c7558cc2eab99107f236624f6d6a6858c38513518d9c556a08fe",
+    "policy_digest": "44f14226510892fbdfead7aef912db0471bf7af1156fc36d1dba6ecc69e7cdf7",
+    "check_definitions_digest": "acd753b5c5b1f14c179a6a97e9eea55dc81aa7414ff9f84065c10555ce9d3d8a",
+    "included_files_count": 103,
+    "vcs": {
+      "type": "git",
+      "head": "6585469",
+      "commit": "6585469",
+      "is_dirty": true
+    }
+  },
+  "execution_metadata": {
+    "started_at": "2026-09-06T16:53:08Z",
+    "finished_at": "2026-09-06T16:53:11Z",
+    "total_duration_seconds": 2.69256562,
+    "environment": {
+      "arch": "x86_64",
+      "engine": "xgauntlet-core",
+      "platform": "linux",
+      "version": "0.1.0"
+    }
+  },
+  "checks": [
+    {
+      "name": "lint",
+      "status": "PASSED",
+      "exit_code": 0,
+      "duration_seconds": 0.180616045,
+      "optional": true,
+      "passed": true,
+      "log_digest": "22e0df986057b9ba5be07526ac5fb348862a3dedef42108383cc3e088acbb889"
+    },
+    {
+      "name": "types",
+      "status": "PASSED",
+      "exit_code": 0,
+      "duration_seconds": 0.23295545,
+      "optional": true,
+      "passed": true,
+      "log_digest": "732186322402325172940531d8d6d7cfac85dc902585b2bef6715ad6839dacfd"
+    },
+    {
+      "name": "unit",
+      "status": "PASSED",
+      "exit_code": 0,
+      "duration_seconds": 1.858351227,
+      "optional": false,
+      "passed": true,
+      "log_digest": "609ebbfd0e94802a24c39ded6c15654c72b6bfc42d1bde207adc15ee36e89c63"
+    },
+    {
+      "name": "invariants",
+      "status": "PASSED",
+      "exit_code": 0,
+      "duration_seconds": 0.303794736,
+      "optional": true,
+      "passed": true,
+      "log_digest": "23c0ff9c870222a90faf32d21ec23dd3ff7d97b9618a827847116d7d7dae7742"
+    },
+    {
+      "name": "mutation-testing-gauntlet",
+      "status": "FAILED",
+      "exit_code": 101,
+      "duration_seconds": 0.012126695,
+      "optional": true,
+      "passed": false,
+      "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
+    }
+  ],
+  "diagnostics": [
+    {
+      "finding_type": "GENERAL_ERROR",
+      "tool_name": "mutation-testing-gauntlet",
+      "file_path": "workspace",
+      "line_number": null,
+      "column_number": null,
+      "message": "error: no such command: `mutants` | help: view all installed commands with `cargo --list` | help: find a package to install `mutants` with `cargo search cargo-mutants`",
+      "remediation_hint": "Check full command output logs for root cause remediation.",
+      "raw_context": ""
+    }
+  ]
+}

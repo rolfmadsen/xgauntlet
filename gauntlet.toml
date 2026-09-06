@@ -1,0 +1,41 @@
+# agent-gauntlet configuration for rust
+stack = "rust"
+save_evidence = true
+evidence_file = "evidence.json"
+evidence_markdown_file = "evidence.md"
+
+[paths]
+tasks_dir = "tasks"
+spec_file = "spec.md"
+context_file = "CONTEXT.md"
+coding_standards_file = "CODING_STANDARDS.md"
+
+[[layers]]
+name = "lint"
+command = ["cargo", "clippy", "--", "-D", "warnings"]
+optional = true
+timeout_seconds = 60.0
+
+[[layers]]
+name = "types"
+command = ["cargo", "check"]
+optional = true
+timeout_seconds = 60.0
+
+[[layers]]
+name = "unit"
+command = ["cargo", "test"]
+optional = false
+timeout_seconds = 120.0
+
+[[layers]]
+name = "invariants"
+command = ["cargo", "test", "--", "proptest"]
+optional = true
+timeout_seconds = 120.0
+
+[[layers]]
+name = "mutation-testing-gauntlet"
+command = ["cargo", "mutants"]
+optional = true
+timeout_seconds = 180.0

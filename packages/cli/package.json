@@ -1,0 +1,33 @@
+{
+  "name": "xgauntlet",
+  "version": "0.1.0",
+  "description": "Universal cross-platform verification gauntlet & tamper-proof policy sidecar for AI coding agents",
+  "bin": {
+    "xgauntlet": "./bin/xgauntlet.js",
+    "xg": "./bin/xgauntlet.js"
+  },
+  "type": "module",
+  "files": [
+    "bin",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "ai-agent",
+    "verification",
+    "gauntlet",
+    "clean-craftsmanship",
+    "cross-platform",
+    "evidence"
+  ],
+  "author": "Antigravity Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

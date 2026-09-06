@@ -1,0 +1,19 @@
+[package]
+name = "xgauntlet-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Native standalone CLI for xGauntlet"
+
+[[bin]]
+name = "xgauntlet"
+path = "src/main.rs"
+
+[dependencies]
+xgauntlet-core = { path = "../xgauntlet-core" }
+clap.workspace = true
+tokio.workspace = true
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true

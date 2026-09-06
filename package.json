@@ -1,0 +1,35 @@
+{
+  "name": "xgauntlet",
+  "version": "0.1.0",
+  "description": "Universal multi-stack verification gauntlet & tamper-proof policy sidecar for AI coding agents",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present && cargo build",
+    "test": "npm run test --workspaces --if-present && cargo test",
+    "lint": "cargo clippy",
+    "format": "cargo fmt --check"
+  },
+  "keywords": [
+    "ai-agent",
+    "verification",
+    "gauntlet",
+    "clean-craftsmanship",
+    "tdd",
+    "evidence",
+    "rust",
+    "typescript"
+  ],
+  "author": "Antigravity Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rolfmadsen/xGauntlet.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
