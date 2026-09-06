@@ -7,16 +7,20 @@ use xgauntlet_core::features::config::{
     ValidationSeverity,
 };
 
+static TEST_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
+
 struct TempDir {
     path: PathBuf,
 }
 
 impl TempDir {
     fn new(prefix: &str) -> Self {
+        let count = TEST_COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         let unique = format!(
-            "{}_{}_{}",
+            "{}_{}_{}_{}",
             prefix,
             std::process::id(),
+            count,
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
                 .unwrap()
