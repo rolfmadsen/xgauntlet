@@ -14,7 +14,30 @@ fn probe_command(
     is_mandatory: bool,
 ) -> DoctorCheckItem {
     let start = Instant::now();
-    let res = Command::new(cmd).args(args).output();
+    #[allow(unused_mut)]
+    let mut res = Command::new(cmd).args(args).output();
+
+    #[cfg(windows)]
+    if res.is_err() || matches!(&res, Ok(out) if !out.status.success()) {
+        if let Ok(out) = Command::new(format!("{cmd}.cmd")).args(args).output() {
+            if out.status.success() {
+                res = Ok(out);
+            }
+        } else if let Ok(out) = Command::new(format!("{cmd}.bat")).args(args).output() {
+            if out.status.success() {
+                res = Ok(out);
+            }
+        } else if let Ok(out) = Command::new(format!("{cmd}.exe")).args(args).output() {
+            if out.status.success() {
+                res = Ok(out);
+            }
+        } else if let Ok(out) = Command::new("cmd").args(["/C", cmd]).args(args).output() {
+            if out.status.success() {
+                res = Ok(out);
+            }
+        }
+    }
+
     let duration = start.elapsed().as_millis() as u64;
 
     match res {

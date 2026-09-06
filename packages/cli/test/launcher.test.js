@@ -16,7 +16,7 @@ test('xgauntlet.js launcher status output', () => {
 });
 
 test('xgauntlet.js launcher doctor output', () => {
-  const output = execFileSync(process.execPath, [binPath, 'doctor'], {
+  const output = execFileSync(process.execPath, [binPath, 'doctor', '--workspace', path.resolve(__dirname, '../../..')], {
     encoding: 'utf8',
   });
   assert.match(output, /doctor/i);

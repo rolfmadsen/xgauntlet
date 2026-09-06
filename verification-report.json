@@ -4,41 +4,33 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "011-audit-remediation",
-    "task_title": "Task 011: Code Review & Architecture Audit Remediation",
+    "task_id": "default-task",
+    "task_title": "",
     "task_digest": "4d0e0ba84753c7558cc2eab99107f236624f6d6a6858c38513518d9c556a08fe",
-    "acceptance_criteria": [
-      "Ingen forekomster af `.unwrap()` eller `.expect()` i produktionskode under `crates/*/src/`.",
-      "ISO 8601 UTC tidslogik er konsolideret i `features/evidence/time.rs` og genbrugt på tværs af `gauntlet` og `doctor`.",
-      "`cargo doc --workspace --no-deps` eksekverer uden advarsler.",
-      "`docs/supervisor-systemd.md` er fjernet.",
-      "Samtlige eksisterende tests (84 Rust-tests + 4 Node-tests) forbliver 100% grønne.",
-      "`check-spec` validerer `tasks/011-audit-remediation.md` med 0 fejl.",
-      "`verification-report.json` og `evidence.md` opdateres og forsegles med `xgauntlet verify --save`."
-    ],
+    "acceptance_criteria": [],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "6a9afb642f9f4396423528eebaf8c5de37b0644c1f3a62350cd035da07d4fe2d",
-    "source_manifest_digest_pre": "717c5ede0765a6d2f724fc528197e67410b0fa1ab02366c63daff5f0be240ba7",
-    "source_manifest_digest_post": "717c5ede0765a6d2f724fc528197e67410b0fa1ab02366c63daff5f0be240ba7",
+    "source_content_digest": "7821fa8ecfdba5f85d8bc37c91797f0b4c8f137c7f2373758db41ed64d6753f4",
+    "source_manifest_digest_pre": "90483a7e8b902d20d40c42ac017f61669d2516b2a20bc4c9fc627c891b09f281",
+    "source_manifest_digest_post": "90483a7e8b902d20d40c42ac017f61669d2516b2a20bc4c9fc627c891b09f281",
     "config_digest": "bc4d85d3526289b69ab9b554f62d22f6e9247816a8c3b5cf57f83244207dc849",
     "task_digest": "4d0e0ba84753c7558cc2eab99107f236624f6d6a6858c38513518d9c556a08fe",
-    "policy_digest": "44f14226510892fbdfead7aef912db0471bf7af1156fc36d1dba6ecc69e7cdf7",
+    "policy_digest": "eba9fbcf446cc26de5ebdfd82ecfb7198c2e351d44588efaf9866c0b517865c2",
     "check_definitions_digest": "acd753b5c5b1f14c179a6a97e9eea55dc81aa7414ff9f84065c10555ce9d3d8a",
-    "included_files_count": 103,
+    "included_files_count": 104,
     "vcs": {
       "type": "git",
-      "head": "0a390cf",
-      "commit": "0a390cf",
+      "head": "79f9589",
+      "commit": "79f9589",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-09-06T17:02:56Z",
-    "finished_at": "2026-09-06T17:02:59Z",
-    "total_duration_seconds": 3.39919517,
+    "started_at": "2026-09-06T19:48:49Z",
+    "finished_at": "2026-09-06T19:48:52Z",
+    "total_duration_seconds": 3.588179418,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -51,34 +43,34 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.092901247,
+      "duration_seconds": 0.158275157,
       "optional": true,
       "passed": true,
-      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
+      "log_digest": "22e0df986057b9ba5be07526ac5fb348862a3dedef42108383cc3e088acbb889"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.952857212,
+      "duration_seconds": 0.448006056,
       "optional": true,
       "passed": true,
-      "log_digest": "e271cca4accab43d6431a6904bf9eaa14d2f018a82da25e936431090324cde98"
+      "log_digest": "d0a5e5b0949fbf4a8e6761902a60b1f11764df206ffcd56a6e439b2578f5f467"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.955201927,
+      "duration_seconds": 2.620516393,
       "optional": false,
       "passed": true,
-      "log_digest": "e91c14f41b81f20bdfac64d91eb91f6fa16ac5bd5e8c3cd37e1928f18e474630"
+      "log_digest": "ac68bbea1ff84d401deaae66bd0138c2b064b48f97229b3557d032fe895e3f96"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.288308744,
+      "duration_seconds": 0.243358097,
       "optional": true,
       "passed": true,
       "log_digest": "913353c7e66c7a10761c984cb0b05c6fc4c094f808b96dc9b5567d583f781e38"
@@ -87,7 +79,7 @@
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.012207051,
+      "duration_seconds": 0.009806417,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"

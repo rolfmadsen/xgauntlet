@@ -17,6 +17,15 @@
   "scripts": {
     "test": "node --test"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rolfmadsen/xGauntlet.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/rolfmadsen/xGauntlet/issues"
+  },
+  "homepage": "https://github.com/rolfmadsen/xGauntlet#readme",
   "keywords": [
     "ai-agent",
     "verification",
