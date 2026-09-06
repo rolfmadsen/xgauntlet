@@ -387,7 +387,8 @@ fn test_generate_workspace_evidence_artifacts() {
         },
     ];
 
-    save_verification_report(workspace_root, &report).unwrap();
-    assert!(workspace_root.join("verification-report.json").is_file());
-    assert!(workspace_root.join("evidence.md").is_file());
+    let temp = TempDir::new("evidence_artifacts_test");
+    save_verification_report(&temp.path, &report).unwrap();
+    assert!(temp.path.join("verification-report.json").is_file());
+    assert!(temp.path.join("evidence.md").is_file());
 }

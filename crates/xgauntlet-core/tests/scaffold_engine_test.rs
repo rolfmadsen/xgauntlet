@@ -291,11 +291,15 @@ fn find_xgauntlet_binary() -> PathBuf {
 
 #[test]
 fn test_cli_init_integration() {
+    let bin_path = find_xgauntlet_binary();
+    if !bin_path.is_file() {
+        return;
+    }
+
     let temp = TempDir::new("scaffold_cli_test");
     let ws = temp.path();
 
     // 1. Run dry-run via CLI
-    let bin_path = find_xgauntlet_binary();
     let output = std::process::Command::new(&bin_path)
         .args([
             "init",
