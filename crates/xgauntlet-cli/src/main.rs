@@ -166,7 +166,70 @@ enum Commands {
         #[arg(long)]
         json: bool,
     },
+    /// Task lifecycle management, intent scaffolding, and telemetry
+    Task {
+        #[command(subcommand)]
+        command: TaskCommands,
+    },
 }
+
+#[derive(Subcommand, Debug)]
+enum TaskCommands {
+    /// Scaffold a new task package with sequential numbering and OKF v0.2 frontmatter
+    New {
+        /// Task package slug name (e.g. 'task-lifecycle-and-intent-scaffolding')
+        name: String,
+
+        /// Explicit human-readable title (defaults to title-cased name)
+        #[arg(short, long)]
+        title: Option<String>,
+
+        /// Task engineering intent ('feature', 'bug', 'refactor')
+        #[arg(short, long, default_value = "feature")]
+        intent: String,
+
+        /// Concrete task purpose statement
+        #[arg(short, long)]
+        purpose: Option<String>,
+
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Overwrite existing task package if collision occurs
+        #[arg(short, long)]
+        force: bool,
+
+        /// Output scaffold results in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
+    /// Inspect active or specified task status, criteria progress, and Git telemetry
+    Status {
+        /// Specific task identifier to inspect (e.g. '013' or '013-task-lifecycle-and-intent-scaffolding')
+        #[arg(short, long)]
+        task: Option<String>,
+
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Output task telemetry in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
+    /// List all task packages with status, title, and criteria progression
+    List {
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Output task list in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
+}
+
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -431,6 +494,78 @@ async fn main() -> anyhow::Result<()> {
                 std::process::exit(1);
             }
         }
+        Some(Commands::Task { command }) => match command {
+            TaskCommands::New {
+                name,
+                title,
+                intent,
+                purpose,
+                workspace,
+                force,
+                json,
+            } => {
+                let canonical_ws = if workspace.is_absolute() {
+                    workspace.clone()
+                } else {
+                    std::env::current_dir()?.join(workspace)
+                };
+
+                let options = xgauntlet_core::ScaffoldTaskOptions {
+                    name: name.clone(),
+                    title: title.clone(),
+                    intent: Some(intent.clone()),
+                    purpose: purpose.clone(),
+                    workspace: canonical_ws,
+                    force: *force,
+                };
+
+                let res = xgauntlet_core::TaskScaffolder::scaffold(&options)?;
+
+                if *json {
+                    println!("{}", serde_json::to_string_pretty(&res)?);
+                } else {
+                    render_task_scaffold_summary(&res);
+                }
+            }
+            TaskCommands::Status {
+                task,
+                workspace,
+                json,
+            } => {
+                let canonical_ws = if workspace.is_absolute() {
+                    workspace.clone()
+                } else {
+                    std::env::current_dir()?.join(workspace)
+                };
+
+                let telemetry = xgauntlet_core::inspect_task_telemetry(
+                    &canonical_ws,
+                    task.as_deref(),
+                )?;
+
+                if *json {
+                    println!("{}", serde_json::to_string_pretty(&telemetry)?);
+                } else {
+                    render_task_status_summary(&telemetry);
+                }
+            }
+            TaskCommands::List { workspace, json } => {
+                let canonical_ws = if workspace.is_absolute() {
+                    workspace.clone()
+                } else {
+                    std::env::current_dir()?.join(workspace)
+                };
+
+                let items = xgauntlet_core::list_workspace_tasks(&canonical_ws)?;
+
+                if *json {
+                    println!("{}", serde_json::to_string_pretty(&items)?);
+                } else {
+                    render_task_list_summary(&items);
+                }
+            }
+        },
+
         None => {
             println!(
                 "xGauntlet v{} - Run with --help for options",
@@ -1037,3 +1172,62 @@ fn render_release_summary(report: &xgauntlet_core::ReleaseReadinessReport) {
         );
     }
 }
+
+fn render_task_scaffold_summary(res: &xgauntlet_core::TaskScaffoldResult) {
+    println!("✅ Scaffolding complete for task [{}]", res.task_id);
+    println!("   Number: {:03}", res.task_number);
+    println!("   Title:  {}", res.title);
+    println!("   Intent: {}", res.intent);
+    println!("   Path:   {}", res.path.display());
+}
+
+fn render_task_status_summary(telemetry: &xgauntlet_core::TaskTelemetry) {
+    println!("🛡️  Task Telemetry: [{}] {}", telemetry.task_id, telemetry.title);
+    let intent_str = telemetry.intent.as_deref().unwrap_or("🚀 NEW FEATURE");
+    println!("   Status:   {} | Intent: {}", telemetry.status.as_str(), intent_str);
+    println!(
+        "   Progress: Criteria: {}/{} {} {}%",
+        telemetry.criteria.completed,
+        telemetry.criteria.total,
+        telemetry.criteria.bar,
+        telemetry.criteria.percentage
+    );
+    let git_status = if telemetry.git.is_clean {
+        "clean".to_string()
+    } else {
+        format!("dirty: {} files", telemetry.git.dirty_count)
+    };
+    println!(
+        "   Git:      {}@{} • {}",
+        telemetry.git.branch, telemetry.git.head_oid, git_status
+    );
+    println!("   Path:     {}", telemetry.file_path);
+}
+
+fn render_task_list_summary(items: &[xgauntlet_core::TaskSummaryItem]) {
+    if items.is_empty() {
+        println!("No task packages discovered in tasks/.");
+        return;
+    }
+    println!("📋 Task Packages ({} total):", items.len());
+    println!("{:<6} {:<10} {:<18} {}", "ID", "STATUS", "PROGRESS", "TITLE");
+    println!("{}", "-".repeat(75));
+    for item in items {
+        let num_str = item
+            .task_number
+            .map(|n| format!("{n:03}"))
+            .unwrap_or_else(|| "---".to_string());
+        let prog_str = format!(
+            "{}/{} {} {:>3}%",
+            item.criteria.completed, item.criteria.total, item.criteria.bar, item.criteria.percentage
+        );
+        println!(
+            "{:<6} {:<10} {:<18} {}",
+            num_str,
+            item.status.as_str(),
+            prog_str,
+            item.title
+        );
+    }
+}
+
