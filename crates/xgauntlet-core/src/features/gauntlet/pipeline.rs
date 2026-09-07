@@ -59,7 +59,10 @@ pub async fn execute_gauntlet_pipeline(
     let manifest_pre = compute_workspace_manifest(workspace, None)?;
 
     // 2. Resolve Active Task Contract
-    let (task_contract, task_error_finding) = match resolve_task_contract(workspace, options.task_id.as_deref()) {
+    let (task_contract, task_error_finding) = match resolve_task_contract(
+        workspace,
+        options.task_id.as_deref(),
+    ) {
         Ok(tc) => (Some(tc), None),
         Err(e) => {
             let finding = DiagnosticFinding::new(
@@ -211,7 +214,12 @@ pub async fn execute_gauntlet_pipeline(
     };
 
     let (task_id, task_title, acceptance_criteria, unresolved_criteria) = match task_contract {
-        Some(tc) => (tc.task_id, tc.title, tc.acceptance_criteria, tc.unresolved_criteria),
+        Some(tc) => (
+            tc.task_id,
+            tc.title,
+            tc.acceptance_criteria,
+            tc.unresolved_criteria,
+        ),
         None => (
             "UNRESOLVED".to_string(),
             "Task contract could not be resolved".to_string(),

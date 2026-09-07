@@ -70,11 +70,7 @@ fn setup_test_workspace() -> TempDir {
         "name: release\n",
     )
     .unwrap();
-    fs::write(
-        ws.join(".agents").join("AGENTS.md"),
-        "# Agent Guidelines\n",
-    )
-    .unwrap();
+    fs::write(ws.join(".agents").join("AGENTS.md"), "# Agent Guidelines\n").unwrap();
 
     // Create one active task
     let task_content = r#"---
@@ -174,7 +170,10 @@ fn test_path_traversal_blocked_docs_escape() {
     });
 
     let (exit_code, output) = adapter.handle_hook(ws, &payload.to_string());
-    assert_ne!(exit_code, 0, "Path traversal MUST return non-zero exit code");
+    assert_ne!(
+        exit_code, 0,
+        "Path traversal MUST return non-zero exit code"
+    );
     assert!(
         output.contains("\"decision\":\"deny\"") || output.contains("\"decision\": \"deny\""),
         "Path traversal MUST be denied, got output: {}",

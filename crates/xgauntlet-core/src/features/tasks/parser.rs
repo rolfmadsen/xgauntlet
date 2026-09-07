@@ -281,9 +281,8 @@ pub fn resolve_task_contract(
         target_file = Some(tasks_dir.join(format!("{active_id}.md")));
     }
 
-    let file_to_read = target_file.ok_or_else(|| {
-        TaskError::TaskNotFound("no active task found in tasks/".to_string())
-    })?;
+    let file_to_read = target_file
+        .ok_or_else(|| TaskError::TaskNotFound("no active task found in tasks/".to_string()))?;
 
     let info = parse_task_file(&file_to_read)?;
     Ok(TaskContract {

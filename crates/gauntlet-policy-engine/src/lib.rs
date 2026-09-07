@@ -107,7 +107,8 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
             {
                 return PolicyDecision {
                     verdict: DecisionVerdict::Deny,
-                    reason: "Path traversal or illegal absolute path detected (fail-closed).".into(),
+                    reason: "Path traversal or illegal absolute path detected (fail-closed)."
+                        .into(),
                     reason_code: 4036,
                 };
             }
@@ -216,8 +217,9 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
             {
                 return PolicyDecision {
                     verdict: DecisionVerdict::Deny,
-                    reason: "Unsafe chained shell execution or remote script execution is prohibited."
-                        .into(),
+                    reason:
+                        "Unsafe chained shell execution or remote script execution is prohibited."
+                            .into(),
                     reason_code: 4039,
                 };
             }

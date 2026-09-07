@@ -127,19 +127,27 @@ mod tests {
     fn test_valid_relative_paths() {
         let ws = Path::new("/workspace");
         assert_eq!(
-            WorkspaceRelativePath::sanitize(ws, "src/lib.rs").unwrap().as_str(),
+            WorkspaceRelativePath::sanitize(ws, "src/lib.rs")
+                .unwrap()
+                .as_str(),
             "src/lib.rs"
         );
         assert_eq!(
-            WorkspaceRelativePath::sanitize(ws, "./tasks/001.md").unwrap().as_str(),
+            WorkspaceRelativePath::sanitize(ws, "./tasks/001.md")
+                .unwrap()
+                .as_str(),
             "tasks/001.md"
         );
         assert_eq!(
-            WorkspaceRelativePath::sanitize(ws, "docs/sub/../guide.md").unwrap().as_str(),
+            WorkspaceRelativePath::sanitize(ws, "docs/sub/../guide.md")
+                .unwrap()
+                .as_str(),
             "docs/guide.md"
         );
         assert_eq!(
-            WorkspaceRelativePath::sanitize(ws, "src\\models\\mod.rs").unwrap().as_str(),
+            WorkspaceRelativePath::sanitize(ws, "src\\models\\mod.rs")
+                .unwrap()
+                .as_str(),
             "src/models/mod.rs"
         );
     }
