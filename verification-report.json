@@ -4,44 +4,47 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "014-phase-checkpoint-engine",
-    "task_title": "Task 014: Phase-Bound TDD Checkpoint Engine",
-    "task_digest": "6120a92d0dea170e4efc4eb8d92e51bf192eea1d7d0d516c62f6c8eda54d3674",
+    "task_id": "015-security-and-policy-boundary-hardening",
+    "task_title": "Task 015: P0 Security & Policy Boundary Hardening",
+    "task_digest": "9f91bfc44f994dd6596f3cec3dba0c2a437feecc4ebcd32a0ff32807dcc4c0a5",
     "acceptance_criteria": [
-      "`crates/xgauntlet-core/src/features/checkpoint/models.rs` definerer `CheckpointPhase`, `CheckpointOptions`, `CheckpointResult` og `CheckpointError`.",
-      "`crates/xgauntlet-core/src/features/checkpoint/preflight.rs` implementerer fase-specifikke invariante kontroller (`spec`, `red` skal fejle, `green` skal passere, `refactor` bevarer assertions, `done` fuld gauntlet).",
-      "`crates/xgauntlet-core/src/features/checkpoint/git.rs` implementerer lokal staging (`git add`) og konventionel commit-generering med aktiv opgave-tagging uden tunge eksterne afhængigheder.",
-      "`crates/xgauntlet-core/src/features/checkpoint/engine.rs` orkestrerer pre-flight evaluering, staging og commit-eksekvering med sub-5ms koldstart.",
-      "`xgauntlet checkpoint` subcommand er tilgængelig i `crates/xgauntlet-cli` med understøttelse af `--phase`, `-m`/`--message`, `--skip-verify` og `--json`.",
-      "Forsøg på at committe en grøn test under `--phase red` afvises med struktureret fejl og exit code 1.",
-      "Forsøg på at committe en fejlet test under `--phase green` afvises med struktureret fejl og exit code 1.",
-      "`crates/xgauntlet-core/tests/checkpoint_engine_test.rs` verificerer alle faser (spec, red, green, refactor, done) og commit-generering i et isoleret midlertidigt Git-repository.",
-      "`cargo run -p xgauntlet-cli -- check-spec -t 014-phase-checkpoint-engine` validerer med 0 fejl.",
-      "100% grøn testsuite på tværs af hele workspacet (`cargo test --workspace`)."
+      "`resolve_task_contract` returnerer en eksplicit fejl når specificeret opgave ikke findes eller ingen opgave er aktiv, og falder aldrig tilbage på en anden opgave eller syntetisk kontrakt.",
+      "`execute_gauntlet_pipeline` fejler lukket med verdict `FAILED`, hvis opgavekontrakten mangler eller er ugyldig.",
+      "`WorkspaceRelativePath` er implementeret og afviser `..`, absolutte stier (`/`, `C:\\`), UNC-stier og workspace escapes.",
+      "Alle harness adaptere (`Antigravity`, `Claude Code`, `Codex`) afviser path traversal angreb (fx `docs/../../.github/workflows/release.yml` og `/etc/passwd`) med `DENY` og exit code 1.",
+      "`HarnessAdapter::evaluate_invocation` eksekverer den indlejrede `WasmPolicyEngine` in-memory frem for in-process reference evaluator.",
+      "Kommandoer med kædningsoperatorer (`&&`, `;`, `|`) kan ikke omgås via hvidlistede præfikser (`git status`, `cargo test`) og afvises i read-only/uden aktiv opgave.",
+      "`gauntlet-policy-engine` deserialiserer requests og context typesikkert via `serde_json`, og afviser enhver syntaktisk fejl med `DENY` (grundkode 4037).",
+      "`DEFAULT_SCOPES` i manifest motoren inkluderer `.agents`, `.github`, `CONTEXT.md` og `CODING_STANDARDS.md`.",
+      "`verify_self_mutation` validerer `policy_digest`, `config_digest` og `task_digest` ud over kildefilsmanifestet.",
+      "`compute_digest_of_files` returnerer `Result<String, ManifestError>` og fejler hårdt hvis en fil ikke kan læses.",
+      "`digest_matches` i `drift.rs` kræver 100% eksakt streng-lighed uden præfiks-tolerance.",
+      "Ny adversarial regression testsuite (`tests/security_hardening_test.rs`) og udvidet paritetstestsuite beviser alle sikkerhedsinvarianter.",
+      "100% grøn testsuite på tværs af workspacet (`cargo test --workspace`)."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "ff0ddd19ca87c1e79debe1233a3d9adb7c4834809ea835ae9dc927f69471a47a",
-    "source_manifest_digest_pre": "36c2171473a39fe3ffaaed7c6c875c15cca5d0c2cd8f992e1d230d27f7838010",
-    "source_manifest_digest_post": "36c2171473a39fe3ffaaed7c6c875c15cca5d0c2cd8f992e1d230d27f7838010",
+    "source_content_digest": "1b76909f5b14fc81cbb422c053636440a88b6d21692accf9735df03e2a0eb8ba",
+    "source_manifest_digest_pre": "97975f784a80208f58a1bb70b93adb21215aabf788a01c54a14498feb88cb939",
+    "source_manifest_digest_post": "97975f784a80208f58a1bb70b93adb21215aabf788a01c54a14498feb88cb939",
     "config_digest": "89a8114f04a80a963728aa0993ec9fb8de1b7d696935a6911b8260d4207ebf50",
-    "task_digest": "6120a92d0dea170e4efc4eb8d92e51bf192eea1d7d0d516c62f6c8eda54d3674",
+    "task_digest": "9f91bfc44f994dd6596f3cec3dba0c2a437feecc4ebcd32a0ff32807dcc4c0a5",
     "policy_digest": "63856aa1ec16d994bf2136f832ffcdfe3ea292800588da469d9a385e10a27452",
     "check_definitions_digest": "acd753b5c5b1f14c179a6a97e9eea55dc81aa7414ff9f84065c10555ce9d3d8a",
-    "included_files_count": 116,
+    "included_files_count": 141,
     "vcs": {
       "type": "git",
-      "head": "354f7b1",
-      "commit": "354f7b1",
+      "head": "a27fb35",
+      "commit": "a27fb35",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-09-07T16:03:02Z",
-    "finished_at": "2026-09-07T16:03:04Z",
-    "total_duration_seconds": 2.605128859,
+    "started_at": "2026-09-07T16:29:02Z",
+    "finished_at": "2026-09-07T16:29:14Z",
+    "total_duration_seconds": 11.255737074,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -54,43 +57,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.127793104,
+      "duration_seconds": 0.164557402,
       "optional": true,
       "passed": true,
-      "log_digest": "a5f4c585ee974ca44916ac30a98bbc189e067a7e0a6bc6d2e8d6bc525be724af"
+      "log_digest": "a41051563a4cb5fc1b1bcdd9aa0ba28ca80f7736d629d90cc138218756e8e3a9"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.090206734,
+      "duration_seconds": 0.691873274,
       "optional": true,
       "passed": true,
-      "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
+      "log_digest": "0a9826d63ed8766288c8eecf10e2e6da2166b3f28880de2ba98bb8fd7cd62429"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.970197644,
+      "duration_seconds": 10.023255175,
       "optional": false,
       "passed": true,
-      "log_digest": "d2b77ebc2cc9c7308938f3a8182f0cfa22f91b6794e5b9af0596d831ff3d23cc"
+      "log_digest": "46e7460f15d930fd91e24bfa39c5e8153ab6914ee088cc0619730c085aada910"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.305938422,
+      "duration_seconds": 0.253777525,
       "optional": true,
       "passed": true,
-      "log_digest": "eb77142a222127f120de6c68a9aa2e583b2eb7188530a37fa966a22b4fd99c32"
+      "log_digest": "99dd6529c74abce8657b7eac9f81e67e02c2fec1ff489ea8935f6aee626652f3"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.00987526,
+      "duration_seconds": 0.009848846,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"

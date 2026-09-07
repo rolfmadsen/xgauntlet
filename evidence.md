@@ -1,26 +1,29 @@
 # Verification Report
 
-**Task ID**: `014-phase-checkpoint-engine`  
-**Task Title**: Task 014: Phase-Bound TDD Checkpoint Engine  
+**Task ID**: `015-security-and-policy-boundary-hardening`  
+**Task Title**: Task 015: P0 Security & Policy Boundary Hardening  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `36c2171473a39fe3ffaaed7c6c875c15cca5d0c2cd8f992e1d230d27f7838010`  
-**Timestamp**: `2026-09-07T16:03:04Z`  
-**Head**: `354f7b1`  
-**Commit**: `354f7b1`  
+**Source Manifest Digest**: `97975f784a80208f58a1bb70b93adb21215aabf788a01c54a14498feb88cb939`  
+**Timestamp**: `2026-09-07T16:29:14Z`  
+**Head**: `a27fb35`  
+**Commit**: `a27fb35`  
 
 ## Acceptance Criteria
 
-- [x] `crates/xgauntlet-core/src/features/checkpoint/models.rs` definerer `CheckpointPhase`, `CheckpointOptions`, `CheckpointResult` og `CheckpointError`.
-- [x] `crates/xgauntlet-core/src/features/checkpoint/preflight.rs` implementerer fase-specifikke invariante kontroller (`spec`, `red` skal fejle, `green` skal passere, `refactor` bevarer assertions, `done` fuld gauntlet).
-- [x] `crates/xgauntlet-core/src/features/checkpoint/git.rs` implementerer lokal staging (`git add`) og konventionel commit-generering med aktiv opgave-tagging uden tunge eksterne afhængigheder.
-- [x] `crates/xgauntlet-core/src/features/checkpoint/engine.rs` orkestrerer pre-flight evaluering, staging og commit-eksekvering med sub-5ms koldstart.
-- [x] `xgauntlet checkpoint` subcommand er tilgængelig i `crates/xgauntlet-cli` med understøttelse af `--phase`, `-m`/`--message`, `--skip-verify` og `--json`.
-- [x] Forsøg på at committe en grøn test under `--phase red` afvises med struktureret fejl og exit code 1.
-- [x] Forsøg på at committe en fejlet test under `--phase green` afvises med struktureret fejl og exit code 1.
-- [x] `crates/xgauntlet-core/tests/checkpoint_engine_test.rs` verificerer alle faser (spec, red, green, refactor, done) og commit-generering i et isoleret midlertidigt Git-repository.
-- [x] `cargo run -p xgauntlet-cli -- check-spec -t 014-phase-checkpoint-engine` validerer med 0 fejl.
-- [x] 100% grøn testsuite på tværs af hele workspacet (`cargo test --workspace`).
+- [x] `resolve_task_contract` returnerer en eksplicit fejl når specificeret opgave ikke findes eller ingen opgave er aktiv, og falder aldrig tilbage på en anden opgave eller syntetisk kontrakt.
+- [x] `execute_gauntlet_pipeline` fejler lukket med verdict `FAILED`, hvis opgavekontrakten mangler eller er ugyldig.
+- [x] `WorkspaceRelativePath` er implementeret og afviser `..`, absolutte stier (`/`, `C:\`), UNC-stier og workspace escapes.
+- [x] Alle harness adaptere (`Antigravity`, `Claude Code`, `Codex`) afviser path traversal angreb (fx `docs/../../.github/workflows/release.yml` og `/etc/passwd`) med `DENY` og exit code 1.
+- [x] `HarnessAdapter::evaluate_invocation` eksekverer den indlejrede `WasmPolicyEngine` in-memory frem for in-process reference evaluator.
+- [x] Kommandoer med kædningsoperatorer (`&&`, `;`, `|`) kan ikke omgås via hvidlistede præfikser (`git status`, `cargo test`) og afvises i read-only/uden aktiv opgave.
+- [x] `gauntlet-policy-engine` deserialiserer requests og context typesikkert via `serde_json`, og afviser enhver syntaktisk fejl med `DENY` (grundkode 4037).
+- [x] `DEFAULT_SCOPES` i manifest motoren inkluderer `.agents`, `.github`, `CONTEXT.md` og `CODING_STANDARDS.md`.
+- [x] `verify_self_mutation` validerer `policy_digest`, `config_digest` og `task_digest` ud over kildefilsmanifestet.
+- [x] `compute_digest_of_files` returnerer `Result<String, ManifestError>` og fejler hårdt hvis en fil ikke kan læses.
+- [x] `digest_matches` i `drift.rs` kræver 100% eksakt streng-lighed uden præfiks-tolerance.
+- [x] Ny adversarial regression testsuite (`tests/security_hardening_test.rs`) og udvidet paritetstestsuite beviser alle sikkerhedsinvarianter.
+- [x] 100% grøn testsuite på tværs af workspacet (`cargo test --workspace`).
 
 ---
 
@@ -28,10 +31,10 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `lint` | `PASSED` | `0` | `0.128s` |
-| `types` | `PASSED` | `0` | `0.090s` |
-| `unit` | `PASSED` | `0` | `1.970s` |
-| `invariants` | `PASSED` | `0` | `0.306s` |
+| `lint` | `PASSED` | `0` | `0.165s` |
+| `types` | `PASSED` | `0` | `0.692s` |
+| `unit` | `PASSED` | `0` | `10.023s` |
+| `invariants` | `PASSED` | `0` | `0.254s` |
 | `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---

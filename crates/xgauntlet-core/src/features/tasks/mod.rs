@@ -18,7 +18,7 @@ pub use okf::{
 };
 pub use parser::{
     has_active_task, is_task_active, parse_task_content, parse_task_file, parse_task_status,
-    resolve_active_task_id, resolve_task_contract, TaskError,
+    resolve_active_task_id, resolve_latest_done_task_id, resolve_task_contract, TaskError,
 };
 pub use telemetry::{
     collect_git_telemetry, inspect_task_telemetry, list_workspace_tasks, parse_criteria_progress,

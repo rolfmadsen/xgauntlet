@@ -128,6 +128,35 @@ pub fn resolve_active_task_id(workspace: &Path) -> Option<String> {
     None
 }
 
+/// Resolves the task identifier of the latest done task found in `tasks/` (highest numbered).
+pub fn resolve_latest_done_task_id(workspace: &Path) -> Option<String> {
+    let tasks_dir = workspace.join("tasks");
+    if !tasks_dir.is_dir() {
+        return None;
+    }
+
+    let entries = fs::read_dir(tasks_dir).ok()?;
+    let mut paths: Vec<_> = entries
+        .filter_map(|e| e.ok().map(|d| d.path()))
+        .filter(|p| p.extension().is_some_and(|ext| ext == "md"))
+        .collect();
+    paths.sort_by(|a, b| b.cmp(a));
+
+    for path in paths {
+        if let Ok(content) = fs::read_to_string(&path) {
+            let status = parse_task_status(&content);
+            if matches!(status, TaskStatus::Done) {
+                return path
+                    .file_stem()
+                    .and_then(|s| s.to_str())
+                    .map(|s| s.to_string());
+            }
+        }
+    }
+
+    None
+}
+
 /// Parses complete `TaskPackageInfo` from raw markdown content and a designated task identifier.
 pub fn parse_task_content(content: &str, task_id: &str) -> Result<TaskPackageInfo, TaskError> {
     let (metadata, body) = match parse_frontmatter(content) {

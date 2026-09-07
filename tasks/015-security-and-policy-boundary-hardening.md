@@ -2,14 +2,14 @@
 type: Task Package
 title: "Task 015: P0 Security & Policy Boundary Hardening"
 description: "Hærdning af xGauntlet sikkerhedsgrænser: Fail-closed task resolution, kanoniske WorkspaceRelativePath stier, WasmPolicyEngine integration i adaptere, forsvar mod kommandokædning, typesikker serde i WASM-motor, udvidet anti-tamper manifest og eksakt drift detection jf. spec.md, ADR 0003, ADR 0006 og ADR 0007"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-07T18:17:00Z" }
 tags: [security, policy, wasm, task-contract, path-traversal, fail-closed, anti-tamper, adr-0006, adr-0007]
 ---
 
 # Task 015: P0 Security & Policy Boundary Hardening
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 REFACTOR`
 **Oprettet**: `2026-09-07`
 
@@ -36,19 +36,19 @@ Lukke samtlige kritiske huller mellem det specificerede sikkerhedsniveau og den 
    - Fjerne 16-tegns præfiks-tolerance i `drift.rs` til fordel for eksakt lighed.
 
 ## 📋 Acceptance Criteria
-- [ ] `resolve_task_contract` returnerer en eksplicit fejl når specificeret opgave ikke findes eller ingen opgave er aktiv, og falder aldrig tilbage på en anden opgave eller syntetisk kontrakt.
-- [ ] `execute_gauntlet_pipeline` fejler lukket med verdict `FAILED`, hvis opgavekontrakten mangler eller er ugyldig.
-- [ ] `WorkspaceRelativePath` er implementeret og afviser `..`, absolutte stier (`/`, `C:\`), UNC-stier og workspace escapes.
-- [ ] Alle harness adaptere (`Antigravity`, `Claude Code`, `Codex`) afviser path traversal angreb (fx `docs/../../.github/workflows/release.yml` og `/etc/passwd`) med `DENY` og exit code 1.
-- [ ] `HarnessAdapter::evaluate_invocation` eksekverer den indlejrede `WasmPolicyEngine` in-memory frem for in-process reference evaluator.
-- [ ] Kommandoer med kædningsoperatorer (`&&`, `;`, `|`) kan ikke omgås via hvidlistede præfikser (`git status`, `cargo test`) og afvises i read-only/uden aktiv opgave.
-- [ ] `gauntlet-policy-engine` deserialiserer requests og context typesikkert via `serde_json`, og afviser enhver syntaktisk fejl med `DENY` (grundkode 4037).
-- [ ] `DEFAULT_SCOPES` i manifest motoren inkluderer `.agents`, `.github`, `CONTEXT.md` og `CODING_STANDARDS.md`.
-- [ ] `verify_self_mutation` validerer `policy_digest`, `config_digest` og `task_digest` ud over kildefilsmanifestet.
-- [ ] `compute_digest_of_files` returnerer `Result<String, ManifestError>` og fejler hårdt hvis en fil ikke kan læses.
-- [ ] `digest_matches` i `drift.rs` kræver 100% eksakt streng-lighed uden præfiks-tolerance.
-- [ ] Ny adversarial regression testsuite (`tests/security_hardening_test.rs`) og udvidet paritetstestsuite beviser alle sikkerhedsinvarianter.
-- [ ] 100% grøn testsuite på tværs af workspacet (`cargo test --workspace`).
+- [x] `resolve_task_contract` returnerer en eksplicit fejl når specificeret opgave ikke findes eller ingen opgave er aktiv, og falder aldrig tilbage på en anden opgave eller syntetisk kontrakt.
+- [x] `execute_gauntlet_pipeline` fejler lukket med verdict `FAILED`, hvis opgavekontrakten mangler eller er ugyldig.
+- [x] `WorkspaceRelativePath` er implementeret og afviser `..`, absolutte stier (`/`, `C:\`), UNC-stier og workspace escapes.
+- [x] Alle harness adaptere (`Antigravity`, `Claude Code`, `Codex`) afviser path traversal angreb (fx `docs/../../.github/workflows/release.yml` og `/etc/passwd`) med `DENY` og exit code 1.
+- [x] `HarnessAdapter::evaluate_invocation` eksekverer den indlejrede `WasmPolicyEngine` in-memory frem for in-process reference evaluator.
+- [x] Kommandoer med kædningsoperatorer (`&&`, `;`, `|`) kan ikke omgås via hvidlistede præfikser (`git status`, `cargo test`) og afvises i read-only/uden aktiv opgave.
+- [x] `gauntlet-policy-engine` deserialiserer requests og context typesikkert via `serde_json`, og afviser enhver syntaktisk fejl med `DENY` (grundkode 4037).
+- [x] `DEFAULT_SCOPES` i manifest motoren inkluderer `.agents`, `.github`, `CONTEXT.md` og `CODING_STANDARDS.md`.
+- [x] `verify_self_mutation` validerer `policy_digest`, `config_digest` og `task_digest` ud over kildefilsmanifestet.
+- [x] `compute_digest_of_files` returnerer `Result<String, ManifestError>` og fejler hårdt hvis en fil ikke kan læses.
+- [x] `digest_matches` i `drift.rs` kræver 100% eksakt streng-lighed uden præfiks-tolerance.
+- [x] Ny adversarial regression testsuite (`tests/security_hardening_test.rs`) og udvidet paritetstestsuite beviser alle sikkerhedsinvarianter.
+- [x] 100% grøn testsuite på tværs af workspacet (`cargo test --workspace`).
 
 ## 🚫 Must NOT
 - Må IKKE redesigne den overordnede arkitektur (Harness -> Adapter -> CapabilityRequest -> WasmPolicyEngine -> Verification).
@@ -59,6 +59,7 @@ Lukke samtlige kritiske huller mellem det specificerede sikkerhedsniveau og den 
 
 ## 📝 Revisions
 - 2026-09-07: Oprettet som aktiv opgave efter uafhængigt arkitekturreview (Task 015).
+- 2026-09-07: Alle 13 acceptkriterier implementeret, verificeret med adversarial suite og forseglet (DONE).
 
 ## 🧪 Verifikation
 - `cargo test -p xgauntlet-core --test security_hardening_test`

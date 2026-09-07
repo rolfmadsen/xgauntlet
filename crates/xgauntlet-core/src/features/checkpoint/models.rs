@@ -96,6 +96,8 @@ impl FromStr for CheckpointPhase {
 pub struct CheckpointOptions {
     /// Designated TDD phase.
     pub phase: CheckpointPhase,
+    /// Explicit task identifier (optional, auto-resolved from workspace if omitted).
+    pub task_id: Option<String>,
     /// Custom commit message (conventional prefix will be added if missing).
     pub message: Option<String>,
     /// Repository workspace root.
@@ -110,11 +112,17 @@ impl CheckpointOptions {
     pub fn new(phase: CheckpointPhase, workspace: impl Into<PathBuf>) -> Self {
         Self {
             phase,
+            task_id: None,
             message: None,
             workspace: workspace.into(),
             skip_verify: false,
             allow_empty: false,
         }
+    }
+
+    pub fn with_task_id(mut self, task_id: impl Into<String>) -> Self {
+        self.task_id = Some(task_id.into());
+        self
     }
 
     pub fn with_message(mut self, message: impl Into<String>) -> Self {

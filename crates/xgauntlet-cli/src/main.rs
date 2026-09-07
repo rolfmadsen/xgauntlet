@@ -177,6 +177,10 @@ enum Commands {
         #[arg(short, long)]
         phase: String,
 
+        /// Explicit task identifier (e.g. '015' or '015-security-and-policy-boundary-hardening')
+        #[arg(short, long)]
+        task: Option<String>,
+
         /// Commit message (conventional prefix will be formatted automatically if omitted)
         #[arg(short, long)]
         message: Option<String>,
@@ -587,6 +591,7 @@ async fn main() -> anyhow::Result<()> {
 
         Some(Commands::Checkpoint {
             phase,
+            task,
             message,
             workspace,
             skip_verify,
@@ -617,6 +622,9 @@ async fn main() -> anyhow::Result<()> {
 
             let mut opts = xgauntlet_core::CheckpointOptions::new(parsed_phase, &canonical_ws)
                 .with_skip_verify(*skip_verify);
+            if let Some(t) = task {
+                opts = opts.with_task_id(t);
+            }
             if let Some(msg) = message {
                 opts = opts.with_message(msg);
             }

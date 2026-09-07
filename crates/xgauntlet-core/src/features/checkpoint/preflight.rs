@@ -8,7 +8,7 @@ use crate::features::evidence::{compute_workspace_manifest, verify_self_mutation
 use crate::features::gauntlet::{
     execute_gauntlet_pipeline, execute_layer, GauntletOptions, LayerDefinition, LayerRequirement,
 };
-use crate::features::tasks::{check_task_specification, resolve_active_task_id};
+use crate::features::tasks::check_task_specification;
 
 /// Resolves the primary test layer from workspace configuration.
 pub fn resolve_test_layer(workspace: &Path) -> LayerDefinition {
@@ -37,7 +37,7 @@ pub fn resolve_test_layer(workspace: &Path) -> LayerDefinition {
 /// Executes pre-flight invariant verification for a designated TDD phase.
 pub async fn run_preflight_check(options: &CheckpointOptions) -> Result<(), CheckpointError> {
     let task_id =
-        resolve_active_task_id(&options.workspace).ok_or(CheckpointError::NoActiveTask)?;
+        super::engine::resolve_checkpoint_task_id(options).ok_or(CheckpointError::NoActiveTask)?;
 
     match options.phase {
         CheckpointPhase::Spec => {
