@@ -5,6 +5,11 @@ pub use features::adapters::{
     ClaudeCodeAdapter, CodexAdapter, HarnessAdapter, NormalizedToolCall, ValidationIssue,
     ValidationSeverity, SUPPORTED_HARNESSES,
 };
+pub use features::checkpoint::{
+    compose_commit_message, execute_git_commit, extract_short_task_id, run_checkpoint,
+    run_preflight_check, stage_workspace_changes, CheckpointError, CheckpointOptions,
+    CheckpointPhase, CheckpointResult,
+};
 pub use features::config::{
     default_config_for_stack, detect_stack, get_stack_profile, list_supported_stacks, load_config,
     validate_config, ConfigValidationIssue, ConfigValidationReport, PathsConfig, StackProfile,
