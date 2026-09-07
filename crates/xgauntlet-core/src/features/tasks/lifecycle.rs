@@ -1,8 +1,8 @@
 //! Task scaffolding, template generation, and sequential lifecycle engine.
 
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
-use serde::{Deserialize, Serialize};
 
 use crate::features::evidence::time::current_iso_utc;
 use crate::features::tasks::parser::TaskError;
@@ -76,11 +76,12 @@ impl TaskScaffolder {
             if ch.is_alphanumeric() {
                 result.push(ch.to_ascii_lowercase());
                 last_was_dash = false;
-            } else if ch == '-' || ch == '_' || ch.is_whitespace() {
-                if !last_was_dash && !result.is_empty() {
-                    result.push('-');
-                    last_was_dash = true;
-                }
+            } else if (ch == '-' || ch == '_' || ch.is_whitespace())
+                && !last_was_dash
+                && !result.is_empty()
+            {
+                result.push('-');
+                last_was_dash = true;
             }
         }
 
@@ -97,7 +98,9 @@ impl TaskScaffolder {
 
     /// Formats an engineering intent string with domain emoji and screaming uppercase.
     pub fn format_intent(intent: Option<&str>) -> String {
-        let clean = intent.map(|s| s.trim().to_ascii_lowercase()).unwrap_or_default();
+        let clean = intent
+            .map(|s| s.trim().to_ascii_lowercase())
+            .unwrap_or_default();
         match clean.as_str() {
             "bug" | "bugfix" | "fix" | "defect" => "🐛 BUG FIX".to_string(),
             "refactor" | "enhancement" | "perf" => "🔄 REFACTOR".to_string(),
@@ -155,7 +158,7 @@ impl TaskScaffolder {
         };
 
         format!(
-r#"---
+            r#"---
 type: Task Package
 title: "Task {padded_num}: {title}"
 description: "{purpose}"
@@ -194,7 +197,10 @@ tags: [task-lifecycle, intent, scaffolding, rust]
     }
 
     fn extract_slug_and_number(raw_slug: &str) -> (Option<u32>, String) {
-        let digits: String = raw_slug.chars().take_while(|c| c.is_ascii_digit()).collect();
+        let digits: String = raw_slug
+            .chars()
+            .take_while(|c| c.is_ascii_digit())
+            .collect();
         if !digits.is_empty() && raw_slug.chars().nth(digits.len()) == Some('-') {
             let num: u32 = digits.parse().unwrap_or(0);
             let rest = &raw_slug[digits.len() + 1..];
@@ -220,7 +226,8 @@ tags: [task-lifecycle, intent, scaffolding, rust]
                 if p.extension().is_some_and(|ext| ext == "md") {
                     let stem = p.file_stem().and_then(|s| s.to_str()).unwrap_or("");
                     if stem == slug || stem.ends_with(&format!("-{slug}")) {
-                        let digits: String = stem.chars().take_while(|c| c.is_ascii_digit()).collect();
+                        let digits: String =
+                            stem.chars().take_while(|c| c.is_ascii_digit()).collect();
                         let num = digits.parse::<u32>().ok();
                         existing_file = Some((p, num));
                         break;

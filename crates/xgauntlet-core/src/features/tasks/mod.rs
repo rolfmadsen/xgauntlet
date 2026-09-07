@@ -10,9 +10,7 @@ pub mod parser;
 pub mod telemetry;
 pub mod validator;
 
-pub use lifecycle::{
-    ScaffoldTaskOptions, TaskScaffoldResult, TaskScaffolder,
-};
+pub use lifecycle::{ScaffoldTaskOptions, TaskScaffoldResult, TaskScaffolder};
 pub use models::{SpecReadinessReport, TaskContract, TaskPackageInfo, TaskStatus};
 pub use okf::{
     parse_frontmatter, validate_iso_timestamp, Actor, GeneratedEntry, OkfError, OkfMetadata,
@@ -29,4 +27,3 @@ pub use telemetry::{
 pub use validator::{
     check_all_tasks, check_task_specification, validate_context_content, validate_context_glossary,
 };
-

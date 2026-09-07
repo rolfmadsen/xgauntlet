@@ -110,10 +110,7 @@ fn test_slugify_and_formatting() {
         TaskScaffolder::format_intent(Some("refactor")),
         "🔄 REFACTOR"
     );
-    assert_eq!(
-        TaskScaffolder::format_intent(None),
-        "🚀 NEW FEATURE"
-    );
+    assert_eq!(TaskScaffolder::format_intent(None), "🚀 NEW FEATURE");
 }
 
 #[test]

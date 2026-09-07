@@ -1,9 +1,9 @@
 //! Task telemetry, criteria progress calculation, and VCS inspection engine.
 
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use serde::{Deserialize, Serialize};
 
 use crate::features::tasks::models::TaskStatus;
 use crate::features::tasks::parser::{parse_task_file, resolve_active_task_id, TaskError};
@@ -53,8 +53,8 @@ pub struct TaskSummaryItem {
 
 /// Parses criteria progress from task markdown content.
 pub fn parse_criteria_progress(content: &str) -> CriteriaProgress {
-    let mut completed = 0;
-    let mut pending = 0;
+    let mut completed: usize = 0;
+    let mut pending: usize = 0;
 
     for line in content.lines() {
         let trimmed = line.trim();
@@ -66,17 +66,12 @@ pub fn parse_criteria_progress(content: &str) -> CriteriaProgress {
     }
 
     let total = completed + pending;
-    let percentage = if total > 0 {
-        ((completed * 100) / total) as u8
-    } else {
-        0
-    };
+    let percentage = (completed * 100).checked_div(total).unwrap_or(0) as u8;
 
-    let filled = if total == 0 {
-        0
-    } else {
-        std::cmp::min(5, (completed * 5 + total / 2) / total)
-    };
+    let filled = (completed * 5 + total / 2)
+        .checked_div(total)
+        .map(|f| std::cmp::min(5, f))
+        .unwrap_or(0);
     let empty = 5 - filled;
     let bar = format!("[{}{}]", "■".repeat(filled), "□".repeat(empty));
 
@@ -102,11 +97,7 @@ pub fn collect_git_telemetry(workspace: &Path) -> GitTelemetry {
     let (branch, is_repo) = match branch_cmd {
         Ok(out) if out.status.success() => {
             let b = String::from_utf8_lossy(&out.stdout).trim().to_string();
-            let branch_name = if b.is_empty() {
-                "HEAD".to_string()
-            } else {
-                b
-            };
+            let branch_name = if b.is_empty() { "HEAD".to_string() } else { b };
             (branch_name, true)
         }
         _ => ("unknown".to_string(), false),
@@ -165,7 +156,10 @@ pub fn collect_git_telemetry(workspace: &Path) -> GitTelemetry {
 }
 
 /// Resolves task file path from explicit identifier or active task.
-fn resolve_task_path(workspace: &Path, task_id_or_path: Option<&str>) -> Result<PathBuf, TaskError> {
+fn resolve_task_path(
+    workspace: &Path,
+    task_id_or_path: Option<&str>,
+) -> Result<PathBuf, TaskError> {
     let tasks_dir = workspace.join("tasks");
 
     if let Some(id_or_path) = task_id_or_path {
@@ -216,7 +210,9 @@ fn resolve_task_path(workspace: &Path, task_id_or_path: Option<&str>) -> Result<
         }
     }
 
-    Err(TaskError::TaskNotFound("no active task found in tasks/".to_string()))
+    Err(TaskError::TaskNotFound(
+        "no active task found in tasks/".to_string(),
+    ))
 }
 
 /// Inspects telemetry for an active or explicitly designated task.

@@ -230,7 +230,6 @@ enum TaskCommands {
     },
 }
 
-
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
@@ -538,10 +537,8 @@ async fn main() -> anyhow::Result<()> {
                     std::env::current_dir()?.join(workspace)
                 };
 
-                let telemetry = xgauntlet_core::inspect_task_telemetry(
-                    &canonical_ws,
-                    task.as_deref(),
-                )?;
+                let telemetry =
+                    xgauntlet_core::inspect_task_telemetry(&canonical_ws, task.as_deref())?;
 
                 if *json {
                     println!("{}", serde_json::to_string_pretty(&telemetry)?);
@@ -1182,9 +1179,16 @@ fn render_task_scaffold_summary(res: &xgauntlet_core::TaskScaffoldResult) {
 }
 
 fn render_task_status_summary(telemetry: &xgauntlet_core::TaskTelemetry) {
-    println!("🛡️  Task Telemetry: [{}] {}", telemetry.task_id, telemetry.title);
+    println!(
+        "🛡️  Task Telemetry: [{}] {}",
+        telemetry.task_id, telemetry.title
+    );
     let intent_str = telemetry.intent.as_deref().unwrap_or("🚀 NEW FEATURE");
-    println!("   Status:   {} | Intent: {}", telemetry.status.as_str(), intent_str);
+    println!(
+        "   Status:   {} | Intent: {}",
+        telemetry.status.as_str(),
+        intent_str
+    );
     println!(
         "   Progress: Criteria: {}/{} {} {}%",
         telemetry.criteria.completed,
@@ -1210,7 +1214,7 @@ fn render_task_list_summary(items: &[xgauntlet_core::TaskSummaryItem]) {
         return;
     }
     println!("📋 Task Packages ({} total):", items.len());
-    println!("{:<6} {:<10} {:<18} {}", "ID", "STATUS", "PROGRESS", "TITLE");
+    println!("{:<6} {:<10} {:<18} TITLE", "ID", "STATUS", "PROGRESS");
     println!("{}", "-".repeat(75));
     for item in items {
         let num_str = item
@@ -1219,7 +1223,10 @@ fn render_task_list_summary(items: &[xgauntlet_core::TaskSummaryItem]) {
             .unwrap_or_else(|| "---".to_string());
         let prog_str = format!(
             "{}/{} {} {:>3}%",
-            item.criteria.completed, item.criteria.total, item.criteria.bar, item.criteria.percentage
+            item.criteria.completed,
+            item.criteria.total,
+            item.criteria.bar,
+            item.criteria.percentage
         );
         println!(
             "{:<6} {:<10} {:<18} {}",
@@ -1230,4 +1237,3 @@ fn render_task_list_summary(items: &[xgauntlet_core::TaskSummaryItem]) {
         );
     }
 }
-
