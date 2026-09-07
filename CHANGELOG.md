@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0] - 2026-09-07
+
+### 📚 Documentation & Universal Distribution
+- **Universal Global Installation Model**:
+  - Streamlined global CLI installation (`npm install -g xgauntlet`) as the single canonical standard across all tech stacks (Python, Go, Rust, TypeScript).
+  - Clarified sub-3ms PreToolUse gatekeeper hook execution latency in `$PATH` without Node.js startup overhead.
+- **Poly-Harness Sameksistens & Scaffolding Scope**:
+  - Documented in `README.md` and `packages/cli/README.md` the clear boundary between the 7 universal in-repo governance files and the 2 harness-specific agent configs (`CLAUDE.md`, `.agents/`).
+- **Surgical In-Repo Cleanup & Zero Lock-in**:
+  - Added dedicated de-installation guide distinguishing between surgical in-repo governance cleanup (`rm -f gauntlet.toml .agents/hooks.json ...`) without touching developer tasks or ADRs, and global CLI uninstallation (`npm uninstall -g xgauntlet`).
+
 ## [0.2.0] - 2026-09-07
 
 ### 🚀 Added

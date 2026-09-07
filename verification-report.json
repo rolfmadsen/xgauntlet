@@ -2,54 +2,40 @@
   "$schema": "https://agent-gauntlet.dev/schemas/v2/verification-report.json",
   "schema_version": "2.0.0",
   "execution_origin": "LOCAL",
-  "verdict": "PARTIAL",
+  "verdict": "FAILED",
   "task_contract": {
-    "task_id": "015-security-and-policy-boundary-hardening",
-    "task_title": "Task 015: P0 Security & Policy Boundary Hardening",
+    "task_id": "UNRESOLVED",
+    "task_title": "Task contract could not be resolved",
     "task_digest": "9f91bfc44f994dd6596f3cec3dba0c2a437feecc4ebcd32a0ff32807dcc4c0a5",
-    "acceptance_criteria": [
-      "`resolve_task_contract` returnerer en eksplicit fejl når specificeret opgave ikke findes eller ingen opgave er aktiv, og falder aldrig tilbage på en anden opgave eller syntetisk kontrakt.",
-      "`execute_gauntlet_pipeline` fejler lukket med verdict `FAILED`, hvis opgavekontrakten mangler eller er ugyldig.",
-      "`WorkspaceRelativePath` er implementeret og afviser `..`, absolutte stier (`/`, `C:\\`), UNC-stier og workspace escapes.",
-      "Alle harness adaptere (`Antigravity`, `Claude Code`, `Codex`) afviser path traversal angreb (fx `docs/../../.github/workflows/release.yml` og `/etc/passwd`) med `DENY` og exit code 1.",
-      "`HarnessAdapter::evaluate_invocation` eksekverer den indlejrede `WasmPolicyEngine` in-memory frem for in-process reference evaluator.",
-      "Kommandoer med kædningsoperatorer (`&&`, `;`, `|`) kan ikke omgås via hvidlistede præfikser (`git status`, `cargo test`) og afvises i read-only/uden aktiv opgave.",
-      "`gauntlet-policy-engine` deserialiserer requests og context typesikkert via `serde_json`, og afviser enhver syntaktisk fejl med `DENY` (grundkode 4037).",
-      "`DEFAULT_SCOPES` i manifest motoren inkluderer `.agents`, `.github`, `CONTEXT.md` og `CODING_STANDARDS.md`.",
-      "`verify_self_mutation` validerer `policy_digest`, `config_digest` og `task_digest` ud over kildefilsmanifestet.",
-      "`compute_digest_of_files` returnerer `Result<String, ManifestError>` og fejler hårdt hvis en fil ikke kan læses.",
-      "`digest_matches` i `drift.rs` kræver 100% eksakt streng-lighed uden præfiks-tolerance.",
-      "Ny adversarial regression testsuite (`tests/security_hardening_test.rs`) og udvidet paritetstestsuite beviser alle sikkerhedsinvarianter.",
-      "100% grøn testsuite på tværs af workspacet (`cargo test --workspace`)."
-    ],
+    "acceptance_criteria": [],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "77568253ad5d804715202729268b50f771dfa66f1fbcf0055f1a5bbb4b274d9d",
-    "source_manifest_digest_pre": "196909a786223d93d840b6b10af0ffb494e5c276f55c4478417748a33a85e5f4",
-    "source_manifest_digest_post": "196909a786223d93d840b6b10af0ffb494e5c276f55c4478417748a33a85e5f4",
-    "config_digest": "69a366cf73cf8abf0170f3328147b3cf5e5ec68e06e677ec952e98056855db23",
+    "source_content_digest": "a5be4f43115b63272a202ac42ba4bf821fa8e15e46195d3540e9f9e186df95a0",
+    "source_manifest_digest_pre": "904015887d9554527aecaeb8fff7b80fac6f8a82a74d514103bc47674a730c8e",
+    "source_manifest_digest_post": "904015887d9554527aecaeb8fff7b80fac6f8a82a74d514103bc47674a730c8e",
+    "config_digest": "c419753a46e2a0ea579ddd20a978bb01cfd1cde02212b29a1681b1fe0f66f7dc",
     "task_digest": "9f91bfc44f994dd6596f3cec3dba0c2a437feecc4ebcd32a0ff32807dcc4c0a5",
     "policy_digest": "63856aa1ec16d994bf2136f832ffcdfe3ea292800588da469d9a385e10a27452",
     "check_definitions_digest": "acd753b5c5b1f14c179a6a97e9eea55dc81aa7414ff9f84065c10555ce9d3d8a",
     "included_files_count": 141,
     "vcs": {
       "type": "git",
-      "head": "7c54d73",
-      "commit": "7c54d73",
+      "head": "73c97e4",
+      "commit": "73c97e4",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-09-07T16:39:46Z",
-    "finished_at": "2026-09-07T16:39:57Z",
-    "total_duration_seconds": 11.145814872,
+    "started_at": "2026-09-07T19:24:56Z",
+    "finished_at": "2026-09-07T19:25:07Z",
+    "total_duration_seconds": 11.198193235,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
       "platform": "linux",
-      "version": "0.2.0"
+      "version": "0.3.0"
     }
   },
   "checks": [
@@ -57,43 +43,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.154049651,
+      "duration_seconds": 1.4189317049999999,
       "optional": true,
       "passed": true,
-      "log_digest": "4cf86278c1e6d659943a46a3d7e3da429ac15be90f0f17742e24ef85228e7d3e"
+      "log_digest": "eb1c1a1ce10bcd8645ef7ae4434bb4df9699b930fd4ce33227966bb20b1c4c28"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.381879739,
+      "duration_seconds": 0.480318409,
       "optional": true,
       "passed": true,
-      "log_digest": "b52f58766f35f56be1f2700845fad968147c761095e712c232563710ad863a97"
+      "log_digest": "b1e729e030d6808ddc877aca64d5fb09d517a7b3d7872861b285e184f5796a35"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 9.19632882,
+      "duration_seconds": 8.891926712,
       "optional": false,
       "passed": true,
-      "log_digest": "d48a75b62d2a6e025154b26f93a1766a91d05c11918546cc102de20a836df901"
+      "log_digest": "76366a8b3958dccdad77cc8cf4df21490dff6a86e80b3bc4ef83a4f828cbcb69"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.27739864,
+      "duration_seconds": 0.276135772,
       "optional": true,
       "passed": true,
-      "log_digest": "31434c6f5199b678834c517b86fc27ff157151724a8a8c8289b229cac1bad6b8"
+      "log_digest": "3e447e43f777123c507024c511fb7d0bee81dd4b6ef18be3a3783641d05e210d"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.009982462,
+      "duration_seconds": 0.010854465,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -108,6 +94,16 @@
       "column_number": null,
       "message": "error: no such command: `mutants` | help: view all installed commands with `cargo --list` | help: find a package to install `mutants` with `cargo search cargo-mutants`",
       "remediation_hint": "Check full command output logs for root cause remediation.",
+      "raw_context": ""
+    },
+    {
+      "finding_type": "INVARIANT_VIOLATION",
+      "tool_name": "xgauntlet-task-resolution",
+      "file_path": "tasks",
+      "line_number": null,
+      "column_number": null,
+      "message": "Failed to resolve task contract: Task file not found: 'no active task found in tasks/'",
+      "remediation_hint": "Ensure a valid active task exists in tasks/ or specify an existing task via --task.",
       "raw_context": ""
     }
   ]
