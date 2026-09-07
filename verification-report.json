@@ -4,33 +4,41 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "default-task",
-    "task_title": "",
-    "task_digest": "4d0e0ba84753c7558cc2eab99107f236624f6d6a6858c38513518d9c556a08fe",
-    "acceptance_criteria": [],
+    "task_id": "012-dynamic-cockpit-hud-and-tdd-checkpoint-protocol",
+    "task_title": "Task 012: Dynamic Cockpit HUD & TDD Checkpoint Protocol",
+    "task_digest": "65b7a6a5ff69d3ce4a92b319fcb371ef9252dda2ea310129283f8f5d3e5fc8d8",
+    "acceptance_criteria": [
+      "`.agents/AGENTS.md` indeholder den udvidede dynamiske Cockpit Response HUD specifikation (Git context, Criteria progress bar, Scope indicator og Next Action linje).",
+      "`.agents/AGENTS.md` indeholder en formaliseret lokal TDD Phase Checkpoint protokol med faste Conventional Commit præfikser for SPEC, RED, GREEN, REFACTOR og DONE jf. ADR 0003.",
+      "`.agents/AGENTS.md` indeholder en trinvis sparringsprocedure for etablering af brugerens intent i idéfasen før oprettelse af taskfiler.",
+      "`crates/xgauntlet-core/src/features/scaffold/templates.rs` (`render_agents_md`) afspejler 100% de nye Cockpit HUD og checkpoint retningslinjer.",
+      "`crates/xgauntlet-core/tests/scaffold_test.rs` eller tilsvarende test verificerer at den genererede `AGENTS.md` indeholder Cockpit HUD og fase-checkpoint specifikationen.",
+      "`cargo run -p xgauntlet-cli -- check-spec -t 012-dynamic-cockpit-hud-and-tdd-checkpoint-protocol` validerer med 0 fejl.",
+      "Samtlige eksisterende tests i `xgauntlet` forbliver 100% grønne (`cargo test --workspace`)."
+    ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "6c4ea20522e38d5e4e74d4b9a8bdaaa3a9e64ccd0466aa196682e401f8c7e4d8",
-    "source_manifest_digest_pre": "6dbcb5f2ff09ad27268e5bbde16e23b4ae2e21d21fc9d51b3b0a35570880a5bb",
-    "source_manifest_digest_post": "6dbcb5f2ff09ad27268e5bbde16e23b4ae2e21d21fc9d51b3b0a35570880a5bb",
+    "source_content_digest": "2470b88ceb247c080f8e4f8d56c18686524f19114857967dbe24a0a7e84a90db",
+    "source_manifest_digest_pre": "0d4e1230c7268c33ac06445c3c4653f8582938e2437a8a4772e17f4f20a02539",
+    "source_manifest_digest_post": "0d4e1230c7268c33ac06445c3c4653f8582938e2437a8a4772e17f4f20a02539",
     "config_digest": "89a8114f04a80a963728aa0993ec9fb8de1b7d696935a6911b8260d4207ebf50",
-    "task_digest": "4d0e0ba84753c7558cc2eab99107f236624f6d6a6858c38513518d9c556a08fe",
-    "policy_digest": "eba9fbcf446cc26de5ebdfd82ecfb7198c2e351d44588efaf9866c0b517865c2",
+    "task_digest": "65b7a6a5ff69d3ce4a92b319fcb371ef9252dda2ea310129283f8f5d3e5fc8d8",
+    "policy_digest": "63856aa1ec16d994bf2136f832ffcdfe3ea292800588da469d9a385e10a27452",
     "check_definitions_digest": "acd753b5c5b1f14c179a6a97e9eea55dc81aa7414ff9f84065c10555ce9d3d8a",
-    "included_files_count": 104,
+    "included_files_count": 107,
     "vcs": {
       "type": "git",
-      "head": "0d31849",
-      "commit": "0d31849",
+      "head": "5fe0d5b",
+      "commit": "5fe0d5b",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-09-06T20:13:53Z",
-    "finished_at": "2026-09-06T20:14:04Z",
-    "total_duration_seconds": 11.816197887,
+    "started_at": "2026-09-07T15:45:11Z",
+    "finished_at": "2026-09-07T15:45:13Z",
+    "total_duration_seconds": 2.521692871,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -43,43 +51,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 8.452225231,
+      "duration_seconds": 0.11791754,
       "optional": true,
       "passed": true,
-      "log_digest": "dc8bb4fa0516aab1654cbf89de58f17ba9a62cdcb9542b5e1be9634ad6a2c9e8"
+      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.058014517,
+      "duration_seconds": 0.121266814,
       "optional": true,
       "passed": true,
-      "log_digest": "171f4a08064ebd485d4c86122b1d5e709800e8b519e7325498f940e88c706082"
+      "log_digest": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.906363859,
+      "duration_seconds": 1.902904612,
       "optional": false,
       "passed": true,
-      "log_digest": "11204021fb1b99fa3593adbf636b995a5581e91dbf5681292f1570be8ae19862"
+      "log_digest": "9aa05d664bf7fa327e62c899e9f01923edd5e3142825f037adc3b63c54eb98ed"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.275989967,
+      "duration_seconds": 0.267275282,
       "optional": true,
       "passed": true,
-      "log_digest": "23c0ff9c870222a90faf32d21ec23dd3ff7d97b9618a827847116d7d7dae7742"
+      "log_digest": "4332ffeed6d84445983150e62ddb650f03cb124dc54d3a825f163b46fb3f7f03"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.011826289,
+      "duration_seconds": 0.012293585,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"

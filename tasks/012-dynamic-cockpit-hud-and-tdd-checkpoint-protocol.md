@@ -2,14 +2,14 @@
 type: Task Package
 title: "Task 012: Dynamic Cockpit HUD & TDD Checkpoint Protocol"
 description: "Etablere normative retningslinjer og scaffold-skabeloner for det udvidede Response HUD samt lokal fase-bunden TDD commit-disciplin og idé-fase intent guide jf. ADR 0003"
-status: active
+status: completed
 generated: { by: process:xgauntlet-task-init, at: "2026-09-06T22:30:00Z" }
 tags: [hud, tdd, git-checkpoints, intent, guidelines, scaffold, adr-0003]
 ---
 
 # Task 012: Dynamic Cockpit HUD & TDD Checkpoint Protocol
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-09-06`
 
