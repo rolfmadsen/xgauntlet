@@ -1,9 +1,9 @@
 //! Data structures, options, and error models for Phase-Bound TDD Checkpoint Engine.
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::path::PathBuf;
 use std::str::FromStr;
-use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::features::config::ConfigError;

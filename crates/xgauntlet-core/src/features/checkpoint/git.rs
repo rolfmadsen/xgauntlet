@@ -75,9 +75,7 @@ pub fn stage_workspace_changes(workspace: &Path) -> Result<Vec<String>, Checkpoi
         .args(["diff", "--cached", "--name-only"])
         .current_dir(workspace)
         .output()
-        .map_err(|e| {
-            CheckpointError::GitError(format!("Failed to inspect cached diff: {e}"))
-        })?;
+        .map_err(|e| CheckpointError::GitError(format!("Failed to inspect cached diff: {e}")))?;
 
     if !diff_output.status.success() {
         return Err(CheckpointError::GitError(
@@ -110,9 +108,9 @@ pub fn execute_git_commit(
     }
     commit_cmd.current_dir(workspace);
 
-    let output = commit_cmd.output().map_err(|e| {
-        CheckpointError::GitError(format!("Failed to execute 'git commit': {e}"))
-    })?;
+    let output = commit_cmd
+        .output()
+        .map_err(|e| CheckpointError::GitError(format!("Failed to execute 'git commit': {e}")))?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
@@ -137,6 +135,8 @@ pub fn execute_git_commit(
         ));
     }
 
-    let oid = String::from_utf8_lossy(&oid_output.stdout).trim().to_string();
+    let oid = String::from_utf8_lossy(&oid_output.stdout)
+        .trim()
+        .to_string();
     Ok(oid)
 }

@@ -31,15 +31,13 @@ pub fn resolve_test_layer(workspace: &Path) -> LayerDefinition {
         }
     }
 
-    LayerDefinition::new(
-        "test",
-        vec!["cargo".to_string(), "test".to_string()],
-    )
+    LayerDefinition::new("test", vec!["cargo".to_string(), "test".to_string()])
 }
 
 /// Executes pre-flight invariant verification for a designated TDD phase.
 pub async fn run_preflight_check(options: &CheckpointOptions) -> Result<(), CheckpointError> {
-    let task_id = resolve_active_task_id(&options.workspace).ok_or(CheckpointError::NoActiveTask)?;
+    let task_id =
+        resolve_active_task_id(&options.workspace).ok_or(CheckpointError::NoActiveTask)?;
 
     match options.phase {
         CheckpointPhase::Spec => {

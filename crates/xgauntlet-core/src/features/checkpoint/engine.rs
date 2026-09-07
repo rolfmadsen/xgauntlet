@@ -6,8 +6,11 @@ use super::preflight::run_preflight_check;
 use crate::features::tasks::resolve_active_task_id;
 
 /// Orchestrates pre-flight validation, staging, and atomic local Git commits.
-pub async fn run_checkpoint(options: &CheckpointOptions) -> Result<CheckpointResult, CheckpointError> {
-    let task_id = resolve_active_task_id(&options.workspace).ok_or(CheckpointError::NoActiveTask)?;
+pub async fn run_checkpoint(
+    options: &CheckpointOptions,
+) -> Result<CheckpointResult, CheckpointError> {
+    let task_id =
+        resolve_active_task_id(&options.workspace).ok_or(CheckpointError::NoActiveTask)?;
 
     if !options.skip_verify {
         run_preflight_check(options).await?;
@@ -21,8 +24,7 @@ pub async fn run_checkpoint(options: &CheckpointOptions) -> Result<CheckpointRes
     let commit_message =
         compose_commit_message(options.phase, &task_id, options.message.as_deref());
 
-    let commit_oid =
-        execute_git_commit(&options.workspace, &commit_message, options.allow_empty)?;
+    let commit_oid = execute_git_commit(&options.workspace, &commit_message, options.allow_empty)?;
 
     Ok(CheckpointResult {
         phase: options.phase,

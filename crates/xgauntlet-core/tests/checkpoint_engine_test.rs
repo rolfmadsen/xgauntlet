@@ -526,8 +526,8 @@ optional = false
 
     assert!(output_green_ok.status.success());
     let stdout_green = String::from_utf8_lossy(&output_green_ok.stdout);
-    let parsed: serde_json::Value = serde_json::from_str(&stdout_green)
-        .expect("output must be valid JSON");
+    let parsed: serde_json::Value =
+        serde_json::from_str(&stdout_green).expect("output must be valid JSON");
     assert_eq!(parsed["phase"], "green");
     assert_eq!(parsed["task_id"], "014-phase-checkpoint-engine");
     assert!(parsed["commit_oid"].is_string());
