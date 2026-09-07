@@ -447,7 +447,7 @@ fn test_real_workspace_release_readiness() {
     };
 
     let report = check_release_readiness(&options).unwrap();
-    assert_eq!(report.declared_version, "0.1.0");
+    assert_eq!(report.declared_version, env!("CARGO_PKG_VERSION"));
     assert!(report.versions_by_source.contains_key("Cargo.toml"));
     assert!(report.versions_by_source.contains_key("package.json"));
     assert!(
@@ -521,5 +521,5 @@ fn test_cli_check_release_integration() {
     let parsed: serde_json::Value =
         serde_json::from_str(&json_str).expect("Valid JSON expected from --json");
     assert_eq!(parsed["is_ready"], true);
-    assert_eq!(parsed["declared_version"], "0.1.0");
+    assert_eq!(parsed["declared_version"], env!("CARGO_PKG_VERSION"));
 }

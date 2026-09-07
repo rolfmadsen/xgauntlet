@@ -4,10 +4,10 @@
 **Task Title**: Task 015: P0 Security & Policy Boundary Hardening  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `97975f784a80208f58a1bb70b93adb21215aabf788a01c54a14498feb88cb939`  
-**Timestamp**: `2026-09-07T16:29:14Z`  
-**Head**: `a27fb35`  
-**Commit**: `a27fb35`  
+**Source Manifest Digest**: `196909a786223d93d840b6b10af0ffb494e5c276f55c4478417748a33a85e5f4`  
+**Timestamp**: `2026-09-07T16:39:57Z`  
+**Head**: `7c54d73`  
+**Commit**: `7c54d73`  
 
 ## Acceptance Criteria
 
@@ -31,10 +31,10 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `lint` | `PASSED` | `0` | `0.165s` |
-| `types` | `PASSED` | `0` | `0.692s` |
-| `unit` | `PASSED` | `0` | `10.023s` |
-| `invariants` | `PASSED` | `0` | `0.254s` |
+| `lint` | `PASSED` | `0` | `0.154s` |
+| `types` | `PASSED` | `0` | `1.382s` |
+| `unit` | `PASSED` | `0` | `9.196s` |
+| `invariants` | `PASSED` | `0` | `0.277s` |
 | `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---

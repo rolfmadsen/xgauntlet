@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.0] - 2026-09-07
+
+### 🚀 Added
+- **Dynamic Cockpit HUD & TDD Checkpoint Protocol (`Task 012`)**:
+  - Live 5-line status card HUD for agent responses with phase, criteria progress, git telemetry, and quick-links.
+  - Strict local git commit protocol on TDD phase transitions (`SPEC`, `RED`, `GREEN`, `REFACTOR`, `DONE`) adhering to ADR 0003.
+- **Task Lifecycle & Intent Scaffolding (`Task 013`)**:
+  - CLI subcommand `xgauntlet task init <title>` with automatic slugification, number allocation, and OKF frontmatter template.
+  - CLI subcommand `xgauntlet task list` displaying active/done status, intent, criteria progress, and metadata.
+- **Phase Bound TDD Checkpoint Engine (`Task 014`)**:
+  - CLI subcommand `xgauntlet checkpoint <phase>` enforcing phase transitions, clean working tree, test state verification, and atomic git commit creation.
+
+### 🛡️ Hardened & Security
+- **P0 Security & Policy Boundary Hardening (`Task 015`)**:
+  - Integrated `WasmPolicyEngine` directly into harness adapters (`HarnessAdapter::evaluate_invocation`) executing in-memory Wasmtime evaluation with fail-closed semantics.
+  - Path traversal and workspace containment defense via `WorkspaceRelativePath` blocking escape attempts across all adapters.
+  - Command chaining defense (`&&`, `;`, `|`) blocking privilege escalation behind whitelisted command prefixes.
+  - Fail-closed task binding eliminating synthetic default-task fallbacks in the gauntlet pipeline.
+  - Typesafe serde deserialization inside the WebAssembly policy engine security boundary.
+  - Expanded anti-tamper manifest scopes (`.agents/`, `.github/`, `CONTEXT.md`, `CODING_STANDARDS.md`) and exact digest matching.
+
 ## [0.1.0] - 2026-09-06
 
 ### 🚀 Added

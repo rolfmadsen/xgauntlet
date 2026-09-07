@@ -166,7 +166,7 @@ async function main() {
         console.log(`  Platform: ${platform} (${arch})`);
         console.log(`  Version:  v${VERSION}`);
         console.log(`  Engine:   NOT_FOUND (${err.message})`);
-        console.log('  Notice:   Run `cargo build --release` in xGauntlet repo or download v0.1.0 release.');
+        console.log(`  Notice:   Run \`cargo build --release\` in xGauntlet repo or download v${VERSION} release.`);
         process.exit(0);
       }
 
