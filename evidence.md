@@ -1,23 +1,25 @@
 # Verification Report
 
-**Task ID**: `012-dynamic-cockpit-hud-and-tdd-checkpoint-protocol`  
-**Task Title**: Task 012: Dynamic Cockpit HUD & TDD Checkpoint Protocol  
+**Task ID**: `013-task-lifecycle-and-intent-scaffolding`  
+**Task Title**: Task 013: Task Lifecycle Engine & Intent Scaffolding  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `0d4e1230c7268c33ac06445c3c4653f8582938e2437a8a4772e17f4f20a02539`  
-**Timestamp**: `2026-09-07T15:45:13Z`  
-**Head**: `5fe0d5b`  
-**Commit**: `5fe0d5b`  
+**Source Manifest Digest**: `c5d563be501635ebbc733067e3da8836c773c78cc91c569a1ee946ad1b829e7b`  
+**Timestamp**: `2026-09-07T15:52:20Z`  
+**Head**: `3888c85`  
+**Commit**: `3888c85`  
 
 ## Acceptance Criteria
 
-- [x] `.agents/AGENTS.md` indeholder den udvidede dynamiske Cockpit Response HUD specifikation (Git context, Criteria progress bar, Scope indicator og Next Action linje).
-- [x] `.agents/AGENTS.md` indeholder en formaliseret lokal TDD Phase Checkpoint protokol med faste Conventional Commit præfikser for SPEC, RED, GREEN, REFACTOR og DONE jf. ADR 0003.
-- [x] `.agents/AGENTS.md` indeholder en trinvis sparringsprocedure for etablering af brugerens intent i idéfasen før oprettelse af taskfiler.
-- [x] `crates/xgauntlet-core/src/features/scaffold/templates.rs` (`render_agents_md`) afspejler 100% de nye Cockpit HUD og checkpoint retningslinjer.
-- [x] `crates/xgauntlet-core/tests/scaffold_test.rs` eller tilsvarende test verificerer at den genererede `AGENTS.md` indeholder Cockpit HUD og fase-checkpoint specifikationen.
-- [x] `cargo run -p xgauntlet-cli -- check-spec -t 012-dynamic-cockpit-hud-and-tdd-checkpoint-protocol` validerer med 0 fejl.
-- [x] Samtlige eksisterende tests i `xgauntlet` forbliver 100% grønne (`cargo test --workspace`).
+- [x] `crates/xgauntlet-core/src/features/tasks/lifecycle.rs` implementerer opgave-scaffolding med automatisk nummerinkrementering baseret på eksisterende `tasks/` filer.
+- [x] `TaskScaffolder` genererer en komplet opgavefil med gyldigt OKF v0.2 YAML frontmatter og samtlige standardsektioner (Formål, Acceptance Criteria, Must NOT, Revisions, Verifikation).
+- [x] `crates/xgauntlet-core/src/features/tasks/telemetry.rs` implementerer `TaskTelemetry` model og inspektion, som parser `- [x]` vs `- [ ]` samt indsamler Git branch, HEAD OID og dirty file count.
+- [x] `xgauntlet task new <name>` subcommand er tilgængelig i `crates/xgauntlet-cli` med understøttelse af `--intent`, `--title` og `--workspace`.
+- [x] `xgauntlet task status` subcommand er tilgængelig i `crates/xgauntlet-cli` med terminal progress-bar visning og maskinlæsbar `--json` eksport.
+- [x] `xgauntlet task list` subcommand er tilgængelig i `crates/xgauntlet-cli` med tabelvisning over samtlige opgaver og `--json` eksport.
+- [x] `crates/xgauntlet-core/tests/task_lifecycle_test.rs` verificerer autonummerering, template-validering, kriterie-tælling og telemetri-beregning i et mock-workspace.
+- [x] `cargo run -p xgauntlet-cli -- check-spec -t 013-task-lifecycle-and-intent-scaffolding` validerer med 0 fejl.
+- [x] 100% grøn testsuite på tværs af hele workspacet (`cargo test --workspace`).
 
 ---
 
@@ -25,10 +27,10 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `lint` | `PASSED` | `0` | `0.118s` |
-| `types` | `PASSED` | `0` | `0.121s` |
-| `unit` | `PASSED` | `0` | `1.903s` |
-| `invariants` | `PASSED` | `0` | `0.267s` |
+| `lint` | `PASSED` | `0` | `0.641s` |
+| `types` | `PASSED` | `0` | `0.488s` |
+| `unit` | `PASSED` | `0` | `1.882s` |
+| `invariants` | `PASSED` | `0` | `0.325s` |
 | `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
 
 ---
