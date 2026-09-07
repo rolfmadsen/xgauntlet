@@ -51,11 +51,14 @@ pub use features::scaffold::{
     ScaffoldOptions, ScaffoldResult, ScaffoldTemplate,
 };
 pub use features::tasks::{
-    check_all_tasks, check_task_specification, has_active_task, is_task_active, parse_frontmatter,
-    parse_task_content, parse_task_file, parse_task_status, resolve_active_task_id,
-    resolve_task_contract, validate_context_content, validate_context_glossary,
-    validate_iso_timestamp, Actor, GeneratedEntry, OkfError, OkfMetadata, SourceEntry,
-    SpecReadinessReport, TaskContract, TaskError, TaskPackageInfo, TaskStatus, VerifiedEntry,
+    check_all_tasks, check_task_specification, collect_git_telemetry, has_active_task,
+    inspect_task_telemetry, is_task_active, list_workspace_tasks, parse_criteria_progress,
+    parse_frontmatter, parse_task_content, parse_task_file, parse_task_status,
+    resolve_active_task_id, resolve_task_contract, validate_context_content,
+    validate_context_glossary, validate_iso_timestamp, Actor, CriteriaProgress, GeneratedEntry,
+    GitTelemetry, OkfError, OkfMetadata, ScaffoldTaskOptions, SourceEntry, SpecReadinessReport,
+    TaskContract, TaskError, TaskPackageInfo, TaskScaffoldResult, TaskScaffolder, TaskStatus,
+    TaskSummaryItem, TaskTelemetry, VerifiedEntry,
 };
 pub use features::wasm::{WasmError, WasmRuntimeHost};
 
