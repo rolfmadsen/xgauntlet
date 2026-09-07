@@ -47,18 +47,10 @@ xGauntlet følger samme enkle model som `git`: Værktøjet installeres én gang 
 
 ### 1. Installer xGauntlet (én gang på din maskine)
 
-Vælg den universelle NPM-installation (anbefalet for alle AI-agent brugere) eller installer direkte som native Rust-binær:
+Kør én enkelt kommando for at installere værktøjet globalt på tværs af alle programmeringssprog og platforme:
 
 ```bash
-# Universel standard (anbefalet for alle tech stacks):
 npm install -g xgauntlet
-
-# Alternativt via Cargo (hvis du foretrækker ren Rust uden Node):
-cargo install --path crates/xgauntlet-cli
-# eller: cargo install xgauntlet-cli
-
-# Alternativt via GitHub Releases:
-# Download og udpak den prækompilerede binær for din platform (Linux x64/ARM64, macOS, Windows 11)
 ```
 
 > [!TIP]
@@ -141,13 +133,9 @@ rm -f tasks/001-bootstrap.md docs/adr/0001-package-by-feature-architecture.md
 Hvis du ønsker at fjerne selve `xgauntlet`-programmet fra dit styresystem:
 
 ```bash
-# Hvis installeret via NPM:
 npm uninstall -g xgauntlet
 
-# Hvis installeret via Cargo:
-cargo uninstall xgauntlet-cli
-
-# Hvis du tidligere har afviklet via npx, slettes den lokale cache-binær:
+# Hvis du tidligere har afviklet flygtigt via npx, slettes den lokale cache-binær:
 rm -rf ~/.cache/xgauntlet
 ```
 
