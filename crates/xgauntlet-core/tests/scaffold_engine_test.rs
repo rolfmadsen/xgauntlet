@@ -377,3 +377,89 @@ fn test_cli_init_integration() {
     let parsed_force: serde_json::Value = serde_json::from_str(&stdout_force).unwrap();
     assert_eq!(parsed_force["overwritten_count"], 9);
 }
+
+#[test]
+fn test_scaffold_agents_md_contains_dynamic_cockpit_hud_and_checkpoint_protocol() {
+    let temp = TempDir::new("scaffold_cockpit_hud");
+    let ws = temp.path();
+
+    let options = ScaffoldOptions {
+        workspace: ws.to_path_buf(),
+        stack: Some("rust".to_string()),
+        force: false,
+        dry_run: false,
+        project_name: Some("test-cockpit".to_string()),
+    };
+
+    let result = run_scaffold(&options).expect("scaffold should succeed");
+    assert!(result.is_success);
+
+    let agents_md = fs::read_to_string(ws.join(".agents/AGENTS.md")).unwrap();
+
+    // 1. Cockpit Response HUD telemetry sections
+    assert!(
+        agents_md.contains("Git:"),
+        "agents.md should contain Git telemetry in HUD"
+    );
+    assert!(
+        agents_md.contains("Criteria:"),
+        "agents.md should contain Criteria progress in HUD"
+    );
+    assert!(
+        agents_md.contains("Scope:"),
+        "agents.md should contain Scope boundary in HUD"
+    );
+    assert!(
+        agents_md.contains("Next Action:"),
+        "agents.md should contain Next Action line in HUD"
+    );
+    assert!(
+        agents_md.contains("[Task](tasks/)")
+            && agents_md.contains("[Spec](spec.md)")
+            && agents_md.contains("[Glossary](CONTEXT.md)")
+            && agents_md.contains("[ADR](docs/adr/)")
+            && agents_md.contains("[Evidence](evidence.md)"),
+        "agents.md must preserve all five central navigation links"
+    );
+
+    // 2. Local TDD Phase Checkpoint Protocol (ADR 0003)
+    assert!(
+        agents_md.contains("Phase Checkpoint"),
+        "agents.md must specify Phase Checkpoint protocol"
+    );
+    assert!(
+        agents_md.contains("SPEC") && agents_md.contains("task("),
+        "agents.md must include SPEC checkpoint conventional commit format"
+    );
+    assert!(
+        agents_md.contains("RED") && agents_md.contains("test("),
+        "agents.md must include RED checkpoint conventional commit format"
+    );
+    assert!(
+        agents_md.contains("GREEN") && agents_md.contains("feat("),
+        "agents.md must include GREEN checkpoint conventional commit format"
+    );
+    assert!(
+        agents_md.contains("REFACTOR") && agents_md.contains("refactor("),
+        "agents.md must include REFACTOR checkpoint conventional commit format"
+    );
+    assert!(
+        agents_md.contains("DONE") && agents_md.contains("chore("),
+        "agents.md must include DONE checkpoint conventional commit format"
+    );
+    assert!(
+        agents_md.contains("git push"),
+        "agents.md must explicitly forbid git push jf. ADR 0003"
+    );
+
+    // 3. 4-step intent sparring in idea phase
+    assert!(
+        agents_md.contains("Intent-to-Task") || agents_md.contains("Sparring"),
+        "agents.md must include structured intent sparring procedure"
+    );
+    assert!(
+        agents_md.contains("Must NOT") || agents_md.contains("Invarianter"),
+        "agents.md must include Must NOT / invariant formulation in sparring"
+    );
+}
+
