@@ -85,16 +85,7 @@ fn digest_matches(expected: &str, current: &str) -> bool {
     if expected.is_empty() || current.is_empty() {
         return false;
     }
-    if expected == current {
-        return true;
-    }
-    // Prefix tolerance for truncated digests (16 hex chars)
-    if (expected.len() == 16 && current.starts_with(expected))
-        || (current.len() == 16 && expected.starts_with(current))
-    {
-        return true;
-    }
-    false
+    expected == current
 }
 
 /// Verifies that current workspace manifest matches the recorded verification report.

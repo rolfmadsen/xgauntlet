@@ -5,7 +5,7 @@ use std::path::Path;
 use thiserror::Error;
 
 use crate::features::config::{ConfigError, GauntletConfig};
-use crate::features::diagnostics::DiagnosticParser;
+use crate::features::diagnostics::{DiagnosticFinding, DiagnosticParser, FindingType};
 use crate::features::evidence::{
     compute_workspace_manifest, current_iso_utc, save_verification_report, verify_self_mutation,
     CheckSummary, ExecutionMetadata, ManifestError, ReportError, TaskContractSummary,
@@ -13,7 +13,7 @@ use crate::features::evidence::{
 };
 use crate::features::gauntlet::models::{GauntletReport, LayerDefinition, LayerRequirement};
 use crate::features::gauntlet::runner::run_gauntlet;
-use crate::features::tasks::{resolve_task_contract, TaskContract, TaskError};
+use crate::features::tasks::{resolve_task_contract, TaskError};
 
 #[derive(Debug, Error)]
 pub enum GauntletPipelineError {
@@ -59,19 +59,17 @@ pub async fn execute_gauntlet_pipeline(
     let manifest_pre = compute_workspace_manifest(workspace, None)?;
 
     // 2. Resolve Active Task Contract
-    let task_contract = match resolve_task_contract(workspace, options.task_id.as_deref()) {
-        Ok(tc) => tc,
-        Err(_) => {
-            let id = options
-                .task_id
-                .clone()
-                .unwrap_or_else(|| "default-task".to_string());
-            TaskContract {
-                task_id: id,
-                title: String::new(),
-                acceptance_criteria: Vec::new(),
-                unresolved_criteria: Vec::new(),
-            }
+    let (task_contract, task_error_finding) = match resolve_task_contract(workspace, options.task_id.as_deref()) {
+        Ok(tc) => (Some(tc), None),
+        Err(e) => {
+            let finding = DiagnosticFinding::new(
+                FindingType::InvariantViolation,
+                "xgauntlet-task-resolution",
+                options.task_id.clone().unwrap_or_else(|| "tasks".to_string()),
+                format!("Failed to resolve task contract: {e}"),
+                "Ensure a valid active task exists in tasks/ or specify an existing task via --task.",
+            );
+            (None, Some(finding))
         }
     };
 
@@ -117,6 +115,10 @@ pub async fn execute_gauntlet_pipeline(
 
     if let Err(violation) = &self_mutation_check {
         all_findings.push(violation.to_diagnostic_finding());
+    }
+
+    if let Some(finding) = task_error_finding {
+        all_findings.push(finding);
     }
 
     // 8. Compute Check Summaries
@@ -187,12 +189,17 @@ pub async fn execute_gauntlet_pipeline(
     let has_optional_failures = checks
         .iter()
         .any(|c| c.optional && (!c.passed || c.exit_code != 0));
-    let has_unresolved_criteria = !task_contract.unresolved_criteria.is_empty();
+    let is_task_invalid = task_contract.is_none();
+    let has_unresolved_criteria = task_contract
+        .as_ref()
+        .map(|tc| !tc.unresolved_criteria.is_empty())
+        .unwrap_or(true);
 
     let verdict = if is_self_mutated
         || has_mandatory_failures
         || !gauntlet_report.success
         || checks.is_empty()
+        || is_task_invalid
     {
         "FAILED"
     } else if has_unresolved_criteria {
@@ -203,17 +210,27 @@ pub async fn execute_gauntlet_pipeline(
         "PASSED"
     };
 
+    let (task_id, task_title, acceptance_criteria, unresolved_criteria) = match task_contract {
+        Some(tc) => (tc.task_id, tc.title, tc.acceptance_criteria, tc.unresolved_criteria),
+        None => (
+            "UNRESOLVED".to_string(),
+            "Task contract could not be resolved".to_string(),
+            Vec::new(),
+            Vec::new(),
+        ),
+    };
+
     let report = VerificationReport {
         schema: "https://agent-gauntlet.dev/schemas/v2/verification-report.json".to_string(),
         schema_version: "2.0.0".to_string(),
         execution_origin: "LOCAL".to_string(),
         verdict: verdict.to_string(),
         task_contract: TaskContractSummary {
-            task_id: task_contract.task_id,
-            task_title: task_contract.title,
+            task_id,
+            task_title,
             task_digest: manifest_post.task_digest.clone(),
-            acceptance_criteria: task_contract.acceptance_criteria,
-            unresolved_criteria: task_contract.unresolved_criteria,
+            acceptance_criteria,
+            unresolved_criteria,
         },
         workspace_state,
         execution_metadata,

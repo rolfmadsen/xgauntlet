@@ -274,16 +274,15 @@ pub fn resolve_task_contract(
                 }
             }
         }
-    }
-
-    if target_file.is_none() {
-        if let Some(active_id) = resolve_active_task_id(workspace) {
-            target_file = Some(tasks_dir.join(format!("{active_id}.md")));
+        if target_file.is_none() {
+            return Err(TaskError::TaskNotFound(task_id.to_string()));
         }
+    } else if let Some(active_id) = resolve_active_task_id(workspace) {
+        target_file = Some(tasks_dir.join(format!("{active_id}.md")));
     }
 
     let file_to_read = target_file.ok_or_else(|| {
-        TaskError::TaskNotFound(explicit_task_id.unwrap_or("active-task").to_string())
+        TaskError::TaskNotFound("no active task found in tasks/".to_string())
     })?;
 
     let info = parse_task_file(&file_to_read)?;

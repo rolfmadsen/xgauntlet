@@ -98,6 +98,9 @@ pub fn verify_self_mutation(
         || !removed_files.is_empty()
         || pre.source_manifest_digest != post.source_manifest_digest
         || pre.source_content_digest != post.source_content_digest
+        || pre.policy_digest != post.policy_digest
+        || pre.config_digest != post.config_digest
+        || pre.task_digest != post.task_digest
     {
         return Err(SelfMutationViolation {
             modified_files,

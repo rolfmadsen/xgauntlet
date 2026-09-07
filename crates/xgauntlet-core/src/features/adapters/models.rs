@@ -98,18 +98,55 @@ pub trait HarnessAdapter: Send + Sync {
         }
     }
 
-    /// Evaluates tool invocation against trusted enforcement context (ADR 0006).
+    /// Evaluates tool invocation against trusted enforcement context (ADR 0006, ADR 0007).
     ///
     /// Ensures callers cannot override context parameters such as `has_active_task`
-    /// or `read_only` from tool payload parameters.
+    /// or `read_only` from tool payload parameters, sanitizes paths against workspace
+    /// containment, and executes the embedded WebAssembly policy engine.
     fn evaluate_invocation(
         &self,
         workspace: &Path,
         payload: &serde_json::Value,
     ) -> AdapterHookVerdict {
-        let req = self.to_capability_request(payload);
+        let mut req = self.to_capability_request(payload);
+
+        // Path authorization hardening: sanitize paths against workspace containment
+        if matches!(req.action_type, ToolActionType::WriteFile | ToolActionType::ReadFile) {
+            match crate::features::policy::WorkspaceRelativePath::sanitize(workspace, &req.target_resource) {
+                Ok(clean) => {
+                    req.target_resource = clean.into_inner();
+                }
+                Err(err) => {
+                    return AdapterHookVerdict {
+                        allowed: false,
+                        decision: "deny".to_string(),
+                        reason: format!("Path traversal or workspace escape attempt detected: {err}"),
+                        reason_code: Some(4036),
+                    };
+                }
+            }
+        }
+
         let ctx = EnforcementContext::from_workspace(workspace, false);
-        let decision = evaluate_reference(&req, &ctx);
+
+        // Execute deterministic WebAssembly policy engine in-memory (ADR 0007)
+        let decision = match crate::features::policy::WasmPolicyEngine::new() {
+            Ok(mut engine) => match crate::features::policy::PolicyEvaluator::evaluate(&mut engine, &req, &ctx) {
+                Ok(d) => d,
+                Err(e) => {
+                    return AdapterHookVerdict {
+                        allowed: false,
+                        decision: "deny".to_string(),
+                        reason: format!("Wasm policy evaluation failed (fail-closed): {e}"),
+                        reason_code: Some(5000),
+                    };
+                }
+            },
+            Err(_) => {
+                // Fallback to reference evaluator if Wasm instantiation fails
+                evaluate_reference(&req, &ctx)
+            }
+        };
 
         AdapterHookVerdict {
             allowed: decision.verdict == DecisionVerdict::Allow,

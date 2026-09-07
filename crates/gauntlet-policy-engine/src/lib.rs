@@ -1,11 +1,9 @@
-//! Deterministic zero-ambient-authority WebAssembly policy engine for xGauntlet.
-//!
-//! Evaluates strongly-typed capability requests against an immutable trusted context.
-//! Pure functional logic: no filesystem, no network, no clock, no random, no secrets.
+use serde::{Deserialize, Serialize};
 
 pub const POLICY_VERSION: &str = env!("CARGO_PKG_VERSION");
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum ToolActionType {
     ReadFile,
     WriteFile,
@@ -24,23 +22,31 @@ impl ToolActionType {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CapabilityRequest {
     pub action_type: ToolActionType,
+    #[serde(default)]
     pub raw_tool_name: String,
+    #[serde(default)]
     pub target_resource: String,
+    #[serde(default)]
     pub payload_json: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EnforcementContext {
+    #[serde(default)]
     pub workspace_id: String,
+    #[serde(default)]
     pub has_active_task: bool,
+    #[serde(default)]
     pub active_task_id: String,
+    #[serde(default)]
     pub read_only: bool,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum DecisionVerdict {
     Allow,
     Deny,
@@ -59,7 +65,7 @@ impl DecisionVerdict {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PolicyDecision {
     pub verdict: DecisionVerdict,
     pub reason: String,
@@ -90,6 +96,21 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
         ToolActionType::WriteFile => {
             let target = req.target_resource.replace('\\', "/");
             let target_str = target.trim();
+
+            // Fail-closed path traversal and escape defense
+            if target_str.contains("..")
+                || target_str.starts_with('/')
+                || target_str.starts_with("//")
+                || (target_str.len() >= 2
+                    && target_str.as_bytes()[0].is_ascii_alphabetic()
+                    && target_str.as_bytes()[1] == b':')
+            {
+                return PolicyDecision {
+                    verdict: DecisionVerdict::Deny,
+                    reason: "Path traversal or illegal absolute path detected (fail-closed).".into(),
+                    reason_code: 4036,
+                };
+            }
 
             // Safe documentation & specification paths can be written/updated even during planning
             if target_str.starts_with("tasks/")
@@ -156,6 +177,10 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
                 "git clean -f",
                 "git branch -D",
                 "rm -rf /",
+                "rm -rf ~",
+                "| bash",
+                "| sh",
+                "| zsh",
             ];
             for pattern in &dangerous_patterns {
                 if cmd.contains(pattern) {
@@ -168,6 +193,33 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
                         reason_code: 4039,
                     };
                 }
+            }
+
+            // Reject newline injection in commands
+            if cmd.contains('\n') || cmd.contains('\r') {
+                return PolicyDecision {
+                    verdict: DecisionVerdict::Deny,
+                    reason: "Newline injection in command execution is strictly prohibited.".into(),
+                    reason_code: 4039,
+                };
+            }
+
+            // Command chaining with &&, ;, ||, | is prohibited from inheriting safe prefix allowances
+            let has_chaining =
+                cmd.contains("&&") || cmd.contains(';') || cmd.contains("||") || cmd.contains('|');
+            if has_chaining
+                && (cmd.contains("curl ")
+                    || cmd.contains("wget ")
+                    || cmd.contains("bash")
+                    || cmd.contains("sh")
+                    || cmd.contains("rm "))
+            {
+                return PolicyDecision {
+                    verdict: DecisionVerdict::Deny,
+                    reason: "Unsafe chained shell execution or remote script execution is prohibited."
+                        .into(),
+                    reason_code: 4039,
+                };
             }
 
             let safe_prefixes = [
@@ -191,7 +243,7 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
                 "xgauntlet check-evidence",
                 "xgauntlet check-spec",
             ];
-            if safe_prefixes.iter().any(|prefix| cmd.starts_with(prefix)) {
+            if !has_chaining && safe_prefixes.iter().any(|prefix| cmd.starts_with(prefix)) {
                 return PolicyDecision {
                     verdict: DecisionVerdict::Allow,
                     reason: "Read-only or verification command is permitted.".into(),
@@ -222,265 +274,34 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
     }
 }
 
-fn escape_json(s: &str) -> String {
-    let mut out = String::with_capacity(s.len() + 16);
-    for c in s.chars() {
-        match c {
-            '"' => out.push_str("\\\""),
-            '\\' => out.push_str("\\\\"),
-            '\n' => out.push_str("\\n"),
-            '\r' => out.push_str("\\r"),
-            '\t' => out.push_str("\\t"),
-            other => out.push(other),
-        }
-    }
-    out
-}
-
-fn find_top_level_key_value<'a>(json: &'a str, target_key: &str) -> Option<&'a str> {
-    let bytes = json.as_bytes();
-    let mut i = 0;
-    let len = bytes.len();
-    let mut depth: usize = 0;
-    let mut in_str = false;
-    let mut escaped = false;
-
-    while i < len {
-        let b = bytes[i];
-        if !in_str && b == b'{' {
-            depth = 1;
-            i += 1;
-            break;
-        }
-        i += 1;
-    }
-
-    while i < len {
-        let b = bytes[i];
-        if escaped {
-            escaped = false;
-            i += 1;
-            continue;
-        }
-        if b == b'\\' && in_str {
-            escaped = true;
-            i += 1;
-            continue;
-        }
-        if b == b'"' {
-            in_str = !in_str;
-            if in_str && depth == 1 {
-                let key_start = i + 1;
-                i += 1;
-                while i < len {
-                    if escaped {
-                        escaped = false;
-                    } else if bytes[i] == b'\\' {
-                        escaped = true;
-                    } else if bytes[i] == b'"' {
-                        let key = &json[key_start..i];
-                        in_str = false;
-                        i += 1;
-                        while i < len
-                            && (bytes[i] == b' '
-                                || bytes[i] == b'\t'
-                                || bytes[i] == b'\n'
-                                || bytes[i] == b'\r')
-                        {
-                            i += 1;
-                        }
-                        if i < len && bytes[i] == b':' {
-                            i += 1;
-                            while i < len
-                                && (bytes[i] == b' '
-                                    || bytes[i] == b'\t'
-                                    || bytes[i] == b'\n'
-                                    || bytes[i] == b'\r')
-                            {
-                                i += 1;
-                            }
-                            if key == target_key {
-                                let val_start = i;
-                                if i < len && bytes[i] == b'"' {
-                                    i += 1;
-                                    let mut s_escaped = false;
-                                    while i < len {
-                                        if s_escaped {
-                                            s_escaped = false;
-                                        } else if bytes[i] == b'\\' {
-                                            s_escaped = true;
-                                        } else if bytes[i] == b'"' {
-                                            i += 1;
-                                            return Some(&json[val_start..i]);
-                                        }
-                                        i += 1;
-                                    }
-                                    return Some(&json[val_start..i]);
-                                } else if i < len && (bytes[i] == b'{' || bytes[i] == b'[') {
-                                    let mut val_depth = 1;
-                                    let open_b = bytes[i];
-                                    let close_b = if open_b == b'{' { b'}' } else { b']' };
-                                    let mut v_in_str = false;
-                                    let mut v_escaped = false;
-                                    i += 1;
-                                    while i < len {
-                                        let vb = bytes[i];
-                                        if v_escaped {
-                                            v_escaped = false;
-                                        } else if vb == b'\\' && v_in_str {
-                                            v_escaped = true;
-                                        } else if vb == b'"' {
-                                            v_in_str = !v_in_str;
-                                        } else if !v_in_str {
-                                            if vb == open_b {
-                                                val_depth += 1;
-                                            } else if vb == close_b {
-                                                val_depth -= 1;
-                                                if val_depth == 0 {
-                                                    i += 1;
-                                                    return Some(&json[val_start..i]);
-                                                }
-                                            }
-                                        }
-                                        i += 1;
-                                    }
-                                    return Some(&json[val_start..i]);
-                                } else {
-                                    while i < len
-                                        && bytes[i] != b','
-                                        && bytes[i] != b'}'
-                                        && bytes[i] != b' '
-                                        && bytes[i] != b'\t'
-                                        && bytes[i] != b'\n'
-                                        && bytes[i] != b'\r'
-                                    {
-                                        i += 1;
-                                    }
-                                    return Some(&json[val_start..i]);
-                                }
-                            }
-                        }
-                        break;
-                    }
-                    i += 1;
-                }
-                continue;
-            }
-            i += 1;
-            continue;
-        }
-
-        if !in_str {
-            if b == b'{' || b == b'[' {
-                depth += 1;
-            } else if b == b'}' || b == b']' {
-                depth = depth.saturating_sub(1);
-                if depth == 0 {
-                    break;
-                }
-            }
-        }
-        i += 1;
-    }
-    None
-}
-
-fn unescape_json_str(s: &str) -> String {
-    if !s.starts_with('"') || !s.ends_with('"') || s.len() < 2 {
-        return s.to_string();
-    }
-    let inner = &s[1..s.len() - 1];
-    let mut out = String::with_capacity(inner.len());
-    let chars = inner.chars();
-    let mut escaped = false;
-    for c in chars {
-        if escaped {
-            match c {
-                'n' => out.push('\n'),
-                'r' => out.push('\r'),
-                't' => out.push('\t'),
-                '\\' => out.push('\\'),
-                '"' => out.push('"'),
-                _ => {
-                    out.push('\\');
-                    out.push(c);
-                }
-            }
-            escaped = false;
-        } else if c == '\\' {
-            escaped = true;
-        } else {
-            out.push(c);
-        }
-    }
-    out
-}
-
-fn extract_json_str(json: &str, key: &str) -> Option<String> {
-    let raw = find_top_level_key_value(json, key)?;
-    if raw.starts_with('"') {
-        Some(unescape_json_str(raw))
-    } else if raw.starts_with('{') || raw.starts_with('[') {
-        Some(raw.to_string())
-    } else {
-        Some(raw.trim().to_string())
-    }
-}
-
-fn extract_json_bool(json: &str, key: &str) -> Option<bool> {
-    let raw = find_top_level_key_value(json, key)?;
-    let trimmed = raw.trim();
-    if trimmed.starts_with("true") {
-        Some(true)
-    } else if trimmed.starts_with("false") {
-        Some(false)
-    } else {
-        None
-    }
-}
-
 pub fn parse_capability_request(json: &str) -> CapabilityRequest {
-    let action_str = extract_json_str(json, "action_type").unwrap_or_default();
-    let action_type = match action_str.as_str() {
-        "read_file" => ToolActionType::ReadFile,
-        "write_file" => ToolActionType::WriteFile,
-        "execute_command" => ToolActionType::ExecuteCommand,
-        _ => ToolActionType::Other,
-    };
-    let raw_tool_name = extract_json_str(json, "raw_tool_name").unwrap_or_default();
-    let target_resource = extract_json_str(json, "target_resource").unwrap_or_default();
-    let payload_json = extract_json_str(json, "payload_json").unwrap_or_default();
-
-    CapabilityRequest {
-        action_type,
-        raw_tool_name,
-        target_resource,
-        payload_json,
-    }
+    serde_json::from_str(json).unwrap_or(CapabilityRequest {
+        action_type: ToolActionType::Other,
+        raw_tool_name: String::new(),
+        target_resource: String::new(),
+        payload_json: String::new(),
+    })
 }
 
 pub fn parse_enforcement_context(json: &str) -> EnforcementContext {
-    let workspace_id = extract_json_str(json, "workspace_id").unwrap_or_default();
-    let has_active_task = extract_json_bool(json, "has_active_task").unwrap_or(false);
-    let active_task_id = extract_json_str(json, "active_task_id").unwrap_or_default();
-    let read_only = extract_json_bool(json, "read_only").unwrap_or(false);
-
-    EnforcementContext {
-        workspace_id,
-        has_active_task,
-        active_task_id,
-        read_only,
-    }
+    serde_json::from_str(json).unwrap_or(EnforcementContext {
+        workspace_id: String::new(),
+        has_active_task: false,
+        active_task_id: String::new(),
+        read_only: false,
+    })
 }
 
 impl PolicyDecision {
     pub fn to_json(&self) -> String {
-        format!(
-            r#"{{"verdict":"{}","reason":"{}","reason_code":{}}}"#,
-            self.verdict.as_str(),
-            escape_json(&self.reason),
-            self.reason_code
-        )
+        serde_json::to_string(self).unwrap_or_else(|_| {
+            format!(
+                r#"{{"verdict":"{}","reason":"{}","reason_code":{}}}"#,
+                self.verdict.as_str(),
+                self.reason,
+                self.reason_code
+            )
+        })
     }
 }
 
@@ -518,29 +339,22 @@ pub unsafe extern "C" fn evaluate_json(
 ) -> *mut u8 {
     let req_bytes = std::slice::from_raw_parts(req_ptr, req_len);
     let ctx_bytes = std::slice::from_raw_parts(ctx_ptr, ctx_len);
-    let req_str = std::str::from_utf8(req_bytes).unwrap_or("");
-    let ctx_str = std::str::from_utf8(ctx_bytes).unwrap_or("");
 
-    let req_trimmed = req_str.trim();
-    let ctx_trimmed = ctx_str.trim();
-    let decision = if req_trimmed.is_empty()
-        || !req_trimmed.starts_with('{')
-        || !req_trimmed.ends_with('}')
-        || ctx_trimmed.is_empty()
-        || !ctx_trimmed.starts_with('{')
-        || !ctx_trimmed.ends_with('}')
-    {
-        PolicyDecision {
+    let req_res: Result<CapabilityRequest, _> = serde_json::from_slice(req_bytes);
+    let ctx_res: Result<EnforcementContext, _> = serde_json::from_slice(ctx_bytes);
+
+    let decision = match (req_res, ctx_res) {
+        (Ok(req), Ok(ctx)) => evaluate(&req, &ctx),
+        _ => PolicyDecision {
             verdict: DecisionVerdict::Deny,
             reason: "Malformed or invalid JSON input to policy verifier (fail-closed).".into(),
             reason_code: 4037,
-        }
-    } else {
-        let req = parse_capability_request(req_str);
-        let ctx = parse_enforcement_context(ctx_str);
-        evaluate(&req, &ctx)
+        },
     };
-    let mut json_out = decision.to_json().into_bytes();
+
+    let mut json_out = serde_json::to_vec(&decision).unwrap_or_else(|_| {
+        b"{\"verdict\":\"deny\",\"reason\":\"Serialization error\",\"reason_code\":4037}".to_vec()
+    });
     json_out.shrink_to_fit();
 
     if !out_len.is_null() {

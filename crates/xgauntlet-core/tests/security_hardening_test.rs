@@ -291,3 +291,25 @@ fn test_drift_detection_rejects_truncated_prefix_matches() {
         "verify_workspace_state_match MUST reject truncated 16-char prefix digests as drift!"
     );
 }
+
+#[test]
+fn test_unreadable_file_fails_digest_computation() {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        use xgauntlet_core::features::evidence::compute_digest_of_files;
+
+        let dir = TempDir::new("xgauntlet_sec_unreadable");
+        let ws = dir.path();
+        let unreadable = ws.join("secret.rs");
+        fs::write(&unreadable, "data").unwrap();
+        fs::set_permissions(&unreadable, fs::Permissions::from_mode(0o000)).unwrap();
+
+        let res = compute_digest_of_files(ws, &[unreadable]);
+        assert!(
+            res.is_err(),
+            "compute_digest_of_files MUST return Err on unreadable file, got: {:?}",
+            res
+        );
+    }
+}

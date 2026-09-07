@@ -19,7 +19,11 @@ pub const DEFAULT_SCOPES: &[&str] = &[
     "tasks",
     "tools",
     "plugins",
+    ".agents",
+    ".github",
     "spec.md",
+    "CONTEXT.md",
+    "CODING_STANDARDS.md",
     "README.md",
     "Cargo.toml",
     "package.json",
@@ -209,7 +213,7 @@ fn get_file_mode(path: &Path, is_symlink: bool) -> String {
 }
 
 /// Computes length-prefixed SHA-256 digest over a sequence of files.
-pub fn compute_digest_of_files(root: &Path, files: &[PathBuf]) -> String {
+pub fn compute_digest_of_files(root: &Path, files: &[PathBuf]) -> Result<String, ManifestError> {
     let mut sorted_files = files.to_vec();
     sorted_files.sort();
 
@@ -222,17 +226,18 @@ pub fn compute_digest_of_files(root: &Path, files: &[PathBuf]) -> String {
             if is_excluded(rel) {
                 continue;
             }
-            if let Ok(data) = fs::read(&f) {
-                let rel_str = rel.to_string_lossy().replace('\\', "/");
-                let rel_bytes = rel_str.as_bytes();
-                hasher.update((rel_bytes.len() as u64).to_be_bytes());
-                hasher.update(rel_bytes);
-                hasher.update((data.len() as u64).to_be_bytes());
-                hasher.update(&data);
-            }
+            let data = fs::read(&f).map_err(|e| {
+                ManifestError::FileReadError(f.display().to_string(), e.to_string())
+            })?;
+            let rel_str = rel.to_string_lossy().replace('\\', "/");
+            let rel_bytes = rel_str.as_bytes();
+            hasher.update((rel_bytes.len() as u64).to_be_bytes());
+            hasher.update(rel_bytes);
+            hasher.update((data.len() as u64).to_be_bytes());
+            hasher.update(&data);
         }
     }
-    hex::encode(hasher.finalize())
+    Ok(hex::encode(hasher.finalize()))
 }
 
 /// Computes the deterministic canonical workspace manifest.
@@ -289,7 +294,7 @@ pub fn compute_workspace_manifest(
         canonical_root.join("Cargo.toml"),
         canonical_root.join("package.json"),
     ];
-    let config_digest = compute_digest_of_files(&canonical_root, &config_files);
+    let config_digest = compute_digest_of_files(&canonical_root, &config_files)?;
 
     let mut task_files = Vec::new();
     let task_dir = canonical_root.join("tasks");
@@ -303,7 +308,7 @@ pub fn compute_workspace_manifest(
             }
         }
     }
-    let task_digest = compute_digest_of_files(&canonical_root, &task_files);
+    let task_digest = compute_digest_of_files(&canonical_root, &task_files)?;
 
     let mut policy_files = vec![
         canonical_root.join("spec.md"),
@@ -333,7 +338,7 @@ pub fn compute_workspace_manifest(
             }
         }
     }
-    let policy_digest = compute_digest_of_files(&canonical_root, &policy_files);
+    let policy_digest = compute_digest_of_files(&canonical_root, &policy_files)?;
 
     // Git probe
     let vcs = probe_git(&canonical_root);

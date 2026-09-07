@@ -42,8 +42,8 @@ pub use features::gauntlet::{
     LayerDefinition, LayerExecutionStatus, LayerRequirement, LayerResult,
 };
 pub use features::policy::{
-    CapabilityRequest, DecisionVerdict, EnforcementContext, PolicyDecision, PolicyError,
-    PolicyEvaluator, ToolActionType, WasmPolicyEngine,
+    CapabilityRequest, DecisionVerdict, EnforcementContext, PathSecurityError, PolicyDecision,
+    PolicyError, PolicyEvaluator, ToolActionType, WasmPolicyEngine, WorkspaceRelativePath,
 };
 pub use features::release::{
     check_adr_coverage, check_release_readiness, extract_declared_versions,

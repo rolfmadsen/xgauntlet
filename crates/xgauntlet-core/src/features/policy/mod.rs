@@ -8,6 +8,9 @@ use thiserror::Error;
 
 use crate::features::wasm::{WasmError, WasmRuntimeHost};
 
+pub mod path;
+pub use path::{PathSecurityError, WorkspaceRelativePath};
+
 pub const DEFAULT_POLICY_WASM: &[u8] = include_bytes!("../../../wasm/gauntlet_policy.wasm");
 
 #[derive(Debug, Error)]
