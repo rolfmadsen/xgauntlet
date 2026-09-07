@@ -5,10 +5,12 @@ This repository follows the **Evidence-First Development & Clean Craftsmanship**
 ---
 
 ## 📊 Standard Response HUD Protocol
-Always format the top of every visible agent response with the transparent Task HUD card:
-> ### 🛡️ [Task: <Task Title / Intent>] `[<Task Type>: <Phase>]`
-> **Status**: `Phase: <SPEC | RED | GREEN | REFACTOR | GAUNTLET | DONE>` | `Gauntlet: <PASS | FAIL | PENDING>`
-> 📋 [Task](tasks/) • 📄 [Spec](spec.md) • 📖 [Glossary](CONTEXT.md) • 🏛️ [ADR](docs/adr/) • 🧪 [Evidence](evidence.md)
+Formatér altid toppen af samtlige synlige agent-svar med det transparente Cockpit Task HUD kort (maks. 5 linjer):
+> ### 🛡️ [Task: <Task Title / ID>] `[<Task Type>: <Phase>]`
+> **Status**: `Phase: <SPEC | RED | GREEN | REFACTOR | GAUNTLET | DONE>` | `Gauntlet: <PASS | FAIL | PENDING>` | `Git: <branch>@<oid> • <clean | dirty: N files>`
+> **Progress**: `Criteria: X/Y [■■□□□]` | `Scope: <affected crates/paths>`
+> **Links**: 📋 [Task](tasks/) • 📄 [Spec](spec.md) • 📖 [Glossary](CONTEXT.md) • 🏛️ [ADR](docs/adr/) • 🧪 [Evidence](evidence.md)
+> 💡 **Next Action:** <kort beskrivelse af næste umiddelbare handling>
 
 ---
 
@@ -70,6 +72,13 @@ Before writing code, classify intent and align with domain terminology:
 - 🐛 **BUG FIX:** Reproduce failure in a red test before changing production code.
 - 🧐 **CODE REVIEW / AUDIT:** Independent two-axis evaluation of changes against repository standards and spec invariants (use `code-review`).
 
+### 💡 Intent-to-Task Sparringsprocedure (Idéfase)
+Når en bruger henvender sig med et ustruktureret eller uformelt ønske, fungerer agenten som proaktiv sparringspartner gennem en 4-trins model før en formel opgavefil oprettes i `tasks/`:
+1. **Formål & Afgrænsning**: Afdæk det reelle behov, kerneegenskaber og operationelle grænser (hvad skal løses, og hvad skal eksplicit udelades?).
+2. **Invarianter & Must NOT**: Fastlæg negative begrænsninger og arkitektoniske barrierer, der under ingen omstændigheder må brydes (f.eks. Zero-Daemon, Zero Ambient Authority, ingen eksterne sockets eller utilsigtede afhængigheder).
+3. **RED Test-hypotese**: Formuler en præcis hypotese om den observerbare fejl, regressionsrisiko eller manglende adfærd, som en fejlet accepttest skal påvise.
+4. **ADR-triggere**: Vurder om ændringen introducerer irreversible trade-offs eller bryder eksisterende beslutninger i `docs/adr/`. Hvis en beslutning udfordres, skal en ny ADR formuleres.
+
 ---
 
 ## 🔄 Core Development Loop
@@ -77,17 +86,17 @@ Before writing code, classify intent and align with domain terminology:
 SPEC / GRILL → (Human Approval) → RED → GREEN → REFACTOR → GAUNTLET → EVIDENCE
 ```
 
-1. **SPEC / GRILL**: Concrete executable criteria in `tasks/<task>.md` and `spec.md`, aligned with `CONTEXT.md`.
-2. **RED**: Write black-box acceptance tests first, prove they fail with expected behavior.
-3. **GREEN**: Minimal implementation to make the tests pass.
-4. **REFACTOR**: Clean up code while assertions remain frozen.
-5. **GAUNTLET**: Execute multi-layer verification via `agent-gauntlet verify` / `sh tools/gauntlet.sh`:
-   - Linters & Static Analysis
-   - Type Checks (`pyright`, `tsc`, `cargo check`)
-   - Acceptance & Unit Tests
-   - Invariant & Property Tests (`hypothesis`, `proptest`)
-   - Mutation Testing Gauntlet (`mutants.py`)
-6. **EVIDENCE**: Persist verification report in `verification-report.json` and `evidence.md`.
+1. **SPEC / GRILL**: Konkrete eksekverbare kriterier i `tasks/<task>.md` og `spec.md`, afstemt med `CONTEXT.md`.
+2. **RED**: Skriv fejlede accepttests først, og bevis at de fejler med den forventede årsag.
+3. **GREEN**: Minimal implementation for at få testene til at passere.
+4. **REFACTOR**: Oprydning i kode og modularitet, mens assertionerne forbliver frosne.
+5. **GAUNTLET**: Kør multi-layer verifikation via `cargo run -p xgauntlet-cli -- verify` / `xgauntlet verify`:
+   - Linters & Static Analysis (`cargo clippy`, `cargo fmt --check`)
+   - Type Checks & Kompilering (`cargo check`)
+   - Acceptance & Unit Tests (`cargo test --workspace`)
+   - Invariant & Spec Tests (`check-spec`)
+   - Mutation Testing Gauntlet (`cargo mutants`)
+6. **EVIDENCE**: Forsegl verifikationsrapport og evidens i `verification-report.json` og `evidence.md`.
 7. **SESSION HANDOFF**: Display the clean `🏁 SESSION HANDOFF` card with the copy-paste starter prompt and inferred engineering role in the final user-facing response:
    > ### 🏁 SESSION HANDOFF • `<task_id>`
    > **Status**: `TASK: DONE` | **Evidens**: `FORSEGLET (Two-Tier Model)` | **Næste Rolle**: `<inferred_role>`
@@ -97,3 +106,19 @@ SPEC / GRILL → (Human Approval) → RED → GREEN → REFACTOR → GAUNTLET �
    > ```text
    > <handoff_prompt>
    > ```
+
+---
+
+## 🔒 Lokal TDD Phase Checkpoint Protokol (ADR 0003)
+For at sikre sporbarhed, atomiske tilbagerulningspunkter og beskytte mod context rot, skal agenten udføre lokale git commits (`git add` og `git commit`) ved hver fase-overgang i TDD-løkken jf. [ADR 0003](docs/adr/0003-surgical-gatekeeper-and-no-remote-push.md):
+- `SPEC`: `task(<id>): initialize task specification and criteria`
+- `RED`: `test(<id>): add failing acceptance test for <feature> [RED]`
+- `GREEN`: `feat(<id>): implement minimal logic to satisfy test [GREEN]`
+- `REFACTOR`: `refactor(<id>): clean up module boundaries and types [REFACTOR]`
+- `DONE`: `chore(<id>): seal evidence and mark task DONE`
+
+**Kritiske Invarianter (ADR 0003):**
+- Foretag ALDRIG remote publication handlinger (`git push`).
+- Foretag ALDRIG destruktive reset handlinger (`git reset --hard` eller `git clean -f`).
+- Alle commits forbliver strengt lokale checkpoints på udviklerens maskine.
+

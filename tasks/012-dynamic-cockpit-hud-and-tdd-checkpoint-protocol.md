@@ -37,13 +37,13 @@ Etablere de normative retningslinjer og scaffold-skabeloner for det udvidede Res
    - Opdatere `crates/xgauntlet-core/src/features/scaffold/templates.rs` (`render_agents_md`), så nye projekter initialiseret med `xgauntlet init` automatisk modtager disse retningslinjer.
 
 ## 📋 Acceptance Criteria
-- [ ] `.agents/AGENTS.md` indeholder den udvidede dynamiske Cockpit Response HUD specifikation (Git context, Criteria progress bar, Scope indicator og Next Action linje).
-- [ ] `.agents/AGENTS.md` indeholder en formaliseret lokal TDD Phase Checkpoint protokol med faste Conventional Commit præfikser for SPEC, RED, GREEN, REFACTOR og DONE jf. ADR 0003.
-- [ ] `.agents/AGENTS.md` indeholder en trinvis sparringsprocedure for etablering af brugerens intent i idéfasen før oprettelse af taskfiler.
-- [ ] `crates/xgauntlet-core/src/features/scaffold/templates.rs` (`render_agents_md`) afspejler 100% de nye Cockpit HUD og checkpoint retningslinjer.
-- [ ] `crates/xgauntlet-core/tests/scaffold_test.rs` eller tilsvarende test verificerer at den genererede `AGENTS.md` indeholder Cockpit HUD og fase-checkpoint specifikationen.
-- [ ] `cargo run -p xgauntlet-cli -- check-spec -t 012-dynamic-cockpit-hud-and-tdd-checkpoint-protocol` validerer med 0 fejl.
-- [ ] Samtlige eksisterende tests i `xgauntlet` forbliver 100% grønne (`cargo test --workspace`).
+- [x] `.agents/AGENTS.md` indeholder den udvidede dynamiske Cockpit Response HUD specifikation (Git context, Criteria progress bar, Scope indicator og Next Action linje).
+- [x] `.agents/AGENTS.md` indeholder en formaliseret lokal TDD Phase Checkpoint protokol med faste Conventional Commit præfikser for SPEC, RED, GREEN, REFACTOR og DONE jf. ADR 0003.
+- [x] `.agents/AGENTS.md` indeholder en trinvis sparringsprocedure for etablering af brugerens intent i idéfasen før oprettelse af taskfiler.
+- [x] `crates/xgauntlet-core/src/features/scaffold/templates.rs` (`render_agents_md`) afspejler 100% de nye Cockpit HUD og checkpoint retningslinjer.
+- [x] `crates/xgauntlet-core/tests/scaffold_test.rs` eller tilsvarende test verificerer at den genererede `AGENTS.md` indeholder Cockpit HUD og fase-checkpoint specifikationen.
+- [x] `cargo run -p xgauntlet-cli -- check-spec -t 012-dynamic-cockpit-hud-and-tdd-checkpoint-protocol` validerer med 0 fejl.
+- [x] Samtlige eksisterende tests i `xgauntlet` forbliver 100% grønne (`cargo test --workspace`).
 
 ## 🚫 Must NOT
 - Må IKKE tillade eller instruere i remote git publication handlinger (`git push`), `git reset --hard` eller `git clean -f` jf. ADR 0003.

@@ -462,4 +462,3 @@ fn test_scaffold_agents_md_contains_dynamic_cockpit_hud_and_checkpoint_protocol(
         "agents.md must include Must NOT / invariant formulation in sparring"
     );
 }
-
