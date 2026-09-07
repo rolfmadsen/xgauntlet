@@ -171,6 +171,28 @@ enum Commands {
         #[command(subcommand)]
         command: TaskCommands,
     },
+    /// Create a phase-bound TDD checkpoint with pre-flight invariant verification and local conventional git commit
+    Checkpoint {
+        /// TDD phase for this checkpoint: spec, red, green, refactor, done
+        #[arg(short, long)]
+        phase: String,
+
+        /// Commit message (conventional prefix will be formatted automatically if omitted)
+        #[arg(short, long)]
+        message: Option<String>,
+
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Skip phase pre-flight verification checks (emergency override)
+        #[arg(long)]
+        skip_verify: bool,
+
+        /// Output checkpoint result in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
 }
 
 #[derive(Subcommand, Debug)]
@@ -562,6 +584,67 @@ async fn main() -> anyhow::Result<()> {
                 }
             }
         },
+
+        Some(Commands::Checkpoint {
+            phase,
+            message,
+            workspace,
+            skip_verify,
+            json,
+        }) => {
+            let canonical_ws = if workspace.is_absolute() {
+                workspace.clone()
+            } else {
+                std::env::current_dir()?.join(workspace)
+            };
+
+            let parsed_phase = match phase.parse::<xgauntlet_core::CheckpointPhase>() {
+                Ok(p) => p,
+                Err(e) => {
+                    if *json {
+                        let err_json = serde_json::json!({
+                            "success": false,
+                            "phase": phase,
+                            "error": e.to_string(),
+                        });
+                        println!("{}", serde_json::to_string_pretty(&err_json)?);
+                    } else {
+                        eprintln!("🛑 Invalid checkpoint phase: {e}");
+                    }
+                    std::process::exit(1);
+                }
+            };
+
+            let mut opts = xgauntlet_core::CheckpointOptions::new(parsed_phase, &canonical_ws)
+                .with_skip_verify(*skip_verify);
+            if let Some(msg) = message {
+                opts = opts.with_message(msg);
+            }
+
+            match xgauntlet_core::run_checkpoint(&opts).await {
+                Ok(res) => {
+                    if *json {
+                        println!("{}", serde_json::to_string_pretty(&res)?);
+                    } else {
+                        render_checkpoint_summary(&res);
+                    }
+                }
+                Err(err) => {
+                    if *json {
+                        let err_json = serde_json::json!({
+                            "success": false,
+                            "phase": phase,
+                            "error": err.to_string(),
+                        });
+                        println!("{}", serde_json::to_string_pretty(&err_json)?);
+                    } else {
+                        eprintln!("\n=== xGauntlet Phase Checkpoint Engine ===");
+                        eprintln!("🛑 Checkpoint rejected: {err}");
+                    }
+                    std::process::exit(1);
+                }
+            }
+        }
 
         None => {
             println!(
@@ -1236,4 +1319,37 @@ fn render_task_list_summary(items: &[xgauntlet_core::TaskSummaryItem]) {
             item.title
         );
     }
+}
+
+fn render_checkpoint_summary(res: &xgauntlet_core::CheckpointResult) {
+    println!("\n=== xGauntlet Phase Checkpoint Engine ===");
+    let phase_badge = match res.phase {
+        xgauntlet_core::CheckpointPhase::Spec => "\x1b[36m[SPEC]\x1b[0m",
+        xgauntlet_core::CheckpointPhase::Red => "\x1b[31m[RED]\x1b[0m",
+        xgauntlet_core::CheckpointPhase::Green => "\x1b[32m[GREEN]\x1b[0m",
+        xgauntlet_core::CheckpointPhase::Refactor => "\x1b[33m[REFACTOR]\x1b[0m",
+        xgauntlet_core::CheckpointPhase::Done => "\x1b[35m[DONE]\x1b[0m",
+    };
+    println!(
+        "🛡️  Phase:      {} {}",
+        res.phase.as_str().to_uppercase(),
+        phase_badge
+    );
+    println!("📋 Task ID:    {}", res.task_id);
+    let oid_short = res
+        .commit_oid
+        .as_deref()
+        .map(|oid| if oid.len() >= 7 { &oid[..7] } else { oid })
+        .unwrap_or("unknown");
+    println!(
+        "🔒 Commit OID: {} ({})",
+        oid_short,
+        res.commit_oid.as_deref().unwrap_or("none")
+    );
+    println!("💬 Message:    {}", res.commit_message);
+    println!("📦 Staged:     {} file(s)", res.staged_files.len());
+    for f in &res.staged_files {
+        println!("   + {}", f);
+    }
+    println!();
 }

@@ -401,3 +401,159 @@ optional = false
     assert!(res.commit_oid.is_some());
     assert!(res.commit_message.contains("emergency override bypass"));
 }
+
+#[tokio::test]
+async fn test_done_phase_succeeds_and_creates_chore_commit() {
+    let temp = TempDir::new("done_phase_ws");
+    init_git_repo(temp.path());
+    setup_mock_glossary(temp.path());
+
+    // Setup completed task with all criteria resolved
+    let tasks_dir = temp.path().join("tasks");
+    fs::create_dir_all(&tasks_dir).unwrap();
+    let content = r#"---
+type: Task Package
+title: "Task 014: Test Task"
+description: "Test task description"
+status: active
+---
+
+# Task 014: Test Task
+
+**Status**: `ACTIVE`
+
+## 🎯 Formål
+Test task purpose.
+
+## 📋 Acceptance Criteria
+- [x] Criterion 1
+- [x] Criterion 2
+
+## 🚫 Must NOT
+- Must not violate invariants.
+"#;
+    fs::write(tasks_dir.join("014-phase-checkpoint-engine.md"), content).unwrap();
+
+    let config_content = r#"
+stack = "rust"
+save_evidence = true
+
+[[layers]]
+name = "unit"
+command = ["true"]
+optional = false
+"#;
+    fs::write(temp.path().join("gauntlet.toml"), config_content).unwrap();
+
+    let opts = CheckpointOptions::new(CheckpointPhase::Done, temp.path());
+    let res = run_checkpoint(&opts)
+        .await
+        .expect("DONE phase checkpoint must succeed when gauntlet passes");
+
+    assert_eq!(res.phase, CheckpointPhase::Done);
+    assert!(res.commit_oid.is_some());
+    assert!(res.commit_message.contains("chore(014):"));
+    assert!(res.commit_message.contains("DONE"));
+    assert!(temp.path().join("verification-report.json").is_file());
+    assert!(temp.path().join("evidence.md").is_file());
+}
+
+fn find_xgauntlet_binary() -> PathBuf {
+    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let candidates = [
+        manifest_dir.join("../../target/debug/xgauntlet"),
+        manifest_dir.join("../../target/release/xgauntlet"),
+        manifest_dir.join("../../target/debug/xgauntlet.exe"),
+        manifest_dir.join("../../target/release/xgauntlet.exe"),
+    ];
+    for c in candidates {
+        if c.is_file() {
+            return c;
+        }
+    }
+    PathBuf::from("xgauntlet")
+}
+
+#[test]
+fn test_cli_checkpoint_red_and_green_invariants() {
+    let bin_path = find_xgauntlet_binary();
+    if !bin_path.is_file() {
+        return;
+    }
+
+    let temp = TempDir::new("cli_checkpoint_test");
+    init_git_repo(temp.path());
+    setup_mock_glossary(temp.path());
+    setup_mock_task(temp.path(), "014-phase-checkpoint-engine", "active");
+
+    // 1. Tests pass (exit 0) -> --phase red MUST FAIL with exit code 1
+    let passing_config = r#"
+stack = "rust"
+[[layers]]
+name = "unit"
+command = ["true"]
+optional = false
+"#;
+    fs::write(temp.path().join("gauntlet.toml"), passing_config).unwrap();
+
+    let output_red_fail = Command::new(&bin_path)
+        .args([
+            "checkpoint",
+            "--phase",
+            "red",
+            "--workspace",
+            temp.path().to_str().unwrap(),
+        ])
+        .output()
+        .expect("failed to execute xgauntlet checkpoint");
+
+    assert!(!output_red_fail.status.success());
+    let stderr_red = String::from_utf8_lossy(&output_red_fail.stderr);
+    assert!(stderr_red.contains("RED phase unmet"));
+
+    // 2. Tests pass -> --phase green MUST SUCCEED with exit code 0 and output JSON
+    let output_green_ok = Command::new(&bin_path)
+        .args([
+            "checkpoint",
+            "--phase",
+            "green",
+            "--workspace",
+            temp.path().to_str().unwrap(),
+            "--json",
+        ])
+        .output()
+        .expect("failed to execute xgauntlet checkpoint");
+
+    assert!(output_green_ok.status.success());
+    let stdout_green = String::from_utf8_lossy(&output_green_ok.stdout);
+    let parsed: serde_json::Value = serde_json::from_str(&stdout_green)
+        .expect("output must be valid JSON");
+    assert_eq!(parsed["phase"], "green");
+    assert_eq!(parsed["task_id"], "014-phase-checkpoint-engine");
+    assert!(parsed["commit_oid"].is_string());
+
+    // 3. Tests fail (exit 1) -> --phase green MUST FAIL with exit code 1
+    let failing_config = r#"
+stack = "rust"
+[[layers]]
+name = "unit"
+command = ["false"]
+optional = false
+"#;
+    fs::write(temp.path().join("gauntlet.toml"), failing_config).unwrap();
+
+    let output_green_fail = Command::new(&bin_path)
+        .args([
+            "checkpoint",
+            "--phase",
+            "green",
+            "--workspace",
+            temp.path().to_str().unwrap(),
+        ])
+        .output()
+        .expect("failed to execute xgauntlet checkpoint");
+
+    assert!(!output_green_fail.status.success());
+    let stderr_green = String::from_utf8_lossy(&output_green_fail.stderr);
+    assert!(stderr_green.contains("GREEN phase unmet"));
+}
