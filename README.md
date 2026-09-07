@@ -37,62 +37,119 @@
 
 **xGauntlet** omgiver AI-genereret kode med et kompromisløst verifikations-gauntlet (Linters, Type-checkere, Unit tests, Invariant-tests og Mutationsafprøvning), håndhæver en deterministisk **Zero Ambient Authority WebAssembly policy-kerne** (`wit/gauntlet_policy.wit`) og oversætter rå fejludskrifter til **Actionable Diagnostics** i et feedback-loop, som AI-agenter kan handle direkte på.
 
-Bygget i **Rust** for lynhurtig sub-3ms koldstart uden baggrundsdæmoner, og distribueret via **NPX** for øjeblikkelig brug på tværs af **Linux**, **macOS** og **Windows 11**.
+Bygget i **Rust** for lynhurtig sub-3ms koldstart uden baggrundsdæmoner, og distribueret via **NPM** og **Cargo** for øjeblikkelig brug på tværs af **Linux**, **macOS** og **Windows 11**.
 
 ---
 
 ## 🚀 Hurtig Start & Installation
 
-Kom i gang på under 10 sekunder uden forudgående installation via NPX:
+xGauntlet følger samme enkle model som `git`: Værktøjet installeres én gang globalt på maskinen, hvorefter du initialiserer det lokalt i de repositories, du ønsker at sætte under governance.
 
-### 1. Initialiser dit projekt
-Stil dig i rodmappen på dit projekt (Rust, TypeScript, Python eller polyglot) og kør:
+### 1. Installer xGauntlet (én gang på din maskine)
+
+Vælg den universelle NPM-installation (anbefalet for alle AI-agent brugere) eller installer direkte som native Rust-binær:
+
+```bash
+# Universel standard (anbefalet for alle tech stacks):
+npm install -g xgauntlet
+
+# Alternativt via Cargo (hvis du foretrækker ren Rust uden Node):
+cargo install --path crates/xgauntlet-cli
+# eller: cargo install xgauntlet-cli
+
+# Alternativt via GitHub Releases:
+# Download og udpak den prækompilerede binær for din platform (Linux x64/ARM64, macOS, Windows 11)
+```
+
+> [!TIP]
+> **⚡ Hvorfor global installation frem for blot `npx`?**  
+> Når `xgauntlet` er installeret globalt i dit `$PATH`, kører gatekeeper-hooks (`xgauntlet hook ...`) direkte som maskinkode på **under 3 millisekunder** ved hvert eneste værktøjskald fra din AI-agent – helt uden Node.js koldstarts-overhead.  
+> *(Du kan dog stadig køre `npx xgauntlet init`, hvis du blot vil afprøve værktøjet flygtigt uden installation).*
+
+### 2. Initialiser dit projekt (In-Repo Governance)
+
+Gå ind i dit projekt – uanset om det er skrevet i Python, Rust, Go eller TypeScript:
 
 ```bash
 # Åbn dit projektkatalog
 cd ~/sti/til/dit-projekt
 
-# Scaffold samtlige in-repo styringsfiler direkte via NPX
-npx xgauntlet init
+# Scaffold in-repo styringsfiler:
+xgauntlet init
 ```
 
+`xgauntlet init` detekterer automatisk projektets programmeringssprog (via `package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod` osv.) og opretter de deklarative styringsfiler.
+
 #### 📦 Hvad `xgauntlet init` opretter lokalt i projektet (In-Repo Single Source of Truth):
-| Fil / Mappe | Formål |
-|---|---|
-| [`gauntlet.toml`](gauntlet.toml) | Deklarativ konfiguration af lintere, typer, tests og verifikationslag |
-| [`CONTEXT.md`](CONTEXT.md) | Domæne-glossary for projektet (Aristoteles' *definitio per genus et differentiam*) |
-| [`CODING_STANDARDS.md`](CODING_STANDARDS.md) | Multi-stack kodestandarder og arkitekturinvarianter |
-| [`spec.md`](spec.md) | Makro-specifikation og system-invarianter |
-| [`tasks/001-bootstrap.md`](tasks/) | Opgavemappe til håndhævelse af task-kontrakter & acceptkriterier |
-| [`docs/adr/`](docs/adr/) | Architecture Decision Records (ADR) til projekt-specifikke beslutninger |
-| [`.agents/AGENTS.md`](.agents/AGENTS.md) | Retningslinjer for AI-agenter, Response HUD og task-management |
-| [`.agents/hooks.json`](.agents/hooks.json) | Pre-Invocation Hook til gatekeeperen |
-| [`CLAUDE.md`](CLAUDE.md) | Retningslinjer og sikkerhedsinvarianter for Claude Code |
+
+| Fil / Mappe | Type | Formål |
+|---|---|---|
+| [`gauntlet.toml`](gauntlet.toml) | **Fælles** | Deklarativ konfiguration af lintere, typer, tests og verifikationslag |
+| [`CONTEXT.md`](CONTEXT.md) | **Fælles** | Domæne-glossary for projektet (Aristoteles' *definitio per genus et differentiam*) |
+| [`CODING_STANDARDS.md`](CODING_STANDARDS.md) | **Fælles** | Multi-stack kodestandarder og arkitekturinvarianter |
+| [`spec.md`](spec.md) | **Fælles** | Makro-specifikation og system-invarianter |
+| [`tasks/001-bootstrap.md`](tasks/) | **Fælles** | Opgavemappe til håndhævelse af task-kontrakter & acceptkriterier |
+| [`docs/adr/`](docs/adr/) | **Fælles** | Architecture Decision Records (ADR) til projekt-specifikke beslutninger |
+| [`.agents/AGENTS.md`](.agents/AGENTS.md) | **Antigravity / Gemini** | Retningslinjer for AI-agenter, Response HUD og task-management |
+| [`.agents/hooks.json`](.agents/hooks.json) | **Antigravity / Gemini** | PreToolUse gatekeeper hook konfiguration |
+| [`CLAUDE.md`](CLAUDE.md) | **Claude Code** | Retningslinjer og sikkerhedsinvarianter for Anthropic Claude Code |
+
+> [!NOTE]
+> **🤝 Poly-Harness Sameksistens:**  
+> De 7 øverste filer er helt universelle og styrer projektet for både mennesker og alle typer AI-agenter. De to harness-specifikke sæt (`CLAUDE.md` og `.agents/`) sameksisterer fredeligt uden konflikter, så du eller dit team frit kan skifte mellem f.eks. Google Antigravity IDE og Claude Code på det samme projekt. Hvis du udelukkende benytter én agent, kan det overskydende sæt frit slettes.
 
 > [!TIP]
 > **🛡️ Ikke-destruktiv Garanti (Safety First):**  
 > `xgauntlet init` overskriver **aldrig** eksisterende filer i dit projekt, medmindre du udtrykkeligt angiver `--force`.
 
-### 2. Kør Verifikation & Tjek Evidens
+### 3. Kør Verifikation & Tjek Evidens
+
 Når du eller agenten arbejder på en opgave i projektet, afvikles gauntlettet direkte:
 
 ```bash
 # Kør gauntlet og forseg evidens for en opgave:
-npx xgauntlet verify --task-id 001-bootstrap
+xgauntlet verify --task-id 001-bootstrap
 
 # Valider kildetræets integritet mod rapporten (drift-kontrol):
-npx xgauntlet check-evidence
+xgauntlet check-evidence
 
 # Valider opgavespecifikation og CONTEXT.md definitionsformat:
-npx xgauntlet check-spec
+xgauntlet check-spec
 
 # Kør miljø- og toolchain-diagnostik:
-npx xgauntlet doctor
+xgauntlet doctor
 ```
 
-> [!IMPORTANT]
-> **🚪 Zero Lock-in & Ren Afinstallation:**  
-> Alt ligger lokalt i dit Git-træ. xGauntlet efterlader ingen globale dæmoner, baggrundsprocesser eller systemændringer på din maskine.
+---
+
+### 🧹 Afinstallation & Oprydning
+
+xGauntlet kører efter **Zero Lock-in** princippet. Der er ingen baggrundsdæmoner, ingen systemd services og ingen skjulte registre:
+
+#### 1. Afkobl et projekt (Kirurgisk In-Repo Oprydning)
+For at fjerne xGauntlet fra et projekt, fjerner du blot de specifikke styringsfiler. Dine egne kodefiler, egne tasks og egne ADR'er berøres ikke:
+
+```bash
+# Fjern xGauntlets kontrolfiler i projektet:
+rm -f gauntlet.toml .agents/hooks.json verification-report.json evidence.md
+
+# (Valgfrit) Fjern de oprindeligt scaffoldede skabeloner, hvis du ikke ønsker at bevare dem:
+rm -f tasks/001-bootstrap.md docs/adr/0001-package-by-feature-architecture.md
+```
+
+#### 2. Afinstaller værktøjet fra maskinen (Global Cleanup)
+Hvis du ønsker at fjerne selve `xgauntlet`-programmet fra dit styresystem:
+
+```bash
+# Hvis installeret via NPM:
+npm uninstall -g xgauntlet
+
+# Hvis installeret via Cargo:
+cargo uninstall xgauntlet-cli
+
+# Hvis du tidligere har afviklet via npx, slettes den lokale cache-binær:
+rm -rf ~/.cache/xgauntlet
+```
 
 ---
 
