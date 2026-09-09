@@ -19,6 +19,26 @@ impl CodexAdapter {
     pub fn new() -> Self {
         Self
     }
+
+    /// Formats the canonical OpenAI Codex PostToolUse JSON payload on stdout.
+    pub fn format_post_tool_use_payload(_box_card: &str) -> serde_json::Value {
+        unimplemented!("format_post_tool_use_payload is not yet implemented")
+    }
+
+    /// Generates or merges the PostToolUse hook configuration for .codex/hooks.json.
+    pub fn generate_hooks_json(_existing_json: Option<&serde_json::Value>) -> serde_json::Value {
+        unimplemented!("generate_hooks_json is not yet implemented")
+    }
+
+    /// Scaffolds or updates .codex/hooks.json in the specified workspace with PostToolUse telemetry hook.
+    pub fn scaffold_hooks(_workspace: &Path) -> Result<std::path::PathBuf, std::io::Error> {
+        unimplemented!("scaffold_hooks is not yet implemented")
+    }
+
+    /// Wraps response output (e.g. from verify or checkpoint) with the Variant B Box-Drawing Telemetry Card.
+    pub fn wrap_response(_box_card: &str, _body: &str) -> String {
+        unimplemented!("wrap_response is not yet implemented")
+    }
 }
 
 impl HarnessAdapter for CodexAdapter {

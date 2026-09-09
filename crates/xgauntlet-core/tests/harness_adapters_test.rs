@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::PathBuf;
 use xgauntlet_core::features::adapters::{
-    get_adapter, ClaudeCodeAdapter, HarnessAdapter, SUPPORTED_HARNESSES,
+    get_adapter, ClaudeCodeAdapter, CodexAdapter, HarnessAdapter, SUPPORTED_HARNESSES,
 };
 use xgauntlet_core::features::policy::ToolActionType;
 
@@ -754,4 +754,209 @@ fn test_codex_hook_handler() {
     let (code_deny, out_deny) = adapter.handle_hook(ws, &deny_payload);
     assert_eq!(code_deny, 1);
     assert!(out_deny.contains("deny") || out_deny.contains("denied"));
+}
+
+#[test]
+fn test_codex_post_tool_use_payload_contract() {
+    let box_card = "┌─── xgauntlet: Task 017 ──────────────────────────────────────┐\n\
+                    │ Status: RED (Tests failing)   Scope: crates/xgauntlet-core   │\n\
+                    │ Progress: [██████░░░░] 60%    Invariants: 14/14 PASS         │\n\
+                    │ Git: main@093b533 (dirty)     Evidence: pending              │\n\
+                    │ Ref: tasks/017.md • spec.md • docs/adr/README.md             │\n\
+                    └──────────────────────────────────────────────────────────────┘";
+
+    let payload = CodexAdapter::format_post_tool_use_payload(box_card);
+
+    assert!(payload.is_object());
+    let hook_output = payload
+        .get("hookSpecificOutput")
+        .expect("hookSpecificOutput must be present");
+    assert_eq!(
+        hook_output.get("hookEventName").and_then(|v| v.as_str()),
+        Some("PostToolUse"),
+        "hookEventName must be PostToolUse"
+    );
+    assert_eq!(
+        hook_output
+            .get("additionalContext")
+            .and_then(|v| v.as_str()),
+        Some(box_card),
+        "additionalContext must match box card content"
+    );
+
+    // Serialization check
+    let serialized = serde_json::to_string(&payload).expect("must serialize");
+    assert!(serialized.contains("\"hookEventName\":\"PostToolUse\""));
+    assert!(serialized.contains("xgauntlet: Task 017"));
+}
+
+#[test]
+fn test_codex_hooks_json_generation_with_post_tool_use_hook() {
+    let hooks_doc = CodexAdapter::generate_hooks_json(None);
+
+    let hooks = hooks_doc
+        .get("hooks")
+        .expect("hooks object must be present");
+    let post_tool = hooks
+        .get("PostToolUse")
+        .and_then(|v| v.as_array())
+        .expect("PostToolUse array");
+    assert!(!post_tool.is_empty(), "PostToolUse array must not be empty");
+
+    let first = &post_tool[0];
+    assert_eq!(
+        first.get("matcher").and_then(|v| v.as_str()),
+        Some("apply_patch|Edit|Write|Bash"),
+        "matcher must target apply_patch|Edit|Write|Bash"
+    );
+
+    let inner_hooks = first
+        .get("hooks")
+        .and_then(|v| v.as_array())
+        .expect("inner hooks array");
+    assert_eq!(
+        inner_hooks[0].get("type").and_then(|v| v.as_str()),
+        Some("command")
+    );
+    assert_eq!(
+        inner_hooks[0].get("command").and_then(|v| v.as_str()),
+        Some("xgauntlet telemetry --format codex-hook")
+    );
+}
+
+#[test]
+fn test_codex_hooks_json_merge_preserves_custom_settings() {
+    let existing = serde_json::json!({
+        "version": "1.0",
+        "custom_key": "custom_val",
+        "hooks": {
+            "PreToolUse": [
+                {
+                    "matcher": "Bash",
+                    "hooks": [
+                        { "type": "command", "command": "my-script.sh" }
+                    ]
+                }
+            ]
+        }
+    });
+
+    let merged = CodexAdapter::generate_hooks_json(Some(&existing));
+
+    // Custom root fields preserved
+    assert_eq!(
+        merged.get("custom_key").and_then(|v| v.as_str()),
+        Some("custom_val")
+    );
+    assert_eq!(merged.get("version").and_then(|v| v.as_str()), Some("1.0"));
+
+    // Existing PreToolUse preserved
+    let hooks = merged.get("hooks").expect("hooks object");
+    assert!(hooks.get("PreToolUse").is_some());
+
+    // New PostToolUse added
+    let post_tool = hooks
+        .get("PostToolUse")
+        .and_then(|v| v.as_array())
+        .expect("PostToolUse array");
+    assert_eq!(
+        post_tool[0].get("matcher").and_then(|v| v.as_str()),
+        Some("apply_patch|Edit|Write|Bash")
+    );
+}
+
+#[test]
+fn test_codex_hook_scaffolding() {
+    let temp = TempDir::new("codex_scaffold");
+    let ws = &temp.path;
+
+    // First run creates .codex/hooks.json
+    let hooks_path = CodexAdapter::scaffold_hooks(ws).expect("scaffold must succeed");
+    assert!(hooks_path.is_file());
+    assert!(hooks_path.ends_with(".codex/hooks.json"));
+
+    let content = fs::read_to_string(&hooks_path).unwrap();
+    let json: serde_json::Value = serde_json::from_str(&content).unwrap();
+    assert!(json["hooks"]["PostToolUse"].is_array());
+    assert_eq!(
+        json["hooks"]["PostToolUse"][0]["matcher"],
+        "apply_patch|Edit|Write|Bash"
+    );
+    assert_eq!(
+        json["hooks"]["PostToolUse"][0]["hooks"][0]["command"],
+        "xgauntlet telemetry --format codex-hook"
+    );
+
+    // Add custom setting to verify non-destructive update
+    let mut modified = json.clone();
+    modified["custom_key"] = serde_json::json!("preserved");
+    fs::write(
+        &hooks_path,
+        serde_json::to_string_pretty(&modified).unwrap(),
+    )
+    .unwrap();
+
+    // Second run preserves custom settings
+    let hooks_path2 = CodexAdapter::scaffold_hooks(ws).expect("second scaffold must succeed");
+    let content2 = fs::read_to_string(&hooks_path2).unwrap();
+    let json2: serde_json::Value = serde_json::from_str(&content2).unwrap();
+    assert_eq!(json2["custom_key"], "preserved");
+    assert!(json2["hooks"]["PostToolUse"].is_array());
+}
+
+#[test]
+fn test_codex_response_wrapping_for_verify_and_checkpoint() {
+    let box_card = "┌─── xgauntlet: Task 017 ──────────────────────────────────────┐\n\
+                    │ Status: RED (Tests failing)   Scope: crates/xgauntlet-core   │\n\
+                    │ Progress: [██████░░░░] 60%    Invariants: 14/14 PASS         │\n\
+                    │ Git: main@093b533 (dirty)     Evidence: pending              │\n\
+                    │ Ref: tasks/017.md • spec.md • docs/adr/README.md             │\n\
+                    └──────────────────────────────────────────────────────────────┘";
+
+    // 1. Wrap verification response
+    let verify_output = "Verification Passed: 14/14 layers green.";
+    let wrapped_verify = CodexAdapter::wrap_response(box_card, verify_output);
+
+    assert!(
+        wrapped_verify.starts_with("┌─── xgauntlet: Task 017"),
+        "Wrapped response must start with box card header"
+    );
+    assert!(
+        wrapped_verify.contains("Ref: tasks/017.md • spec.md • docs/adr/README.md"),
+        "Wrapped response must contain Ref row"
+    );
+    assert!(
+        wrapped_verify.contains(verify_output),
+        "Wrapped response must contain the verification output"
+    );
+
+    // 2. Wrap checkpoint response
+    let checkpoint_output = "Phase Checkpoint [RED] committed: test(017): failing tests";
+    let wrapped_checkpoint = CodexAdapter::wrap_response(box_card, checkpoint_output);
+    assert!(wrapped_checkpoint.starts_with("┌─── xgauntlet: Task 017"));
+    assert!(wrapped_checkpoint.contains(checkpoint_output));
+
+    // 3. Wrap empty body returns box card
+    let wrapped_empty = CodexAdapter::wrap_response(box_card, "");
+    assert_eq!(wrapped_empty, box_card);
+}
+
+#[test]
+fn test_codex_validation_with_hooks() {
+    let adapter = get_adapter("codex").expect("codex adapter");
+    let temp = TempDir::new("codex_validation");
+    let ws = &temp.path;
+    let codex_dir = ws.join(".codex");
+    fs::create_dir_all(&codex_dir).unwrap();
+    fs::write(
+        codex_dir.join("hooks.json"),
+        r#"{"hooks":{"PostToolUse":[]}}"#,
+    )
+    .unwrap();
+
+    let res = adapter.validate_plugin(ws);
+    assert!(
+        res.valid && res.issues.is_empty(),
+        "Codex validation must pass with 0 issues when .codex/hooks.json is present"
+    );
 }
