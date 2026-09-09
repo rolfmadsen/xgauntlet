@@ -4,10 +4,10 @@
 **Task Title**: Task 019: HUD & Harness Adapter Hardening, OS Resilience & Refactor  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `4e3b327207e0247fafeb1503f15e7e45713d9f0cc208f3bf7009e92477284802`  
-**Timestamp**: `2026-09-09T20:30:08Z`  
-**Head**: `3cec70f`  
-**Commit**: `3cec70f`  
+**Source Manifest Digest**: `6fd41747c1b4fa731a3392ec1f7c4cff4d6a09f8dae7da61fcd64a154aaa043e`  
+**Timestamp**: `2026-09-09T20:34:43Z`  
+**Head**: `41210ad`  
+**Commit**: `41210ad`  
 
 ## Acceptance Criteria
 
@@ -29,10 +29,10 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `lint` | `PASSED` | `0` | `0.086s` |
-| `types` | `PASSED` | `0` | `0.072s` |
-| `unit` | `PASSED` | `0` | `8.887s` |
-| `invariants` | `PASSED` | `0` | `0.263s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
+| `lint` | `PASSED` | `0` | `0.580s` |
+| `types` | `PASSED` | `0` | `0.497s` |
+| `unit` | `PASSED` | `0` | `8.941s` |
+| `invariants` | `PASSED` | `0` | `0.289s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.009s` |
 
 ---

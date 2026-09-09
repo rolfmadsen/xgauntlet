@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.0] - 2026-09-09
+
+### 🚀 Added
+- **Multi-Harness Dynamic HUD Adapters (`Task 016`, `Task 017`, `Task 018`)**:
+  - **Claude Code**: `PostToolUse` event-interception der udskriver live Variant B Unicode box-drawing telemetri-kort efter tool-kald.
+  - **OpenAI Codex**: `PostToolUse` integration og response-wrapping (`wrap_response`) med adaptiv terminal/agent-telemetri.
+  - **Google Antigravity**: `PreInvocation` hook-interceptor via `xgauntlet hook antigravity`, der injicerer dynamisk Blockquote HUD forud for agent-prompts.
+  - CLI subcommand flags: Tilføjet `--harness <HARNESS>` til `verify` og `checkpoint` med automatisk telemetri-indkapsling.
+
+### 🛡️ Hardened & Refactored
+- **HUD & Harness Adapter Hardening & OS Resilience (`Task 019`)**:
+  - Garanteret fast 64-tegns linjebredde i `render_box_card` via deterministisk felt-budgettering og `truncate_with_ellipsis`.
+  - Sti-normalisering af Windows backslashes (`\`) til standard POSIX (`/`) i telemetri og task-referencer.
+  - DRY konsolidering af fælles `PostToolUse` JSON hook merge-logik mellem Claude Code og Codex.
+  - Typesikker `HarnessKind` med understøttelse af gængse aliaser (`claude`, `claude_code`, `codex`, `openai`, `openai_codex`, `antigravity`, `google_antigravity`).
+  - Robust fejlhåndtering (`?`) og registrering af scaffoldede filer under `xgauntlet init`.
+  - Automatisk opgradering af forældede python-hooks i `.agents/hooks.json` til `xgauntlet hook antigravity`.
+
 ## [0.3.0] - 2026-09-07
 
 ### 📚 Documentation & Universal Distribution
