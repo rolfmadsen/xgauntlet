@@ -2,35 +2,46 @@
   "$schema": "https://agent-gauntlet.dev/schemas/v2/verification-report.json",
   "schema_version": "2.0.0",
   "execution_origin": "LOCAL",
-  "verdict": "FAILED",
+  "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "UNRESOLVED",
-    "task_title": "Task contract could not be resolved",
-    "task_digest": "9f91bfc44f994dd6596f3cec3dba0c2a437feecc4ebcd32a0ff32807dcc4c0a5",
-    "acceptance_criteria": [],
+    "task_id": "016-claude-code-hud-adapter",
+    "task_title": "Task 016: Claude Code Telemetry HUD & Hook Adapter",
+    "task_digest": "67cad7ac9d760b823e2c4e1df22434406791fc6ea9cd7805ba3e9d7cbe7b179b",
+    "acceptance_criteria": [
+      "`crates/xgauntlet-core/src/features/tasks/telemetry.rs` indeholder `render_box_card(&self) -> String` og `render_box_compact(&self) -> String`.",
+      "Det genererede boks-kort følger Variant B med fast bredde, præcise hjørner (`┌`, `┐`, `└`, `┘`), status, progress, git drift og en `Ref:` række med rene stier.",
+      "`crates/xgauntlet-cli` understøtter `xgauntlet telemetry --format [box|claude-hook|json|ansi|compact-box]`.",
+      "Under `--format claude-hook` udskrives gyldig JSON med `hookSpecificOutput: { hookEventName: \"PostToolUse\", additionalContext: \"...\" }` indeholdende boks-kortet.",
+      "`crates/xgauntlet-core/src/features/adapters/claude_code/mod.rs` understøtter generering af `.claude/settings.json` med `PostToolUse` hooks (matcher: `Edit|Write`).",
+      "`PostToolUse` hooket i `.claude/settings.json` eksekverer `xgauntlet telemetry --format claude-hook`.",
+      "`xgauntlet scaffold init --harness claude_code` opretter eller opdaterer `.claude/settings.json` med det specificerede telemetry hook uden at overskrive brugerdefinerede felter.",
+      "Unit tests verificerer boks-rammer, kolonneflugtning og Claude Code JSON-wrapping for tomme, delvise og fuldt grønne tilstande.",
+      "Conformance integrationstest i `crates/xgauntlet-core/tests/harness_adapters_test.rs` verificerer Claude Code hook scaffolding.",
+      "`cargo test --workspace` forbliver 100% grøn uden regressioner for eksisterende Antigravity adapter."
+    ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "a5be4f43115b63272a202ac42ba4bf821fa8e15e46195d3540e9f9e186df95a0",
-    "source_manifest_digest_pre": "904015887d9554527aecaeb8fff7b80fac6f8a82a74d514103bc47674a730c8e",
-    "source_manifest_digest_post": "904015887d9554527aecaeb8fff7b80fac6f8a82a74d514103bc47674a730c8e",
+    "source_content_digest": "4946b6d5224485e41e6c5db62428ed2d4d84b4fdde3c493e10e889d46b17c22f",
+    "source_manifest_digest_pre": "93aef3ccbad5c95ed6c0a72f4e997bb84dc9e1355b550f793aecd04673ddfa3c",
+    "source_manifest_digest_post": "93aef3ccbad5c95ed6c0a72f4e997bb84dc9e1355b550f793aecd04673ddfa3c",
     "config_digest": "c419753a46e2a0ea579ddd20a978bb01cfd1cde02212b29a1681b1fe0f66f7dc",
-    "task_digest": "9f91bfc44f994dd6596f3cec3dba0c2a437feecc4ebcd32a0ff32807dcc4c0a5",
-    "policy_digest": "63856aa1ec16d994bf2136f832ffcdfe3ea292800588da469d9a385e10a27452",
+    "task_digest": "67cad7ac9d760b823e2c4e1df22434406791fc6ea9cd7805ba3e9d7cbe7b179b",
+    "policy_digest": "c6c11d809cc0dfd7831fc701090ee70aa02dc6cd58b09c5b7499ab7711550832",
     "check_definitions_digest": "acd753b5c5b1f14c179a6a97e9eea55dc81aa7414ff9f84065c10555ce9d3d8a",
-    "included_files_count": 141,
+    "included_files_count": 144,
     "vcs": {
       "type": "git",
-      "head": "73c97e4",
-      "commit": "73c97e4",
+      "head": "edda43a",
+      "commit": "edda43a",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-09-07T19:24:56Z",
-    "finished_at": "2026-09-07T19:25:07Z",
-    "total_duration_seconds": 11.198193235,
+    "started_at": "2026-09-09T19:56:48Z",
+    "finished_at": "2026-09-09T19:56:58Z",
+    "total_duration_seconds": 10.05019097,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -43,43 +54,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.4189317049999999,
+      "duration_seconds": 0.09186278,
       "optional": true,
       "passed": true,
-      "log_digest": "eb1c1a1ce10bcd8645ef7ae4434bb4df9699b930fd4ce33227966bb20b1c4c28"
+      "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.480318409,
+      "duration_seconds": 0.07447808,
       "optional": true,
       "passed": true,
-      "log_digest": "b1e729e030d6808ddc877aca64d5fb09d517a7b3d7872861b285e184f5796a35"
+      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 8.891926712,
+      "duration_seconds": 9.474958515,
       "optional": false,
       "passed": true,
-      "log_digest": "76366a8b3958dccdad77cc8cf4df21490dff6a86e80b3bc4ef83a4f828cbcb69"
+      "log_digest": "22cc389e91f3f711cf9699c798812160880e56b666ddcc5576302271e0953e83"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.276135772,
+      "duration_seconds": 0.268065398,
       "optional": true,
       "passed": true,
-      "log_digest": "3e447e43f777123c507024c511fb7d0bee81dd4b6ef18be3a3783641d05e210d"
+      "log_digest": "03549e39d08cd9c20502aa6dccd43c7fd683474a6cffd61b69a920dfb96dc801"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.010854465,
+      "duration_seconds": 0.009096992,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -94,16 +105,6 @@
       "column_number": null,
       "message": "error: no such command: `mutants` | help: view all installed commands with `cargo --list` | help: find a package to install `mutants` with `cargo search cargo-mutants`",
       "remediation_hint": "Check full command output logs for root cause remediation.",
-      "raw_context": ""
-    },
-    {
-      "finding_type": "INVARIANT_VIOLATION",
-      "tool_name": "xgauntlet-task-resolution",
-      "file_path": "tasks",
-      "line_number": null,
-      "column_number": null,
-      "message": "Failed to resolve task contract: Task file not found: 'no active task found in tasks/'",
-      "remediation_hint": "Ensure a valid active task exists in tasks/ or specify an existing task via --task.",
       "raw_context": ""
     }
   ]
