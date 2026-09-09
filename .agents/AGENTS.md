@@ -12,6 +12,8 @@ Formatér altid toppen af samtlige synlige agent-svar med det transparente Cockp
 > **Links**: 📋 [Task](tasks/) • 📄 [Spec](spec.md) • 📖 [Glossary](CONTEXT.md) • 🏛️ [ADR](docs/adr/README.md) • 🧪 [Evidence](evidence.md)
 > 💡 **Next Action:** <kort beskrivelse af næste umiddelbare handling>
 
+*Google Antigravity IDE benytter dette 5-linjers Markdown blockquote-kort med editor-klikbare navigation-links (`tasks/`, `spec.md`, `CONTEXT.md`, `docs/adr/README.md`, `evidence.md`) kombineret med automatisk PreInvocation-telemetri ind i modellens kontekst.*
+
 ---
 
 ## 🛠️ Bundled Agent Skills (`.agents/skills/`)

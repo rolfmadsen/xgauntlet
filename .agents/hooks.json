@@ -1,17 +1,28 @@
 {
   "agent-gauntlet-gatekeeper": {
-    "enabled": true,
-    "PreToolUse": [
+    "PreInvocation": [
       {
-        "matcher": ".*",
         "hooks": [
           {
-            "type": "command",
-            "command": "python3 -m agent_gauntlet.features.adapters.antigravity.hook",
-            "timeout": 30
+            "command": "xgauntlet telemetry --format antigravity-hook",
+            "type": "command"
           }
-        ]
+        ],
+        "matcher": ".*"
       }
-    ]
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "python3 -m agent_gauntlet.features.adapters.antigravity.hook",
+            "timeout": 30,
+            "type": "command"
+          }
+        ],
+        "matcher": ".*"
+      }
+    ],
+    "enabled": true
   }
 }

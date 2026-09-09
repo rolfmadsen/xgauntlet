@@ -311,6 +311,17 @@ fn render_hooks_json() -> String {
           }
         ]
       }
+    ],
+    "PreInvocation": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "xgauntlet telemetry --format antigravity-hook"
+          }
+        ]
+      }
     ]
   }
 }

@@ -185,7 +185,7 @@ enum Commands {
         #[arg(short, long, default_value = ".")]
         workspace: std::path::PathBuf,
 
-        /// Format to output telemetry in: box, claude-hook, codex-hook, json, ansi, compact-box
+        /// Format to output telemetry in: box, antigravity-hook, antigravity-hud, claude-hook, codex-hook, json, ansi, compact-box
         #[arg(short, long, default_value = "box")]
         format: String,
     },
@@ -507,6 +507,8 @@ async fn main() -> anyhow::Result<()> {
                     let _ = xgauntlet_core::ClaudeCodeAdapter::scaffold_settings(&canonical_ws);
                 } else if (h == "codex" || h == "openai_codex") && !*dry_run {
                     let _ = xgauntlet_core::CodexAdapter::scaffold_hooks(&canonical_ws);
+                } else if (h == "antigravity" || h == "google_antigravity") && !*dry_run {
+                    let _ = xgauntlet_core::AntigravityAdapter::scaffold_hooks(&canonical_ws);
                 }
             }
 
@@ -630,6 +632,20 @@ async fn main() -> anyhow::Result<()> {
             let telemetry = xgauntlet_core::inspect_task_telemetry(&canonical_ws, task.as_deref())?;
 
             match format.to_ascii_lowercase().as_str() {
+                "antigravity-hook" | "antigravity" => {
+                    let ephemeral =
+                        xgauntlet_core::AntigravityAdapter::format_ephemeral_telemetry(&telemetry);
+                    let payload = xgauntlet_core::AntigravityAdapter::format_pre_invocation_payload(
+                        &ephemeral,
+                    );
+                    println!("{}", serde_json::to_string_pretty(&payload)?);
+                }
+                "antigravity-hud" | "blockquote" | "hud" => {
+                    println!(
+                        "{}",
+                        xgauntlet_core::AntigravityAdapter::render_blockquote_hud(&telemetry, None)
+                    );
+                }
                 "claude-hook" | "claude" => {
                     let box_card = telemetry.render_box_card();
                     let payload =

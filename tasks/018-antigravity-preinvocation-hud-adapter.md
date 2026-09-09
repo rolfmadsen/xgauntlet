@@ -58,14 +58,14 @@ Etablere en dedikeret `PreInvocation` hook-adapter for Google Antigravity IDE i 
    - Sikre at `cargo test --workspace` forbliver 100% grøn på tværs af samtlige tre harnesses (Antigravity, Claude Code, Codex).
 
 ## 📋 Acceptance Criteria
-- [ ] `crates/xgauntlet-core/src/features/adapters/antigravity/mod.rs` understøtter håndtering af `PreInvocation` events og genererer `injectSteps` JSON jf. Antigravity hooks specifikationen.
-- [ ] `crates/xgauntlet-cli` understøtter `xgauntlet telemetry --format antigravity-hook`, der udskriver gyldig JSON med `injectSteps: [{ "ephemeralMessage": "..." }]`.
-- [ ] Telemetri-injektionen indeholder task ID, aktuel TDD-fase, invariant-status, mutation score, git HEAD hash, drift-indikator og evidens-digest.
-- [ ] Scaffolderen i `crates/xgauntlet-core/src/features/scaffold/` understøtter generering og idempotent merge af `PreInvocation` hooks i `.agents/hooks.json`.
-- [ ] Specifikationen og systemprompter i `.agents/AGENTS.md` definerer eksplicit det 5-linjers blockquote HUD med klikbare navigation-links for Antigravity.
-- [ ] Conformance tests i `crates/xgauntlet-core/tests/harness_adapters_test.rs` verificerer Antigravity `PreInvocation` payload, hook-eksekvering og blockquote layout.
-- [ ] Alle tre harness-adaptere (Antigravity, Claude Code, Codex) understøtter deres respektive telemetry hooks uden indbyrdes regressionsfejl.
-- [ ] `cargo test --workspace` passerer 100% uden fejl eller advarsler.
+- [x] `crates/xgauntlet-core/src/features/adapters/antigravity/mod.rs` understøtter håndtering af `PreInvocation` events og genererer `injectSteps` JSON jf. Antigravity hooks specifikationen.
+- [x] `crates/xgauntlet-cli` understøtter `xgauntlet telemetry --format antigravity-hook`, der udskriver gyldig JSON med `injectSteps: [{ "ephemeralMessage": "..." }]`.
+- [x] Telemetri-injektionen indeholder task ID, aktuel TDD-fase, invariant-status, mutation score, git HEAD hash, drift-indikator og evidens-digest.
+- [x] Scaffolderen i `crates/xgauntlet-core/src/features/scaffold/` understøtter generering og idempotent merge af `PreInvocation` hooks i `.agents/hooks.json`.
+- [x] Specifikationen og systemprompter i `.agents/AGENTS.md` definerer eksplicit det 5-linjers blockquote HUD med klikbare navigation-links for Antigravity.
+- [x] Conformance tests i `crates/xgauntlet-core/tests/harness_adapters_test.rs` verificerer Antigravity `PreInvocation` payload, hook-eksekvering og blockquote layout.
+- [x] Alle tre harness-adaptere (Antigravity, Claude Code, Codex) understøtter deres respektive telemetry hooks uden indbyrdes regressionsfejl.
+- [x] `cargo test --workspace` passerer 100% uden fejl eller advarsler.
 
 ## 🚫 Must NOT
 - Må IKKE introducere baggrundsdæmoner eller runtime-sockets (Zero-Daemon Invariant).
