@@ -1311,3 +1311,67 @@ fn test_codex_scaffold_init_integration() {
         "Workspace with scaffolded codex hooks must validate with 0 issues"
     );
 }
+
+#[test]
+fn test_antigravity_hooks_json_upgrades_legacy_python_hook() {
+    let legacy_json = serde_json::json!({
+        "agent-gauntlet-gatekeeper": {
+            "enabled": true,
+            "PreToolUse": [
+                {
+                    "matcher": ".*",
+                    "hooks": [
+                        {
+                            "type": "command",
+                            "command": "python3 -m agent_gauntlet.features.adapters.antigravity.hook",
+                            "timeout": 30
+                        }
+                    ]
+                }
+            ]
+        }
+    });
+
+    let merged = AntigravityAdapter::generate_hooks_json(Some(&legacy_json));
+    let pre_tool = &merged["agent-gauntlet-gatekeeper"]["PreToolUse"];
+    let hooks = &pre_tool[0]["hooks"];
+    let cmd = hooks[0]["command"].as_str().unwrap();
+
+    // The legacy python hook MUST be upgraded to xgauntlet hook antigravity
+    assert_eq!(
+        cmd, "xgauntlet hook antigravity",
+        "Legacy python hook must be replaced with xgauntlet hook antigravity"
+    );
+    assert!(!serde_json::to_string(&merged).unwrap().contains("python3 -m agent_gauntlet"));
+}
+
+#[test]
+fn test_harness_adapter_aliases_consistency() {
+    // All variants of Codex harness alias must resolve consistently
+    for alias in ["codex", "openai", "openai_codex"] {
+        assert!(
+            get_adapter(alias).is_some(),
+            "get_adapter must resolve alias '{}'",
+            alias
+        );
+    }
+
+    // All variants of Antigravity harness alias must resolve consistently
+    for alias in ["antigravity", "google_antigravity"] {
+        assert!(
+            get_adapter(alias).is_some(),
+            "get_adapter must resolve alias '{}'",
+            alias
+        );
+    }
+
+    // All variants of Claude harness alias must resolve consistently
+    for alias in ["claude_code", "claude"] {
+        assert!(
+            get_adapter(alias).is_some(),
+            "get_adapter must resolve alias '{}'",
+            alias
+        );
+    }
+}
+

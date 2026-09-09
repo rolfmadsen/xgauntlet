@@ -446,3 +446,91 @@ fn test_render_box_compact() {
     assert!(compact.contains("xgauntlet"));
     assert!(compact.contains("001-compact-task"));
 }
+
+#[test]
+fn test_render_box_card_long_strings_ellipsing_and_fixed_64_width() {
+    let temp = TempDir::new("box_long_strings");
+    let ws = temp.path();
+    setup_mock_glossary(ws);
+
+    let opt = ScaffoldTaskOptions {
+        name: "long-strings-feature".to_string(),
+        title: Some("Long Strings Feature".to_string()),
+        intent: Some("feature".to_string()),
+        purpose: Some("Testing long strings ellipsing".to_string()),
+        workspace: ws.to_path_buf(),
+        force: false,
+    };
+    TaskScaffolder::scaffold(&opt).unwrap();
+
+    let mut telemetry = inspect_task_telemetry(ws, Some("001"))
+        .expect("inspect telemetry must succeed")
+        .with_scope("crates/xgauntlet-core,crates/xgauntlet-cli,crates/xgauntlet-policy,crates/extra")
+        .with_invariants("14/14 PASS (all verification layers green and verified)")
+        .with_evidence("evidence-manifest-verification-digest-signature-sha256")
+        .with_phase("RED (Tests failing with comprehensive assertions)");
+
+    telemetry.task_id = "019-extremely-long-task-identifier-with-many-words".to_string();
+    telemetry.git.branch = "feature/super-long-branch-name-that-definitely-exceeds-standard-limits".to_string();
+    telemetry.git.dirty_count = 142;
+    telemetry.git.is_clean = false;
+
+    let card = telemetry.render_box_card();
+    let lines: Vec<&str> = card.lines().collect();
+
+    assert_eq!(lines.len(), 6, "Box card must always be exactly 6 lines");
+
+    // Every single line MUST be exactly 64 characters wide even with long strings!
+    for (idx, line) in lines.iter().enumerate() {
+        assert_eq!(
+            line.chars().count(),
+            64,
+            "Line {} length should be exactly 64, but got {}: '{}'",
+            idx + 1,
+            line.chars().count(),
+            line
+        );
+        if idx == 0 {
+            assert!(line.starts_with("┌─── xgauntlet: "));
+            assert!(line.ends_with("┐"));
+        } else if idx == 5 {
+            assert!(line.starts_with("└"));
+            assert!(line.ends_with("┘"));
+        } else {
+            assert!(line.starts_with("│ "), "Line {} must start with border '│ '", idx + 1);
+            assert!(line.ends_with(" │"), "Line {} must end with border ' │'", idx + 1);
+        }
+    }
+}
+
+#[test]
+fn test_render_box_card_windows_path_normalization() {
+    let temp = TempDir::new("box_windows_path");
+    let ws = temp.path();
+    setup_mock_glossary(ws);
+
+    let opt = ScaffoldTaskOptions {
+        name: "win-path-feature".to_string(),
+        title: Some("Win Path Feature".to_string()),
+        intent: Some("feature".to_string()),
+        purpose: Some("Testing windows path".to_string()),
+        workspace: ws.to_path_buf(),
+        force: false,
+    };
+    TaskScaffolder::scaffold(&opt).unwrap();
+
+    let mut telemetry = inspect_task_telemetry(ws, Some("001"))
+        .expect("inspect telemetry must succeed");
+    
+    // Simulate Windows backslash path
+    telemetry.file_path = "tasks\\001-win-path-feature.md".to_string();
+
+    let card = telemetry.render_box_card();
+    let lines: Vec<&str> = card.lines().collect();
+
+    assert_eq!(lines.len(), 6);
+    let ref_line = lines[4];
+    assert!(ref_line.contains("Ref: tasks/001.md"));
+    assert!(!ref_line.contains('\\'), "Ref line must not contain Windows backslashes: '{}'", ref_line);
+}
+
