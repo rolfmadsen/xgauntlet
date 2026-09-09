@@ -33,24 +33,34 @@ Etablere den universelle Markdown Telemetry Card Formatter i `crates/xgauntlet-c
 
 3. **Claude Code Adapter & Hook Interception (`features/adapters/claude_code/` & `features/scaffold/`)**:
    - Udvide `claude_code/mod.rs` med understøttelse for hook-generering til `.claude/settings.json`.
-   - Konfigurere et `PostToolUse` lifecycle hook (med tool matchers: `Edit|Write|Bash`), der kalder:
-     `xgauntlet telemetry --format markdown`
-     således at stdout efter enhver modificerende fil-operation automatisk injiceres direkte i Claude Codes samtale- og terminalstream som et opdateret HUD.
+   - Konfigurere et `PostToolUse` lifecycle hook (med tool matchers: `Edit|Write`), der kalder:
+     `xgauntlet telemetry --format claude-hook`
+   - Jf. officiel Claude Code dokumentation (v2.1.248+) forventer Claude Code struktureret JSON på stdout og rapporterer ellers en ikke-blokerende `<hook> hook error` ved raw tekst. Telemetry-motoren skal derfor under `--format claude-hook` returnere det kanoniske JSON format:
+     ```json
+     {
+       "hookSpecificOutput": {
+         "hookEventName": "PostToolUse",
+         "additionalContext": "<GFM Markdown Cockpit Card>"
+       }
+     }
+     ```
+     Dette injicerer telemetrien direkte i Claudes kontekstvindue som en systempåmindelse ved siden af værktøjsresultatet.
    - Opdatere `xgauntlet scaffold init --harness claude_code` til at provisjonere `.claude/settings.json` med denne hook-opsætning sammen med eksisterende instruktioner i `CLAUDE.md`.
 
 4. **Unit- og Integrationstestsuite**:
    - Unit tests i `crates/xgauntlet-core/tests/` der verificerer, at `render_markdown_card` formaterer tomme, fejlende og fuldt grønne telemetritilstande korrekt.
    - Markdown-syntaksvalidering (valide pipes, lukkede klammer, korrekte kolonneantal, ingen malformed tabeller).
-   - Integrationstest i `crates/xgauntlet-core/tests/harness_adapters_test.rs` der validerer Claude Code `.claude/settings.json` scaffolding og hook-matcher struktur.
+   - Integrationstest i `crates/xgauntlet-core/tests/harness_adapters_test.rs` der validerer Claude Code `.claude/settings.json` scaffolding og det korrekte JSON payload contract (`hookSpecificOutput.additionalContext`).
 
 ## 📋 Acceptance Criteria
 - [ ] `crates/xgauntlet-core/src/features/tasks/telemetry.rs` indeholder `render_markdown_card(&self) -> String` og `render_markdown_compact(&self) -> String`.
 - [ ] Det genererede markdown-kort indeholder sektioner for Header (Task ID, Verdict), Invariants, Mutation score, Policy Boundary/Drift og Evidence digest/HEAD commit.
-- [ ] `crates/xgauntlet-cli` understøtter `xgauntlet telemetry --format [json|ansi|markdown|compact-markdown]` og udskriver det formaterede kort til stdout.
-- [ ] `crates/xgauntlet-core/src/features/adapters/claude_code/mod.rs` understøtter generering af `.claude/settings.json` med `PostToolUse` hooks (matcher: `Edit|Write|Bash`).
-- [ ] `PostToolUse` hooket i `.claude/settings.json` eksekverer `xgauntlet telemetry --format markdown`.
+- [ ] `crates/xgauntlet-cli` understøtter `xgauntlet telemetry --format [json|ansi|markdown|compact-markdown|claude-hook]`.
+- [ ] Under `--format claude-hook` udskrives gyldig JSON med `hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: "..." }` jf. Claude Code hooks specifikationen.
+- [ ] `crates/xgauntlet-core/src/features/adapters/claude_code/mod.rs` understøtter generering af `.claude/settings.json` med `PostToolUse` hooks (matcher: `Edit|Write`).
+- [ ] `PostToolUse` hooket i `.claude/settings.json` eksekverer `xgauntlet telemetry --format claude-hook`.
 - [ ] `xgauntlet scaffold init --harness claude_code` opretter eller opdaterer `.claude/settings.json` med det specificerede telemetry hook uden at overskrive brugerdefinerede felter.
-- [ ] Unit tests verificerer GFM-syntaks og rendering for tomme, delvise og fuldt grønne telemetritilstande.
+- [ ] Unit tests verificerer GFM-syntaks og rendering for tomme, delvise og fuldt grønne telemetritilstande samt Claude Code JSON-wrapping.
 - [ ] Conformance integrationstest i `crates/xgauntlet-core/tests/harness_adapters_test.rs` verificerer Claude Code hook scaffolding.
 - [ ] `cargo test --workspace` forbliver 100% grøn uden regressioner for eksisterende Antigravity adapter.
 
