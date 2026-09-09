@@ -2,14 +2,14 @@
 type: Task Package
 title: "Task 018: Google Antigravity Telemetry Hook & PreInvocation Integration"
 description: "Etablere automatiseret PreInvocation hook telemetry injektion for Google Antigravity IDE i crates/xgauntlet-core og xgauntlet-cli, samt bevare det klikbare Markdown Blockquote HUD for det menneskelige interface jf. spec.md, ADR 0001, ADR 0004 og ADR 0006"
-status: todo
+status: active
 generated: { by: process:xgauntlet-task-init, at: "2026-09-09T21:35:00Z" }
 tags: [hud, telemetry, antigravity, pre-invocation, hooks, blockquote, scaffold, adr-0004, adr-0006]
 ---
 
 # Task 018: Google Antigravity Telemetry Hook & PreInvocation Integration
 
-**Status**: `TODO`
+**Status**: `ACTIVE`
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-09-09`
 

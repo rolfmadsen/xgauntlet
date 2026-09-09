@@ -28,6 +28,41 @@ impl AntigravityAdapter {
     pub fn new() -> Self {
         Self
     }
+
+    /// Formats the canonical Google Antigravity PreInvocation JSON payload on stdout with injectSteps.
+    pub fn format_pre_invocation_payload(_ephemeral_message: &str) -> serde_json::Value {
+        unimplemented!("format_pre_invocation_payload is not yet implemented")
+    }
+
+    /// Formats the authoritative telemetry ephemeral message for Google Antigravity PreInvocation.
+    pub fn format_ephemeral_telemetry(
+        _telemetry: &crate::features::tasks::TaskTelemetry,
+    ) -> String {
+        unimplemented!("format_ephemeral_telemetry is not yet implemented")
+    }
+
+    /// Renders the 5-line human-facing blockquote HUD card with clickable Markdown links.
+    pub fn render_blockquote_hud(
+        _telemetry: &crate::features::tasks::TaskTelemetry,
+        _next_action: Option<&str>,
+    ) -> String {
+        unimplemented!("render_blockquote_hud is not yet implemented")
+    }
+
+    /// Generates or merges the PreInvocation and PreToolUse hook configuration for .agents/hooks.json.
+    pub fn generate_hooks_json(_existing_json: Option<&serde_json::Value>) -> serde_json::Value {
+        unimplemented!("generate_hooks_json is not yet implemented")
+    }
+
+    /// Scaffolds or updates .agents/hooks.json in the specified workspace with PreToolUse and PreInvocation hooks.
+    pub fn scaffold_hooks(_workspace: &Path) -> Result<std::path::PathBuf, std::io::Error> {
+        unimplemented!("scaffold_hooks is not yet implemented")
+    }
+
+    /// Wraps response output with the 5-line Markdown Blockquote HUD card.
+    pub fn wrap_response(_blockquote_hud: &str, _body: &str) -> String {
+        unimplemented!("wrap_response is not yet implemented")
+    }
 }
 
 impl HarnessAdapter for AntigravityAdapter {
@@ -349,6 +384,28 @@ impl HarnessAdapter for AntigravityAdapter {
                 return (1, res.to_string());
             }
         };
+
+        let is_pre_invocation = payload
+            .get("hookEventName")
+            .and_then(|v| v.as_str())
+            .map(|s| s.eq_ignore_ascii_case("PreInvocation"))
+            .unwrap_or(false)
+            || payload
+                .get("event")
+                .and_then(|v| v.as_str())
+                .map(|s| s.eq_ignore_ascii_case("PreInvocation"))
+                .unwrap_or(false)
+            || payload
+                .get("eventName")
+                .and_then(|v| v.as_str())
+                .map(|s| s.eq_ignore_ascii_case("PreInvocation"))
+                .unwrap_or(false);
+
+        if is_pre_invocation {
+            unimplemented!(
+                "PreInvocation handling is not yet implemented in AntigravityAdapter::handle_hook"
+            );
+        }
 
         let verdict = self.evaluate_invocation(workspace, &payload);
         if verdict.allowed {

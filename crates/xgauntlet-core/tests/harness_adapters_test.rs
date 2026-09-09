@@ -1,7 +1,8 @@
 use std::fs;
 use std::path::PathBuf;
 use xgauntlet_core::features::adapters::{
-    get_adapter, ClaudeCodeAdapter, CodexAdapter, HarnessAdapter, SUPPORTED_HARNESSES,
+    get_adapter, AntigravityAdapter, ClaudeCodeAdapter, CodexAdapter, HarnessAdapter,
+    SUPPORTED_HARNESSES,
 };
 use xgauntlet_core::features::policy::ToolActionType;
 
@@ -399,6 +400,311 @@ fn test_antigravity_plugin_validation() {
         res.valid,
         "Validation failed: {:?}",
         res.issues.iter().map(|i| &i.message).collect::<Vec<_>>()
+    );
+}
+
+#[test]
+fn test_antigravity_pre_invocation_payload_contract() {
+    let ephemeral = "[XGAUNTLET COCKPIT TELEMETRY]\n\
+                     Task: 018 | Phase: RED | Verdict: FAIL\n\
+                     Invariants: 14/14 PASS | Mutation: 100%\n\
+                     Git: main@ade8a17 (dirty) | Drift: 0%\n\
+                     Evidence: pending";
+
+    let payload = AntigravityAdapter::format_pre_invocation_payload(ephemeral);
+
+    assert!(payload.is_object());
+    let inject_steps = payload
+        .get("injectSteps")
+        .and_then(|v| v.as_array())
+        .expect("injectSteps array must be present");
+    assert_eq!(inject_steps.len(), 1);
+    assert_eq!(
+        inject_steps[0]
+            .get("ephemeralMessage")
+            .and_then(|v| v.as_str()),
+        Some(ephemeral)
+    );
+
+    let serialized = serde_json::to_string(&payload).expect("must serialize");
+    assert!(serialized.contains("\"injectSteps\""));
+    assert!(serialized.contains("\"ephemeralMessage\""));
+    assert!(serialized.contains("[XGAUNTLET COCKPIT TELEMETRY]"));
+}
+
+#[test]
+fn test_antigravity_ephemeral_telemetry_format() {
+    let telemetry = xgauntlet_core::features::tasks::TaskTelemetry {
+        task_id: "018-antigravity-preinvocation-hud-adapter".to_string(),
+        title: "Google Antigravity Telemetry Hook".to_string(),
+        status: xgauntlet_core::features::tasks::TaskStatus::Active,
+        intent: Some("NEW FEATURE".to_string()),
+        criteria: xgauntlet_core::features::tasks::CriteriaProgress {
+            total: 8,
+            completed: 2,
+            pending: 6,
+            percentage: 25,
+            bar: "[■□□□□]".to_string(),
+        },
+        git: xgauntlet_core::features::tasks::GitTelemetry {
+            branch: "main".to_string(),
+            head_oid: "ade8a17".to_string(),
+            dirty_count: 2,
+            is_clean: false,
+        },
+        file_path: "tasks/018-antigravity-preinvocation-hud-adapter.md".to_string(),
+        scope: Some("crates/xgauntlet-core".to_string()),
+        invariants: Some("14/14 PASS".to_string()),
+        evidence: Some("pending".to_string()),
+        phase: Some("RED".to_string()),
+    };
+
+    let ephemeral = AntigravityAdapter::format_ephemeral_telemetry(&telemetry);
+
+    assert!(ephemeral.starts_with("[XGAUNTLET COCKPIT TELEMETRY]"));
+    assert!(
+        ephemeral.contains("Task: 018")
+            || ephemeral.contains("Task: 018-antigravity-preinvocation-hud-adapter")
+    );
+    assert!(ephemeral.contains("Phase: RED"));
+    assert!(ephemeral.contains("Invariants: 14/14 PASS"));
+    assert!(ephemeral.contains("Mutation: 100%"));
+    assert!(
+        ephemeral.contains("Git: main@ade8a17 (dirty")
+            || ephemeral.contains("Git: main@ade8a17 (dirty: 2 files)")
+    );
+    assert!(ephemeral.contains("Drift: 0%"));
+    assert!(ephemeral.contains("Evidence: pending"));
+}
+
+#[test]
+fn test_antigravity_blockquote_hud_rendering() {
+    let telemetry = xgauntlet_core::features::tasks::TaskTelemetry {
+        task_id: "018-antigravity-preinvocation-hud-adapter".to_string(),
+        title: "Google Antigravity Telemetry Hook".to_string(),
+        status: xgauntlet_core::features::tasks::TaskStatus::Active,
+        intent: Some("NEW FEATURE".to_string()),
+        criteria: xgauntlet_core::features::tasks::CriteriaProgress {
+            total: 8,
+            completed: 3,
+            pending: 5,
+            percentage: 37,
+            bar: "[■■□□□]".to_string(),
+        },
+        git: xgauntlet_core::features::tasks::GitTelemetry {
+            branch: "main".to_string(),
+            head_oid: "ade8a17".to_string(),
+            dirty_count: 1,
+            is_clean: false,
+        },
+        file_path: "tasks/018-antigravity-preinvocation-hud-adapter.md".to_string(),
+        scope: Some("crates/xgauntlet-core".to_string()),
+        invariants: Some("14/14 PASS".to_string()),
+        evidence: Some("pending".to_string()),
+        phase: Some("RED".to_string()),
+    };
+
+    let hud = AntigravityAdapter::render_blockquote_hud(&telemetry, Some("Skriv fejlede tests"));
+
+    let lines: Vec<&str> = hud.lines().collect();
+    assert_eq!(
+        lines.len(),
+        5,
+        "Antigravity Blockquote HUD must have exactly 5 lines"
+    );
+
+    for line in &lines {
+        assert!(
+            line.starts_with("> "),
+            "Each line must start with '> ' blockquote: {}",
+            line
+        );
+    }
+
+    // Line 1: Header with Task and Intent/Phase
+    assert!(lines[0].contains("### 🛡️ [Task:"));
+    assert!(lines[0].contains("018"));
+    assert!(lines[0].contains("[NEW FEATURE: RED]"));
+
+    // Line 2: Status, Phase, Gauntlet verdict, Git
+    assert!(lines[1].contains("**Status**:"));
+    assert!(lines[1].contains("Phase: RED"));
+    assert!(lines[1].contains("Git: main@ade8a17"));
+
+    // Line 3: Progress and Scope
+    assert!(lines[2].contains("**Progress**:"));
+    assert!(lines[2].contains("Criteria: 3/8"));
+    assert!(lines[2].contains("[■■□□□]"));
+    assert!(lines[2].contains("Scope: crates/xgauntlet-core"));
+
+    // Line 4: Explicit clickable editor links
+    assert!(lines[3].contains("**Links**:"));
+    assert!(lines[3].contains("📋 [Task](tasks/)"));
+    assert!(lines[3].contains("📄 [Spec](spec.md)"));
+    assert!(lines[3].contains("📖 [Glossary](CONTEXT.md)"));
+    assert!(lines[3].contains("🏛️ [ADR](docs/adr/README.md)"));
+    assert!(lines[3].contains("🧪 [Evidence](evidence.md)"));
+
+    // Line 5: Next Action
+    assert!(lines[4].contains("💡 **Next Action:** Skriv fejlede tests"));
+}
+
+#[test]
+fn test_antigravity_hooks_json_generation_with_pre_invocation_and_pre_tool_use() {
+    let hooks_doc = AntigravityAdapter::generate_hooks_json(None);
+
+    assert!(hooks_doc.is_object());
+    let root = hooks_doc.as_object().unwrap();
+    assert!(!root.is_empty(), "hooks_doc must not be empty");
+
+    let gatekeeper = root.values().next().expect("at least one hook group");
+    let pre_tool_use = gatekeeper
+        .get("PreToolUse")
+        .and_then(|v| v.as_array())
+        .expect("PreToolUse array");
+    assert!(!pre_tool_use.is_empty());
+    assert_eq!(
+        pre_tool_use[0]["hooks"][0]["command"],
+        "xgauntlet hook antigravity"
+    );
+
+    let pre_invocation = gatekeeper
+        .get("PreInvocation")
+        .and_then(|v| v.as_array())
+        .expect("PreInvocation array");
+    assert!(!pre_invocation.is_empty());
+    assert_eq!(
+        pre_invocation[0]["hooks"][0]["command"],
+        "xgauntlet telemetry --format antigravity-hook"
+    );
+}
+
+#[test]
+fn test_antigravity_hooks_json_merge_preserves_custom_settings() {
+    let existing = serde_json::json!({
+        "custom-hook-group": {
+            "enabled": true,
+            "PostToolUse": [
+                {
+                    "matcher": ".*",
+                    "hooks": [
+                        { "type": "command", "command": "custom-linter.sh" }
+                    ]
+                }
+            ]
+        }
+    });
+
+    let merged = AntigravityAdapter::generate_hooks_json(Some(&existing));
+
+    assert!(merged.get("custom-hook-group").is_some());
+    assert_eq!(
+        merged["custom-hook-group"]["PostToolUse"][0]["hooks"][0]["command"],
+        "custom-linter.sh"
+    );
+
+    let serialized = serde_json::to_string(&merged).unwrap();
+    assert!(serialized.contains("xgauntlet telemetry --format antigravity-hook"));
+    assert!(serialized.contains("xgauntlet hook antigravity"));
+}
+
+#[test]
+fn test_antigravity_hook_scaffolding() {
+    let temp = TempDir::new("antigravity_scaffold");
+    let ws = &temp.path;
+
+    let hooks_path = AntigravityAdapter::scaffold_hooks(ws).expect("scaffold must succeed");
+    assert!(hooks_path.is_file());
+    assert!(hooks_path.ends_with(".agents/hooks.json"));
+
+    let content1 = fs::read_to_string(&hooks_path).unwrap();
+    assert!(content1.contains("PreInvocation"));
+    assert!(content1.contains("PreToolUse"));
+    assert!(content1.contains("xgauntlet telemetry --format antigravity-hook"));
+    assert!(content1.contains("xgauntlet hook antigravity"));
+
+    let hooks_path2 = AntigravityAdapter::scaffold_hooks(ws).expect("second scaffold must succeed");
+    let content2 = fs::read_to_string(&hooks_path2).unwrap();
+    let count = content2
+        .matches("xgauntlet telemetry --format antigravity-hook")
+        .count();
+    assert_eq!(
+        count, 1,
+        "telemetry hook must appear exactly once after multiple scaffold runs"
+    );
+}
+
+#[test]
+fn test_antigravity_response_wrapping_for_hud() {
+    let hud = "> ### 🛡️ [Task: 018] `[NEW FEATURE: RED]`\n\
+               > **Status**: `Phase: RED` | `Gauntlet: FAIL` | `Git: main@ade8a17 • dirty`\n\
+               > **Progress**: `Criteria: 3/8 [■■□□□]` | `Scope: crates/xgauntlet-core`\n\
+               > **Links**: 📋 [Task](tasks/) • 📄 [Spec](spec.md) • 📖 [Glossary](CONTEXT.md) • 🏛️ [ADR](docs/adr/README.md) • 🧪 [Evidence](evidence.md)\n\
+               > 💡 **Next Action:** Implementer PreInvocation";
+
+    let body = "Verification failed on 2 layers.";
+    let wrapped = AntigravityAdapter::wrap_response(hud, body);
+    assert_eq!(wrapped, format!("{}\n\n{}", hud, body));
+
+    let wrapped_empty = AntigravityAdapter::wrap_response(hud, "");
+    assert_eq!(wrapped_empty, hud);
+}
+
+#[test]
+fn test_antigravity_pre_invocation_hook_interception() {
+    let adapter = get_adapter("antigravity").expect("antigravity adapter");
+    let temp = TempDir::new("antigravity_pre_inv");
+    let ws = &temp.path;
+
+    let payload = serde_json::json!({
+        "hookEventName": "PreInvocation"
+    })
+    .to_string();
+
+    let (code, out) = adapter.handle_hook(ws, &payload);
+    assert_eq!(code, 0, "PreInvocation hook must succeed with exit code 0");
+    assert!(
+        out.contains("injectSteps"),
+        "PreInvocation response must contain injectSteps"
+    );
+    assert!(
+        out.contains("ephemeralMessage"),
+        "PreInvocation response must contain ephemeralMessage"
+    );
+}
+
+#[test]
+fn test_antigravity_scaffold_init_integration() {
+    let temp = TempDir::new("antigravity_scaffold_init");
+    let ws = &temp.path;
+
+    let opts = xgauntlet_core::ScaffoldOptions {
+        workspace: ws.to_path_buf(),
+        stack: Some("rust".to_string()),
+        force: false,
+        dry_run: false,
+        project_name: Some("antigravity-init-test".to_string()),
+    };
+    let scaffold_res = xgauntlet_core::run_scaffold(&opts).expect("scaffold must succeed");
+    assert!(scaffold_res.is_success);
+
+    let hooks_path =
+        AntigravityAdapter::scaffold_hooks(ws).expect("hooks scaffolding must succeed");
+    assert!(hooks_path.is_file());
+
+    let hooks_content = fs::read_to_string(&hooks_path).unwrap();
+    let hooks_json: serde_json::Value = serde_json::from_str(&hooks_content).unwrap();
+
+    let serialized = serde_json::to_string(&hooks_json).unwrap();
+    assert!(serialized.contains("xgauntlet telemetry --format antigravity-hook"));
+    assert!(serialized.contains("xgauntlet hook antigravity"));
+
+    let adapter = get_adapter("antigravity").expect("antigravity adapter");
+    let val_res = adapter.validate_plugin(&ws.join(".agents"));
+    assert!(
+        val_res.valid,
+        "Workspace with scaffolded antigravity hooks must validate with valid=true: {:?}",
+        val_res.issues
     );
 }
 
