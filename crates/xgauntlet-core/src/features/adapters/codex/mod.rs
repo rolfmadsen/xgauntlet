@@ -22,77 +22,17 @@ impl CodexAdapter {
 
     /// Formats the canonical OpenAI Codex PostToolUse JSON payload on stdout.
     pub fn format_post_tool_use_payload(box_card: &str) -> serde_json::Value {
-        serde_json::json!({
-            "hookSpecificOutput": {
-                "hookEventName": "PostToolUse",
-                "additionalContext": box_card
-            }
-        })
+        crate::features::adapters::format_post_tool_use_payload(box_card)
     }
 
     /// Generates or merges the PostToolUse hook configuration for .codex/hooks.json.
     pub fn generate_hooks_json(existing_json: Option<&serde_json::Value>) -> serde_json::Value {
         let hook_cmd = "xgauntlet telemetry --format codex-hook";
-        let hook_entry = serde_json::json!({
-            "matcher": "apply_patch|Edit|Write|Bash",
-            "hooks": [
-                {
-                    "type": "command",
-                    "command": hook_cmd
-                }
-            ]
-        });
-
-        match existing_json {
-            Some(existing) => {
-                let mut root = match existing.as_object() {
-                    Some(obj) => obj.clone(),
-                    None => serde_json::Map::new(),
-                };
-
-                let mut hooks = match root.get("hooks").and_then(|h| h.as_object()) {
-                    Some(h) => h.clone(),
-                    None => serde_json::Map::new(),
-                };
-
-                let mut post_tool_vec = match hooks.get("PostToolUse").and_then(|p| p.as_array()) {
-                    Some(arr) => arr.clone(),
-                    None => Vec::new(),
-                };
-
-                let already_exists = post_tool_vec.iter().any(|item| {
-                    item.get("hooks")
-                        .and_then(|h| h.as_array())
-                        .map(|arr| {
-                            arr.iter().any(|h| {
-                                h.get("command").and_then(|c| c.as_str()) == Some(hook_cmd)
-                            })
-                        })
-                        .unwrap_or(false)
-                });
-
-                if !already_exists {
-                    post_tool_vec.push(hook_entry);
-                }
-
-                hooks.insert(
-                    "PostToolUse".to_string(),
-                    serde_json::Value::Array(post_tool_vec),
-                );
-                root.insert("hooks".to_string(), serde_json::Value::Object(hooks));
-                serde_json::Value::Object(root)
-            }
-            None => {
-                let mut root = serde_json::Map::new();
-                let mut hooks = serde_json::Map::new();
-                hooks.insert(
-                    "PostToolUse".to_string(),
-                    serde_json::Value::Array(vec![hook_entry]),
-                );
-                root.insert("hooks".to_string(), serde_json::Value::Object(hooks));
-                serde_json::Value::Object(root)
-            }
-        }
+        crate::features::adapters::merge_post_tool_use_hook(
+            existing_json,
+            "apply_patch|Edit|Write|Bash",
+            hook_cmd,
+        )
     }
 
     /// Scaffolds or updates .codex/hooks.json in the specified workspace with PostToolUse telemetry hook.
@@ -117,12 +57,7 @@ impl CodexAdapter {
 
     /// Wraps response output (e.g. from verify or checkpoint) with the Variant B Box-Drawing Telemetry Card.
     pub fn wrap_response(box_card: &str, body: &str) -> String {
-        let trimmed_body = body.trim();
-        if trimmed_body.is_empty() {
-            box_card.to_string()
-        } else {
-            format!("{}\n\n{}", box_card.trim_end(), trimmed_body)
-        }
+        crate::features::adapters::wrap_response_with_hud(box_card, body)
     }
 }
 

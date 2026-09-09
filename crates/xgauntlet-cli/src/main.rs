@@ -87,6 +87,10 @@ enum Commands {
         /// Output verification report in structured JSON format
         #[arg(long)]
         json: bool,
+
+        /// Target harness format for wrapping response (e.g. 'codex', 'antigravity', 'claude_code')
+        #[arg(long)]
+        harness: Option<String>,
     },
     /// Intercept agent tool calls and evaluate capability requests against policy engine
     Hook {
@@ -214,6 +218,10 @@ enum Commands {
         /// Output checkpoint result in structured JSON format
         #[arg(long)]
         json: bool,
+
+        /// Target harness format for wrapping response (e.g. 'codex', 'antigravity', 'claude_code')
+        #[arg(long)]
+        harness: Option<String>,
     },
 }
 
@@ -360,10 +368,64 @@ async fn main() -> anyhow::Result<()> {
             save,
             layer,
             json,
+            harness,
         }) => {
             let outcome = run_verify(workspace, task.as_deref(), *save, layer.as_deref()).await?;
             if *json {
                 println!("{}", serde_json::to_string_pretty(&outcome.report)?);
+            } else if let Some(ref h) = harness {
+                let canonical_ws = if workspace.is_absolute() {
+                    workspace.clone()
+                } else {
+                    std::env::current_dir()?.join(workspace)
+                };
+                let telemetry =
+                    xgauntlet_core::inspect_task_telemetry(&canonical_ws, task.as_deref()).ok();
+                let summary_body = format!(
+                    "Verification Verdict: {}\nExecuted checks: {} ({} passed, {} failed)",
+                    outcome.report.verdict,
+                    outcome.report.checks.len(),
+                    outcome
+                        .report
+                        .checks
+                        .iter()
+                        .filter(|c| c.status == "PASSED")
+                        .count(),
+                    outcome
+                        .report
+                        .checks
+                        .iter()
+                        .filter(|c| c.status != "PASSED")
+                        .count(),
+                );
+                match xgauntlet_core::HarnessKind::parse_alias(h) {
+                    Some(xgauntlet_core::HarnessKind::Antigravity) => {
+                        let hud = telemetry
+                            .as_ref()
+                            .map(|t| {
+                                xgauntlet_core::AntigravityAdapter::render_blockquote_hud(t, None)
+                            })
+                            .unwrap_or_default();
+                        println!(
+                            "{}",
+                            xgauntlet_core::AntigravityAdapter::wrap_response(&hud, &summary_body)
+                        );
+                    }
+                    Some(xgauntlet_core::HarnessKind::Codex)
+                    | Some(xgauntlet_core::HarnessKind::ClaudeCode) => {
+                        let card = telemetry
+                            .as_ref()
+                            .map(|t| t.render_box_card())
+                            .unwrap_or_default();
+                        println!(
+                            "{}",
+                            xgauntlet_core::CodexAdapter::wrap_response(&card, &summary_body)
+                        );
+                    }
+                    None => {
+                        render_verify_summary(&outcome, *save);
+                    }
+                }
             } else {
                 render_verify_summary(&outcome, *save);
             }
@@ -500,15 +562,38 @@ async fn main() -> anyhow::Result<()> {
                 project_name: name.clone(),
             };
 
-            let result = xgauntlet_core::run_scaffold(&options)?;
+            let mut result = xgauntlet_core::run_scaffold(&options)?;
 
             if let Some(ref h) = harness {
-                if (h == "claude_code" || h == "claude") && !*dry_run {
-                    let _ = xgauntlet_core::ClaudeCodeAdapter::scaffold_settings(&canonical_ws);
-                } else if (h == "codex" || h == "openai_codex") && !*dry_run {
-                    let _ = xgauntlet_core::CodexAdapter::scaffold_hooks(&canonical_ws);
-                } else if (h == "antigravity" || h == "google_antigravity") && !*dry_run {
-                    let _ = xgauntlet_core::AntigravityAdapter::scaffold_hooks(&canonical_ws);
+                if let Some(kind) = xgauntlet_core::HarnessKind::parse_alias(h) {
+                    if !*dry_run {
+                        let scaffold_path = match kind {
+                            xgauntlet_core::HarnessKind::ClaudeCode => {
+                                xgauntlet_core::ClaudeCodeAdapter::scaffold_settings(&canonical_ws)?
+                            }
+                            xgauntlet_core::HarnessKind::Codex => {
+                                xgauntlet_core::CodexAdapter::scaffold_hooks(&canonical_ws)?
+                            }
+                            xgauntlet_core::HarnessKind::Antigravity => {
+                                xgauntlet_core::AntigravityAdapter::scaffold_hooks(&canonical_ws)?
+                            }
+                        };
+                        let rel_scaffold = match scaffold_path.strip_prefix(&canonical_ws) {
+                            Ok(p) => p.display().to_string().replace('\\', "/"),
+                            Err(_) => scaffold_path.display().to_string().replace('\\', "/"),
+                        };
+                        let already_in_files = result.files.iter().any(|f| f.path == rel_scaffold);
+                        if !already_in_files {
+                            result.files.push(xgauntlet_core::ScaffoldFileReport {
+                                path: rel_scaffold,
+                                action: xgauntlet_core::ScaffoldAction::Created,
+                                reason: Some(format!("Configured {h} lifecycle hooks")),
+                            });
+                            result.created_count += 1;
+                        }
+                    }
+                } else {
+                    eprintln!("⚠️  Warning: Unknown harness '{h}'. Supported: claude_code, codex, antigravity");
                 }
             }
 
@@ -680,6 +765,7 @@ async fn main() -> anyhow::Result<()> {
             workspace,
             skip_verify,
             json,
+            harness,
         }) => {
             let canonical_ws = if workspace.is_absolute() {
                 workspace.clone()
@@ -717,6 +803,52 @@ async fn main() -> anyhow::Result<()> {
                 Ok(res) => {
                     if *json {
                         println!("{}", serde_json::to_string_pretty(&res)?);
+                    } else if let Some(ref h) = harness {
+                        let telemetry =
+                            xgauntlet_core::inspect_task_telemetry(&canonical_ws, task.as_deref())
+                                .ok();
+                        let oid_short = res
+                            .commit_oid
+                            .as_deref()
+                            .map(|oid| if oid.len() >= 7 { &oid[..7] } else { oid })
+                            .unwrap_or("unknown");
+                        let body = format!(
+                            "Phase Checkpoint [{}] committed: {} (commit: {})\nStaged files: {}",
+                            res.phase.as_str().to_uppercase(),
+                            res.commit_message,
+                            oid_short,
+                            res.staged_files.join(", ")
+                        );
+                        match xgauntlet_core::HarnessKind::parse_alias(h) {
+                            Some(xgauntlet_core::HarnessKind::Antigravity) => {
+                                let hud = telemetry
+                                    .as_ref()
+                                    .map(|t| {
+                                        xgauntlet_core::AntigravityAdapter::render_blockquote_hud(
+                                            t, None,
+                                        )
+                                    })
+                                    .unwrap_or_default();
+                                println!(
+                                    "{}",
+                                    xgauntlet_core::AntigravityAdapter::wrap_response(&hud, &body)
+                                );
+                            }
+                            Some(xgauntlet_core::HarnessKind::Codex)
+                            | Some(xgauntlet_core::HarnessKind::ClaudeCode) => {
+                                let card = telemetry
+                                    .as_ref()
+                                    .map(|t| t.render_box_card())
+                                    .unwrap_or_default();
+                                println!(
+                                    "{}",
+                                    xgauntlet_core::CodexAdapter::wrap_response(&card, &body)
+                                );
+                            }
+                            None => {
+                                render_checkpoint_summary(&res);
+                            }
+                        }
                     } else {
                         render_checkpoint_summary(&res);
                     }

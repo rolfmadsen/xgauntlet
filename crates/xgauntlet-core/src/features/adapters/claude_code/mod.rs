@@ -22,77 +22,18 @@ impl ClaudeCodeAdapter {
 
     /// Formats the canonical Claude Code PostToolUse JSON payload on stdout (v2.1.248+).
     pub fn format_post_tool_use_payload(box_card: &str) -> serde_json::Value {
-        serde_json::json!({
-            "hookSpecificOutput": {
-                "hookEventName": "PostToolUse",
-                "additionalContext": box_card
-            }
-        })
+        crate::features::adapters::format_post_tool_use_payload(box_card)
     }
 
     /// Generates or merges the PostToolUse hook configuration for .claude/settings.json.
     pub fn generate_settings_json(existing_json: Option<&serde_json::Value>) -> serde_json::Value {
         let hook_cmd = "xgauntlet telemetry --format claude-hook";
-        let hook_entry = serde_json::json!({
-            "matcher": "Edit|Write",
-            "hooks": [
-                {
-                    "type": "command",
-                    "command": hook_cmd
-                }
-            ]
-        });
+        crate::features::adapters::merge_post_tool_use_hook(existing_json, "Edit|Write", hook_cmd)
+    }
 
-        match existing_json {
-            Some(existing) => {
-                let mut root = match existing.as_object() {
-                    Some(obj) => obj.clone(),
-                    None => serde_json::Map::new(),
-                };
-
-                let mut hooks = match root.get("hooks").and_then(|h| h.as_object()) {
-                    Some(h) => h.clone(),
-                    None => serde_json::Map::new(),
-                };
-
-                let mut post_tool_vec = match hooks.get("PostToolUse").and_then(|p| p.as_array()) {
-                    Some(arr) => arr.clone(),
-                    None => Vec::new(),
-                };
-
-                let already_exists = post_tool_vec.iter().any(|item| {
-                    item.get("hooks")
-                        .and_then(|h| h.as_array())
-                        .map(|arr| {
-                            arr.iter().any(|h| {
-                                h.get("command").and_then(|c| c.as_str()) == Some(hook_cmd)
-                            })
-                        })
-                        .unwrap_or(false)
-                });
-
-                if !already_exists {
-                    post_tool_vec.push(hook_entry);
-                }
-
-                hooks.insert(
-                    "PostToolUse".to_string(),
-                    serde_json::Value::Array(post_tool_vec),
-                );
-                root.insert("hooks".to_string(), serde_json::Value::Object(hooks));
-                serde_json::Value::Object(root)
-            }
-            None => {
-                let mut root = serde_json::Map::new();
-                let mut hooks = serde_json::Map::new();
-                hooks.insert(
-                    "PostToolUse".to_string(),
-                    serde_json::Value::Array(vec![hook_entry]),
-                );
-                root.insert("hooks".to_string(), serde_json::Value::Object(hooks));
-                serde_json::Value::Object(root)
-            }
-        }
+    /// Wraps response output with the Variant B Box-Drawing Telemetry Card.
+    pub fn wrap_response(box_card: &str, body: &str) -> String {
+        crate::features::adapters::wrap_response_with_hud(box_card, body)
     }
 
     /// Scaffolds or updates .claude/settings.json in the specified workspace with PostToolUse telemetry hook.

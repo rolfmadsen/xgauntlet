@@ -1342,7 +1342,9 @@ fn test_antigravity_hooks_json_upgrades_legacy_python_hook() {
         cmd, "xgauntlet hook antigravity",
         "Legacy python hook must be replaced with xgauntlet hook antigravity"
     );
-    assert!(!serde_json::to_string(&merged).unwrap().contains("python3 -m agent_gauntlet"));
+    assert!(!serde_json::to_string(&merged)
+        .unwrap()
+        .contains("python3 -m agent_gauntlet"));
 }
 
 #[test]
@@ -1374,4 +1376,3 @@ fn test_harness_adapter_aliases_consistency() {
         );
     }
 }
-

@@ -465,13 +465,16 @@ fn test_render_box_card_long_strings_ellipsing_and_fixed_64_width() {
 
     let mut telemetry = inspect_task_telemetry(ws, Some("001"))
         .expect("inspect telemetry must succeed")
-        .with_scope("crates/xgauntlet-core,crates/xgauntlet-cli,crates/xgauntlet-policy,crates/extra")
+        .with_scope(
+            "crates/xgauntlet-core,crates/xgauntlet-cli,crates/xgauntlet-policy,crates/extra",
+        )
         .with_invariants("14/14 PASS (all verification layers green and verified)")
         .with_evidence("evidence-manifest-verification-digest-signature-sha256")
         .with_phase("RED (Tests failing with comprehensive assertions)");
 
     telemetry.task_id = "019-extremely-long-task-identifier-with-many-words".to_string();
-    telemetry.git.branch = "feature/super-long-branch-name-that-definitely-exceeds-standard-limits".to_string();
+    telemetry.git.branch =
+        "feature/super-long-branch-name-that-definitely-exceeds-standard-limits".to_string();
     telemetry.git.dirty_count = 142;
     telemetry.git.is_clean = false;
 
@@ -497,8 +500,16 @@ fn test_render_box_card_long_strings_ellipsing_and_fixed_64_width() {
             assert!(line.starts_with("└"));
             assert!(line.ends_with("┘"));
         } else {
-            assert!(line.starts_with("│ "), "Line {} must start with border '│ '", idx + 1);
-            assert!(line.ends_with(" │"), "Line {} must end with border ' │'", idx + 1);
+            assert!(
+                line.starts_with("│ "),
+                "Line {} must start with border '│ '",
+                idx + 1
+            );
+            assert!(
+                line.ends_with(" │"),
+                "Line {} must end with border ' │'",
+                idx + 1
+            );
         }
     }
 }
@@ -519,9 +530,9 @@ fn test_render_box_card_windows_path_normalization() {
     };
     TaskScaffolder::scaffold(&opt).unwrap();
 
-    let mut telemetry = inspect_task_telemetry(ws, Some("001"))
-        .expect("inspect telemetry must succeed");
-    
+    let mut telemetry =
+        inspect_task_telemetry(ws, Some("001")).expect("inspect telemetry must succeed");
+
     // Simulate Windows backslash path
     telemetry.file_path = "tasks\\001-win-path-feature.md".to_string();
 
@@ -531,6 +542,9 @@ fn test_render_box_card_windows_path_normalization() {
     assert_eq!(lines.len(), 6);
     let ref_line = lines[4];
     assert!(ref_line.contains("Ref: tasks/001.md"));
-    assert!(!ref_line.contains('\\'), "Ref line must not contain Windows backslashes: '{}'", ref_line);
+    assert!(
+        !ref_line.contains('\\'),
+        "Ref line must not contain Windows backslashes: '{}'",
+        ref_line
+    );
 }
-

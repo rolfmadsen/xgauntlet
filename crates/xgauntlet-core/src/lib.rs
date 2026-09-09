@@ -1,8 +1,9 @@
 pub mod features;
 
 pub use features::adapters::{
-    get_adapter, AdapterHookVerdict, AdapterValidationResult, AntigravityAdapter,
-    ClaudeCodeAdapter, CodexAdapter, HarnessAdapter, NormalizedToolCall, ValidationIssue,
+    format_post_tool_use_payload, get_adapter, merge_post_tool_use_hook, wrap_response_with_hud,
+    AdapterHookVerdict, AdapterValidationResult, AntigravityAdapter, ClaudeCodeAdapter,
+    CodexAdapter, HarnessAdapter, HarnessKind, NormalizedToolCall, ValidationIssue,
     ValidationSeverity, SUPPORTED_HARNESSES,
 };
 pub use features::checkpoint::{

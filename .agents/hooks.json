@@ -15,7 +15,7 @@
       {
         "hooks": [
           {
-            "command": "python3 -m agent_gauntlet.features.adapters.antigravity.hook",
+            "command": "xgauntlet hook antigravity",
             "timeout": 30,
             "type": "command"
           }

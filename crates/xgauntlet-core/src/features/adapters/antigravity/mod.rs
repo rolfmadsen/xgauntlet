@@ -182,23 +182,29 @@ impl AntigravityAdapter {
                     .cloned()
                     .unwrap_or_default();
 
-                let pre_tool_exists = pre_tool_vec.iter().any(|item| {
-                    item.get("hooks")
-                        .and_then(|h| h.as_array())
-                        .map(|arr| {
-                            arr.iter().any(|h| {
-                                h.get("command")
-                                    .and_then(|c| c.as_str())
-                                    .map(|c| {
-                                        c.contains("xgauntlet hook antigravity")
-                                            || c.contains("agent_gauntlet")
-                                    })
-                                    .unwrap_or(false)
-                            })
-                        })
-                        .unwrap_or(false)
-                });
-                if !pre_tool_exists {
+                let mut has_canonical_pre_tool = false;
+                for item in pre_tool_vec.iter_mut() {
+                    if let Some(hooks_arr) = item.get_mut("hooks").and_then(|h| h.as_array_mut()) {
+                        for h in hooks_arr.iter_mut() {
+                            if let Some(cmd_val) = h.get_mut("command") {
+                                if let Some(cmd_str) = cmd_val.as_str() {
+                                    if cmd_str.contains("xgauntlet hook antigravity") {
+                                        has_canonical_pre_tool = true;
+                                    } else if cmd_str.contains("agent_gauntlet")
+                                        || cmd_str.contains("agent-gauntlet")
+                                    {
+                                        *cmd_val = serde_json::Value::String(
+                                            "xgauntlet hook antigravity".to_string(),
+                                        );
+                                        has_canonical_pre_tool = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if !has_canonical_pre_tool {
                     pre_tool_vec.push(pre_tool_entry);
                 }
                 group.insert(
@@ -278,12 +284,7 @@ impl AntigravityAdapter {
 
     /// Wraps response output with the 5-line Markdown Blockquote HUD card.
     pub fn wrap_response(blockquote_hud: &str, body: &str) -> String {
-        let trimmed_body = body.trim();
-        if trimmed_body.is_empty() {
-            blockquote_hud.to_string()
-        } else {
-            format!("{}\n\n{}", blockquote_hud.trim_end(), trimmed_body)
-        }
+        crate::features::adapters::wrap_response_with_hud(blockquote_hud, body)
     }
 }
 

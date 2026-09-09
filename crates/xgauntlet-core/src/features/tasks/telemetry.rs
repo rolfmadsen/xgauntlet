@@ -47,8 +47,24 @@ pub struct TaskTelemetry {
     pub phase: Option<String>,
 }
 
+/// Truncates string to at most max_len characters, appending ellipsis if truncated.
+fn truncate_with_ellipsis(s: &str, max_len: usize) -> String {
+    let count = s.chars().count();
+    if count <= max_len {
+        s.to_string()
+    } else if max_len <= 3 {
+        s.chars().take(max_len).collect()
+    } else {
+        let prefix: String = s.chars().take(max_len - 3).collect();
+        format!("{prefix}...")
+    }
+}
+
 impl TaskTelemetry {
     /// Renders high-density Unicode Box-Drawing Telemetry Card (Variant B).
+    ///
+    /// Guarantees exact 64 characters visible column width on all 6 lines,
+    /// even when fields (branch, scope, task id) exceed standard boundaries.
     pub fn render_box_card(&self) -> String {
         // Line 0: Header border (fixed 64 visible chars)
         let short_id = crate::features::checkpoint::extract_short_task_id(&self.task_id);
@@ -63,7 +79,8 @@ impl TaskTelemetry {
         } else {
             self.task_id.clone()
         };
-        let header_prefix = format!("┌─── xgauntlet: {task_label} ");
+        let label_trunc = truncate_with_ellipsis(&task_label, 42);
+        let header_prefix = format!("┌─── xgauntlet: {label_trunc} ");
         let header_dashes = 64usize.saturating_sub(header_prefix.chars().count() + 1);
         let line0 = format!("{header_prefix}{}┐", "─".repeat(header_dashes));
 
@@ -72,9 +89,18 @@ impl TaskTelemetry {
             .phase
             .as_deref()
             .unwrap_or_else(|| self.status.as_str());
-        let status_str = format!("Status: {status_val}");
+        let mut status_str = format!("Status: {status_val}");
         let scope_val = self.scope.as_deref().unwrap_or("crates/*");
-        let scope_str = format!("Scope: {scope_val}");
+        let mut scope_str = format!("Scope: {scope_val}");
+        if status_str.chars().count() + scope_str.chars().count() > 59 {
+            if scope_str.chars().count() > 28 {
+                scope_str = truncate_with_ellipsis(&scope_str, 28);
+            }
+            let max_status = 59usize.saturating_sub(scope_str.chars().count());
+            if status_str.chars().count() > max_status {
+                status_str = truncate_with_ellipsis(&status_str, max_status);
+            }
+        }
         let spaces1 =
             60usize.saturating_sub(status_str.chars().count() + scope_str.chars().count());
         let line1 = format!("│ {status_str}{}{scope_str} │", " ".repeat(spaces1));
@@ -96,7 +122,11 @@ impl TaskTelemetry {
         );
         let progress_str = format!("Progress: {bar_str}");
         let invariants_val = self.invariants.as_deref().unwrap_or("14/14 PASS");
-        let invariants_str = format!("Invariants: {invariants_val}");
+        let mut invariants_str = format!("Invariants: {invariants_val}");
+        if progress_str.chars().count() + invariants_str.chars().count() > 59 {
+            let max_invariants = 59usize.saturating_sub(progress_str.chars().count());
+            invariants_str = truncate_with_ellipsis(&invariants_str, max_invariants);
+        }
         let spaces2 =
             60usize.saturating_sub(progress_str.chars().count() + invariants_str.chars().count());
         let line2 = format!("│ {progress_str}{}{invariants_str} │", " ".repeat(spaces2));
@@ -109,25 +139,38 @@ impl TaskTelemetry {
         } else {
             "dirty".to_string()
         };
-        let git_str = format!(
-            "Git: {}@{} ({})",
-            self.git.branch, self.git.head_oid, git_state
-        );
         let evidence_val = self.evidence.as_deref().unwrap_or("pending");
-        let evidence_str = format!("Evidence: {evidence_val}");
+        let mut evidence_str = format!("Evidence: {evidence_val}");
+        if evidence_str.chars().count() > 22 {
+            evidence_str = truncate_with_ellipsis(&evidence_str, 22);
+        }
+        let max_git = 59usize.saturating_sub(evidence_str.chars().count());
+        let max_branch = max_git
+            .saturating_sub(self.git.head_oid.chars().count() + git_state.chars().count() + 10);
+        let branch_trunc = truncate_with_ellipsis(&self.git.branch, std::cmp::max(8, max_branch));
+        let mut git_str = format!(
+            "Git: {}@{} ({})",
+            branch_trunc, self.git.head_oid, git_state
+        );
+        if git_str.chars().count() + evidence_str.chars().count() > 59 {
+            let avail = 59usize.saturating_sub(evidence_str.chars().count());
+            git_str = truncate_with_ellipsis(&git_str, avail);
+        }
         let spaces3 =
             60usize.saturating_sub(git_str.chars().count() + evidence_str.chars().count());
         let line3 = format!("│ {git_str}{}{evidence_str} │", " ".repeat(spaces3));
 
-        // Line 4: Ref row with clean terminal-clickable relative paths
-        let task_ref = if self.file_path.len() <= 16 && self.file_path.starts_with("tasks/") {
-            self.file_path.clone()
+        // Line 4: Ref row with clean terminal-clickable relative paths (POSIX normalized)
+        let norm_path = self.file_path.replace('\\', "/");
+        let task_ref = if norm_path.len() <= 16 && norm_path.starts_with("tasks/") {
+            norm_path
         } else {
             format!("tasks/{}.md", short_id)
         };
         let ref_str = format!("Ref: {} • spec.md • docs/adr/README.md", task_ref);
-        let spaces4 = 60usize.saturating_sub(ref_str.chars().count());
-        let line4 = format!("│ {ref_str}{} │", " ".repeat(spaces4));
+        let ref_str_trunc = truncate_with_ellipsis(&ref_str, 60);
+        let spaces4 = 60usize.saturating_sub(ref_str_trunc.chars().count());
+        let line4 = format!("│ {ref_str_trunc}{} │", " ".repeat(spaces4));
 
         // Line 5: Bottom border (fixed 64 chars)
         let line5 = format!("└{}┘", "─".repeat(62));
@@ -363,8 +406,8 @@ pub fn inspect_task_telemetry(
     let git = collect_git_telemetry(workspace);
 
     let rel_path = match task_path.strip_prefix(workspace) {
-        Ok(p) => p.display().to_string(),
-        Err(_) => task_path.display().to_string(),
+        Ok(p) => p.display().to_string().replace('\\', "/"),
+        Err(_) => task_path.display().to_string().replace('\\', "/"),
     };
 
     Ok(TaskTelemetry {
@@ -403,8 +446,8 @@ pub fn list_workspace_tasks(workspace: &Path) -> Result<Vec<TaskSummaryItem>, Ta
                     let task_number = digits.parse::<u32>().ok();
 
                     let rel_path = match path.strip_prefix(workspace) {
-                        Ok(p) => p.display().to_string(),
-                        Err(_) => path.display().to_string(),
+                        Ok(p) => p.display().to_string().replace('\\', "/"),
+                        Err(_) => path.display().to_string().replace('\\', "/"),
                     };
 
                     items.push(TaskSummaryItem {
