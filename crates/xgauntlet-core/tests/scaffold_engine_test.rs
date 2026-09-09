@@ -417,7 +417,7 @@ fn test_scaffold_agents_md_contains_dynamic_cockpit_hud_and_checkpoint_protocol(
         agents_md.contains("[Task](tasks/)")
             && agents_md.contains("[Spec](spec.md)")
             && agents_md.contains("[Glossary](CONTEXT.md)")
-            && agents_md.contains("[ADR](docs/adr/)")
+            && agents_md.contains("[ADR](docs/adr/README.md)")
             && agents_md.contains("[Evidence](evidence.md)"),
         "agents.md must preserve all five central navigation links"
     );

@@ -38,7 +38,7 @@ Etablere OpenAI Codex adapterudvidelse i `crates/xgauntlet-core` for strukturere
      │ Status: RED (Tests failing)   Scope: crates/xgauntlet-core   │
      │ Progress: [██████░░░░] 60%    Invariants: 14/14 PASS         │
      │ Git: main@093b533 (dirty)     Evidence: pending              │
-     │ Ref: tasks/017.md • spec.md • docs/adr/                      │
+     │ Ref: tasks/017.md • spec.md • docs/adr/README.md             │
      └──────────────────────────────────────────────────────────────┘
      ```
    - Når operationer som `xgauntlet checkpoint` eller `xgauntlet verify` kaldes i en Codex-kontekst, indkapsles responset med dette deterministiske Box-Drawing Telemetry Card.

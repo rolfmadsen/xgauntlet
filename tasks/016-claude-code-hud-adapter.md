@@ -23,7 +23,7 @@ Etablere en high-density Box-Drawing Telemetry Formatter (Variant B) i `crates/x
      │ Status: RED (Tests failing)   Scope: crates/xgauntlet-core   │
      │ Progress: [██████░░░░] 60%    Invariants: 14/14 PASS         │
      │ Git: main@093b533 (dirty)     Evidence: pending              │
-     │ Ref: tasks/016.md • spec.md • docs/adr/                      │
+     │ Ref: tasks/016.md • spec.md • docs/adr/README.md             │
      └──────────────────────────────────────────────────────────────┘
      ```
    - Implementere `render_box_card(&self) -> String` på `TaskTelemetry` / `CockpitState`:
@@ -31,7 +31,7 @@ Etablere en high-density Box-Drawing Telemetry Formatter (Variant B) i `crates/x
      * Række 1: Status/Fase og berørt Scope
      * Række 2: Progress (visual Unicode block bar) og Invariants status
      * Række 3: Git branch@oid, dirty/clean indikator og Evidens-digest
-     * Række 4 (`Ref:`): Rene relative filstier (`tasks/<id>.md • spec.md • docs/adr/`), som moderne terminaler (VS Code, iTerm, Kitty, Alacritty, Warp) automatisk gør klikbare via `Cmd+Click` / `Ctrl+Click`.
+     * Række 4 (`Ref:`): Rene relative filstier (`tasks/<id>.md • spec.md • docs/adr/README.md`), som moderne terminaler (VS Code, iTerm, Kitty, Alacritty, Warp) automatisk gør klikbare via `Cmd+Click` / `Ctrl+Click`.
      * Bundramme: `└──────────────────...──────────────────────────┘`
    - Implementere `render_box_compact(&self) -> String`: Én-linjes ultra-kompakt badge-variant.
    - Høj performance (<3ms) og determinisme uden tunge eksterne rendering-afhængigheder (standard Rust string formatting med fast kolonnejustering).
