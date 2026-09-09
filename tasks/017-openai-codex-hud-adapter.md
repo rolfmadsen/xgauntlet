@@ -2,14 +2,14 @@
 type: Task Package
 title: "Task 017: OpenAI Codex Telemetry HUD & Hook Adapter"
 description: "Etablere OpenAI Codex adapterudvidelse for Box-Drawing Telemetry HUD integration (Variant B med Ref-stier) via PostToolUse lifecycle hook interception (.codex/hooks.json), respons-wrapping (checkpoint/verify) og agent-gauntlet skill-skabeloner samt scaffolding jf. spec.md, ADR 0001, ADR 0004 og ADR 0006"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-09T18:18:10Z" }
 tags: [hud, telemetry, box-drawing, codex, hooks, skills, agent-gauntlet, terminal, cli, scaffold, adr-0004, adr-0006]
 ---
 
 # Task 017: OpenAI Codex Telemetry HUD & Hook Adapter
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-09-09`
 
