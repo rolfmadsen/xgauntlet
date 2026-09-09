@@ -19,6 +19,16 @@ impl ClaudeCodeAdapter {
     pub fn new() -> Self {
         Self
     }
+
+    /// Formats the canonical Claude Code PostToolUse JSON payload on stdout (v2.1.248+).
+    pub fn format_post_tool_use_payload(_box_card: &str) -> serde_json::Value {
+        unimplemented!("format_post_tool_use_payload is not yet implemented")
+    }
+
+    /// Generates or merges the PostToolUse hook configuration for .claude/settings.json.
+    pub fn generate_settings_json(_existing_json: Option<&serde_json::Value>) -> serde_json::Value {
+        unimplemented!("generate_settings_json is not yet implemented")
+    }
 }
 
 impl HarnessAdapter for ClaudeCodeAdapter {

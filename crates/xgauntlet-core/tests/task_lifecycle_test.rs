@@ -285,3 +285,164 @@ fn test_inspect_and_list_workspace_tasks() {
     assert_eq!(telemetry.task_id, "001-alpha-feature");
     assert_eq!(telemetry.status, TaskStatus::Active);
 }
+
+#[test]
+fn test_render_box_card_format_and_borders() {
+    let temp = TempDir::new("box_card_test");
+    let ws = temp.path();
+    setup_mock_glossary(ws);
+
+    let opt = ScaffoldTaskOptions {
+        name: "box-card-feature".to_string(),
+        title: Some("Box Card Feature".to_string()),
+        intent: Some("feature".to_string()),
+        purpose: Some("Box card purpose".to_string()),
+        workspace: ws.to_path_buf(),
+        force: false,
+    };
+    TaskScaffolder::scaffold(&opt).unwrap();
+
+    let telemetry = inspect_task_telemetry(ws, Some("001"))
+        .expect("inspect telemetry must succeed")
+        .with_scope("crates/xgauntlet-core")
+        .with_invariants("14/14 PASS")
+        .with_evidence("pending")
+        .with_phase("RED");
+
+    let card = telemetry.render_box_card();
+    let lines: Vec<&str> = card.lines().collect();
+
+    assert_eq!(lines.len(), 6, "Box card must be exactly 6 lines");
+
+    // All lines must be exactly 64 characters wide
+    for (idx, line) in lines.iter().enumerate() {
+        assert_eq!(
+            line.chars().count(),
+            64,
+            "Line {} length should be 64, but got {}: '{}'",
+            idx + 1,
+            line.chars().count(),
+            line
+        );
+    }
+
+    // Header border
+    assert!(lines[0].starts_with("┌─── xgauntlet: "));
+    assert!(lines[0].ends_with("┐"));
+
+    // Row 1: Status and Scope
+    assert!(lines[1].starts_with("│ "));
+    assert!(lines[1].ends_with(" │"));
+    assert!(lines[1].contains("Status: RED"));
+    assert!(lines[1].contains("Scope: crates/xgauntlet-core"));
+
+    // Row 2: Progress and Invariants
+    assert!(lines[2].starts_with("│ "));
+    assert!(lines[2].ends_with(" │"));
+    assert!(lines[2].contains("Progress:"));
+    assert!(lines[2].contains("Invariants: 14/14 PASS"));
+
+    // Row 3: Git and Evidence
+    assert!(lines[3].starts_with("│ "));
+    assert!(lines[3].ends_with(" │"));
+    assert!(lines[3].contains("Git:"));
+    assert!(lines[3].contains("Evidence: pending"));
+
+    // Row 4: Ref row with clean paths (no markdown []())
+    assert!(lines[4].starts_with("│ "));
+    assert!(lines[4].ends_with(" │"));
+    assert!(lines[4].contains("Ref: tasks/001-box-card-feature.md"));
+    assert!(lines[4].contains("spec.md"));
+    assert!(lines[4].contains("docs/adr/README.md"));
+    assert!(
+        !lines[4].contains("]("),
+        "Ref line must not contain markdown links"
+    );
+
+    // Bottom border
+    assert!(lines[5].starts_with("└"));
+    assert!(lines[5].ends_with("┘"));
+}
+
+#[test]
+fn test_render_box_card_progress_states() {
+    let temp = TempDir::new("box_card_states");
+    let ws = temp.path();
+    setup_mock_glossary(ws);
+
+    let opt = ScaffoldTaskOptions {
+        name: "states-task".to_string(),
+        title: Some("States Task".to_string()),
+        intent: Some("feature".to_string()),
+        purpose: Some("Testing states".to_string()),
+        workspace: ws.to_path_buf(),
+        force: false,
+    };
+    TaskScaffolder::scaffold(&opt).unwrap();
+
+    let task_file = ws.join("tasks/001-states-task.md");
+
+    // 1. Partial progress (60%)
+    let mixed = r#"---
+type: Task Package
+title: Task 001: States Task
+status: active
+---
+# Task 001: States Task
+## 📋 Acceptance Criteria
+- [x] A
+- [x] B
+- [x] C
+- [ ] D
+- [ ] E
+"#;
+    fs::write(&task_file, mixed).unwrap();
+
+    let telemetry = inspect_task_telemetry(ws, Some("001")).unwrap();
+    let card = telemetry.render_box_card();
+    assert!(card.contains("[██████░░░░] 60%"));
+
+    // 2. Full progress (100%)
+    let full = r#"---
+type: Task Package
+title: Task 001: States Task
+status: done
+---
+# Task 001: States Task
+## 📋 Acceptance Criteria
+- [x] A
+- [x] B
+"#;
+    fs::write(&task_file, full).unwrap();
+
+    let telemetry_full = inspect_task_telemetry(ws, Some("001")).unwrap();
+    let card_full = telemetry_full.render_box_card();
+    assert!(card_full.contains("[██████████] 100%"));
+}
+
+#[test]
+fn test_render_box_compact() {
+    let temp = TempDir::new("box_compact");
+    let ws = temp.path();
+    setup_mock_glossary(ws);
+
+    let opt = ScaffoldTaskOptions {
+        name: "compact-task".to_string(),
+        title: Some("Compact Task".to_string()),
+        intent: Some("feature".to_string()),
+        purpose: Some("Compact test".to_string()),
+        workspace: ws.to_path_buf(),
+        force: false,
+    };
+    TaskScaffolder::scaffold(&opt).unwrap();
+
+    let telemetry = inspect_task_telemetry(ws, Some("001")).unwrap();
+    let compact = telemetry.render_box_compact();
+
+    assert!(
+        !compact.contains('\n'),
+        "Compact badge must be a single line"
+    );
+    assert!(compact.contains("xgauntlet"));
+    assert!(compact.contains("001-compact-task"));
+}

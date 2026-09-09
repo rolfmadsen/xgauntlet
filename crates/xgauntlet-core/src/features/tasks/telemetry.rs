@@ -37,6 +37,46 @@ pub struct TaskTelemetry {
     pub criteria: CriteriaProgress,
     pub git: GitTelemetry,
     pub file_path: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub scope: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub invariants: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub evidence: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub phase: Option<String>,
+}
+
+impl TaskTelemetry {
+    /// Renders high-density Unicode Box-Drawing Telemetry Card (Variant B).
+    pub fn render_box_card(&self) -> String {
+        unimplemented!("render_box_card is not yet implemented")
+    }
+
+    /// Renders ultra-compact single-line badge telemetry.
+    pub fn render_box_compact(&self) -> String {
+        unimplemented!("render_box_compact is not yet implemented")
+    }
+
+    pub fn with_scope(mut self, scope: impl Into<String>) -> Self {
+        self.scope = Some(scope.into());
+        self
+    }
+
+    pub fn with_invariants(mut self, invariants: impl Into<String>) -> Self {
+        self.invariants = Some(invariants.into());
+        self
+    }
+
+    pub fn with_evidence(mut self, evidence: impl Into<String>) -> Self {
+        self.evidence = Some(evidence.into());
+        self
+    }
+
+    pub fn with_phase(mut self, phase: impl Into<String>) -> Self {
+        self.phase = Some(phase.into());
+        self
+    }
 }
 
 /// Summary item representing a task package in task list overviews.
@@ -240,6 +280,10 @@ pub fn inspect_task_telemetry(
         criteria,
         git,
         file_path: rel_path,
+        scope: None,
+        invariants: None,
+        evidence: None,
+        phase: None,
     })
 }
 

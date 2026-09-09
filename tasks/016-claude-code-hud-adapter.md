@@ -2,14 +2,14 @@
 type: Task Package
 title: "Task 016: Claude Code Telemetry HUD & Hook Adapter"
 description: "Etablere Box-Drawing Telemetry Formatter (Variant B med Ref-stier) i crates/xgauntlet-core og xgauntlet-cli samt Claude Code adapterudvidelse med PostToolUse hook interception (.claude/settings.json) og scaffolding jf. spec.md, ADR 0001, ADR 0004 og ADR 0006"
-status: todo
+status: active
 generated: { by: process:xgauntlet-task-init, at: "2026-09-09T18:18:00Z" }
 tags: [hud, telemetry, box-drawing, claude-code, hooks, terminal, cli, scaffold, adr-0004, adr-0006]
 ---
 
 # Task 016: Claude Code Telemetry HUD & Hook Adapter
 
-**Status**: `TODO`
+**Status**: `ACTIVE`
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-09-09`
 

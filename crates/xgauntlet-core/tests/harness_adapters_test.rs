@@ -1,6 +1,8 @@
 use std::fs;
 use std::path::PathBuf;
-use xgauntlet_core::features::adapters::{get_adapter, HarnessAdapter, SUPPORTED_HARNESSES};
+use xgauntlet_core::features::adapters::{
+    get_adapter, ClaudeCodeAdapter, HarnessAdapter, SUPPORTED_HARNESSES,
+};
 use xgauntlet_core::features::policy::ToolActionType;
 
 static TEST_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
@@ -514,6 +516,116 @@ fn test_claude_code_validation() {
     fs::write(temp.path.join("CLAUDE.md"), "# Project Guide").unwrap();
     let res = adapter.validate_plugin(&pdir);
     assert!(res.valid);
+}
+
+#[test]
+fn test_claude_code_post_tool_use_payload_contract() {
+    let box_card = "┌─── xgauntlet: Task 016 ──────────────────────────────────────┐\n\
+                    │ Status: RED (Tests failing)   Scope: crates/xgauntlet-core   │\n\
+                    │ Progress: [██████░░░░] 60%    Invariants: 14/14 PASS         │\n\
+                    │ Git: main@093b533 (dirty)     Evidence: pending              │\n\
+                    │ Ref: tasks/016.md • spec.md • docs/adr/README.md             │\n\
+                    └──────────────────────────────────────────────────────────────┘";
+
+    let payload = ClaudeCodeAdapter::format_post_tool_use_payload(box_card);
+
+    assert!(payload.is_object());
+    let hook_output = payload
+        .get("hookSpecificOutput")
+        .expect("hookSpecificOutput must be present");
+    assert_eq!(
+        hook_output.get("hookEventName").and_then(|v| v.as_str()),
+        Some("PostToolUse"),
+        "hookEventName must be PostToolUse"
+    );
+    assert_eq!(
+        hook_output
+            .get("additionalContext")
+            .and_then(|v| v.as_str()),
+        Some(box_card),
+        "additionalContext must match box card content"
+    );
+
+    // Serialization check
+    let serialized = serde_json::to_string(&payload).expect("must serialize");
+    assert!(serialized.contains("\"hookEventName\":\"PostToolUse\""));
+    assert!(serialized.contains("xgauntlet: Task 016"));
+}
+
+#[test]
+fn test_claude_code_settings_generation_with_post_tool_use_hook() {
+    let settings = ClaudeCodeAdapter::generate_settings_json(None);
+
+    let hooks = settings.get("hooks").expect("hooks object must be present");
+    let post_tool = hooks
+        .get("PostToolUse")
+        .and_then(|v| v.as_array())
+        .expect("PostToolUse array");
+    assert!(!post_tool.is_empty(), "PostToolUse array must not be empty");
+
+    let first = &post_tool[0];
+    assert_eq!(
+        first.get("matcher").and_then(|v| v.as_str()),
+        Some("Edit|Write"),
+        "matcher must target Edit|Write"
+    );
+
+    let inner_hooks = first
+        .get("hooks")
+        .and_then(|v| v.as_array())
+        .expect("inner hooks array");
+    assert_eq!(
+        inner_hooks[0].get("type").and_then(|v| v.as_str()),
+        Some("command")
+    );
+    assert_eq!(
+        inner_hooks[0].get("command").and_then(|v| v.as_str()),
+        Some("xgauntlet telemetry --format claude-hook")
+    );
+}
+
+#[test]
+fn test_claude_code_settings_merge_preserves_custom_settings() {
+    let existing = serde_json::json!({
+        "env": {
+            "MY_CUSTOM_KEY": "custom_val"
+        },
+        "hooks": {
+            "PreToolUse": [
+                {
+                    "matcher": "Bash",
+                    "hooks": [
+                        { "type": "command", "command": "my-script.sh" }
+                    ]
+                }
+            ]
+        }
+    });
+
+    let merged = ClaudeCodeAdapter::generate_settings_json(Some(&existing));
+
+    // Custom env preserved
+    assert_eq!(
+        merged
+            .get("env")
+            .and_then(|e| e.get("MY_CUSTOM_KEY"))
+            .and_then(|v| v.as_str()),
+        Some("custom_val")
+    );
+
+    // Existing PreToolUse preserved
+    let hooks = merged.get("hooks").expect("hooks object");
+    assert!(hooks.get("PreToolUse").is_some());
+
+    // New PostToolUse added
+    let post_tool = hooks
+        .get("PostToolUse")
+        .and_then(|v| v.as_array())
+        .expect("PostToolUse array");
+    assert_eq!(
+        post_tool[0].get("matcher").and_then(|v| v.as_str()),
+        Some("Edit|Write")
+    );
 }
 
 // ============================================================================
