@@ -960,3 +960,48 @@ fn test_codex_validation_with_hooks() {
         "Codex validation must pass with 0 issues when .codex/hooks.json is present"
     );
 }
+
+#[test]
+fn test_codex_scaffold_init_integration() {
+    let temp = TempDir::new("codex_scaffold_init");
+    let ws = &temp.path;
+
+    // Run core scaffold first to simulate workspace bootstrap
+    let opts = xgauntlet_core::ScaffoldOptions {
+        workspace: ws.to_path_buf(),
+        stack: Some("rust".to_string()),
+        force: false,
+        dry_run: false,
+        project_name: Some("codex-init-test".to_string()),
+    };
+    let scaffold_res = xgauntlet_core::run_scaffold(&opts).expect("scaffold must succeed");
+    assert!(scaffold_res.is_success);
+
+    // Provision .codex/hooks.json via CodexAdapter
+    let hooks_path = CodexAdapter::scaffold_hooks(ws).expect("hooks scaffolding must succeed");
+    assert!(hooks_path.is_file());
+
+    // Verify .agents/AGENTS.md exists and is untouched
+    let agents_md = fs::read_to_string(ws.join(".agents/AGENTS.md")).unwrap();
+    assert!(agents_md.contains("Standard Response HUD Protocol"));
+
+    // Verify .codex/hooks.json has telemetry hook
+    let hooks_content = fs::read_to_string(&hooks_path).unwrap();
+    let hooks_json: serde_json::Value = serde_json::from_str(&hooks_content).unwrap();
+    assert_eq!(
+        hooks_json["hooks"]["PostToolUse"][0]["matcher"],
+        "apply_patch|Edit|Write|Bash"
+    );
+    assert_eq!(
+        hooks_json["hooks"]["PostToolUse"][0]["hooks"][0]["command"],
+        "xgauntlet telemetry --format codex-hook"
+    );
+
+    // Validate plugin for codex
+    let adapter = get_adapter("codex").expect("codex adapter");
+    let val_res = adapter.validate_plugin(ws);
+    assert!(
+        val_res.valid && val_res.issues.is_empty(),
+        "Workspace with scaffolded codex hooks must validate with 0 issues"
+    );
+}

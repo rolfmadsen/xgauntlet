@@ -21,23 +21,108 @@ impl CodexAdapter {
     }
 
     /// Formats the canonical OpenAI Codex PostToolUse JSON payload on stdout.
-    pub fn format_post_tool_use_payload(_box_card: &str) -> serde_json::Value {
-        unimplemented!("format_post_tool_use_payload is not yet implemented")
+    pub fn format_post_tool_use_payload(box_card: &str) -> serde_json::Value {
+        serde_json::json!({
+            "hookSpecificOutput": {
+                "hookEventName": "PostToolUse",
+                "additionalContext": box_card
+            }
+        })
     }
 
     /// Generates or merges the PostToolUse hook configuration for .codex/hooks.json.
-    pub fn generate_hooks_json(_existing_json: Option<&serde_json::Value>) -> serde_json::Value {
-        unimplemented!("generate_hooks_json is not yet implemented")
+    pub fn generate_hooks_json(existing_json: Option<&serde_json::Value>) -> serde_json::Value {
+        let hook_cmd = "xgauntlet telemetry --format codex-hook";
+        let hook_entry = serde_json::json!({
+            "matcher": "apply_patch|Edit|Write|Bash",
+            "hooks": [
+                {
+                    "type": "command",
+                    "command": hook_cmd
+                }
+            ]
+        });
+
+        match existing_json {
+            Some(existing) => {
+                let mut root = match existing.as_object() {
+                    Some(obj) => obj.clone(),
+                    None => serde_json::Map::new(),
+                };
+
+                let mut hooks = match root.get("hooks").and_then(|h| h.as_object()) {
+                    Some(h) => h.clone(),
+                    None => serde_json::Map::new(),
+                };
+
+                let mut post_tool_vec = match hooks.get("PostToolUse").and_then(|p| p.as_array()) {
+                    Some(arr) => arr.clone(),
+                    None => Vec::new(),
+                };
+
+                let already_exists = post_tool_vec.iter().any(|item| {
+                    item.get("hooks")
+                        .and_then(|h| h.as_array())
+                        .map(|arr| {
+                            arr.iter().any(|h| {
+                                h.get("command").and_then(|c| c.as_str()) == Some(hook_cmd)
+                            })
+                        })
+                        .unwrap_or(false)
+                });
+
+                if !already_exists {
+                    post_tool_vec.push(hook_entry);
+                }
+
+                hooks.insert(
+                    "PostToolUse".to_string(),
+                    serde_json::Value::Array(post_tool_vec),
+                );
+                root.insert("hooks".to_string(), serde_json::Value::Object(hooks));
+                serde_json::Value::Object(root)
+            }
+            None => {
+                let mut root = serde_json::Map::new();
+                let mut hooks = serde_json::Map::new();
+                hooks.insert(
+                    "PostToolUse".to_string(),
+                    serde_json::Value::Array(vec![hook_entry]),
+                );
+                root.insert("hooks".to_string(), serde_json::Value::Object(hooks));
+                serde_json::Value::Object(root)
+            }
+        }
     }
 
     /// Scaffolds or updates .codex/hooks.json in the specified workspace with PostToolUse telemetry hook.
-    pub fn scaffold_hooks(_workspace: &Path) -> Result<std::path::PathBuf, std::io::Error> {
-        unimplemented!("scaffold_hooks is not yet implemented")
+    pub fn scaffold_hooks(workspace: &Path) -> Result<std::path::PathBuf, std::io::Error> {
+        let codex_dir = workspace.join(".codex");
+        if !codex_dir.exists() {
+            std::fs::create_dir_all(&codex_dir)?;
+        }
+        let hooks_path = codex_dir.join("hooks.json");
+        let existing = if hooks_path.is_file() {
+            let content = std::fs::read_to_string(&hooks_path)?;
+            serde_json::from_str(&content).ok()
+        } else {
+            None
+        };
+        let updated = Self::generate_hooks_json(existing.as_ref());
+        let json_str = serde_json::to_string_pretty(&updated)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+        std::fs::write(&hooks_path, json_str + "\n")?;
+        Ok(hooks_path)
     }
 
     /// Wraps response output (e.g. from verify or checkpoint) with the Variant B Box-Drawing Telemetry Card.
-    pub fn wrap_response(_box_card: &str, _body: &str) -> String {
-        unimplemented!("wrap_response is not yet implemented")
+    pub fn wrap_response(box_card: &str, body: &str) -> String {
+        let trimmed_body = body.trim();
+        if trimmed_body.is_empty() {
+            box_card.to_string()
+        } else {
+            format!("{}\n\n{}", box_card.trim_end(), trimmed_body)
+        }
     }
 }
 
@@ -167,13 +252,57 @@ impl HarnessAdapter for CodexAdapter {
     fn validate_plugin(&self, plugin_dir: &Path) -> AdapterValidationResult {
         let mut issues = Vec::new();
 
-        let plugin_json = plugin_dir.join("ai-plugin.json");
-        if !plugin_json.is_file() {
+        let parent_ws = plugin_dir.parent().unwrap_or(plugin_dir);
+        let has_ai_plugin = plugin_dir.join("ai-plugin.json").is_file()
+            || parent_ws.join("ai-plugin.json").is_file();
+        let codex_hooks = if plugin_dir.join(".codex/hooks.json").is_file() {
+            Some(plugin_dir.join(".codex/hooks.json"))
+        } else if plugin_dir.join("hooks.json").is_file() {
+            Some(plugin_dir.join("hooks.json"))
+        } else if parent_ws.join(".codex/hooks.json").is_file() {
+            Some(parent_ws.join(".codex/hooks.json"))
+        } else {
+            None
+        };
+        let has_codex_dir = plugin_dir.join(".codex").is_dir() || parent_ws.join(".codex").is_dir();
+
+        if !has_ai_plugin && codex_hooks.is_none() && !has_codex_dir {
             issues.push(ValidationIssue {
                 severity: ValidationSeverity::Warning,
                 path: "ai-plugin.json".to_string(),
-                message: "No 'ai-plugin.json' found in target directory.".to_string(),
+                message: "No 'ai-plugin.json' or '.codex/hooks.json' found in target directory."
+                    .to_string(),
             });
+        }
+
+        if let Some(ref hooks_file) = codex_hooks {
+            match std::fs::read_to_string(hooks_file) {
+                Ok(content) => match serde_json::from_str::<Value>(&content) {
+                    Ok(val) => {
+                        if !val.is_object() {
+                            issues.push(ValidationIssue {
+                                severity: ValidationSeverity::Error,
+                                path: hooks_file.display().to_string(),
+                                message: "hooks.json root must be a JSON object.".to_string(),
+                            });
+                        }
+                    }
+                    Err(e) => {
+                        issues.push(ValidationIssue {
+                            severity: ValidationSeverity::Error,
+                            path: hooks_file.display().to_string(),
+                            message: format!("Invalid JSON in hooks.json: {e}"),
+                        });
+                    }
+                },
+                Err(e) => {
+                    issues.push(ValidationIssue {
+                        severity: ValidationSeverity::Error,
+                        path: hooks_file.display().to_string(),
+                        message: format!("Failed to read hooks.json: {e}"),
+                    });
+                }
+            }
         }
 
         AdapterValidationResult {

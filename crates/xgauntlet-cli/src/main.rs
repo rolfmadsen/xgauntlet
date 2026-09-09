@@ -185,7 +185,7 @@ enum Commands {
         #[arg(short, long, default_value = ".")]
         workspace: std::path::PathBuf,
 
-        /// Format to output telemetry in: box, claude-hook, json, ansi, compact-box
+        /// Format to output telemetry in: box, claude-hook, codex-hook, json, ansi, compact-box
         #[arg(short, long, default_value = "box")]
         format: String,
     },
@@ -505,6 +505,8 @@ async fn main() -> anyhow::Result<()> {
             if let Some(ref h) = harness {
                 if (h == "claude_code" || h == "claude") && !*dry_run {
                     let _ = xgauntlet_core::ClaudeCodeAdapter::scaffold_settings(&canonical_ws);
+                } else if (h == "codex" || h == "openai_codex") && !*dry_run {
+                    let _ = xgauntlet_core::CodexAdapter::scaffold_hooks(&canonical_ws);
                 }
             }
 
@@ -632,6 +634,12 @@ async fn main() -> anyhow::Result<()> {
                     let box_card = telemetry.render_box_card();
                     let payload =
                         xgauntlet_core::ClaudeCodeAdapter::format_post_tool_use_payload(&box_card);
+                    println!("{}", serde_json::to_string_pretty(&payload)?);
+                }
+                "codex-hook" | "codex" => {
+                    let box_card = telemetry.render_box_card();
+                    let payload =
+                        xgauntlet_core::CodexAdapter::format_post_tool_use_payload(&box_card);
                     println!("{}", serde_json::to_string_pretty(&payload)?);
                 }
                 "json" => {

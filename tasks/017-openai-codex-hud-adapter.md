@@ -63,15 +63,15 @@ Etablere OpenAI Codex adapterudvidelse i `crates/xgauntlet-core` for strukturere
    - Køre parameteriseret conformance testsuite for alle adaptere for at bevise nul regression for Google Antigravity og Claude Code.
 
 ## 📋 Acceptance Criteria
-- [ ] `crates/xgauntlet-cli` understøtter `xgauntlet telemetry --format [codex-hook|box|json|ansi]` og genererer gyldig JSON med `hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: "..." }`.
-- [ ] Det genererede telemetri-kort formateres som Variant B Unicode Box-Drawing med fast bredde og `Ref:` række med rene klikbare stier.
-- [ ] `crates/xgauntlet-core/src/features/adapters/codex/mod.rs` understøtter scaffolding af `.codex/hooks.json` med `PostToolUse` hooks (matcher: `apply_patch|Edit|Write|Bash`).
-- [ ] `xgauntlet scaffold init --harness codex` provisjonerer `.codex/hooks.json` med telemetry hooket og opdaterer `.agents/AGENTS.md` uden destruktiv overskrivning.
-- [ ] `crates/xgauntlet-core/src/features/adapters/codex/mod.rs` understøtter indkapsling af verifikations- og checkpoint-responser med Variant B Box-Drawing kortet.
-- [ ] Bundled skill-skabeloner i `.agents/plugins/agent-gauntlet/` (`diagnose`, `code-review`, `grill-me`) er opdateret til at udstille boks cockpit-kortet.
-- [ ] `xgauntlet validate-plugin` godkender den genererede Codex plugin- og hook-konfiguration med 0 advarsler og 0 fejl.
-- [ ] Conformance tests i `crates/xgauntlet-core/tests/harness_adapters_test.rs` validerer Codex hook scaffolding, response wrapping og boks-syntaks.
-- [ ] `cargo test --workspace` forbliver 100% grøn uden regressioner for eksisterende Antigravity eller Claude Code adaptere.
+- [x] `crates/xgauntlet-cli` understøtter `xgauntlet telemetry --format [codex-hook|box|json|ansi]` og genererer gyldig JSON med `hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: "..." }`.
+- [x] Det genererede telemetri-kort formateres som Variant B Unicode Box-Drawing med fast bredde og `Ref:` række med rene klikbare stier.
+- [x] `crates/xgauntlet-core/src/features/adapters/codex/mod.rs` understøtter scaffolding af `.codex/hooks.json` med `PostToolUse` hooks (matcher: `apply_patch|Edit|Write|Bash`).
+- [x] `xgauntlet scaffold init --harness codex` provisjonerer `.codex/hooks.json` med telemetry hooket og opdaterer `.agents/AGENTS.md` uden destruktiv overskrivning.
+- [x] `crates/xgauntlet-core/src/features/adapters/codex/mod.rs` understøtter indkapsling af verifikations- og checkpoint-responser med Variant B Box-Drawing kortet.
+- [x] Bundled skill-skabeloner i `.agents/plugins/agent-gauntlet/` (`diagnose`, `code-review`, `grill-me`) er opdateret til at udstille boks cockpit-kortet.
+- [x] `xgauntlet validate-plugin` godkender den genererede Codex plugin- og hook-konfiguration med 0 advarsler og 0 fejl.
+- [x] Conformance tests i `crates/xgauntlet-core/tests/harness_adapters_test.rs` validerer Codex hook scaffolding, response wrapping og boks-syntaks.
+- [x] `cargo test --workspace` forbliver 100% grøn uden regressioner for eksisterende Antigravity eller Claude Code adaptere.
 
 ## 🚫 Must NOT
 - Må IKKE introducere baggrundsdæmoner eller runtime-sockets (Zero-Daemon Invariant).

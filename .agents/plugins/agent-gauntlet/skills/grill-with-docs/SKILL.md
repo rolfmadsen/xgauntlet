@@ -85,4 +85,15 @@ Only offer to create an ADR when all three are true:
 
 If any of the three is missing, skip the ADR. Use the format in [ADR-FORMAT.md](./ADR-FORMAT.md).
 
+### Cockpit Status
+Vis det aktuelle criteria- og cockpit-billede med Variant B boks-kortet ved sessionens afslutning:
+```text
+┌─── xgauntlet: Task <ID> ─────────────────────────────────────┐
+│ Status: <PHASE>               Scope: <affected crates>       │
+│ Progress: [██████████] 100%   Invariants: PASS               │
+│ Git: <branch>@<oid> (clean)   Evidence: <status>             │
+│ Ref: tasks/<id>.md • spec.md • docs/adr/README.md            │
+└──────────────────────────────────────────────────────────────┘
+```
+
 </supporting-info>
