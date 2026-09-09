@@ -147,6 +147,10 @@ enum Commands {
         /// Output scaffold results in structured JSON format
         #[arg(long)]
         json: bool,
+
+        /// Target harness integration (e.g. 'claude_code', 'codex', 'antigravity')
+        #[arg(long)]
+        harness: Option<String>,
     },
     /// Mechanical release readiness gatekeeper, manifest version harmony, and ADR documentation coverage
     CheckRelease {
@@ -170,6 +174,20 @@ enum Commands {
     Task {
         #[command(subcommand)]
         command: TaskCommands,
+    },
+    /// Dynamic response HUD telemetry card and harness hook stream
+    Telemetry {
+        /// Explicit task identifier (e.g. '016' or '016-claude-code-hud-adapter')
+        #[arg(short, long)]
+        task: Option<String>,
+
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Format to output telemetry in: box, claude-hook, json, ansi, compact-box
+        #[arg(short, long, default_value = "box")]
+        format: String,
     },
     /// Create a phase-bound TDD checkpoint with pre-flight invariant verification and local conventional git commit
     Checkpoint {
@@ -466,6 +484,7 @@ async fn main() -> anyhow::Result<()> {
             dry_run,
             name,
             json,
+            harness,
         }) => {
             let canonical_ws = if workspace.is_absolute() {
                 workspace.clone()
@@ -474,7 +493,7 @@ async fn main() -> anyhow::Result<()> {
             };
 
             let options = xgauntlet_core::ScaffoldOptions {
-                workspace: canonical_ws,
+                workspace: canonical_ws.clone(),
                 stack: stack.clone(),
                 force: *force,
                 dry_run: *dry_run,
@@ -482,6 +501,12 @@ async fn main() -> anyhow::Result<()> {
             };
 
             let result = xgauntlet_core::run_scaffold(&options)?;
+
+            if let Some(ref h) = harness {
+                if (h == "claude_code" || h == "claude") && !*dry_run {
+                    let _ = xgauntlet_core::ClaudeCodeAdapter::scaffold_settings(&canonical_ws);
+                }
+            }
 
             if *json {
                 println!("{}", serde_json::to_string_pretty(&result)?);
@@ -588,6 +613,41 @@ async fn main() -> anyhow::Result<()> {
                 }
             }
         },
+
+        Some(Commands::Telemetry {
+            task,
+            workspace,
+            format,
+        }) => {
+            let canonical_ws = if workspace.is_absolute() {
+                workspace.clone()
+            } else {
+                std::env::current_dir()?.join(workspace)
+            };
+
+            let telemetry = xgauntlet_core::inspect_task_telemetry(&canonical_ws, task.as_deref())?;
+
+            match format.to_ascii_lowercase().as_str() {
+                "claude-hook" | "claude" => {
+                    let box_card = telemetry.render_box_card();
+                    let payload =
+                        xgauntlet_core::ClaudeCodeAdapter::format_post_tool_use_payload(&box_card);
+                    println!("{}", serde_json::to_string_pretty(&payload)?);
+                }
+                "json" => {
+                    println!("{}", serde_json::to_string_pretty(&telemetry)?);
+                }
+                "compact-box" | "compact" => {
+                    println!("{}", telemetry.render_box_compact());
+                }
+                "box" | "ansi" => {
+                    println!("{}", telemetry.render_box_card());
+                }
+                _ => {
+                    println!("{}", telemetry.render_box_card());
+                }
+            }
+        }
 
         Some(Commands::Checkpoint {
             phase,

@@ -21,13 +21,98 @@ impl ClaudeCodeAdapter {
     }
 
     /// Formats the canonical Claude Code PostToolUse JSON payload on stdout (v2.1.248+).
-    pub fn format_post_tool_use_payload(_box_card: &str) -> serde_json::Value {
-        unimplemented!("format_post_tool_use_payload is not yet implemented")
+    pub fn format_post_tool_use_payload(box_card: &str) -> serde_json::Value {
+        serde_json::json!({
+            "hookSpecificOutput": {
+                "hookEventName": "PostToolUse",
+                "additionalContext": box_card
+            }
+        })
     }
 
     /// Generates or merges the PostToolUse hook configuration for .claude/settings.json.
-    pub fn generate_settings_json(_existing_json: Option<&serde_json::Value>) -> serde_json::Value {
-        unimplemented!("generate_settings_json is not yet implemented")
+    pub fn generate_settings_json(existing_json: Option<&serde_json::Value>) -> serde_json::Value {
+        let hook_cmd = "xgauntlet telemetry --format claude-hook";
+        let hook_entry = serde_json::json!({
+            "matcher": "Edit|Write",
+            "hooks": [
+                {
+                    "type": "command",
+                    "command": hook_cmd
+                }
+            ]
+        });
+
+        match existing_json {
+            Some(existing) => {
+                let mut root = match existing.as_object() {
+                    Some(obj) => obj.clone(),
+                    None => serde_json::Map::new(),
+                };
+
+                let mut hooks = match root.get("hooks").and_then(|h| h.as_object()) {
+                    Some(h) => h.clone(),
+                    None => serde_json::Map::new(),
+                };
+
+                let mut post_tool_vec = match hooks.get("PostToolUse").and_then(|p| p.as_array()) {
+                    Some(arr) => arr.clone(),
+                    None => Vec::new(),
+                };
+
+                let already_exists = post_tool_vec.iter().any(|item| {
+                    item.get("hooks")
+                        .and_then(|h| h.as_array())
+                        .map(|arr| {
+                            arr.iter().any(|h| {
+                                h.get("command").and_then(|c| c.as_str()) == Some(hook_cmd)
+                            })
+                        })
+                        .unwrap_or(false)
+                });
+
+                if !already_exists {
+                    post_tool_vec.push(hook_entry);
+                }
+
+                hooks.insert(
+                    "PostToolUse".to_string(),
+                    serde_json::Value::Array(post_tool_vec),
+                );
+                root.insert("hooks".to_string(), serde_json::Value::Object(hooks));
+                serde_json::Value::Object(root)
+            }
+            None => {
+                let mut root = serde_json::Map::new();
+                let mut hooks = serde_json::Map::new();
+                hooks.insert(
+                    "PostToolUse".to_string(),
+                    serde_json::Value::Array(vec![hook_entry]),
+                );
+                root.insert("hooks".to_string(), serde_json::Value::Object(hooks));
+                serde_json::Value::Object(root)
+            }
+        }
+    }
+
+    /// Scaffolds or updates .claude/settings.json in the specified workspace with PostToolUse telemetry hook.
+    pub fn scaffold_settings(workspace: &Path) -> Result<std::path::PathBuf, std::io::Error> {
+        let claude_dir = workspace.join(".claude");
+        if !claude_dir.exists() {
+            std::fs::create_dir_all(&claude_dir)?;
+        }
+        let settings_path = claude_dir.join("settings.json");
+        let existing = if settings_path.is_file() {
+            let content = std::fs::read_to_string(&settings_path)?;
+            serde_json::from_str(&content).ok()
+        } else {
+            None
+        };
+        let updated = Self::generate_settings_json(existing.as_ref());
+        let json_str = serde_json::to_string_pretty(&updated)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+        std::fs::write(&settings_path, json_str + "\n")?;
+        Ok(settings_path)
     }
 }
 

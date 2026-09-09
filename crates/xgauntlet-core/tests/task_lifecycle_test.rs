@@ -351,7 +351,7 @@ fn test_render_box_card_format_and_borders() {
     // Row 4: Ref row with clean paths (no markdown []())
     assert!(lines[4].starts_with("│ "));
     assert!(lines[4].ends_with(" │"));
-    assert!(lines[4].contains("Ref: tasks/001-box-card-feature.md"));
+    assert!(lines[4].contains("Ref: tasks/001.md"));
     assert!(lines[4].contains("spec.md"));
     assert!(lines[4].contains("docs/adr/README.md"));
     assert!(

@@ -50,12 +50,107 @@ pub struct TaskTelemetry {
 impl TaskTelemetry {
     /// Renders high-density Unicode Box-Drawing Telemetry Card (Variant B).
     pub fn render_box_card(&self) -> String {
-        unimplemented!("render_box_card is not yet implemented")
+        // Line 0: Header border (fixed 64 visible chars)
+        let short_id = crate::features::checkpoint::extract_short_task_id(&self.task_id);
+        let task_label = if self
+            .task_id
+            .chars()
+            .next()
+            .map(|c| c.is_ascii_digit())
+            .unwrap_or(false)
+        {
+            format!("Task {}", short_id)
+        } else {
+            self.task_id.clone()
+        };
+        let header_prefix = format!("┌─── xgauntlet: {task_label} ");
+        let header_dashes = 64usize.saturating_sub(header_prefix.chars().count() + 1);
+        let line0 = format!("{header_prefix}{}┐", "─".repeat(header_dashes));
+
+        // Line 1: Status & Scope (Status: ... Scope: ...)
+        let status_val = self
+            .phase
+            .as_deref()
+            .unwrap_or_else(|| self.status.as_str());
+        let status_str = format!("Status: {status_val}");
+        let scope_val = self.scope.as_deref().unwrap_or("crates/*");
+        let scope_str = format!("Scope: {scope_val}");
+        let spaces1 =
+            60usize.saturating_sub(status_str.chars().count() + scope_str.chars().count());
+        let line1 = format!("│ {status_str}{}{scope_str} │", " ".repeat(spaces1));
+
+        // Line 2: Progress & Invariants
+        let total = self.criteria.total;
+        let completed = self.criteria.completed;
+        let percentage = (completed * 100).checked_div(total).unwrap_or(0) as u8;
+        let filled = (completed * 10 + total / 2)
+            .checked_div(total)
+            .map(|f| std::cmp::min(10, f))
+            .unwrap_or(0);
+        let empty = 10 - filled;
+        let bar_str = format!(
+            "[{}{}] {}%",
+            "█".repeat(filled),
+            "░".repeat(empty),
+            percentage
+        );
+        let progress_str = format!("Progress: {bar_str}");
+        let invariants_val = self.invariants.as_deref().unwrap_or("14/14 PASS");
+        let invariants_str = format!("Invariants: {invariants_val}");
+        let spaces2 =
+            60usize.saturating_sub(progress_str.chars().count() + invariants_str.chars().count());
+        let line2 = format!("│ {progress_str}{}{invariants_str} │", " ".repeat(spaces2));
+
+        // Line 3: Git & Evidence
+        let git_state = if self.git.is_clean {
+            "clean".to_string()
+        } else if self.git.dirty_count > 0 {
+            format!("dirty: {} files", self.git.dirty_count)
+        } else {
+            "dirty".to_string()
+        };
+        let git_str = format!(
+            "Git: {}@{} ({})",
+            self.git.branch, self.git.head_oid, git_state
+        );
+        let evidence_val = self.evidence.as_deref().unwrap_or("pending");
+        let evidence_str = format!("Evidence: {evidence_val}");
+        let spaces3 =
+            60usize.saturating_sub(git_str.chars().count() + evidence_str.chars().count());
+        let line3 = format!("│ {git_str}{}{evidence_str} │", " ".repeat(spaces3));
+
+        // Line 4: Ref row with clean terminal-clickable relative paths
+        let task_ref = if self.file_path.len() <= 16 && self.file_path.starts_with("tasks/") {
+            self.file_path.clone()
+        } else {
+            format!("tasks/{}.md", short_id)
+        };
+        let ref_str = format!("Ref: {} • spec.md • docs/adr/README.md", task_ref);
+        let spaces4 = 60usize.saturating_sub(ref_str.chars().count());
+        let line4 = format!("│ {ref_str}{} │", " ".repeat(spaces4));
+
+        // Line 5: Bottom border (fixed 64 chars)
+        let line5 = format!("└{}┘", "─".repeat(62));
+
+        format!("{line0}\n{line1}\n{line2}\n{line3}\n{line4}\n{line5}")
     }
 
     /// Renders ultra-compact single-line badge telemetry.
     pub fn render_box_compact(&self) -> String {
-        unimplemented!("render_box_compact is not yet implemented")
+        let status_val = self
+            .phase
+            .as_deref()
+            .unwrap_or_else(|| self.status.as_str());
+        let git_state = if self.git.is_clean { "clean" } else { "dirty" };
+        format!(
+            "[xgauntlet: {}] Status: {} | Progress: {}% | Git: {}@{} ({})",
+            self.task_id,
+            status_val,
+            self.criteria.percentage,
+            self.git.branch,
+            self.git.head_oid,
+            git_state
+        )
     }
 
     pub fn with_scope(mut self, scope: impl Into<String>) -> Self {

@@ -628,6 +628,38 @@ fn test_claude_code_settings_merge_preserves_custom_settings() {
     );
 }
 
+#[test]
+fn test_claude_code_hook_scaffolding() {
+    let temp = TempDir::new("claude_scaffold");
+    let ws = &temp.path;
+
+    // First run creates .claude/settings.json
+    let settings_path = ClaudeCodeAdapter::scaffold_settings(ws).expect("scaffold must succeed");
+    assert!(settings_path.is_file());
+
+    let content = fs::read_to_string(&settings_path).unwrap();
+    let json: serde_json::Value = serde_json::from_str(&content).unwrap();
+    assert!(json["hooks"]["PostToolUse"].is_array());
+    assert_eq!(json["hooks"]["PostToolUse"][0]["matcher"], "Edit|Write");
+
+    // Add custom setting to verify non-destructive update
+    let mut modified = json.clone();
+    modified["custom_key"] = serde_json::json!("preserved");
+    fs::write(
+        &settings_path,
+        serde_json::to_string_pretty(&modified).unwrap(),
+    )
+    .unwrap();
+
+    // Second run preserves custom settings
+    let settings_path2 =
+        ClaudeCodeAdapter::scaffold_settings(ws).expect("second scaffold must succeed");
+    let content2 = fs::read_to_string(&settings_path2).unwrap();
+    let json2: serde_json::Value = serde_json::from_str(&content2).unwrap();
+    assert_eq!(json2["custom_key"], "preserved");
+    assert!(json2["hooks"]["PostToolUse"].is_array());
+}
+
 // ============================================================================
 // OpenAI Codex Conformance & Specific Tests
 // ============================================================================
