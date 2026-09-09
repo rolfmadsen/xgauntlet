@@ -1,24 +1,27 @@
 # Verification Report
 
-**Task ID**: `018-antigravity-preinvocation-hud-adapter`  
-**Task Title**: Task 018: Google Antigravity Telemetry Hook & PreInvocation Integration  
+**Task ID**: `019-hud-and-adapter-hardening`  
+**Task Title**: Task 019: HUD & Harness Adapter Hardening, OS Resilience & Refactor  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `f2cb8a0cb2c77e027183c9646f2cf2e6fbdc3a8df6a64aeb9fed86c988dd241d`  
-**Timestamp**: `2026-09-09T20:16:26Z`  
-**Head**: `87ca78b`  
-**Commit**: `87ca78b`  
+**Source Manifest Digest**: `4e3b327207e0247fafeb1503f15e7e45713d9f0cc208f3bf7009e92477284802`  
+**Timestamp**: `2026-09-09T20:30:08Z`  
+**Head**: `3cec70f`  
+**Commit**: `3cec70f`  
 
 ## Acceptance Criteria
 
-- [x] `crates/xgauntlet-core/src/features/adapters/antigravity/mod.rs` understøtter håndtering af `PreInvocation` events og genererer `injectSteps` JSON jf. Antigravity hooks specifikationen.
-- [x] `crates/xgauntlet-cli` understøtter `xgauntlet telemetry --format antigravity-hook`, der udskriver gyldig JSON med `injectSteps: [{ "ephemeralMessage": "..." }]`.
-- [x] Telemetri-injektionen indeholder task ID, aktuel TDD-fase, invariant-status, mutation score, git HEAD hash, drift-indikator og evidens-digest.
-- [x] Scaffolderen i `crates/xgauntlet-core/src/features/scaffold/` understøtter generering og idempotent merge af `PreInvocation` hooks i `.agents/hooks.json`.
-- [x] Specifikationen og systemprompter i `.agents/AGENTS.md` definerer eksplicit det 5-linjers blockquote HUD med klikbare navigation-links for Antigravity.
-- [x] Conformance tests i `crates/xgauntlet-core/tests/harness_adapters_test.rs` verificerer Antigravity `PreInvocation` payload, hook-eksekvering og blockquote layout.
-- [x] Alle tre harness-adaptere (Antigravity, Claude Code, Codex) understøtter deres respektive telemetry hooks uden indbyrdes regressionsfejl.
-- [x] `cargo test --workspace` passerer 100% uden fejl eller advarsler.
+- [x] `TaskTelemetry::render_box_card` garanterer præcis 64 tegn pr. linje selv ved ekstreme strenglængder for scope, git branch, status eller ref-stier.
+- [x] `TaskTelemetry::render_box_card` og sti-håndtering normaliserer Windows-stier med backslashes (`\`) til standard fremadrettede POSIX-skråstreger (`/`).
+- [x] `crates/xgauntlet-cli/src/main.rs` fjerner `let _ =` og propagerer IO-fejl ved harness-scaffolding under `xgauntlet init`.
+- [x] Harness-specifikke filer inkluderes i `ScaffoldResult` ved `xgauntlet init --harness ...`.
+- [x] Den delte JSON merge-logik for `PostToolUse` i Claude Code og Codex er konsolideret i et fælles modul uden kodeduplikering.
+- [x] Harness-aliaser (`codex`, `openai`, `openai_codex`, `antigravity`, `claude_code`) er ensartet defineret på tværs af CLI og core.
+- [x] `AntigravityAdapter::generate_hooks_json` opgraderer forældede python-hooks til `xgauntlet hook antigravity`.
+- [x] Workspace `.agents/hooks.json` er opdateret til at anvende `xgauntlet hook antigravity` i stedet for `python3`.
+- [x] `Commands::Checkpoint` og `Commands::Verify` understøtter `--harness` respons-wrapping med det respektive telemetry-kort.
+- [x] Unit- og integrationstests i `harness_adapters_test.rs` og `task_lifecycle_test.rs` dækker samtlige nye grænsetilfælde for lange navne, Windows-stier og fejlforhold.
+- [x] `cargo test --workspace` og `cargo clippy` forbliver 100% grønne uden advarsler.
 
 ---
 
@@ -26,10 +29,10 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `lint` | `PASSED` | `0` | `0.100s` |
-| `types` | `PASSED` | `0` | `0.073s` |
-| `unit` | `PASSED` | `0` | `9.071s` |
-| `invariants` | `PASSED` | `0` | `0.266s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
+| `lint` | `PASSED` | `0` | `0.086s` |
+| `types` | `PASSED` | `0` | `0.072s` |
+| `unit` | `PASSED` | `0` | `8.887s` |
+| `invariants` | `PASSED` | `0` | `0.263s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
 
 ---
