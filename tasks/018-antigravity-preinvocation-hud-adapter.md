@@ -2,14 +2,14 @@
 type: Task Package
 title: "Task 018: Google Antigravity Telemetry Hook & PreInvocation Integration"
 description: "Etablere automatiseret PreInvocation hook telemetry injektion for Google Antigravity IDE i crates/xgauntlet-core og xgauntlet-cli, samt bevare det klikbare Markdown Blockquote HUD for det menneskelige interface jf. spec.md, ADR 0001, ADR 0004 og ADR 0006"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-09T21:35:00Z" }
 tags: [hud, telemetry, antigravity, pre-invocation, hooks, blockquote, scaffold, adr-0004, adr-0006]
 ---
 
 # Task 018: Google Antigravity Telemetry Hook & PreInvocation Integration
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-09-09`
 
@@ -76,6 +76,7 @@ Etablere en dedikeret `PreInvocation` hook-adapter for Google Antigravity IDE i 
 
 ## 📝 Revisions
 - 2026-09-09: Oprettet som planlagt opgave (TODO) for Google Antigravity Telemetry Hook & PreInvocation Integration (Task 018), der formaliserer PreInvocation datainjektion og bevarer det klikbare blockquote layout.
+- 2026-09-09: 100% implementeret, verificeret og forseglet (DONE). PreInvocation hook interception, cockpit telemetry injektion, Antigravity 5-linjers blockquote HUD med proportional typografi og klikbare links, samt idempotent scaffolding i .agents/hooks.json.
 
 ## 🧪 Verifikation
 - `cargo run -p xgauntlet-cli -- check-spec -t 018`

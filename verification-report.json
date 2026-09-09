@@ -4,43 +4,42 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "017-openai-codex-hud-adapter",
-    "task_title": "Task 017: OpenAI Codex Telemetry HUD & Hook Adapter",
-    "task_digest": "4f25d25dd1f38e630a0f29f5478f5a729e6884fdc0681b90b78e29953355dd1b",
+    "task_id": "018-antigravity-preinvocation-hud-adapter",
+    "task_title": "Task 018: Google Antigravity Telemetry Hook & PreInvocation Integration",
+    "task_digest": "4536f467176c0e4c1fabe325ef24c69073a6ae39b2add7639d53c646e8d2a2e3",
     "acceptance_criteria": [
-      "`crates/xgauntlet-cli` understøtter `xgauntlet telemetry --format [codex-hook|box|json|ansi]` og genererer gyldig JSON med `hookSpecificOutput: { hookEventName: \"PostToolUse\", additionalContext: \"...\" }`.",
-      "Det genererede telemetri-kort formateres som Variant B Unicode Box-Drawing med fast bredde og `Ref:` række med rene klikbare stier.",
-      "`crates/xgauntlet-core/src/features/adapters/codex/mod.rs` understøtter scaffolding af `.codex/hooks.json` med `PostToolUse` hooks (matcher: `apply_patch|Edit|Write|Bash`).",
-      "`xgauntlet scaffold init --harness codex` provisjonerer `.codex/hooks.json` med telemetry hooket og opdaterer `.agents/AGENTS.md` uden destruktiv overskrivning.",
-      "`crates/xgauntlet-core/src/features/adapters/codex/mod.rs` understøtter indkapsling af verifikations- og checkpoint-responser med Variant B Box-Drawing kortet.",
-      "Bundled skill-skabeloner i `.agents/plugins/agent-gauntlet/` (`diagnose`, `code-review`, `grill-me`) er opdateret til at udstille boks cockpit-kortet.",
-      "`xgauntlet validate-plugin` godkender den genererede Codex plugin- og hook-konfiguration med 0 advarsler og 0 fejl.",
-      "Conformance tests i `crates/xgauntlet-core/tests/harness_adapters_test.rs` validerer Codex hook scaffolding, response wrapping og boks-syntaks.",
-      "`cargo test --workspace` forbliver 100% grøn uden regressioner for eksisterende Antigravity eller Claude Code adaptere."
+      "`crates/xgauntlet-core/src/features/adapters/antigravity/mod.rs` understøtter håndtering af `PreInvocation` events og genererer `injectSteps` JSON jf. Antigravity hooks specifikationen.",
+      "`crates/xgauntlet-cli` understøtter `xgauntlet telemetry --format antigravity-hook`, der udskriver gyldig JSON med `injectSteps: [{ \"ephemeralMessage\": \"...\" }]`.",
+      "Telemetri-injektionen indeholder task ID, aktuel TDD-fase, invariant-status, mutation score, git HEAD hash, drift-indikator og evidens-digest.",
+      "Scaffolderen i `crates/xgauntlet-core/src/features/scaffold/` understøtter generering og idempotent merge af `PreInvocation` hooks i `.agents/hooks.json`.",
+      "Specifikationen og systemprompter i `.agents/AGENTS.md` definerer eksplicit det 5-linjers blockquote HUD med klikbare navigation-links for Antigravity.",
+      "Conformance tests i `crates/xgauntlet-core/tests/harness_adapters_test.rs` verificerer Antigravity `PreInvocation` payload, hook-eksekvering og blockquote layout.",
+      "Alle tre harness-adaptere (Antigravity, Claude Code, Codex) understøtter deres respektive telemetry hooks uden indbyrdes regressionsfejl.",
+      "`cargo test --workspace` passerer 100% uden fejl eller advarsler."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "d2519c6c265e50f63e2f7002d25012b5fa89c3567a476942b5640e805fa20441",
-    "source_manifest_digest_pre": "30162f8a72e6cd95ed72794212ad9cf17725e991dc476317e709076688460edb",
-    "source_manifest_digest_post": "30162f8a72e6cd95ed72794212ad9cf17725e991dc476317e709076688460edb",
+    "source_content_digest": "2d110e7dc0aa9019bb04b09e67e6ff25c43799eaabc343c13e0cefc144750a39",
+    "source_manifest_digest_pre": "f2cb8a0cb2c77e027183c9646f2cf2e6fbdc3a8df6a64aeb9fed86c988dd241d",
+    "source_manifest_digest_post": "f2cb8a0cb2c77e027183c9646f2cf2e6fbdc3a8df6a64aeb9fed86c988dd241d",
     "config_digest": "c419753a46e2a0ea579ddd20a978bb01cfd1cde02212b29a1681b1fe0f66f7dc",
-    "task_digest": "4f25d25dd1f38e630a0f29f5478f5a729e6884fdc0681b90b78e29953355dd1b",
-    "policy_digest": "c6c11d809cc0dfd7831fc701090ee70aa02dc6cd58b09c5b7499ab7711550832",
+    "task_digest": "4536f467176c0e4c1fabe325ef24c69073a6ae39b2add7639d53c646e8d2a2e3",
+    "policy_digest": "da927cf7e761ea3c32c5d96cc01c7cca3fa870b85cb54091e9d8484ad1f7e739",
     "check_definitions_digest": "acd753b5c5b1f14c179a6a97e9eea55dc81aa7414ff9f84065c10555ce9d3d8a",
     "included_files_count": 144,
     "vcs": {
       "type": "git",
-      "head": "8531795",
-      "commit": "8531795",
+      "head": "87ca78b",
+      "commit": "87ca78b",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-09-09T20:05:23Z",
-    "finished_at": "2026-09-09T20:05:35Z",
-    "total_duration_seconds": 11.48973,
+    "started_at": "2026-09-09T20:16:16Z",
+    "finished_at": "2026-09-09T20:16:26Z",
+    "total_duration_seconds": 9.638817078,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -53,43 +52,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.584069736,
+      "duration_seconds": 0.100047738,
       "optional": true,
       "passed": true,
-      "log_digest": "71d29c29261e1174fa36f7b773368fa9c8e6b80e9d45f4aa8aeb3dd01080d350"
+      "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.584476528,
+      "duration_seconds": 0.072854899,
       "optional": true,
       "passed": true,
-      "log_digest": "78e7e7339c150b7857d22c8a7cb519e89d85731bb44b692edab3e603ed89db37"
+      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 9.887342898,
+      "duration_seconds": 9.070938947,
       "optional": false,
       "passed": true,
-      "log_digest": "33ff13dd9dca5433692a3d5fb98385cf81c468b3cccc6aad356b77e2e9b5cb95"
+      "log_digest": "7bc9c5c35a748e447384ecdc94fd64ee58568a4b480080fbea0e9cb1a0939f86"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.299921625,
+      "duration_seconds": 0.266077791,
       "optional": true,
       "passed": true,
-      "log_digest": "6115ec039b9da9d5ab06ca4f1ce263cd43519693097e7cc138f3b4432bf476a6"
+      "log_digest": "938a3baa9fe72699ea8dfb317278a1a9906046629e46c1da5e5068dbd434e1f2"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.009776142,
+      "duration_seconds": 0.009522239,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
