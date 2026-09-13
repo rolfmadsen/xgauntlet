@@ -1,6 +1,6 @@
 {
   "name": "xgauntlet",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Universal multi-stack verification gauntlet & tamper-proof policy sidecar for AI coding agents",
   "private": true,
   "type": "module",

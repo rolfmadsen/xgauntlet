@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.2] - 2026-09-13
+
+### 🐛 Fixed
+- **Policy Engine Embedded WASM Synchronization**:
+  - Recompiled deterministic WebAssembly policy verifier component (`crates/xgauntlet-core/wasm/gauntlet_policy.wasm`) from `crates/gauntlet-policy-engine` to match declared workspace version.
+  - Resolves unit test assertion failure in `test_policy_version_matches_crate_version` on multi-platform CI pipelines.
+
 ## [0.5.1] - 2026-09-13
 
 ### 🐛 Fixed
