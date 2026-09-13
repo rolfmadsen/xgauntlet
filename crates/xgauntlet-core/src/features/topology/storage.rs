@@ -1,5 +1,6 @@
 //! Deterministic topology persistence to `.xgauntlet/topology.json`.
 
+use std::fs;
 use std::path::{Path, PathBuf};
 use super::models::{TopologyError, TopologyGraph};
 
@@ -7,17 +8,21 @@ pub const TOPOLOGY_FILE_PATH: &str = ".xgauntlet/topology.json";
 
 /// Persists the topology graph deterministically to `.xgauntlet/topology.json`.
 pub fn save_topology(
-    _workspace_root: &Path,
-    _graph: &TopologyGraph,
+    workspace_root: &Path,
+    graph: &TopologyGraph,
 ) -> Result<PathBuf, TopologyError> {
-    Err(TopologyError::RedPhaseUnmet {
-        details: "TDD RED phase: save_topology not yet implemented".to_string(),
-    })
+    let target_path = workspace_root.join(TOPOLOGY_FILE_PATH);
+    if let Some(parent) = target_path.parent() {
+        fs::create_dir_all(parent)?;
+    }
+    let json = graph.export_json()?;
+    fs::write(&target_path, json)?;
+    Ok(target_path)
 }
 
 /// Loads the persisted topology graph from `.xgauntlet/topology.json`.
-pub fn load_topology(_workspace_root: &Path) -> Result<TopologyGraph, TopologyError> {
-    Err(TopologyError::RedPhaseUnmet {
-        details: "TDD RED phase: load_topology not yet implemented".to_string(),
-    })
+pub fn load_topology(workspace_root: &Path) -> Result<TopologyGraph, TopologyError> {
+    let target_path = workspace_root.join(TOPOLOGY_FILE_PATH);
+    let content = fs::read_to_string(&target_path)?;
+    TopologyGraph::from_json(&content)
 }
