@@ -33,34 +33,52 @@ Etablere en ren, decoupled og cross-platform distribution af xGauntlets agent-sk
 - **Slutbruger-redigerbarhed (Anti-Lock-in)**:
   - Skills udpakkes som rigtige Markdown-filer i brugerens globale katalog, så udvikleren har 100% frihed til at tilpasse formuleringer, regler og prompts.
 
-### 2. JIT 7-Trins Pipeline Governance (Micro-Nudges)
-I stedet for at dumpe tunge manualer på 300 linjer ind i konteksten eller begrænse styringen til den interne TDD-mikroløkke, injicerer telemetrimotoren lynhurtige **fase-direktiver (7–9 linjer, <100 tokens)** via harness-hooks (`PreInvocation` for Antigravity, `additionalContext` for Claude/Codex/Mistral) direkte knyttet til de **7 trin og 4 AI-roller** fra [README.md](README.md):
-- **Trin 1: Idé- og kontekstafklaring** (`status: DRAFT` eller ingen aktiv opgave):
-  * *Rolle 1*: `Senior Software Engineer (System Architecture & Requirements)`.
-  * *Instruktion*: Udfordr antagelser med brugeren, opdater `CONTEXT.md` og `docs/adr/`. Må IKKE røre kildetræ.
-  * *Anbefalet skill*: `grill-me` eller `grill-with-docs`.
-- **Trin 2: Specifikation & Opgavebinding**:
-  * *Rolle 1*: `Senior Software Engineer (System Architecture & Requirements)`.
-  * *Instruktion*: Formaliser i `tasks/<id>.md` med OKF v0.2 frontmatter, acceptkriterier og Must NOT.
-  * *Hård gate*: Kør `xgauntlet check-spec -t <id>`.
-- **Trin 3: TDD & Implementering (Værkstedet)** (`status: ACTIVE`):
-  * *Rolle 2*: `Senior Software Engineer (Feature Implementation & Testing)`.
-  * *Instruktion*: Følg TDD-cyklussen: RED ➔ GREEN ➔ REFACTOR.
-  * *WASM Gatekeeper*: Forbyder `git push`, `git reset --hard` (ADR 0003: kode 4039) og blokerer ændringer i kildetræ uden aktiv opgave.
-  * *Anbefalet skill*: `diagnose`.
-- **Trin 4: Flerlags Verifikation**:
-  * *Rolle 2*: `Senior Software Engineer (Feature Implementation & Testing)`.
-  * *Instruktion*: Kør `xgauntlet verify --task <id> --save`. Pre/post manifestkontrol, anti-tamper og forsegl `verification-report.json`.
-- **Trin 5: Review mod Kodestandarder**:
-  * *Rolle 3*: `Senior Software Engineer (Independent Code Review & Audit)`.
-  * *Instruktion*: To-akset audit: Akse A mod `CODING_STANDARDS.md` (Fowler smells) og Akse B mod `spec.md`/`tasks/`. Kræver eksplicit udviklergodkendelse.
-  * *Anbefalet skill*: `code-review`.
-- **Trin 6: Drift-kontrol (Two-Tier Model)**:
-  * *Rolle 3*: `Senior Software Engineer (Independent Code Review & Audit)`.
-  * *Hård gate*: Kør `xgauntlet check-evidence`. Verificer Git blob OID invariant mod forseglede rapporter. Ved grøn status markeres opgaven `DONE`.
-- **Trin 7: Release Readiness**:
-  * *Rolle 4*: `Release & Operations Engineer (Release Attestation & Deployment)`.
-  * *Hård gate*: Kør `xgauntlet check-release` (versionsharmoni, `CHANGELOG.md`, samtlige ADR-krydsreferencer). Vis `🏁 SESSION HANDOFF`-kort.
+### 2. Fasedrevet JIT Governance & 7 Specialiserede AI-Roller (Matt Pocock Design)
+I stedet for tunge statiske manualer eller numre-baserede trin (der jf. Matt Pococks *writing-for-agents* skaber "the pull of post-completion steps" og forhastet arbejde), injicerer telemetrimotoren lynhurtige **fasedirektiver (<45 tokens)** via harness-hooks (`PreInvocation` for Antigravity, `additionalContext` for Claude/Codex/Mistral). 
+
+Hvert direktiv anvender:
+1. **Eksplicit Aktiv Rolle**: `Active Role: <Navn (Funktionelt anker)>` tvinger modellen ind i en skarp persona.
+2. **Semantisk Fase**: Angiver den aktuelle tilstand uden sekvensnumre for at forankre modellen 100% i nuet.
+3. **Positiv Målsætning (`Target`)**: 0 negationer. WASM-kernen håndhæver forbud (kode 4039); prompten leder mod målet.
+4. **Binært Afslutningskriterium (`Gate (Done)`)**: Tjekbar grænse, der modvirker *premature completion*.
+5. **Front-Loaded Context Pointer (`Pointer`)**: Præcis trigger til on-demand skills (`grill-me`, `diagnose`, `code-review`).
+
+#### De 7 JIT-Fasedirektiver & Specialiserede Roller:
+1. **Phase: Ideation & Context**
+   * *Aktiv Rolle*: `Active Role: System Architect (Scope & Invariants)`
+   * *Target*: Establish operational boundaries and ubiquitous terminology in CONTEXT.md.
+   * *Gate (Done)*: Human approves scope and domain glossary.
+   * *Pointer*: Socratic grilling: invoke grill-me on ambiguous requirements or unmapped trade-offs.
+2. **Phase: Specification & Task Binding**
+   * *Aktiv Rolle*: `Active Role: Requirements Engineer (Contracts & Criteria)`
+   * *Target*: Formalize acceptance criteria (- [ ]) and Must NOT invariants in tasks/<id>.md.
+   * *Gate (Done)*: Command 'xgauntlet check-spec -t <id>' exits with 0 errors.
+   * *Pointer*: Spec gate: ensure Aristotle genus/differentia format in CONTEXT.md.
+3. **Phase: Implementation (TDD)**
+   * *Aktiv Rolle*: `Active Role: TDD Craftsman (Red-Green-Refactor)`
+   * *Target*: Execute tight TDD cycle: failing test (RED) ➔ minimal fix (GREEN) ➔ refactor.
+   * *Gate (Done)*: All acceptance assertions pass with atomic git phase-checkpoints.
+   * *Pointer*: Diagnosis loop: invoke diagnose if test failures defy root-cause isolation.
+4. **Phase: Multi-Layer Verification**
+   * *Aktiv Rolle*: `Active Role: Verification & QA Engineer (Gauntlet & Anti-Tamper)`
+   * *Target*: Execute verification gauntlet and seal anti-tamper evidence.
+   * *Gate (Done)*: Command 'xgauntlet verify --task <id> --save' records verdict PASSED.
+   * *Pointer*: Gauntlet gate: inspect verification-report.json for invariant violations.
+5. **Phase: Standards & Spec Audit**
+   * *Aktiv Rolle*: `Active Role: Independent Code Reviewer (Standards & Smells)`
+   * *Target*: Two-axis review: Axis A (CODING_STANDARDS.md smells), Axis B (Task acceptance criteria).
+   * *Gate (Done)*: Explicit human approval of audit findings before task closure.
+   * *Pointer*: Code review: invoke code-review to audit git diff across both axes.
+6. **Phase: Evidence Integrity & Drift Check**
+   * *Aktiv Rolle*: `Active Role: Evidence & Integrity Auditor (Drift & Trust Boundary)`
+   * *Target*: Verify workspace Git-tree/blob OID integrity against sealed verification report.
+   * *Gate (Done)*: Command 'xgauntlet check-evidence' reports 0 drift findings; set task status DONE.
+   * *Pointer*: Evidence gate: re-run verify if unexpected workspace drift occurred.
+7. **Phase: Release Readiness**
+   * *Aktiv Rolle*: `Active Role: Release & Operations Engineer (Release & Attestation)`
+   * *Target*: Synchronize versions across manifests, update CHANGELOG.md, and verify ADR links.
+   * *Gate (Done)*: Command 'xgauntlet check-release' exits with 0 errors; display 🏁 SESSION HANDOFF card.
+   * *Pointer*: Release gate: verify clean git tree before tag attestation.
 
 ### 3. Diagnostic & Doctor Integration
 - Udvide `xgauntlet doctor` med en dedikeret `Harnesses`-kategori, der rapporterer tilstedeværelse af installerede agent-harnesses samt installationsstatus for xGauntlet-pluginet.
@@ -79,25 +97,27 @@ I stedet for at dumpe tunge manualer på 300 linjer ind i konteksten eller begr�
 - [ ] Cross-platform harness discovery engine implementeres i Rust med understøttelse af Linux, macOS (Intel og Apple Silicon M1–M4) og Windows (x64/arm64).
 - [ ] CLI subcommand `xgauntlet plugin install` implementeres med understøttelse af flagene `--global`, `--harness <name>`, `--dry-run`, `--force`, `--target <dir>` og `--json`.
 - [ ] Global plugin-installation opretter en gyldig plugin- og skill-struktur i de detekterede harness-kataloger uden at overskrive brugerdata uden `--force`.
-- [ ] Telemetrimotoren (`features/telemetry/`) genererer JIT prompt-direktiver for samtlige 7 trin i README.md og angiver den aktive af de 4 AI-roller.
-- [ ] Harness-adapterne (`antigravity`, `claude_code`, `codex`, `mistral`) udstiller de genererede 7-trins JIT-direktiver i deres respektive hook-payloads (`PreInvocation` og `PostToolUse`).
+- [ ] Telemetrimotoren (`features/telemetry/`) genererer JIT fasedirektiver for samtlige 7 faser med aktive specialiserede AI-roller, positive targets, checkable gate-bounds og front-loaded pointers (<45 tokens pr. direktiv).
+- [ ] Harness-adapterne (`antigravity`, `claude_code`, `codex`, `mistral`) udstiller de genererede 7 fasedirektiver i deres respektive hook-payloads (`PreInvocation` og `PostToolUse`).
 - [ ] `xgauntlet doctor` rapporterer fundne harnesses og status for globale xGauntlet-plugins under kategorien `Harnesses`.
 - [ ] `features/scaffold/templates.rs` saneres, så `xgauntlet init` stilladserer `docs/adr/template.md` frem for at okkupere `docs/adr/0001-package-by-feature-architecture.md`.
 - [ ] Skabeloner for `.agents/AGENTS.md` og JIT-prompts saneres for brudte referencer til lokale `docs/adr/0003-...` filer og benytter i stedet eksplicitte platforminvarianter.
-- [ ] Conformance-tests i `crates/xgauntlet-core/tests/` dækker cross-platform harness-opdagelse, plugin-installation, 7-trins JIT prompt-generering og opdateret template-scaffolding med 100% grøn status.
+- [ ] Conformance-tests i `crates/xgauntlet-core/tests/` dækker cross-platform harness-opdagelse, plugin-installation, 7-faset JIT prompt-generering og opdateret template-scaffolding med 100% grøn status.
 - [ ] `cargo run -p xgauntlet-cli -- check-spec -t 023-pipeline-jit-governance-and-global-plugin-distribution` validerer med 0 fejl.
 - [ ] Fuld workspace testsuite passerer (`cargo test --workspace`) uden linter-advarsler (`cargo clippy --workspace --all-targets -- -D warnings`).
 
 ## 🚫 Must NOT
 - Må IKKE overskrive eksisterende brugerkonfigurationer eller tilpassede skills i `~/.gemini/config/` eller andre harness-kataloger uden eksplicit `--force`.
 - Må IKKE tvinge unødvendige statiske skill-filer ind i forretningsprojekters kildetræ under `xgauntlet init`.
-- Må IKKE overstige 12 linjer eller ~120 tokens pr. JIT-injektion for at forhindre context bloat og token-spild.
+- Må IKKE overstige 8 linjer eller ~50 tokens pr. JIT-injektion for at forhindre context bloat og token-spild.
+- Må IKKE indeholde negationer ("må ikke", "forbud") i JIT-prompts jf. Pococks negation-invariant.
 - Må IKKE forringe sub-3ms koldstarts-invarianten for hook- og telemetriafvikling.
 - Må IKKE forurene klientprojekters `docs/adr/` med xGauntlet-specifikke interne implementerings-ADRs.
 - Må IKKE foretage remote publication handlinger (`git push`) eller destruktive filoperationer.
 - Må IKKE introducere baggrunds-dæmoner jf. Zero-Daemon invarianten.
 
 ## 📝 Revisions
+- 2026-09-13: Refaktoreret med Matt Pococks *writing-for-agents* principper: JIT-prompts er nu fasedrevne uden sekvens-tal (modvirker premature completion), roller er specialiseret 1:1 pr. fase med funktionelle ankre (`Active Role:`), og prompts er 100% positive med tjekbare `Gate (Done)` bounds og under 45 tokens.
 - 2026-09-13: Udvidet med sanering af in-repo governance og ADR decoupling: Platform-invarianter (Surgical Gatekeeper, Two-Tier evidens) adskilles fra klientprojekters lokale `docs/adr/`, og `xgauntlet init` stilladserer ren `docs/adr/template.md` i stedet for at okkupere `0001`.
 - 2026-09-13: Task 023 oprettet som afløser for Task 020 (deprecated). Omfanget er udvidet til at forankre JIT-promptstyringen direkte i README.md's 7-trins pipeline og de 4 AI-roller, samt deterministisk cross-platform harness discovery.
 
