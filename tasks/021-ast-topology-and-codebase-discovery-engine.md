@@ -17,14 +17,14 @@ tags: [topology, ast, discovery, token-optimization, jit-context, blast-radius, 
 Etablere en 100% deterministisk, sub-millisekund AST- og modul-topologimotor i `crates/xgauntlet-core` (`src/features/topology/`), der reducerer LLM'ens token-forbrug under kodebase-discovery fra 30.000–50.000 tokens til under 300 tokens pr. session jf. [spec.md](spec.md), [CONTEXT.md](CONTEXT.md), [ADR 0001](docs/adr/0001-package-by-feature-architecture.md) og [ADR 0004](docs/adr/0004-harness-adapter-slices.md):
 
 ### 1. Relevante Faser (Hvornår bringes den i spil?)
-- **`SPEC / DISCOVERY` (Idé- & Afklaringsfasen)**:
-  * *Udløser*: Når der *ikke* er en aktiv opgave i `tasks/`, eller når brugeren stiller udforskende spørgsmål (*"Hvor håndteres X?", "Hvilke moduler berøres af Y?"*).
+- **Phase 1 & 2: `Ideation & Specification`**:
+  * *Udløser*: Når der *ikke* er en aktiv opgave i `tasks/`, eller under initiering med `to-spec` og `to-tasks` (*"Hvor håndteres X?", "Hvilke moduler berøres af Y?"*).
   * *Adfærd*: Telemetrien leverer et lynhurtigt, struktureret højniveau-kort over systemets forretningsfeatures, deres indbyrdes afhængigheder og kerne-entiteter.
-- **`RED / DIAGNOSE` (Fejlfindings- & Blast Radius fasen)**:
-  * *Udløser*: Når en test fejler, eller når koden refaktoreres.
+- **Phase 3 & 4: `Implementation (TDD) & Multi-Layer Verification`**:
+  * *Udløser*: Når en test fejler, eller når koden refaktoreres under `old-coder` og `diagnose`.
   * *Adfærd*: Topologimotoren isolerer afhængighedskæden (hvem kalder det fejlende modul, og hvilke downstream komponenter risikerer regression).
-- **`GREEN / REFACTOR` (Kvalitets- & Invariantfasen)**:
-  * *Adfærd*: Kontrollerer mekanisk at Package-by-Feature modulgrænser ikke overtrædes af utilsigtede cykliske afhængigheder.
+- **Phase 4 & 5: `Verification & Standards Audit`**:
+  * *Adfærd*: Føder `codebase-design` og `improve-codebase-architecture` med deterministiske grafdata for moduler, seams og cykelfri Package-by-Feature grænser.
 
 ### 2. Teknologi (Hvad bygger vi det på?)
 - **100% ren Rust i `xgauntlet-core`**:
@@ -36,7 +36,7 @@ Etablere en 100% deterministisk, sub-millisekund AST- og modul-topologimotor i `
 ### 3. Lagring & Transparens (Hvor gemmes grafen?)
 - **Transient In-Memory Cache**: Beregnes on-the-fly via hooks uden tvungne disk-operationer for maksimal sub-3ms hastighed.
 - **Persistent Audit Artifact**: Gemmes deterministisk i `.xgauntlet/topology.json` (og kan inspiceres direkte via `xgauntlet topology`). Udvikleren kan åbne filen og se alle noder, kanter og afhængigheder med 100% transparens.
-- **JIT HUD Injektion**: Et komprimeret uddrag (top 5-10 noder i aktiv blast radius / scope) injiceres direkte i telemetriens prompt-kontekst via `PreInvocation` (Antigravity) og `PostToolUse` (Claude Code / Codex).
+- **JIT HUD Injektion**: Populerer dynamisk Cockpit HUD'ens `Scope: <berørte stier/noder>` linje inden for Pococks <45-token budget, og udstiller den fulde grafstruktur i harness-hook payloaden (`PreInvocation` / `PostToolUse`) uden context bloat.
 
 ### 4. Forventet Effekt
 - **Token-besparelse på 95-99%**: Fjerner behovet for "blind browsing", hvor LLM'en loader 20-30 filer (30.000-50.000 tokens) blot for at lokalisere koden.
@@ -52,7 +52,7 @@ Etablere en 100% deterministisk, sub-millisekund AST- og modul-topologimotor i `
   - `xgauntlet topology path <from> <to>`: Visning af afhængighedssti mellem to komponenter.
   - `xgauntlet topology blast-radius <target>`: Beregning af downstream komponenter der påvirkes.
   - `--json`: Maskinlæsbar JSON-eksport.
-- [ ] Telemetrimotoren (`features/telemetry/`) udvides til at injicere en ultra-kompakt (10-15 linjers) topologisk slice i `SPEC / DISCOVERY` og `RED / DIAGNOSE` faserne via `PreInvocation` og `PostToolUse` hooks.
+- [ ] Telemetrimotoren (`features/telemetry/`) udvides til at injicere topologisk blast radius i HUD'ens `Scope`-linje og udstille grafdata i `PreInvocation` og `PostToolUse` payloads uden at overskride JIT token-budgettet (<45 tokens).
 - [ ] Conformance integrationstest i `crates/xgauntlet-core/tests/topology_engine_test.rs` verificerer sub-3ms koldstart, 0 token-forbrug under scanning og korrekt blast-radius analyse.
 - [ ] `cargo run -p xgauntlet-cli -- check-spec -t 021-ast-topology-and-codebase-discovery-engine` validerer med 0 fejl.
 - [ ] Fuld workspace testsuite passerer (`cargo test --workspace`) uden linter-fejl (`cargo clippy --workspace --all-targets -- -D warnings`).
@@ -65,6 +65,7 @@ Etablere en 100% deterministisk, sub-millisekund AST- og modul-topologimotor i `
 - Må IKKE generere ubegrænsede grafer, der sprænger hukommelsen ved store kodebaser (dybde- og node-bounding skal håndhæves).
 
 ## 📝 Revisions
+- 2026-09-13: Harmoniseret med Task 023: Afstemt med 7-trins pipelinen, bundet til den nye skill-suite (to-spec, to-tasks, codebase-design, improve-codebase-architecture), og telemetri-injektion er tilpasset Cockpit HUD Scope-linjen inden for Matt Pococks <45-token budget.
 - 2026-09-12: Task 021 oprettet som ACTIVE for AST Codebase Topology & Token-Optimized Discovery Engine.
 
 ## 🧪 Verifikation
