@@ -71,14 +71,14 @@ Hvert direktiv anvender:
    * *Pointer*: Code review: invoke code-review to audit git diff across both axes.
 6. **Phase: Evidence Integrity & Drift Check**
    * *Aktiv Rolle*: `Active Role: Evidence & Integrity Auditor (Drift & Trust Boundary)`
-   * *Target*: Verify workspace Git-tree/blob OID integrity against sealed verification report.
-   * *Gate (Done)*: Command 'xgauntlet check-evidence' reports 0 drift findings; set task status DONE.
-   * *Pointer*: Evidence gate: re-run verify if unexpected workspace drift occurred.
+   * *Target*: Verify workspace Git-tree/blob OID integrity and commit final sealed task checkpoint.
+   * *Gate (Done)*: Command 'xgauntlet check-evidence' reports 0 drift findings, task marked DONE, and local checkpoint committed.
+   * *Pointer*: Checkpoint gate: invoke 'xgauntlet checkpoint --phase done' to seal evidence and execute local commit.
 7. **Phase: Release Readiness**
    * *Aktiv Rolle*: `Active Role: Release & Operations Engineer (Release & Attestation)`
-   * *Target*: Synchronize versions across manifests, update CHANGELOG.md, and verify ADR links.
-   * *Gate (Done)*: Command 'xgauntlet check-release' exits with 0 errors; display 🏁 SESSION HANDOFF card.
-   * *Pointer*: Release gate: verify clean git tree before tag attestation.
+   * *Target*: Verify 100% clean git worktree, synchronize release readiness, and display session handoff prompt.
+   * *Gate (Done)*: Git worktree confirmed clean (ready for user 'git push') and 🏁 SESSION HANDOFF card displayed.
+   * *Pointer*: Clean worktree guarantee: inspect 'git status' to confirm zero uncommitted files before handoff.
 
 ### 3. Diagnostic & Doctor Integration
 - Udvide `xgauntlet doctor` med en dedikeret `Harnesses`-kategori, der rapporterer tilstedeværelse af installerede agent-harnesses samt installationsstatus for xGauntlet-pluginet.
@@ -97,7 +97,7 @@ Hvert direktiv anvender:
 - [ ] Cross-platform harness discovery engine implementeres i Rust med understøttelse af Linux, macOS (Intel og Apple Silicon M1–M4) og Windows (x64/arm64).
 - [ ] CLI subcommand `xgauntlet plugin install` implementeres med understøttelse af flagene `--global`, `--harness <name>`, `--dry-run`, `--force`, `--target <dir>` og `--json`.
 - [ ] Global plugin-installation opretter en gyldig plugin- og skill-struktur i de detekterede harness-kataloger uden at overskrive brugerdata uden `--force`.
-- [ ] Telemetrimotoren (`features/telemetry/`) genererer JIT fasedirektiver for samtlige 7 faser med aktive specialiserede AI-roller, positive targets, checkable gate-bounds og front-loaded pointers (<45 tokens pr. direktiv).
+- [ ] Telemetrimotoren (`features/telemetry/`) genererer JIT fasedirektiver for samtlige 7 faser med aktive specialiserede AI-roller, positive targets, checkable gate-bounds, front-loaded pointers (<45 tokens pr. direktiv) samt Clean Worktree Guarantee ved session handoff.
 - [ ] Harness-adapterne (`antigravity`, `claude_code`, `codex`, `mistral`) udstiller de genererede 7 fasedirektiver i deres respektive hook-payloads (`PreInvocation` og `PostToolUse`).
 - [ ] `xgauntlet doctor` rapporterer fundne harnesses og status for globale xGauntlet-plugins under kategorien `Harnesses`.
 - [ ] `features/scaffold/templates.rs` saneres, så `xgauntlet init` stilladserer `docs/adr/template.md` frem for at okkupere `docs/adr/0001-package-by-feature-architecture.md`.
@@ -117,6 +117,7 @@ Hvert direktiv anvender:
 - Må IKKE introducere baggrunds-dæmoner jf. Zero-Daemon invarianten.
 
 ## 📝 Revisions
+- 2026-09-13: Etableret 'Clean Worktree Guarantee' i Phase 6 og 7: Phase 6 forsegler og committer lokalt via 'xgauntlet checkpoint --phase done', så Phase 7 garanterer et 100% rent git worktree ('Git: clean'), der tillader brugeren direkte at køre 'git push'.
 - 2026-09-13: Refaktoreret med Matt Pococks *writing-for-agents* principper: JIT-prompts er nu fasedrevne uden sekvens-tal (modvirker premature completion), roller er specialiseret 1:1 pr. fase med funktionelle ankre (`Active Role:`), og prompts er 100% positive med tjekbare `Gate (Done)` bounds og under 45 tokens.
 - 2026-09-13: Udvidet med sanering af in-repo governance og ADR decoupling: Platform-invarianter (Surgical Gatekeeper, Two-Tier evidens) adskilles fra klientprojekters lokale `docs/adr/`, og `xgauntlet init` stilladserer ren `docs/adr/template.md` i stedet for at okkupere `0001`.
 - 2026-09-13: Task 023 oprettet som afløser for Task 020 (deprecated). Omfanget er udvidet til at forankre JIT-promptstyringen direkte i README.md's 7-trins pipeline og de 4 AI-roller, samt deterministisk cross-platform harness discovery.
