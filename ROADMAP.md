@@ -24,10 +24,6 @@ Følgende harnesses er planlagt til understøttelse i kommende versioner:
   *Platform*: VS Code Extension & CLI  
   *Beskrivelse*: Mistral AI's officielle kodningsagent og workflow med `.vibe/hooks.toml` integration.
 
-- [ ] **[OpenCode](https://opencode.ai/docs/ide/#manual-install)**  
-  *Platform*: Terminal / IDE  
-  *Beskrivelse*: Åben terminal- og IDE-harness til agentisk softwareudvikling.
-
 - [ ] **[Cline](https://marketplace.visualstudio.com/items?itemName=saoudrizwan.claude-dev)**  
   *Platform*: VS Code Extension  
   *Beskrivelse*: Autonom kodningsassistent i VS Code med tool-kald og CLI-eksekvering.

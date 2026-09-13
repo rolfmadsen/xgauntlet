@@ -19,6 +19,8 @@ pub enum DoctorCategory {
     Toolchains,
     /// Embedded WebAssembly policy engine readiness and sandbox invariants.
     Engine,
+    /// Installed AI agent harnesses and global plugin distribution status.
+    Harnesses,
 }
 
 impl DoctorCategory {
@@ -29,6 +31,7 @@ impl DoctorCategory {
             Self::Governance => "governance",
             Self::Toolchains => "toolchains",
             Self::Engine => "engine",
+            Self::Harnesses => "harnesses",
         }
     }
 
@@ -39,6 +42,7 @@ impl DoctorCategory {
             "gov" | "governance" | "spec" | "config" => Some(Self::Governance),
             "tool" | "tools" | "toolchain" | "toolchains" | "stack" => Some(Self::Toolchains),
             "engine" | "wasm" | "policy" => Some(Self::Engine),
+            "harness" | "harnesses" | "plugin" | "plugins" => Some(Self::Harnesses),
             _ => None,
         }
     }

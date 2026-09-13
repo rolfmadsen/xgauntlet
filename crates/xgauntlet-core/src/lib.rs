@@ -42,6 +42,12 @@ pub use features::gauntlet::{
     GauntletExecutionOutcome, GauntletOptions, GauntletPipelineError, GauntletReport, LayerConfig,
     LayerDefinition, LayerExecutionStatus, LayerRequirement, LayerResult,
 };
+pub use features::plugin::{
+    discover_harnesses_in, discover_installed_harnesses, get_embedded_hooks_manifest,
+    get_embedded_plugin_manifest, get_embedded_skill, list_embedded_skills, run_plugin_install,
+    DiscoveredHarness, PlatformTarget, PluginError, PluginInstallOptions, PluginInstallReport,
+    PluginInstallStatus, PluginTargetInstallReport, ALL_EMBEDDED_SKILLS,
+};
 pub use features::policy::{
     CapabilityRequest, DecisionVerdict, EnforcementContext, PathSecurityError, PolicyDecision,
     PolicyError, PolicyEvaluator, ToolActionType, WasmPolicyEngine, WorkspaceRelativePath,
@@ -65,6 +71,9 @@ pub use features::tasks::{
     CriteriaProgress, GeneratedEntry, GitTelemetry, OkfError, OkfMetadata, ScaffoldTaskOptions,
     SourceEntry, SpecReadinessReport, TaskContract, TaskError, TaskPackageInfo, TaskScaffoldResult,
     TaskScaffolder, TaskStatus, TaskSummaryItem, TaskTelemetry, VerifiedEntry,
+};
+pub use features::telemetry::{
+    get_phase_directive, render_jit_directive, JitPhaseDirective, PipelinePhase,
 };
 pub use features::wasm::{WasmError, WasmRuntimeHost};
 

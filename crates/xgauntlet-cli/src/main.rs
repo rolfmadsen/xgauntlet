@@ -223,6 +223,41 @@ enum Commands {
         #[arg(long)]
         harness: Option<String>,
     },
+    /// Global plugin distribution and skills management
+    Plugin {
+        #[command(subcommand)]
+        command: PluginCommands,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+enum PluginCommands {
+    /// Install xGauntlet plugin and 11 skills into target agent harnesses
+    Install {
+        /// Install to all detected global harness locations
+        #[arg(long)]
+        global: bool,
+
+        /// Target specific harness (e.g. 'antigravity', 'claude_code', 'codex', 'mistral')
+        #[arg(long)]
+        harness: Option<String>,
+
+        /// Simulate installation without modifying filesystem
+        #[arg(long)]
+        dry_run: bool,
+
+        /// Overwrite existing skills without prompting
+        #[arg(long)]
+        force: bool,
+
+        /// Explicit target directory to install into
+        #[arg(long)]
+        target: Option<std::path::PathBuf>,
+
+        /// Output results in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
 }
 
 #[derive(Subcommand, Debug)]
@@ -880,6 +915,47 @@ async fn main() -> anyhow::Result<()> {
                 }
             }
         }
+
+        Some(Commands::Plugin { command }) => match command {
+            PluginCommands::Install {
+                global,
+                harness,
+                dry_run,
+                force,
+                target,
+                json,
+            } => {
+                let options = xgauntlet_core::PluginInstallOptions {
+                    global: *global,
+                    harness: harness.clone(),
+                    dry_run: *dry_run,
+                    force: *force,
+                    target: target.clone(),
+                    json: *json,
+                };
+                match xgauntlet_core::run_plugin_install(&options) {
+                    Ok(report) => {
+                        if *json {
+                            println!("{}", serde_json::to_string_pretty(&report)?);
+                        } else {
+                            println!("Plugin install completed: {} targets", report.targets.len());
+                        }
+                    }
+                    Err(err) => {
+                        if *json {
+                            let err_json = serde_json::json!({
+                                "success": false,
+                                "error": err.to_string(),
+                            });
+                            println!("{}", serde_json::to_string_pretty(&err_json)?);
+                        } else {
+                            eprintln!("🛑 Plugin install error: {err}");
+                        }
+                        std::process::exit(1);
+                    }
+                }
+            }
+        },
 
         None => {
             println!(
