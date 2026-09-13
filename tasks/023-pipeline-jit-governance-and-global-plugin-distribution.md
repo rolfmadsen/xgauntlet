@@ -48,12 +48,12 @@ Hvert direktiv anvender:
    * *Aktiv Rolle*: `Active Role: System Architect (Scope & Invariants)`
    * *Target*: Establish operational boundaries and ubiquitous terminology in CONTEXT.md.
    * *Gate (Done)*: Human approves scope and domain glossary.
-   * *Pointer*: Socratic questioning: invoke grill-me on ambiguous requirements or unmapped trade-offs.
+   * *Pointer*: Socratic questioning: invoke grill-with-docs (or grill-me) to challenge against CONTEXT.md.
 2. **Phase: Specification & Task Binding**
    * *Aktiv Rolle*: `Active Role: Requirements Engineer (Contracts & Criteria)`
    * *Target*: Formalize acceptance criteria (- [ ]) and Must NOT invariants in tasks/<id>.md.
    * *Gate (Done)*: Command 'xgauntlet check-spec -t <id>' exits with 0 errors.
-   * *Pointer*: Spec gate: ensure Aristotle genus/differentia format in CONTEXT.md.
+   * *Pointer*: Evidence specification: invoke old-coder to structure executable criteria and Must NOT rules.
 3. **Phase: Implementation (TDD)**
    * *Aktiv Rolle*: `Active Role: TDD Craftsman (Red-Green-Refactor)`
    * *Target*: Execute tight TDD cycle: failing test (RED) ➔ minimal fix (GREEN) ➔ refactor.
