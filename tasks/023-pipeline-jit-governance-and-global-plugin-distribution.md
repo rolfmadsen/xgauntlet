@@ -65,6 +65,13 @@ I stedet for at dumpe tunge manualer på 300 linjer ind i konteksten eller begr�
 ### 3. Diagnostic & Doctor Integration
 - Udvide `xgauntlet doctor` med en dedikeret `Harnesses`-kategori, der rapporterer tilstedeværelse af installerede agent-harnesses samt installationsstatus for xGauntlet-pluginet.
 
+### 4. Sanering af In-Repo Governance & ADR Decoupling
+- **Decouple Platform Invariants fra Lokale Forretnings-ADRs**:
+  - xGauntlets indbyggede regler (Surgical Gatekeeper / No Remote Push jf. kode 4039, samt Two-Tier Evidence Model) er fysisk bagt ind i Rust/WASM-kernen og håndhæves af værktøjet uanset projektets filer. De skal forankres som **Platform Invariants** i `spec.md` og `CODING_STANDARDS.md`, ikke som lokale ADR-dokumenter i forretningsprojekter.
+  - Template-motoren i `features/scaffold/templates.rs` opdateres, så `xgauntlet init` ikke længere optager `docs/adr/0001-package-by-feature-architecture.md` som en tvungen fil, men i stedet opretter en neutral ADR-skabelon (`docs/adr/template.md`) og overlader `docs/adr/` 100% til projektets egne forretningsbeslutninger.
+  - *Package-by-Feature (Screaming Architecture)* bevares som universel transversel kvalitetsstandard i `CODING_STANDARDS.md`.
+  - Prompts, `.agents/AGENTS.md`-skabeloner og JIT micro-nudges saneres, så henvisninger til platformregler ikke linker til fiktive/lokale stier (`docs/adr/0003-...`), hvilket eliminerer 404-links og navnerumskollisioner i klientprojekter (som observeret i `knowledgegraphstudio`).
+
 ## 📋 Acceptance Criteria
 - [ ] Mappen `.agents/plugins/agent-gauntlet/` omdøbes til `.agents/plugins/xgauntlet/` med opdateret `plugin.json` (`name: "xgauntlet"`).
 - [ ] `cargo run -p xgauntlet-cli -- validate-plugin --plugin-dir .agents/plugins/xgauntlet` validerer med 0 fejl.
@@ -75,7 +82,9 @@ I stedet for at dumpe tunge manualer på 300 linjer ind i konteksten eller begr�
 - [ ] Telemetrimotoren (`features/telemetry/`) genererer JIT prompt-direktiver for samtlige 7 trin i README.md og angiver den aktive af de 4 AI-roller.
 - [ ] Harness-adapterne (`antigravity`, `claude_code`, `codex`, `mistral`) udstiller de genererede 7-trins JIT-direktiver i deres respektive hook-payloads (`PreInvocation` og `PostToolUse`).
 - [ ] `xgauntlet doctor` rapporterer fundne harnesses og status for globale xGauntlet-plugins under kategorien `Harnesses`.
-- [ ] Conformance-tests i `crates/xgauntlet-core/tests/` dækker cross-platform harness-opdagelse, plugin-installation og 7-trins JIT prompt-generering med 100% grøn status.
+- [ ] `features/scaffold/templates.rs` saneres, så `xgauntlet init` stilladserer `docs/adr/template.md` frem for at okkupere `docs/adr/0001-package-by-feature-architecture.md`.
+- [ ] Skabeloner for `.agents/AGENTS.md` og JIT-prompts saneres for brudte referencer til lokale `docs/adr/0003-...` filer og benytter i stedet eksplicitte platforminvarianter.
+- [ ] Conformance-tests i `crates/xgauntlet-core/tests/` dækker cross-platform harness-opdagelse, plugin-installation, 7-trins JIT prompt-generering og opdateret template-scaffolding med 100% grøn status.
 - [ ] `cargo run -p xgauntlet-cli -- check-spec -t 023-pipeline-jit-governance-and-global-plugin-distribution` validerer med 0 fejl.
 - [ ] Fuld workspace testsuite passerer (`cargo test --workspace`) uden linter-advarsler (`cargo clippy --workspace --all-targets -- -D warnings`).
 
@@ -84,10 +93,12 @@ I stedet for at dumpe tunge manualer på 300 linjer ind i konteksten eller begr�
 - Må IKKE tvinge unødvendige statiske skill-filer ind i forretningsprojekters kildetræ under `xgauntlet init`.
 - Må IKKE overstige 12 linjer eller ~120 tokens pr. JIT-injektion for at forhindre context bloat og token-spild.
 - Må IKKE forringe sub-3ms koldstarts-invarianten for hook- og telemetriafvikling.
+- Må IKKE forurene klientprojekters `docs/adr/` med xGauntlet-specifikke interne implementerings-ADRs.
 - Må IKKE foretage remote publication handlinger (`git push`) eller destruktive filoperationer.
 - Må IKKE introducere baggrunds-dæmoner jf. Zero-Daemon invarianten.
 
 ## 📝 Revisions
+- 2026-09-13: Udvidet med sanering af in-repo governance og ADR decoupling: Platform-invarianter (Surgical Gatekeeper, Two-Tier evidens) adskilles fra klientprojekters lokale `docs/adr/`, og `xgauntlet init` stilladserer ren `docs/adr/template.md` i stedet for at okkupere `0001`.
 - 2026-09-13: Task 023 oprettet som afløser for Task 020 (deprecated). Omfanget er udvidet til at forankre JIT-promptstyringen direkte i README.md's 7-trins pipeline og de 4 AI-roller, samt deterministisk cross-platform harness discovery.
 
 ## 🧪 Verifikation
