@@ -2,14 +2,15 @@
 type: Task Package
 title: "Task 020: Global Plugin Distribution & JIT Skill Injection"
 description: "Etablere global plugin distribution (xgauntlet omdøbning og registrering i ~/.gemini/config/plugins/xgauntlet) samt Just-In-Time fase-instruktion via harness telemetry hooks"
-status: active
+status: deprecated
+superseded_by: "023-pipeline-jit-governance-and-global-plugin-distribution"
 generated: { by: process:xgauntlet-task-init, at: "2026-09-12T09:14:30Z" }
 tags: [plugin, distribution, jit-skills, telemetry, antigravity, claude-code, codex, adr-0004, adr-0006]
 ---
 
 # Task 020: Global Plugin Distribution & JIT Skill Injection
 
-**Status**: `ACTIVE`
+**Status**: `DEPRECATED` (Erstattes af [Task 023](tasks/023-pipeline-jit-governance-and-global-plugin-distribution.md))
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-09-12`
 
@@ -49,6 +50,7 @@ Etablere en ren og decoupled distribution af xGauntlets agent-skills og metodere
 - Må IKKE introducere baggrunds-dæmoner jf. Zero-Daemon invarianten.
 
 ## 📝 Revisions
+- 2026-09-13: Deprecated til fordel for Task 023 (7-Step Pipeline JIT Governance & Global Plugin Distribution).
 - 2026-09-12: Task 020 oprettet som ACTIVE for Global Plugin Distribution & JIT Skill Injection.
 
 ## 🧪 Verifikation
