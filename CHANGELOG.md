@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.6.0] - 2026-09-13
+
+### 🚀 Added
+- **Native ARM64 Linux CI Pipeline & Release Distribution (`Task 025`)**:
+  - Tilføjet `ubuntu-24.04-arm` runner til GitHub Actions CI-matrix i `.github/workflows/ci.yml` for native ARM64 Linux testkørsler.
+  - Tilføjet `aarch64-unknown-linux-gnu` target og `ubuntu-24.04-arm` runner til `.github/workflows/release.yml` for automatisk distribution af `xgauntlet-linux-arm64.tar.gz` på GitHub Releases.
+  - Eksporteret og enhedstestet deterministisk platform- og arkitekturopløsning i Node.js launcheren (`packages/cli/bin/xgauntlet.js` og `packages/cli/test/launcher.test.js`).
+
 ## [0.5.2] - 2026-09-13
 
 ### 🐛 Fixed

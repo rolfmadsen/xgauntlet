@@ -4,10 +4,10 @@
 **Task Title**: Task 025: Native ARM64 Linux CI Pipeline and Release Distribution  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `97812fb92c813662a712a6321ef35437394e8f94d75ac7f632264c28f40ecf0a`  
-**Timestamp**: `2026-09-13T19:56:45Z`  
-**Head**: `18cb5b6`  
-**Commit**: `18cb5b6`  
+**Source Manifest Digest**: `fa17a87b9f5acd0c596a0ac16fb633796947ffedd3d258077c1c6975bd19e733`  
+**Timestamp**: `2026-09-13T20:13:28Z`  
+**Head**: `815f7c7`  
+**Commit**: `815f7c7`  
 
 ## Acceptance Criteria
 
@@ -23,10 +23,10 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `lint` | `PASSED` | `0` | `0.112s` |
-| `types` | `PASSED` | `0` | `0.081s` |
-| `unit` | `PASSED` | `0` | `9.154s` |
-| `invariants` | `PASSED` | `0` | `0.369s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.013s` |
+| `lint` | `PASSED` | `0` | `1.734s` |
+| `types` | `PASSED` | `0` | `0.090s` |
+| `unit` | `PASSED` | `0` | `9.007s` |
+| `invariants` | `PASSED` | `0` | `0.349s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.009s` |
 
 ---

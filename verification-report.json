@@ -6,7 +6,7 @@
   "task_contract": {
     "task_id": "025-arm64-linux-support",
     "task_title": "Task 025: Native ARM64 Linux CI Pipeline and Release Distribution",
-    "task_digest": "c5bd1bd0fa216554f966912534805b1efc87dc5b23922a0c46353dd4a21615ea",
+    "task_digest": "72be562c4e0c19643fec64559387695b78b9a8adb300cbfd930ffa59014f3a1e",
     "acceptance_criteria": [
       "Gøre `getPlatformInfo` i `packages/cli/bin/xgauntlet.js` deterministisk testbar med valgfrie platform- og arch-parametre og eksportere funktionen.",
       "Tilføje tests i `packages/cli/test/launcher.test.js`, der beviser platform-opløsning for `linux` + `arm64` (`xgauntlet-linux-arm64.tar.gz`) samt de øvrige understøttede platforme.",
@@ -18,30 +18,30 @@
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "ab20ad7de925d9811dc51474e6e8983f37886b0503f0389d9e1eec8b210a983c",
-    "source_manifest_digest_pre": "97812fb92c813662a712a6321ef35437394e8f94d75ac7f632264c28f40ecf0a",
-    "source_manifest_digest_post": "97812fb92c813662a712a6321ef35437394e8f94d75ac7f632264c28f40ecf0a",
-    "config_digest": "9903e06e8dcade067a6d18b33b907dcb7fc444e6c53b2028f9d4139766033569",
-    "task_digest": "c5bd1bd0fa216554f966912534805b1efc87dc5b23922a0c46353dd4a21615ea",
+    "source_content_digest": "b593d7507dade88bc7a2fffee6df08b00d1243e4afbd46fb4923b94f19301c8d",
+    "source_manifest_digest_pre": "fa17a87b9f5acd0c596a0ac16fb633796947ffedd3d258077c1c6975bd19e733",
+    "source_manifest_digest_post": "fa17a87b9f5acd0c596a0ac16fb633796947ffedd3d258077c1c6975bd19e733",
+    "config_digest": "4e0db89b6275a39605f79ab9c65cc66473df241dc6df781294880b30961e3cea",
+    "task_digest": "72be562c4e0c19643fec64559387695b78b9a8adb300cbfd930ffa59014f3a1e",
     "policy_digest": "1ddf22af04a5dce3768f4179be4c93c9ef3139571fc8d910b929ef9956fa566d",
     "check_definitions_digest": "acd753b5c5b1f14c179a6a97e9eea55dc81aa7414ff9f84065c10555ce9d3d8a",
     "included_files_count": 180,
     "vcs": {
       "type": "git",
-      "head": "18cb5b6",
-      "commit": "18cb5b6",
-      "is_dirty": false
+      "head": "815f7c7",
+      "commit": "815f7c7",
+      "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-09-13T19:56:35Z",
-    "finished_at": "2026-09-13T19:56:45Z",
-    "total_duration_seconds": 9.871929464,
+    "started_at": "2026-09-13T20:13:17Z",
+    "finished_at": "2026-09-13T20:13:28Z",
+    "total_duration_seconds": 11.327335483,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
       "platform": "linux",
-      "version": "0.5.2"
+      "version": "0.6.0"
     }
   },
   "checks": [
@@ -49,43 +49,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.11160822,
+      "duration_seconds": 1.734129515,
       "optional": true,
       "passed": true,
-      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
+      "log_digest": "6cadc18e9132c6a63d01706ea677be7cb377ec770656c121908e595b749483fe"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.080521058,
+      "duration_seconds": 0.090345397,
       "optional": true,
       "passed": true,
-      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
+      "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 9.154310979,
+      "duration_seconds": 9.007334398,
       "optional": false,
       "passed": true,
-      "log_digest": "b09f1fc77a508ef1901ea06c73b1e304fee2c05545c23adbb3cfb333ca540bcd"
+      "log_digest": "401795bd6510a5863903c8f43bf2cef56cfaec942b79e77338f531d5398f78f9"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.368790787,
+      "duration_seconds": 0.348983847,
       "optional": true,
       "passed": true,
-      "log_digest": "68e3ff24edfed6c2f101f0482e5934d531decf5f71c7d6b5127bb2230c3bc0ba"
+      "log_digest": "12f375bfd1a96295ddd427f311eb711265b6e3dfb68db846392e8c5c5c456642"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.012717395,
+      "duration_seconds": 0.008578553,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
