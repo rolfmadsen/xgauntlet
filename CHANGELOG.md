@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.1] - 2026-09-13
+
+### 🐛 Fixed
+- **Windows CI Line Endings & Frontmatter Detection (`Task 024`)**:
+  - Gjort YAML frontmatter-validering i `plugin_distribution_test.rs` robust overfor både Unix LF (`\n`) og Windows CRLF (`\r\n`).
+  - Tilføjet explicit regressionstest `test_crlf_frontmatter_detection`.
+  - Konfigureret rod `.gitattributes` med `* text=auto eol=lf` og binære filtyper for at sikre ensartede LF-linjeskift på tværs af platforme og forhindre Git i at omskrive line endings på Windows CI.
+
 ## [0.5.0] - 2026-09-13
 
 ### 🚀 Added
