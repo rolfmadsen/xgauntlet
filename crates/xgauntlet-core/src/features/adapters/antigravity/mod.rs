@@ -64,14 +64,25 @@ impl AntigravityAdapter {
         };
         let evidence = telemetry.evidence.as_deref().unwrap_or("pending");
 
-        format!(
+        let mut msg = format!(
             "[XGAUNTLET COCKPIT TELEMETRY]\n\
              Task: {task_id_str} | Phase: {phase} | Verdict: {verdict}\n\
              Invariants: {invariants} | Mutation: 100%\n\
              Git: {}@{} ({git_state}) | Drift: 0%\n\
              Evidence: {evidence}",
             telemetry.git.branch, telemetry.git.head_oid
-        )
+        );
+
+        if let Some(pipe_phase) = crate::features::telemetry::PipelinePhase::parse_phase(phase) {
+            let jit_rendered =
+                crate::features::telemetry::render_jit_directive(pipe_phase, Some(task_id_str));
+            if !jit_rendered.is_empty() {
+                msg.push_str("\n\n");
+                msg.push_str(&jit_rendered);
+            }
+        }
+
+        msg
     }
 
     /// Renders the 5-line human-facing blockquote HUD card with clickable Markdown links.

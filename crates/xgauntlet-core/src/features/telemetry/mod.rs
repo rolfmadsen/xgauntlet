@@ -2,6 +2,4 @@
 
 pub mod jit;
 
-pub use jit::{
-    get_phase_directive, render_jit_directive, JitPhaseDirective, PipelinePhase,
-};
+pub use jit::{get_phase_directive, render_jit_directive, JitPhaseDirective, PipelinePhase};

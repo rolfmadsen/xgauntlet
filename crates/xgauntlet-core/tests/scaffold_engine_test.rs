@@ -80,9 +80,7 @@ fn test_safe_non_destructive_guarantee_preserves_existing_files() {
     assert!(ws.join(".agents/AGENTS.md").is_file());
     assert!(ws.join(".agents/hooks.json").is_file());
     assert!(ws.join("CLAUDE.md").is_file());
-    assert!(ws
-        .join("docs/adr/0001-package-by-feature-architecture.md")
-        .is_file());
+    assert!(ws.join("docs/adr/template.md").is_file());
 }
 
 #[test]

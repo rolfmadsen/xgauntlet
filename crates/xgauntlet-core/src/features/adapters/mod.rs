@@ -63,12 +63,24 @@ pub fn get_adapter(harness: &str) -> Option<Box<dyn HarnessAdapter>> {
     }
 }
 
-/// Formats the canonical PostToolUse JSON payload on stdout (Claude Code and OpenAI Codex).
+/// Formats the canonical PostToolUse JSON payload on stdout (Claude Code, OpenAI Codex, Mistral).
 pub fn format_post_tool_use_payload(box_card: &str) -> serde_json::Value {
+    format_post_tool_use_payload_with_directive(box_card, None)
+}
+
+/// Formats PostToolUse JSON payload with optional JIT phase directive appended to additionalContext.
+pub fn format_post_tool_use_payload_with_directive(
+    box_card: &str,
+    directive: Option<&str>,
+) -> serde_json::Value {
+    let context = match directive {
+        Some(d) if !d.is_empty() => format!("{box_card}\n\n{d}"),
+        _ => box_card.to_string(),
+    };
     serde_json::json!({
         "hookSpecificOutput": {
             "hookEventName": "PostToolUse",
-            "additionalContext": box_card
+            "additionalContext": context
         }
     })
 }

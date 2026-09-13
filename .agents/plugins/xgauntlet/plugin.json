@@ -1,15 +1,21 @@
 {
-  "name": "agent-gauntlet",
+  "name": "xgauntlet",
   "version": "0.8.1",
 
   "description": "High-assurance multi-stack verification engine, actionable diagnostics harness, and gauntlet runner for Antigravity",
   "author": "Antigravity Team",
   "skills": [
-    "old-coder",
     "grill-me",
     "grill-with-docs",
+    "domain-modeling",
+    "to-spec",
+    "to-tasks",
+    "old-coder",
     "diagnose",
-    "code-review"
+    "codebase-design",
+    "improve-codebase-architecture",
+    "code-review",
+    "retro"
   ],
   "entrypoints": {
     "gauntlet_runner": "agent_gauntlet.features.gauntlet.runner:run_gauntlet",

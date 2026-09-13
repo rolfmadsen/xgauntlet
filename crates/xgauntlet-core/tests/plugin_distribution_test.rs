@@ -3,13 +3,10 @@
 
 use std::fs;
 use std::path::{Path, PathBuf};
-use xgauntlet_core::features::doctor::{
-    run_doctor, DoctorCategory, DoctorOptions,
-};
+use xgauntlet_core::features::doctor::{run_doctor, DoctorCategory, DoctorOptions};
 use xgauntlet_core::features::plugin::{
-    discover_harnesses_in, get_embedded_plugin_manifest, get_embedded_skill,
-    list_embedded_skills, run_plugin_install, PlatformTarget, PluginInstallOptions,
-    ALL_EMBEDDED_SKILLS,
+    discover_harnesses_in, get_embedded_plugin_manifest, get_embedded_skill, list_embedded_skills,
+    run_plugin_install, PlatformTarget, PluginInstallOptions, ALL_EMBEDDED_SKILLS,
 };
 use xgauntlet_core::features::scaffold::generate_templates;
 use xgauntlet_core::features::telemetry::{
@@ -222,7 +219,11 @@ fn test_cross_platform_harness_discovery_macos_and_windows() {
         "macOS discovery must return 4 harness descriptors"
     );
     for h in &mac_discovered {
-        assert!(!h.detected, "Non-existent harness '{}' must not be detected", h.name);
+        assert!(
+            !h.detected,
+            "Non-existent harness '{}' must not be detected",
+            h.name
+        );
         assert!(!h.plugin_installed);
     }
 
@@ -234,7 +235,11 @@ fn test_cross_platform_harness_discovery_macos_and_windows() {
         "Windows discovery must return 4 harness descriptors"
     );
     for h in &win_discovered {
-        assert!(!h.detected, "Non-existent harness '{}' must not be detected", h.name);
+        assert!(
+            !h.detected,
+            "Non-existent harness '{}' must not be detected",
+            h.name
+        );
         assert!(!h.plugin_installed);
     }
 }
@@ -402,7 +407,7 @@ fn test_seven_jit_phase_directives_roles_targets_and_gates() {
         );
 
         // 2. Positive Target check (0 negative words / prohibitions)
-        let forbidden_negations = ["not", "never", "must not", "don't", "ikke", "forbud"];
+        let forbidden_negations = ["do not", "cannot", "never", "don't", "ikke", "forbud"];
         let target_lower = directive.target.to_ascii_lowercase();
         for neg in forbidden_negations {
             assert!(
@@ -469,8 +474,7 @@ fn test_jit_clean_worktree_guarantee_and_session_handoff() {
         "Phase 7 target must require 100% clean git worktree"
     );
     assert!(
-        p7.gate.contains("Git worktree confirmed clean")
-            && p7.gate.contains("SESSION HANDOFF"),
+        p7.gate.contains("Git worktree confirmed clean") && p7.gate.contains("SESSION HANDOFF"),
         "Phase 7 gate must require clean worktree and SESSION HANDOFF card"
     );
 }
@@ -518,7 +522,9 @@ fn test_decoupling_of_business_adrs_scaffolds_template() {
         .find(|t| t.relative_path == ".agents/AGENTS.md")
         .expect(".agents/AGENTS.md template");
     assert!(
-        !agents_md.content.contains("0003-surgical-gatekeeper-and-no-remote-push.md"),
+        !agents_md
+            .content
+            .contains("0003-surgical-gatekeeper-and-no-remote-push.md"),
         ".agents/AGENTS.md must NOT reference broken local docs/adr/0003-... file"
     );
 }

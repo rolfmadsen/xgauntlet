@@ -1,7 +1,7 @@
 //! Core coordination engine for the xGauntlet Fast Environment, Git, and Toolchain Diagnostics Engine.
 
 use crate::features::doctor::checks::{
-    check_engine, check_git, check_governance, check_host, check_toolchains,
+    check_engine, check_git, check_governance, check_harnesses, check_host, check_toolchains,
 };
 use crate::features::doctor::models::{
     DoctorCategory, DoctorCheckStatus, DoctorError, DoctorOptions, DoctorReport, DoctorVerdict,
@@ -62,6 +62,11 @@ pub fn run_doctor(options: &DoctorOptions) -> Result<DoctorReport, DoctorError> 
     // 5. Engine Category
     if options.category.is_none() || options.category == Some(DoctorCategory::Engine) {
         checks.extend(check_engine(&workspace));
+    }
+
+    // 6. Harnesses Category
+    if options.category.is_none() || options.category == Some(DoctorCategory::Harnesses) {
+        checks.extend(check_harnesses(&workspace));
     }
 
     // Filter checks if a specific category was requested

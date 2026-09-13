@@ -35,8 +35,8 @@ pub fn generate_templates(stack: &str, project_name: &str) -> Vec<ScaffoldTempla
             content: render_task_bootstrap_md(project_name, today, now),
         },
         ScaffoldTemplate {
-            relative_path: "docs/adr/0001-package-by-feature-architecture.md",
-            content: render_adr_0001_md(now),
+            relative_path: "docs/adr/template.md",
+            content: render_adr_template_md(),
         },
         ScaffoldTemplate {
             relative_path: ".agents/AGENTS.md",
@@ -206,31 +206,28 @@ Etablere projektets fundament for `{project_name}`, konfigurere `gauntlet.toml`,
     )
 }
 
-fn render_adr_0001_md(timestamp: &str) -> String {
-    format!(
-        r#"---
+fn render_adr_template_md() -> String {
+    r#"---
 type: Architectural Decision Record
-title: 'ADR 0001: Package-by-Feature Architecture'
-status: stable
+title: 'ADR [Number]: [Short Title]'
+status: draft
 tags: [architecture, adr]
-generated: {{ by: process:xgauntlet-init, at: "{timestamp}" }}
 ---
 
-# 1. Package-by-Feature (Screaming Architecture)
+# [ADR Number]. [Short Title]
 
-**Status**: `accepted`  
-**Date**: `2026-09-06`  
+**Status**: `draft | accepted | deprecated | superseded`  
+**Date**: `YYYY-MM-DD`  
 
 ## Context
-Tidligere var kildekoden ofte opdelt i tekniske lag (f.eks. controllere, modeller, services), hvilket spredte sammenhængende domænelogik og øgede utilsigtet kobling.
+Beskriv baggrunden, problemstillingen, forretningskontekst og de tekniske udfordringer eller begrænsninger, som denne beslutning adresserer.
 
 ## Decision
-Al domænelogik, forretningsregler og tilhørende tests organiseres som **Package-by-Feature** i selvstændige, modulære mapper. Hver feature indkapsler sine egne modeller, logik og enhedstests.
+Beskriv den valgte arkitektur- eller designbeslutning, herunder hvilke mønstre, snitflader og invariante regler der indføres.
 
 ## Consequences
-Nye funktioner tilføjes i isolerede feature-moduler. Dette gør kodebasen overskuelig for både mennesker og AI-agenter og minimerer utilsigtet regression.
-"#
-    )
+Beskriv de positive og negative konsekvenser, trade-offs og eventuel teknisk gæld, der følger af denne beslutning.
+"#.to_string()
 }
 
 fn render_agents_md(project_name: &str) -> String {
@@ -280,15 +277,15 @@ SPEC / GRILL → (Human Approval) → RED → GREEN → REFACTOR → GAUNTLET �
 
 ---
 
-## 🔒 Lokal TDD Phase Checkpoint Protokol (ADR 0003)
-For at sikre sporbarhed, atomiske tilbagerulningspunkter og beskytte mod context rot, skal agenten udføre lokale git commits (`git add` og `git commit`) ved hver fase-overgang i TDD-løkken jf. [ADR 0003](docs/adr/0003-surgical-gatekeeper-and-no-remote-push.md):
+## 🔒 Lokal TDD Phase Checkpoint Protokol
+For at sikre sporbarhed, atomiske tilbagerulningspunkter og beskytte mod context rot, skal agenten udføre lokale git commits (`git add` og `git commit`) ved hver fase-overgang i TDD-løkken jf. xGauntlet Platform Invariants:
 - `SPEC`: `task(<id>): initialize task specification and criteria`
 - `RED`: `test(<id>): add failing acceptance test for <feature> [RED]`
 - `GREEN`: `feat(<id>): implement minimal logic to satisfy test [GREEN]`
 - `REFACTOR`: `refactor(<id>): clean up module boundaries and types [REFACTOR]`
 - `DONE`: `chore(<id>): seal evidence and mark task DONE`
 
-**Kritiske Invarianter (ADR 0003):**
+**Kritiske Invarianter:**
 - Foretag ALDRIG remote publication handlinger (`git push`).
 - Foretag ALDRIG destruktive reset handlinger (`git reset --hard` eller `git clean -f`).
 - Alle commits forbliver strengt lokale checkpoints på udviklerens maskine.

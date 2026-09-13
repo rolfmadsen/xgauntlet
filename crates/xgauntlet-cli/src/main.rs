@@ -1420,6 +1420,7 @@ fn render_doctor_summary(report: &xgauntlet_core::DoctorReport, verbose: bool) {
         xgauntlet_core::DoctorCategory::Governance,
         xgauntlet_core::DoctorCategory::Toolchains,
         xgauntlet_core::DoctorCategory::Engine,
+        xgauntlet_core::DoctorCategory::Harnesses,
     ];
 
     for cat in &categories {
