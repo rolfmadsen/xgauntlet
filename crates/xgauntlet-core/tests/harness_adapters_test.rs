@@ -1376,3 +1376,62 @@ fn test_harness_adapter_aliases_consistency() {
         );
     }
 }
+
+// ============================================================================
+// Mistral Vibe Harness Adapter Tests (Task 022 - RED Phase)
+// ============================================================================
+
+#[test]
+fn test_mistral_supported_and_aliases() {
+    assert!(
+        SUPPORTED_HARNESSES.contains(&"mistral"),
+        "SUPPORTED_HARNESSES must include 'mistral'"
+    );
+
+    for alias in ["mistral", "mistral_vibe", "mistral-vibe", "vibe"] {
+        assert!(
+            get_adapter(alias).is_some(),
+            "get_adapter must resolve alias '{}'",
+            alias
+        );
+    }
+
+    let adapter = get_adapter("mistral").expect("mistral adapter");
+    assert_eq!(adapter.name(), "mistral");
+}
+
+#[test]
+fn test_mistral_tool_mapping() {
+    let adapter = get_adapter("mistral").expect("mistral adapter");
+
+    let bash_payload = serde_json::json!({
+        "tool_name": "bash",
+        "tool_input": {
+            "command": "cargo test"
+        }
+    });
+    let norm_bash = adapter.normalize_tool_call(&bash_payload);
+    assert_eq!(norm_bash.action_type, ToolActionType::ExecuteCommand);
+    assert_eq!(norm_bash.target_resource, "cargo test");
+
+    let write_payload = serde_json::json!({
+        "tool_name": "write_file",
+        "tool_input": {
+            "path": "src/lib.rs",
+            "content": "pub fn hello() {}"
+        }
+    });
+    let norm_write = adapter.normalize_tool_call(&write_payload);
+    assert_eq!(norm_write.action_type, ToolActionType::WriteFile);
+    assert_eq!(norm_write.target_resource, "src/lib.rs");
+
+    let read_payload = serde_json::json!({
+        "tool_name": "read",
+        "tool_input": {
+            "path": "src/lib.rs"
+        }
+    });
+    let norm_read = adapter.normalize_tool_call(&read_payload);
+    assert_eq!(norm_read.action_type, ToolActionType::ReadFile);
+    assert_eq!(norm_read.target_resource, "src/lib.rs");
+}
