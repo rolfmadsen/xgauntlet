@@ -47,11 +47,20 @@ xGauntlet følger samme enkle model som `git`: Værktøjet installeres én gang 
 
 ### 1. Installer xGauntlet (én gang på din maskine)
 
-Kør én enkelt kommando for at installere værktøjet globalt på tværs af alle programmeringssprog og platforme:
+Kør følgende to trin for at installere CLI-motoren globalt og aktivere de 11 metodiske agent-skills i dine AI-agenter:
 
 ```bash
+# Trin 1a: Installer CLI-motoren og gatekeeperen globalt i dit system ($PATH):
 npm install -g xgauntlet
+
+# Trin 1b: Installer de 11 indbyggede agent-skills i dine AI-harnesses (Antigravity, Claude Code, Codex, Mistral):
+xgauntlet plugin install --global
 ```
+
+> [!NOTE]
+> **🤖 Hvorfor kræves `xgauntlet plugin install --global`?**  
+> `npm install -g` placerer udelukkende CLI-binæren i dit systems `$PATH`. Hvert AI-agentmiljø (Google Antigravity IDE, Claude Code, OpenAI Codex, Mistral Vibe) har sin egen konfigurationsmappe til skills (f.eks. `~/.gemini/config/plugins/xgauntlet/skills/` eller `~/.claude/skills/`).  
+> `xgauntlet plugin install --global` detekterer automatisk dine installerede agent-harnesses og udpakker de 11 metodiske skills som ægte, redigerbare Markdown-filer direkte i agenternes globale mapper.
 
 > [!TIP]
 > **⚡ Hvorfor global installation frem for blot `npx`?**  
@@ -130,13 +139,16 @@ rm -f tasks/001-bootstrap.md docs/adr/0001-package-by-feature-architecture.md
 ```
 
 #### 2. Afinstaller værktøjet fra maskinen (Global Cleanup)
-Hvis du ønsker at fjerne selve `xgauntlet`-programmet fra dit styresystem:
+Hvis du ønsker at fjerne selve `xgauntlet`-programmet og de globale agent-skills fra dit styresystem:
 
 ```bash
 npm uninstall -g xgauntlet
 
-# Hvis du tidligere har afviklet flygtigt via npx, slettes den lokale cache-binær:
+# Slet den lokale cache-binær:
 rm -rf ~/.cache/xgauntlet
+
+# (Valgfrit) Fjern installerede agent-plugins fra dine globale AI-harnesses:
+rm -rf ~/.gemini/config/plugins/xgauntlet ~/.claude/skills/xgauntlet ~/.codex/plugins/xgauntlet ~/.vibe/plugins/xgauntlet
 ```
 
 ---
@@ -370,6 +382,19 @@ xgauntlet check-release
 Undersøg workspace-konfiguration, stakke og miljøforudsætninger på tværs af Linux, macOS og Windows:
 ```bash
 xgauntlet doctor
+```
+
+### 7. Global Plugin & Agent Skills Distribution (`plugin install`)
+Installer eller opdater de 11 indlejrede agent-skills (`old-coder`, `grill-me`, `diagnose`, `code-review` mv.) på tværs af opdagede AI agent harnesses:
+```bash
+# Installer automatisk til alle detekterede agent-harnesses
+xgauntlet plugin install --global
+
+# Preview handlinger uden at skrive filer til disk
+xgauntlet plugin install --global --dry-run
+
+# Tving overskrivning ved opdatering til ny xgauntlet-version
+xgauntlet plugin install --global --force
 ```
 
 ---
