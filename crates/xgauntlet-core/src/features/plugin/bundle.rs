@@ -38,6 +38,56 @@ pub fn get_embedded_skill(name: &str) -> Option<&'static str> {
     }
 }
 
+/// Embedded companion files for skills (e.g. ADR-FORMAT.md, DEEPENING.md, tests.md).
+pub const COMPANION_FILES: &[(&str, &str, &str)] = &[
+    (
+        "domain-modeling",
+        "ADR-FORMAT.md",
+        include_str!("../../../../../.agents/plugins/xgauntlet/skills/domain-modeling/ADR-FORMAT.md"),
+    ),
+    (
+        "domain-modeling",
+        "CONTEXT-FORMAT.md",
+        include_str!(
+            "../../../../../.agents/plugins/xgauntlet/skills/domain-modeling/CONTEXT-FORMAT.md"
+        ),
+    ),
+    (
+        "codebase-design",
+        "DEEPENING.md",
+        include_str!("../../../../../.agents/plugins/xgauntlet/skills/codebase-design/DEEPENING.md"),
+    ),
+    (
+        "codebase-design",
+        "DESIGN-IT-TWICE.md",
+        include_str!(
+            "../../../../../.agents/plugins/xgauntlet/skills/codebase-design/DESIGN-IT-TWICE.md"
+        ),
+    ),
+    (
+        "improve-codebase-architecture",
+        "HTML-REPORT.md",
+        include_str!(
+            "../../../../../.agents/plugins/xgauntlet/skills/improve-codebase-architecture/HTML-REPORT.md"
+        ),
+    ),
+    (
+        "old-coder",
+        "tests.md",
+        include_str!("../../../../../.agents/plugins/xgauntlet/skills/old-coder/tests.md"),
+    ),
+    (
+        "old-coder",
+        "mocking.md",
+        include_str!("../../../../../.agents/plugins/xgauntlet/skills/old-coder/mocking.md"),
+    ),
+];
+
+/// Returns embedded companion files for skills.
+pub fn get_embedded_companion_files() -> &'static [(&'static str, &'static str, &'static str)] {
+    COMPANION_FILES
+}
+
 /// Returns embedded plugin manifest.
 pub fn get_embedded_plugin_manifest() -> &'static str {
     include_str!("../../../../../.agents/plugins/xgauntlet/plugin.json")

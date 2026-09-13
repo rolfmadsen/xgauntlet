@@ -4,8 +4,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use super::bundle::{
-    get_embedded_hooks_manifest, get_embedded_plugin_manifest, get_embedded_skill,
-    ALL_EMBEDDED_SKILLS,
+    get_embedded_companion_files, get_embedded_hooks_manifest, get_embedded_plugin_manifest,
+    get_embedded_skill, ALL_EMBEDDED_SKILLS,
 };
 use super::discovery::discover_installed_harnesses;
 use super::models::{
@@ -102,6 +102,11 @@ fn install_into_directory(
             let rel_path = PathBuf::from(format!("skills/{skill}/SKILL.md"));
             assets.push((rel_path, skill_content.to_string()));
         }
+    }
+
+    for (skill, filename, companion_content) in get_embedded_companion_files() {
+        let rel_path = PathBuf::from(format!("skills/{skill}/{filename}"));
+        assets.push((rel_path, companion_content.to_string()));
     }
 
     for (rel_path, content) in assets {
