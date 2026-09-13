@@ -2,14 +2,14 @@
 type: Task Package
 title: "Task 024: Fix Windows CI CRLF Frontmatter Assertion and Gitattributes"
 description: "Fix Windows CI failure in plugin_distribution_test caused by CRLF frontmatter assertion and enforce LF line endings via .gitattributes"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-13T19:19:58Z" }
 tags: [task-lifecycle, intent, scaffolding, rust]
 ---
 
 # Task 024: Fix Windows CI CRLF Frontmatter Assertion and Gitattributes
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🐛 BUG FIX`
 **Oprettet**: `2026-09-13`
 
