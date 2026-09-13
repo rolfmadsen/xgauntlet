@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.0] - 2026-09-13
+
+### 🚀 Added
+- **AST Codebase Topology & Discovery Engine (`Task 021`)**:
+  - Polyglot, zero-token AST og modul-ekstraktionsmotor i `crates/xgauntlet-core` for Rust, TypeScript/Node, Python og Go.
+  - In-memory graf-traversering med BFS nabosøgning, DFS blast-radius konsekvensanalyse, shortest path beregninger og ASCII-trævisualisering.
+  - Deterministisk audit-artefakt i `.xgauntlet/topology.json`.
+  - CLI subcommand `xgauntlet topology` (`inspect`, `path`, `blast-radius`, `--json`).
+  - Sub-3ms koldstarts-garanti med Cockpit HUD `Scope` injektion inden for Pococks <45-token budget.
+- **Mistral Vibe Harness Adapter & Hooks Integration (`Task 022`)**:
+  - Autonom vertikal feature-slice i `crates/xgauntlet-core/src/features/adapters/mistral/` for Mistral Vibe.
+  - Normalisering af Mistral Vibe tool calls (`bash`, `write_file`, `edit`, `read`, `grep`, `task`, `ask_user_question`).
+  - Fail-closed `pre_tool` gatekeeper hook der returnerer `{"decision": "allow"}` eller `{"decision": "deny", "reason": "..."}`.
+  - Post-tool telemetri-injektion der udstiller `hook_specific_output.additional_context`.
+  - Scaffolding og ikke-destruktiv merging for `.vibe/hooks.toml`.
+  - CLI-understøttelse af `--harness mistral` i `hook`, `init`, `doctor` og `telemetry`.
+- **7-Step Pipeline JIT Governance & Global Plugin Distribution (`Task 023`)**:
+  - Global cross-platform plugin-installer (`xgauntlet plugin install`) der distribuerer den komplette 11-skill suite til Antigravity, Claude Code, OpenAI Codex og Mistral Vibe.
+  - Batteries-included indlejring direkte i Rust-binæren via `include_str!`.
+  - 7 specialiserede JIT fasedirektiver med distinkte AI-personaer og token-effektive nudges (<45 tokens).
+  - Cross-platform harness discovery for Linux, macOS og Windows.
+  - Afkobling af forretnings-ADR'er med neutral skabelon (`docs/adr/template.md`).
+  - Udvidet `xgauntlet doctor` med dedikeret `Harnesses` diagnostisk kategori.
+
+### 🛡️ Hardened & Refactored
+- **Brand-Harmonisering & CLI Parameter-Fleksibilitet**:
+  - Komplet kodebase-dækkende harmonisering fra det historiske `agent-gauntlet` navn til `xgauntlet`.
+  - Dobbelt syntaks-understøttelse i `xgauntlet hook`: accepterer både `--harness <HARNESS>` og positionelt `[HARNESS]`.
+  - Automatisk udvælgelse af hook-format via `--harness <HARNESS>` i `xgauntlet telemetry`.
+  - Fuldt formateret testsuite og 100% compliance med `cargo fmt --check`.
+
 ## [0.4.0] - 2026-09-09
 
 ### 🚀 Added
