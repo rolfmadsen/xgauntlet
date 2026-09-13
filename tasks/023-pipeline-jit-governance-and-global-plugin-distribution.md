@@ -48,7 +48,7 @@ Hvert direktiv anvender:
    * *Aktiv Rolle*: `Active Role: System Architect (Scope & Invariants)`
    * *Target*: Establish operational boundaries and ubiquitous terminology in CONTEXT.md.
    * *Gate (Done)*: Human approves scope and domain glossary.
-   * *Pointer*: Socratic grilling: invoke grill-me on ambiguous requirements or unmapped trade-offs.
+   * *Pointer*: Socratic questioning: invoke grill-me on ambiguous requirements or unmapped trade-offs.
 2. **Phase: Specification & Task Binding**
    * *Aktiv Rolle*: `Active Role: Requirements Engineer (Contracts & Criteria)`
    * *Target*: Formalize acceptance criteria (- [ ]) and Must NOT invariants in tasks/<id>.md.
