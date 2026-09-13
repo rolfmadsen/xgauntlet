@@ -22,7 +22,14 @@ Etablere en ren, decoupled og cross-platform distribution af xGauntlets agent-sk
   - Flytte og omdøbe `.agents/plugins/agent-gauntlet/` til `.agents/plugins/xgauntlet/`.
   - Opdatere `plugin.json` (`"name": "xgauntlet"`), `hooks.json` og tilhørende skill-metadata.
 - **Batteries-Included Indlejring i Rust-kernen**:
-  - Standard Markdown-skills (`grill-me`, `grill-with-docs`, `old-coder`, `diagnose`, `code-review`) og plugin-manifestet bages direkte ind i Rust-binæren via `include_str!`. Derved kan xGauntlet udrulles out-of-the-box uden afhængighed af eksterne netværkskald under installation.
+  - Den samlede suite af 11 standard Markdown-skills og plugin-manifestet bages direkte ind i Rust-binæren via `include_str!`:
+    - *Sokratisk Afklaring & Domænemodellering*: `grill-me`, `grill-with-docs`, `domain-modeling`
+    - *Specifikation & Opgavedekomponering*: `to-spec` (for [spec.md](spec.md)), `to-tasks` (for `tasks/<id>.md` med tracer-bullets og DAG)
+    - *Håndværk & Fejlisolation*: `old-coder`, `diagnose`
+    - *Arkitektur & Deep Modules*: `codebase-design`, `improve-codebase-architecture` (med interaktiv visuel HTML-rapport)
+    - *Audit & Kodeanmeldelse*: `code-review`
+    - *Session Retrospektiv*: `retro` (forbedring af miljø, lintere og `AGENTS.md`)
+  - Derved kan xGauntlet udrulles out-of-the-box uden afhængighed af eksterne netværkskald under installation.
 - **Cross-Platform Harness Discovery Engine**:
   - Etablere deterministisk detektion i Rust for installerede agent-harnesses på tværs af **Linux (x64/arm64)**, **macOS (Intel og Apple Silicon M1–M4)** samt **Windows 10/11 (x64/arm64)**:
     - *Google Antigravity IDE*: `~/.gemini/config/plugins/xgauntlet/`
@@ -41,29 +48,29 @@ Hvert direktiv anvender:
 2. **Semantisk Fase**: Angiver den aktuelle tilstand uden sekvensnumre for at forankre modellen 100% i nuet.
 3. **Positiv Målsætning (`Target`)**: 0 negationer. WASM-kernen håndhæver forbud (kode 4039); prompten leder mod målet.
 4. **Binært Afslutningskriterium (`Gate (Done)`)**: Tjekbar grænse, der modvirker *premature completion*.
-5. **Front-Loaded Context Pointer (`Pointer`)**: Præcis trigger til on-demand skills (`grill-me`, `diagnose`, `code-review`).
+5. **Front-Loaded Context Pointer (`Pointer`)**: Præcis trigger til on-demand skills.
 
 #### De 7 JIT-Fasedirektiver & Specialiserede Roller:
 1. **Phase: Ideation & Context**
    * *Aktiv Rolle*: `Active Role: System Architect (Scope & Invariants)`
    * *Target*: Establish operational boundaries and ubiquitous terminology in CONTEXT.md.
    * *Gate (Done)*: Human approves scope and domain glossary.
-   * *Pointer*: Socratic questioning: invoke grill-with-docs (or grill-me) to challenge against CONTEXT.md.
+   * *Pointer*: Socratic questioning: invoke grill-with-docs or domain-modeling to formalize CONTEXT.md and ADRs.
 2. **Phase: Specification & Task Binding**
    * *Aktiv Rolle*: `Active Role: Requirements Engineer (Contracts & Criteria)`
    * *Target*: Formalize acceptance criteria (- [ ]) and Must NOT invariants in tasks/<id>.md.
    * *Gate (Done)*: Command 'xgauntlet check-spec -t <id>' exits with 0 errors.
-   * *Pointer*: Evidence specification: invoke old-coder to structure executable criteria and Must NOT rules.
+   * *Pointer*: Specification synthesis: invoke to-spec to formalize spec.md and to-tasks to generate verified tasks/<id>.md.
 3. **Phase: Implementation (TDD)**
    * *Aktiv Rolle*: `Active Role: TDD Craftsman (Red-Green-Refactor)`
    * *Target*: Execute tight TDD cycle: failing test (RED) ➔ minimal fix (GREEN) ➔ refactor.
    * *Gate (Done)*: All acceptance assertions pass with atomic git phase-checkpoints.
-   * *Pointer*: Diagnosis loop: invoke diagnose if test failures defy root-cause isolation.
+   * *Pointer*: TDD loop: invoke old-coder for test-first development or diagnose for root-cause isolation.
 4. **Phase: Multi-Layer Verification**
    * *Aktiv Rolle*: `Active Role: Verification & QA Engineer (Gauntlet & Anti-Tamper)`
    * *Target*: Execute verification gauntlet and seal anti-tamper evidence.
    * *Gate (Done)*: Command 'xgauntlet verify --task <id> --save' records verdict PASSED.
-   * *Pointer*: Gauntlet gate: inspect verification-report.json for invariant violations.
+   * *Pointer*: Architecture refactor: invoke codebase-design or improve-codebase-architecture for deep modules and inspect verification-report.json.
 5. **Phase: Standards & Spec Audit**
    * *Aktiv Rolle*: `Active Role: Independent Code Reviewer (Standards & Smells)`
    * *Target*: Two-axis review: Axis A (CODING_STANDARDS.md smells), Axis B (Task acceptance criteria).
@@ -78,7 +85,7 @@ Hvert direktiv anvender:
    * *Aktiv Rolle*: `Active Role: Release & Operations Engineer (Release & Attestation)`
    * *Target*: Verify 100% clean git worktree, synchronize release readiness, and display session handoff prompt.
    * *Gate (Done)*: Git worktree confirmed clean (ready for user 'git push') and 🏁 SESSION HANDOFF card displayed.
-   * *Pointer*: Clean worktree guarantee: inspect 'git status' to confirm zero uncommitted files before handoff.
+   * *Pointer*: Session retrospective: invoke retro for environment improvements and inspect 'git status' for clean worktree.
 
 ### 3. Diagnostic & Doctor Integration
 - Udvide `xgauntlet doctor` med en dedikeret `Harnesses`-kategori, der rapporterer tilstedeværelse af installerede agent-harnesses samt installationsstatus for xGauntlet-pluginet.
@@ -93,7 +100,7 @@ Hvert direktiv anvender:
 ## 📋 Acceptance Criteria
 - [ ] Mappen `.agents/plugins/agent-gauntlet/` omdøbes til `.agents/plugins/xgauntlet/` med opdateret `plugin.json` (`name: "xgauntlet"`).
 - [ ] `cargo run -p xgauntlet-cli -- validate-plugin --plugin-dir .agents/plugins/xgauntlet` validerer med 0 fejl.
-- [ ] De 5 standard Markdown-skills (`grill-me`, `grill-with-docs`, `old-coder`, `diagnose`, `code-review`) og manifestet indlejres i Rust-kernen (`include_str!`).
+- [ ] Den samlede suite af 11 Markdown-skills (`grill-me`, `grill-with-docs`, `domain-modeling`, `to-spec`, `to-tasks`, `old-coder`, `diagnose`, `codebase-design`, `improve-codebase-architecture`, `code-review`, `retro`) og manifestet indlejres i Rust-kernen (`include_str!`).
 - [ ] Cross-platform harness discovery engine implementeres i Rust med understøttelse af Linux, macOS (Intel og Apple Silicon M1–M4) og Windows (x64/arm64).
 - [ ] CLI subcommand `xgauntlet plugin install` implementeres med understøttelse af flagene `--global`, `--harness <name>`, `--dry-run`, `--force`, `--target <dir>` og `--json`.
 - [ ] Global plugin-installation opretter en gyldig plugin- og skill-struktur i de detekterede harness-kataloger uden at overskrive brugerdata uden `--force`.
@@ -117,6 +124,7 @@ Hvert direktiv anvender:
 - Må IKKE introducere baggrunds-dæmoner jf. Zero-Daemon invarianten.
 
 ## 📝 Revisions
+- 2026-09-13: Udvidet skill-suiten til 11 fuldt integrerede Markdown-skills (tilføjet domain-modeling, to-spec, to-tasks, codebase-design, improve-codebase-architecture og retro) og afstemt 1:1 som front-loaded pointers i de 7 JIT fasedirektiver.
 - 2026-09-13: Etableret 'Clean Worktree Guarantee' i Phase 6 og 7: Phase 6 forsegler og committer lokalt via 'xgauntlet checkpoint --phase done', så Phase 7 garanterer et 100% rent git worktree ('Git: clean'), der tillader brugeren direkte at køre 'git push'.
 - 2026-09-13: Refaktoreret med Matt Pococks *writing-for-agents* principper: JIT-prompts er nu fasedrevne uden sekvens-tal (modvirker premature completion), roller er specialiseret 1:1 pr. fase med funktionelle ankre (`Active Role:`), og prompts er 100% positive med tjekbare `Gate (Done)` bounds og under 45 tokens.
 - 2026-09-13: Udvidet med sanering af in-repo governance og ADR decoupling: Platform-invarianter (Surgical Gatekeeper, Two-Tier evidens) adskilles fra klientprojekters lokale `docs/adr/`, og `xgauntlet init` stilladserer ren `docs/adr/template.md` i stedet for at okkupere `0001`.
