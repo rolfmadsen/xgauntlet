@@ -75,6 +75,12 @@ pub use features::tasks::{
 pub use features::telemetry::{
     get_phase_directive, render_jit_directive, JitPhaseDirective, PipelinePhase,
 };
+pub use features::topology::{
+    calculate_blast_radius, find_neighbors, find_shortest_path, load_topology,
+    render_ascii_topology, save_topology, scan_workspace, scan_workspace_topology,
+    BlastRadiusReport, Direction, EdgeType, NodeType, TopologyEdge, TopologyError, TopologyGraph,
+    TopologyNode, TopologyOptions, TOPOLOGY_FILE_PATH,
+};
 pub use features::wasm::{WasmError, WasmRuntimeHost};
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

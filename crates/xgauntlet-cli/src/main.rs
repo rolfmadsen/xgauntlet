@@ -228,6 +228,11 @@ enum Commands {
         #[command(subcommand)]
         command: PluginCommands,
     },
+    /// AST codebase topology & token-optimized discovery engine
+    Topology {
+        #[command(subcommand)]
+        command: TopologyCommands,
+    },
 }
 
 #[derive(Subcommand, Debug)]
@@ -255,6 +260,57 @@ enum PluginCommands {
         target: Option<std::path::PathBuf>,
 
         /// Output results in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+enum TopologyCommands {
+    /// Human-friendly ASCII visualization of module and dependency connections
+    Inspect {
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Root node or module to inspect (defaults to entire workspace)
+        #[arg(short, long)]
+        root: Option<String>,
+
+        /// Output topology in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
+    /// Find dependency path between two components
+    Path {
+        /// Source component or symbol
+        from: String,
+
+        /// Target component or symbol
+        to: String,
+
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Output path in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
+    /// Calculate blast radius of downstream components affected by a target
+    BlastRadius {
+        /// Target component, module, or symbol to analyze
+        target: String,
+
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Maximum traversal depth
+        #[arg(long)]
+        max_depth: Option<usize>,
+
+        /// Output blast radius in structured JSON format
         #[arg(long)]
         json: bool,
     },
@@ -950,6 +1006,157 @@ async fn main() -> anyhow::Result<()> {
                             println!("{}", serde_json::to_string_pretty(&err_json)?);
                         } else {
                             eprintln!("🛑 Plugin install error: {err}");
+                        }
+                        std::process::exit(1);
+                    }
+                }
+            }
+        },
+
+        Some(Commands::Topology { command }) => match command {
+            TopologyCommands::Inspect {
+                workspace,
+                root,
+                json,
+            } => {
+                let options = xgauntlet_core::TopologyOptions {
+                    workspace_root: workspace.clone(),
+                    ..Default::default()
+                };
+                match xgauntlet_core::scan_workspace_topology(&options) {
+                    Ok(graph) => {
+                        if *json {
+                            println!("{}", graph.export_json()?);
+                        } else {
+                            let ascii = xgauntlet_core::render_ascii_topology(&graph, root.as_deref())?;
+                            println!("{ascii}");
+                        }
+                    }
+                    Err(err) => {
+                        if *json {
+                            let err_json = serde_json::json!({
+                                "success": false,
+                                "error": err.to_string(),
+                            });
+                            println!("{}", serde_json::to_string_pretty(&err_json)?);
+                        } else {
+                            eprintln!("🛑 Topology error: {err}");
+                        }
+                        std::process::exit(1);
+                    }
+                }
+            }
+            TopologyCommands::Path {
+                from,
+                to,
+                workspace,
+                json,
+            } => {
+                let options = xgauntlet_core::TopologyOptions {
+                    workspace_root: workspace.clone(),
+                    ..Default::default()
+                };
+                match xgauntlet_core::scan_workspace_topology(&options) {
+                    Ok(graph) => match xgauntlet_core::find_shortest_path(&graph, from, to) {
+                        Ok(Some(path)) => {
+                            if *json {
+                                let out = serde_json::json!({
+                                    "from": from,
+                                    "to": to,
+                                    "path": path,
+                                });
+                                println!("{}", serde_json::to_string_pretty(&out)?);
+                            } else {
+                                println!("Path from '{from}' to '{to}': {}", path.join(" -> "));
+                            }
+                        }
+                        Ok(None) => {
+                            if *json {
+                                let out = serde_json::json!({
+                                    "from": from,
+                                    "to": to,
+                                    "path": null,
+                                });
+                                println!("{}", serde_json::to_string_pretty(&out)?);
+                            } else {
+                                println!("No path found from '{from}' to '{to}'");
+                            }
+                        }
+                        Err(err) => {
+                            if *json {
+                                let err_json = serde_json::json!({
+                                    "success": false,
+                                    "error": err.to_string(),
+                                });
+                                println!("{}", serde_json::to_string_pretty(&err_json)?);
+                            } else {
+                                eprintln!("🛑 Path search error: {err}");
+                            }
+                            std::process::exit(1);
+                        }
+                    },
+                    Err(err) => {
+                        if *json {
+                            let err_json = serde_json::json!({
+                                "success": false,
+                                "error": err.to_string(),
+                            });
+                            println!("{}", serde_json::to_string_pretty(&err_json)?);
+                        } else {
+                            eprintln!("🛑 Topology error: {err}");
+                        }
+                        std::process::exit(1);
+                    }
+                }
+            }
+            TopologyCommands::BlastRadius {
+                target,
+                workspace,
+                max_depth,
+                json,
+            } => {
+                let options = xgauntlet_core::TopologyOptions {
+                    workspace_root: workspace.clone(),
+                    ..Default::default()
+                };
+                match xgauntlet_core::scan_workspace_topology(&options) {
+                    Ok(graph) => {
+                        match xgauntlet_core::calculate_blast_radius(&graph, target, *max_depth) {
+                            Ok(report) => {
+                                if *json {
+                                    println!("{}", serde_json::to_string_pretty(&report)?);
+                                } else {
+                                    println!("Blast Radius for '{}':", report.target);
+                                    println!("  Affected nodes ({}):", report.total_affected_count);
+                                    for node in &report.affected_nodes {
+                                        println!("    - {node}");
+                                    }
+                                    println!("  Summary: {}", report.compact_summary());
+                                }
+                            }
+                            Err(err) => {
+                                if *json {
+                                    let err_json = serde_json::json!({
+                                        "success": false,
+                                        "error": err.to_string(),
+                                    });
+                                    println!("{}", serde_json::to_string_pretty(&err_json)?);
+                                } else {
+                                    eprintln!("🛑 Blast radius calculation error: {err}");
+                                }
+                                std::process::exit(1);
+                            }
+                        }
+                    }
+                    Err(err) => {
+                        if *json {
+                            let err_json = serde_json::json!({
+                                "success": false,
+                                "error": err.to_string(),
+                            });
+                            println!("{}", serde_json::to_string_pretty(&err_json)?);
+                        } else {
+                            eprintln!("🛑 Topology error: {err}");
                         }
                         std::process::exit(1);
                     }

@@ -11,4 +11,5 @@ pub mod release;
 pub mod scaffold;
 pub mod tasks;
 pub mod telemetry;
+pub mod topology;
 pub mod wasm;
