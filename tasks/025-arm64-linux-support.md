@@ -2,14 +2,14 @@
 type: Task Package
 title: "Task 025: Native ARM64 Linux CI Pipeline and Release Distribution"
 description: "Etablere native Linux ARM64 CI-verifikation og release distribution af xgauntlet-linux-arm64.tar.gz for komplet out-of-the-box cross-platform paritet"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-13T19:54:25Z" }
 tags: [cross-platform, arm64, linux, ci, release, npm, launcher]
 ---
 
 # Task 025: Native ARM64 Linux CI Pipeline and Release Distribution
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-09-13`
 

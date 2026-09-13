@@ -4,43 +4,44 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "024-fix-windows-crlf-frontmatter",
-    "task_title": "Task 024: Fix Windows CI CRLF Frontmatter Assertion and Gitattributes",
-    "task_digest": "332666b6a1201cec12250acdf38e35a89078e7bc0358161df0f0aa205763a888",
+    "task_id": "025-arm64-linux-support",
+    "task_title": "Task 025: Native ARM64 Linux CI Pipeline and Release Distribution",
+    "task_digest": "c5bd1bd0fa216554f966912534805b1efc87dc5b23922a0c46353dd4a21615ea",
     "acceptance_criteria": [
-      "Gøre YAML frontmatter assertion i `plugin_distribution_test.rs` robust overfor både LF (`---\\n`) og CRLF (`---\\r\\n`).",
-      "Tilføje regressions/reproduktionstest for CRLF frontmatter genkendelse.",
-      "Oprette `.gitattributes` i roden med `* text=auto eol=lf` og binære filtyper for at sikre ensartede LF line endings på Windows CI.",
-      "Verificere at samtlige tests og invariant-tjek passerer (`cargo test --workspace`, `cargo clippy`, `check-spec`)."
+      "Gøre `getPlatformInfo` i `packages/cli/bin/xgauntlet.js` deterministisk testbar med valgfrie platform- og arch-parametre og eksportere funktionen.",
+      "Tilføje tests i `packages/cli/test/launcher.test.js`, der beviser platform-opløsning for `linux` + `arm64` (`xgauntlet-linux-arm64.tar.gz`) samt de øvrige understøttede platforme.",
+      "Tilføje `ubuntu-24.04-arm` runner til `.github/workflows/ci.yml` matrixen for native CI-test på Linux ARM64.",
+      "Tilføje `aarch64-unknown-linux-gnu` target med `ubuntu-24.04-arm` runner til `.github/workflows/release.yml` matrixen for automatisk byg og upload af `xgauntlet-linux-arm64.tar.gz`.",
+      "Verificere at samtlige tests og invariant-tjek passerer (`npm test --workspaces`, `cargo test --workspace`, `cargo clippy`, `check-spec`)."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "a08ce3274308aea93c9cd191df07d0ff7c480850242e54a57cc9b66920056709",
-    "source_manifest_digest_pre": "059ef016c199b344b315a803edfdf86d5b1c2a0672953d247bd4b0993718035d",
-    "source_manifest_digest_post": "059ef016c199b344b315a803edfdf86d5b1c2a0672953d247bd4b0993718035d",
-    "config_digest": "06bdb464a36239d24d2fec58b59f60453d5474ccc37b84f5f32284dc9f33524f",
-    "task_digest": "332666b6a1201cec12250acdf38e35a89078e7bc0358161df0f0aa205763a888",
-    "policy_digest": "5dd9ab32061a43568a4845383feae0daf5cb1d7cc23622f16aa7bdefd6073b84",
+    "source_content_digest": "ab20ad7de925d9811dc51474e6e8983f37886b0503f0389d9e1eec8b210a983c",
+    "source_manifest_digest_pre": "97812fb92c813662a712a6321ef35437394e8f94d75ac7f632264c28f40ecf0a",
+    "source_manifest_digest_post": "97812fb92c813662a712a6321ef35437394e8f94d75ac7f632264c28f40ecf0a",
+    "config_digest": "9903e06e8dcade067a6d18b33b907dcb7fc444e6c53b2028f9d4139766033569",
+    "task_digest": "c5bd1bd0fa216554f966912534805b1efc87dc5b23922a0c46353dd4a21615ea",
+    "policy_digest": "1ddf22af04a5dce3768f4179be4c93c9ef3139571fc8d910b929ef9956fa566d",
     "check_definitions_digest": "acd753b5c5b1f14c179a6a97e9eea55dc81aa7414ff9f84065c10555ce9d3d8a",
-    "included_files_count": 179,
+    "included_files_count": 180,
     "vcs": {
       "type": "git",
-      "head": "85a6dba",
-      "commit": "85a6dba",
-      "is_dirty": true
+      "head": "18cb5b6",
+      "commit": "18cb5b6",
+      "is_dirty": false
     }
   },
   "execution_metadata": {
-    "started_at": "2026-09-13T19:22:05Z",
-    "finished_at": "2026-09-13T19:22:14Z",
-    "total_duration_seconds": 9.758258971,
+    "started_at": "2026-09-13T19:56:35Z",
+    "finished_at": "2026-09-13T19:56:45Z",
+    "total_duration_seconds": 9.871929464,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
       "platform": "linux",
-      "version": "0.5.0"
+      "version": "0.5.2"
     }
   },
   "checks": [
@@ -48,43 +49,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.14665841,
+      "duration_seconds": 0.11160822,
       "optional": true,
       "passed": true,
-      "log_digest": "4cf86278c1e6d659943a46a3d7e3da429ac15be90f0f17742e24ef85228e7d3e"
+      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.107303181,
+      "duration_seconds": 0.080521058,
       "optional": true,
       "passed": true,
-      "log_digest": "a5f4c585ee974ca44916ac30a98bbc189e067a7e0a6bc6d2e8d6bc525be724af"
+      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 8.934659204,
+      "duration_seconds": 9.154310979,
       "optional": false,
       "passed": true,
-      "log_digest": "bb92e77c42eb13a7f87e73f07c35130e866535aa395ffd47a0fde1d972d23c85"
+      "log_digest": "b09f1fc77a508ef1901ea06c73b1e304fee2c05545c23adbb3cfb333ca540bcd"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.424978115,
+      "duration_seconds": 0.368790787,
       "optional": true,
       "passed": true,
-      "log_digest": "6816dd6bf8e429512284e7aeecf60d5d105a1b341834b14c10e14e33204e1f84"
+      "log_digest": "68e3ff24edfed6c2f101f0482e5934d531decf5f71c7d6b5127bb2230c3bc0ba"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.010641922,
+      "duration_seconds": 0.012717395,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
