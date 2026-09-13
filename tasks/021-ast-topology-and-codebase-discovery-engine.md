@@ -2,14 +2,14 @@
 type: Task Package
 title: "Task 021: AST Codebase Topology & Token-Optimized Discovery Engine"
 description: "Etablere en deterministisk Rust-baseret AST-topologimotor til token-effektiv discovery og blast radius analyse i Idé- og Spec-fasen"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-12T09:36:42Z" }
 tags: [topology, ast, discovery, token-optimization, jit-context, blast-radius, rust, zero-daemon, adr-0001, adr-0004]
 ---
 
 # Task 021: AST Codebase Topology & Token-Optimized Discovery Engine
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-09-12`
 
