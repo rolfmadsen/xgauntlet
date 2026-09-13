@@ -62,18 +62,18 @@ Etablere en autonom vertikal harness-adapter slice for **Mistral Vibe** i `crate
 ---
 
 ## 📋 Acceptance Criteria
-- [ ] `SUPPORTED_HARNESSES` indeholder `"mistral"` og `HarnessKind::parse_alias` genkender `"mistral"`, `"mistral_vibe"`, `"mistral-vibe"` og `"vibe"`.
-- [ ] `get_adapter("mistral")` returnerer en gyldig `Box<dyn HarnessAdapter>`.
-- [ ] `MistralAdapter::normalize_tool_call` mapper `bash`, `write_file`, `edit`, `read`, `grep`, `task` og `ask_user_question` korrekt til `ToolActionType`.
-- [ ] `MistralAdapter::handle_hook` håndterer `pre_tool` hooks:
+- [x] `SUPPORTED_HARNESSES` indeholder `"mistral"` og `HarnessKind::parse_alias` genkender `"mistral"`, `"mistral_vibe"`, `"mistral-vibe"` og `"vibe"`.
+- [x] `get_adapter("mistral")` returnerer en gyldig `Box<dyn HarnessAdapter>`.
+- [x] `MistralAdapter::normalize_tool_call` mapper `bash`, `write_file`, `edit`, `read`, `grep`, `task` og `ask_user_question` korrekt til `ToolActionType`.
+- [x] `MistralAdapter::handle_hook` håndterer `pre_tool` hooks:
   - Returnerer `{"decision": "allow"}` for godkendte handlinger.
   - Returnerer `{"decision": "deny", "reason": "..."}` for politisk afviste handlinger (f.eks. path traversal eller destructive shell commands).
-- [ ] `MistralAdapter::format_post_tool_use_payload` genererer gyldig JSON med `hook_specific_output.additional_context`.
-- [ ] `xgauntlet telemetry --format mistral-hook` genererer JSON-payload klar til Mistral Vibes `post_tool` hook.
-- [ ] `MistralAdapter::scaffold_hooks` opretter eller merger `./.vibe/hooks.toml` uden at ødelægge eksisterende TOML-konfiguration.
-- [ ] CLI subcommand `xgauntlet hook --harness mistral` modtager og evaluerer Mistral Vibe stdin JSON.
-- [ ] CLI subcommand `xgauntlet init --harness mistral` stilladserer `./.vibe/hooks.toml`.
-- [ ] Alle nye og eksisterende enhedstests i `crates/xgauntlet-core/tests/harness_adapters_test.rs` består med 100% grøn status.
+- [x] `MistralAdapter::format_post_tool_use_payload` genererer gyldig JSON med `hook_specific_output.additional_context`.
+- [x] `xgauntlet telemetry --format mistral-hook` genererer JSON-payload klar til Mistral Vibes `post_tool` hook.
+- [x] `MistralAdapter::scaffold_hooks` opretter eller merger `./.vibe/hooks.toml` uden at ødelægge eksisterende TOML-konfiguration.
+- [x] CLI subcommand `xgauntlet hook --harness mistral` modtager og evaluerer Mistral Vibe stdin JSON.
+- [x] CLI subcommand `xgauntlet init --harness mistral` stilladserer `./.vibe/hooks.toml`.
+- [x] Alle nye og eksisterende enhedstests i `crates/xgauntlet-core/tests/harness_adapters_test.rs` består med 100% grøn status.
 
 ---
 

@@ -6,18 +6,20 @@
 pub mod antigravity;
 pub mod claude_code;
 pub mod codex;
+pub mod mistral;
 pub mod models;
 
 pub use antigravity::AntigravityAdapter;
 pub use claude_code::ClaudeCodeAdapter;
 pub use codex::CodexAdapter;
+pub use mistral::MistralAdapter;
 pub use models::{
     AdapterHookVerdict, AdapterValidationResult, HarnessAdapter, NormalizedToolCall,
     ValidationIssue, ValidationSeverity,
 };
 
 /// Canonical list of all supported agent harness environments.
-pub const SUPPORTED_HARNESSES: &[&str] = &["antigravity", "claude_code", "codex"];
+pub const SUPPORTED_HARNESSES: &[&str] = &["antigravity", "claude_code", "codex", "mistral"];
 
 /// Strongly-typed harness kind enumeration supporting all canonical aliases.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -25,6 +27,7 @@ pub enum HarnessKind {
     Antigravity,
     ClaudeCode,
     Codex,
+    Mistral,
 }
 
 impl HarnessKind {
@@ -35,6 +38,7 @@ impl HarnessKind {
             "antigravity" | "google_antigravity" | "google-antigravity" => Some(Self::Antigravity),
             "claude_code" | "claude" | "claude-code" => Some(Self::ClaudeCode),
             "codex" | "openai" | "openai_codex" | "openai-codex" => Some(Self::Codex),
+            "mistral" | "mistral_vibe" | "mistral-vibe" | "vibe" => Some(Self::Mistral),
             _ => None,
         }
     }
@@ -44,6 +48,7 @@ impl HarnessKind {
             Self::Antigravity => "antigravity",
             Self::ClaudeCode => "claude_code",
             Self::Codex => "codex",
+            Self::Mistral => "mistral",
         }
     }
 }
@@ -54,6 +59,7 @@ pub fn get_adapter(harness: &str) -> Option<Box<dyn HarnessAdapter>> {
         HarnessKind::Antigravity => Some(Box::new(AntigravityAdapter::new())),
         HarnessKind::ClaudeCode => Some(Box::new(ClaudeCodeAdapter::new())),
         HarnessKind::Codex => Some(Box::new(CodexAdapter::new())),
+        HarnessKind::Mistral => Some(Box::new(MistralAdapter::new())),
     }
 }
 

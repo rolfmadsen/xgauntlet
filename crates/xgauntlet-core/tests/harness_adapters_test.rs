@@ -2,7 +2,7 @@ use std::fs;
 use std::path::PathBuf;
 use xgauntlet_core::features::adapters::{
     get_adapter, AntigravityAdapter, ClaudeCodeAdapter, CodexAdapter, HarnessAdapter,
-    SUPPORTED_HARNESSES,
+    MistralAdapter, SUPPORTED_HARNESSES,
 };
 use xgauntlet_core::features::policy::ToolActionType;
 
@@ -171,6 +171,10 @@ fn run_shared_conformance_suite(
             "name": "bash",
             "arguments": { "command": "git push origin main" }
         }),
+        "mistral" => serde_json::json!({
+            "tool_name": "bash",
+            "tool_input": { "command": "git push origin main" }
+        }),
         _ => git_push_payload,
     };
     let push_verdict = adapter.evaluate_invocation(ws, &wrapped_git_push);
@@ -188,14 +192,16 @@ fn run_shared_conformance_suite(
 
 #[test]
 fn test_supported_harnesses_registry() {
-    assert_eq!(SUPPORTED_HARNESSES.len(), 3);
+    assert_eq!(SUPPORTED_HARNESSES.len(), 4);
     assert!(SUPPORTED_HARNESSES.contains(&"antigravity"));
     assert!(SUPPORTED_HARNESSES.contains(&"claude_code"));
     assert!(SUPPORTED_HARNESSES.contains(&"codex"));
+    assert!(SUPPORTED_HARNESSES.contains(&"mistral"));
 
     assert!(get_adapter("antigravity").is_some());
     assert!(get_adapter("claude_code").is_some());
     assert!(get_adapter("codex").is_some());
+    assert!(get_adapter("mistral").is_some());
     assert!(get_adapter("unknown").is_none());
 }
 
@@ -1434,4 +1440,160 @@ fn test_mistral_tool_mapping() {
     let norm_read = adapter.normalize_tool_call(&read_payload);
     assert_eq!(norm_read.action_type, ToolActionType::ReadFile);
     assert_eq!(norm_read.target_resource, "src/lib.rs");
+}
+
+#[test]
+fn test_mistral_conformance() {
+    let adapter = get_adapter("mistral").expect("mistral adapter");
+
+    let cmd_payload = serde_json::json!({
+        "tool_name": "bash",
+        "tool_input": { "command": "cargo test" }
+    });
+    let write_payload = serde_json::json!({
+        "tool_name": "write_file",
+        "tool_input": { "path": "src/lib.rs" }
+    });
+    let read_payload = serde_json::json!({
+        "tool_name": "read",
+        "tool_input": { "path": "README.md" }
+    });
+    let other_payload = serde_json::json!({
+        "tool_name": "custom_extension_tool",
+        "tool_input": {}
+    });
+
+    run_shared_conformance_suite(
+        adapter.as_ref(),
+        cmd_payload,
+        write_payload,
+        read_payload,
+        other_payload,
+    );
+}
+
+#[test]
+fn test_mistral_hook_handler() {
+    let temp = TempDir::new("mistral_hook");
+    let ws = &temp.path;
+    let adapter = get_adapter("mistral").expect("mistral adapter");
+
+    // 1. Pre-tool allow
+    let allow_input = serde_json::json!({
+        "hook_event_name": "pre_tool",
+        "tool_name": "read",
+        "tool_input": { "path": "README.md" }
+    })
+    .to_string();
+    let (code_allow, out_allow) = adapter.handle_hook(ws, &allow_input);
+    assert_eq!(code_allow, 0);
+    let val_allow: serde_json::Value = serde_json::from_str(&out_allow).unwrap();
+    assert_eq!(
+        val_allow.get("decision").and_then(|d| d.as_str()),
+        Some("allow")
+    );
+
+    // 2. Pre-tool deny (path traversal escape)
+    let deny_input = serde_json::json!({
+        "hook_event_name": "pre_tool",
+        "tool_name": "write_file",
+        "tool_input": { "path": "../../etc/shadow", "content": "bad" }
+    })
+    .to_string();
+    let (code_deny, out_deny) = adapter.handle_hook(ws, &deny_input);
+    assert_eq!(code_deny, 0);
+    let val_deny: serde_json::Value = serde_json::from_str(&out_deny).unwrap();
+    assert_eq!(
+        val_deny.get("decision").and_then(|d| d.as_str()),
+        Some("deny")
+    );
+    assert!(val_deny.get("reason").is_some());
+
+    // 3. Post-tool payload
+    let post_input = serde_json::json!({
+        "hook_event_name": "post_tool",
+        "tool_name": "bash",
+        "tool_status": "success",
+        "tool_output_text": "all tests passed"
+    })
+    .to_string();
+    let (code_post, out_post) = adapter.handle_hook(ws, &post_input);
+    assert_eq!(code_post, 0);
+    let val_post: serde_json::Value = serde_json::from_str(&out_post).unwrap();
+    assert!(val_post.get("hook_specific_output").is_some());
+
+    // 4. Post-agent
+    let post_agent_input = serde_json::json!({
+        "hook_event_name": "post_agent"
+    })
+    .to_string();
+    let (code_agent, out_agent) = adapter.handle_hook(ws, &post_agent_input);
+    assert_eq!(code_agent, 0);
+    let val_agent: serde_json::Value = serde_json::from_str(&out_agent).unwrap();
+    assert_eq!(
+        val_agent.get("decision").and_then(|d| d.as_str()),
+        Some("allow")
+    );
+}
+
+#[test]
+fn test_mistral_post_tool_telemetry_payload() {
+    let payload = MistralAdapter::format_post_tool_use_payload("my_hud_box");
+    assert_eq!(
+        payload["hook_specific_output"]["additional_context"],
+        "my_hud_box"
+    );
+}
+
+#[test]
+fn test_mistral_hook_scaffolding() {
+    let temp = TempDir::new("mistral_scaffold");
+    let ws = &temp.path;
+
+    let path = MistralAdapter::scaffold_hooks(ws).expect("scaffold");
+    assert!(path.is_file());
+    assert!(path.ends_with(".vibe/hooks.toml"));
+
+    let content = fs::read_to_string(&path).expect("read hooks.toml");
+    assert!(content.contains("name = \"xgauntlet-gatekeeper\""));
+    assert!(content.contains("type = \"pre_tool\""));
+    assert!(content.contains("command = \"xgauntlet hook --harness mistral\""));
+    assert!(content.contains("name = \"xgauntlet-hud\""));
+    assert!(content.contains("type = \"post_tool\""));
+    assert!(content.contains("command = \"xgauntlet telemetry --format mistral-hook\""));
+
+    // Verify merging preserves custom hooks and does not duplicate
+    let custom_toml = r#"[[hooks]]
+name = "my-custom-hook"
+type = "pre_tool"
+match = "bash"
+command = "echo checking"
+"#;
+    let merged = MistralAdapter::generate_hooks_toml(Some(custom_toml));
+    assert!(merged.contains("my-custom-hook"));
+    assert!(merged.contains("xgauntlet-gatekeeper"));
+    assert!(merged.contains("xgauntlet-hud"));
+
+    // Merging again does not duplicate
+    let merged_again = MistralAdapter::generate_hooks_toml(Some(&merged));
+    assert_eq!(merged_again.matches("xgauntlet-gatekeeper").count(), 1);
+    assert_eq!(merged_again.matches("xgauntlet-hud").count(), 1);
+}
+
+#[test]
+fn test_mistral_validation() {
+    let temp = TempDir::new("mistral_val");
+    let ws = &temp.path;
+    let adapter = get_adapter("mistral").expect("mistral adapter");
+
+    // Empty dir has warning
+    let res_empty = adapter.validate_plugin(ws);
+    assert!(res_empty.valid);
+    assert_eq!(res_empty.issues.len(), 1);
+
+    // With hooks.toml
+    fs::write(ws.join("hooks.toml"), "# config").unwrap();
+    let res_ok = adapter.validate_plugin(ws);
+    assert!(res_ok.valid);
+    assert_eq!(res_ok.issues.len(), 0);
 }

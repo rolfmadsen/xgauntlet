@@ -3,7 +3,7 @@ pub mod features;
 pub use features::adapters::{
     format_post_tool_use_payload, get_adapter, merge_post_tool_use_hook, wrap_response_with_hud,
     AdapterHookVerdict, AdapterValidationResult, AntigravityAdapter, ClaudeCodeAdapter,
-    CodexAdapter, HarnessAdapter, HarnessKind, NormalizedToolCall, ValidationIssue,
+    CodexAdapter, HarnessAdapter, HarnessKind, MistralAdapter, NormalizedToolCall, ValidationIssue,
     ValidationSeverity, SUPPORTED_HARNESSES,
 };
 pub use features::checkpoint::{

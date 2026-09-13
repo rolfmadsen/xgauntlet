@@ -88,13 +88,13 @@ enum Commands {
         #[arg(long)]
         json: bool,
 
-        /// Target harness format for wrapping response (e.g. 'codex', 'antigravity', 'claude_code')
+        /// Target harness format for wrapping response (e.g. 'codex', 'antigravity', 'claude_code', 'mistral')
         #[arg(long)]
         harness: Option<String>,
     },
     /// Intercept agent tool calls and evaluate capability requests against policy engine
     Hook {
-        /// Target harness environment (e.g. 'antigravity', 'claude_code', 'codex')
+        /// Target harness environment (e.g. 'antigravity', 'claude_code', 'codex', 'mistral')
         #[arg(default_value = "antigravity")]
         harness: String,
 
@@ -104,11 +104,11 @@ enum Commands {
     },
     /// Mechanically validate plugin manifest, skills, and hooks for an agent harness
     ValidatePlugin {
-        /// Path to plugin directory (e.g. '.agents' or '.claude')
+        /// Path to plugin directory (e.g. '.agents' or '.claude' or '.vibe')
         #[arg(short, long, default_value = ".agents")]
         plugin_dir: std::path::PathBuf,
 
-        /// Target harness environment (e.g. 'antigravity', 'claude_code', 'codex')
+        /// Target harness environment (e.g. 'antigravity', 'claude_code', 'codex', 'mistral')
         #[arg(long, default_value = "antigravity")]
         harness: String,
 
@@ -152,7 +152,7 @@ enum Commands {
         #[arg(long)]
         json: bool,
 
-        /// Target harness integration (e.g. 'claude_code', 'codex', 'antigravity')
+        /// Target harness integration (e.g. 'claude_code', 'codex', 'antigravity', 'mistral')
         #[arg(long)]
         harness: Option<String>,
     },
@@ -189,7 +189,7 @@ enum Commands {
         #[arg(short, long, default_value = ".")]
         workspace: std::path::PathBuf,
 
-        /// Format to output telemetry in: box, antigravity-hook, antigravity-hud, claude-hook, codex-hook, json, ansi, compact-box
+        /// Format to output telemetry in: box, antigravity-hook, antigravity-hud, claude-hook, codex-hook, mistral-hook, json, ansi, compact-box
         #[arg(short, long, default_value = "box")]
         format: String,
     },
@@ -219,7 +219,7 @@ enum Commands {
         #[arg(long)]
         json: bool,
 
-        /// Target harness format for wrapping response (e.g. 'codex', 'antigravity', 'claude_code')
+        /// Target harness format for wrapping response (e.g. 'codex', 'antigravity', 'claude_code', 'mistral')
         #[arg(long)]
         harness: Option<String>,
     },
@@ -412,7 +412,8 @@ async fn main() -> anyhow::Result<()> {
                         );
                     }
                     Some(xgauntlet_core::HarnessKind::Codex)
-                    | Some(xgauntlet_core::HarnessKind::ClaudeCode) => {
+                    | Some(xgauntlet_core::HarnessKind::ClaudeCode)
+                    | Some(xgauntlet_core::HarnessKind::Mistral) => {
                         let card = telemetry
                             .as_ref()
                             .map(|t| t.render_box_card())
@@ -577,6 +578,9 @@ async fn main() -> anyhow::Result<()> {
                             xgauntlet_core::HarnessKind::Antigravity => {
                                 xgauntlet_core::AntigravityAdapter::scaffold_hooks(&canonical_ws)?
                             }
+                            xgauntlet_core::HarnessKind::Mistral => {
+                                xgauntlet_core::MistralAdapter::scaffold_hooks(&canonical_ws)?
+                            }
                         };
                         let rel_scaffold = match scaffold_path.strip_prefix(&canonical_ws) {
                             Ok(p) => p.display().to_string().replace('\\', "/"),
@@ -593,7 +597,7 @@ async fn main() -> anyhow::Result<()> {
                         }
                     }
                 } else {
-                    eprintln!("⚠️  Warning: Unknown harness '{h}'. Supported: claude_code, codex, antigravity");
+                    eprintln!("⚠️  Warning: Unknown harness '{h}'. Supported: claude_code, codex, antigravity, mistral");
                 }
             }
 
@@ -743,6 +747,12 @@ async fn main() -> anyhow::Result<()> {
                         xgauntlet_core::CodexAdapter::format_post_tool_use_payload(&box_card);
                     println!("{}", serde_json::to_string_pretty(&payload)?);
                 }
+                "mistral-hook" | "mistral" | "vibe" => {
+                    let box_card = telemetry.render_box_card();
+                    let payload =
+                        xgauntlet_core::MistralAdapter::format_post_tool_use_payload(&box_card);
+                    println!("{}", serde_json::to_string_pretty(&payload)?);
+                }
                 "json" => {
                     println!("{}", serde_json::to_string_pretty(&telemetry)?);
                 }
@@ -835,7 +845,8 @@ async fn main() -> anyhow::Result<()> {
                                 );
                             }
                             Some(xgauntlet_core::HarnessKind::Codex)
-                            | Some(xgauntlet_core::HarnessKind::ClaudeCode) => {
+                            | Some(xgauntlet_core::HarnessKind::ClaudeCode)
+                            | Some(xgauntlet_core::HarnessKind::Mistral) => {
                                 let card = telemetry
                                     .as_ref()
                                     .map(|t| t.render_box_card())
