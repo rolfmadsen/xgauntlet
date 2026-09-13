@@ -1,26 +1,30 @@
 # Verification Report
 
-**Task ID**: `022-mistral-vibe-harness-adapter`  
-**Task Title**: Task 022: Mistral Vibe Harness Adapter & Hooks Integration  
+**Task ID**: `023-pipeline-jit-governance-and-global-plugin-distribution`  
+**Task Title**: Task 023: 7-Step Pipeline JIT Governance & Global Plugin Distribution  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `da4564b3f4053d37076a9d1b20332d2e2f14aec3b3c2fec5a3b520ae897c842e`  
-**Timestamp**: `2026-09-13T13:42:21Z`  
-**Head**: `cd9a4ae`  
-**Commit**: `cd9a4ae`  
+**Source Manifest Digest**: `0e881f3e555ea67001d312408600d5d5ea8cd7cbf70e3a04c487bc8699c6e5d7`  
+**Timestamp**: `2026-09-13T16:31:22Z`  
+**Head**: `f95a96d`  
+**Commit**: `f95a96d`  
 
 ## Acceptance Criteria
 
-- [x] `SUPPORTED_HARNESSES` indeholder `"mistral"` og `HarnessKind::parse_alias` genkender `"mistral"`, `"mistral_vibe"`, `"mistral-vibe"` og `"vibe"`.
-- [x] `get_adapter("mistral")` returnerer en gyldig `Box<dyn HarnessAdapter>`.
-- [x] `MistralAdapter::normalize_tool_call` mapper `bash`, `write_file`, `edit`, `read`, `grep`, `task` og `ask_user_question` korrekt til `ToolActionType`.
-- [x] `MistralAdapter::handle_hook` håndterer `pre_tool` hooks:
-- [x] `MistralAdapter::format_post_tool_use_payload` genererer gyldig JSON med `hook_specific_output.additional_context`.
-- [x] `xgauntlet telemetry --format mistral-hook` genererer JSON-payload klar til Mistral Vibes `post_tool` hook.
-- [x] `MistralAdapter::scaffold_hooks` opretter eller merger `./.vibe/hooks.toml` uden at ødelægge eksisterende TOML-konfiguration.
-- [x] CLI subcommand `xgauntlet hook --harness mistral` modtager og evaluerer Mistral Vibe stdin JSON.
-- [x] CLI subcommand `xgauntlet init --harness mistral` stilladserer `./.vibe/hooks.toml`.
-- [x] Alle nye og eksisterende enhedstests i `crates/xgauntlet-core/tests/harness_adapters_test.rs` består med 100% grøn status.
+- [x] Mappen `.agents/plugins/agent-gauntlet/` omdøbes til `.agents/plugins/xgauntlet/` med opdateret `plugin.json` (`name: "xgauntlet"`).
+- [x] `cargo run -p xgauntlet-cli -- validate-plugin --plugin-dir .agents/plugins/xgauntlet` validerer med 0 fejl.
+- [x] Den samlede suite af 11 Markdown-skills (`grill-me`, `grill-with-docs`, `domain-modeling`, `to-spec`, `to-tasks`, `old-coder`, `diagnose`, `codebase-design`, `improve-codebase-architecture`, `code-review`, `retro`) og manifestet indlejres i Rust-kernen (`include_str!`).
+- [x] Cross-platform harness discovery engine implementeres i Rust med understøttelse af Linux, macOS (Intel og Apple Silicon M1–M4) og Windows (x64/arm64).
+- [x] CLI subcommand `xgauntlet plugin install` implementeres med understøttelse af flagene `--global`, `--harness <name>`, `--dry-run`, `--force`, `--target <dir>` og `--json`.
+- [x] Global plugin-installation opretter en gyldig plugin- og skill-struktur i de detekterede harness-kataloger uden at overskrive brugerdata uden `--force`.
+- [x] Telemetrimotoren (`features/telemetry/`) genererer JIT fasedirektiver for samtlige 7 faser med aktive specialiserede AI-roller, positive targets, checkable gate-bounds, front-loaded pointers (<45 tokens pr. direktiv) samt Clean Worktree Guarantee ved session handoff.
+- [x] Harness-adapterne (`antigravity`, `claude_code`, `codex`, `mistral`) udstiller de genererede 7 fasedirektiver i deres respektive hook-payloads (`PreInvocation` og `PostToolUse`).
+- [x] `xgauntlet doctor` rapporterer fundne harnesses og status for globale xGauntlet-plugins under kategorien `Harnesses`.
+- [x] `features/scaffold/templates.rs` saneres, så `xgauntlet init` stilladserer `docs/adr/template.md` frem for at okkupere `docs/adr/0001-package-by-feature-architecture.md`.
+- [x] Skabeloner for `.agents/AGENTS.md` og JIT-prompts saneres for brudte referencer til lokale `docs/adr/0003-...` filer og benytter i stedet eksplicitte platforminvarianter.
+- [x] Conformance-tests i `crates/xgauntlet-core/tests/` dækker cross-platform harness-opdagelse, plugin-installation, 7-faset JIT prompt-generering og opdateret template-scaffolding med 100% grøn status.
+- [x] `cargo run -p xgauntlet-cli -- check-spec -t 023-pipeline-jit-governance-and-global-plugin-distribution` validerer med 0 fejl.
+- [x] Fuld workspace testsuite passerer (`cargo test --workspace`) uden linter-advarsler (`cargo clippy --workspace --all-targets -- -D warnings`).
 
 ---
 
@@ -28,10 +32,10 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `lint` | `PASSED` | `0` | `0.130s` |
-| `types` | `PASSED` | `0` | `0.119s` |
-| `unit` | `PASSED` | `0` | `9.518s` |
-| `invariants` | `PASSED` | `0` | `0.332s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.009s` |
+| `lint` | `PASSED` | `0` | `1.626s` |
+| `types` | `PASSED` | `0` | `0.628s` |
+| `unit` | `PASSED` | `0` | `9.967s` |
+| `invariants` | `PASSED` | `0` | `0.326s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---

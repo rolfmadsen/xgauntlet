@@ -4,44 +4,48 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "022-mistral-vibe-harness-adapter",
-    "task_title": "Task 022: Mistral Vibe Harness Adapter & Hooks Integration",
-    "task_digest": "41b9bc66f14946364fd73db16f4518d823818cc912dcb81abb50e3c44dd40704",
+    "task_id": "023-pipeline-jit-governance-and-global-plugin-distribution",
+    "task_title": "Task 023: 7-Step Pipeline JIT Governance & Global Plugin Distribution",
+    "task_digest": "0632099b4222fb7c9bc20fd95cbf24f96315d611b929063d498b15ed6df95a8c",
     "acceptance_criteria": [
-      "`SUPPORTED_HARNESSES` indeholder `\"mistral\"` og `HarnessKind::parse_alias` genkender `\"mistral\"`, `\"mistral_vibe\"`, `\"mistral-vibe\"` og `\"vibe\"`.",
-      "`get_adapter(\"mistral\")` returnerer en gyldig `Box<dyn HarnessAdapter>`.",
-      "`MistralAdapter::normalize_tool_call` mapper `bash`, `write_file`, `edit`, `read`, `grep`, `task` og `ask_user_question` korrekt til `ToolActionType`.",
-      "`MistralAdapter::handle_hook` håndterer `pre_tool` hooks:",
-      "`MistralAdapter::format_post_tool_use_payload` genererer gyldig JSON med `hook_specific_output.additional_context`.",
-      "`xgauntlet telemetry --format mistral-hook` genererer JSON-payload klar til Mistral Vibes `post_tool` hook.",
-      "`MistralAdapter::scaffold_hooks` opretter eller merger `./.vibe/hooks.toml` uden at ødelægge eksisterende TOML-konfiguration.",
-      "CLI subcommand `xgauntlet hook --harness mistral` modtager og evaluerer Mistral Vibe stdin JSON.",
-      "CLI subcommand `xgauntlet init --harness mistral` stilladserer `./.vibe/hooks.toml`.",
-      "Alle nye og eksisterende enhedstests i `crates/xgauntlet-core/tests/harness_adapters_test.rs` består med 100% grøn status."
+      "Mappen `.agents/plugins/agent-gauntlet/` omdøbes til `.agents/plugins/xgauntlet/` med opdateret `plugin.json` (`name: \"xgauntlet\"`).",
+      "`cargo run -p xgauntlet-cli -- validate-plugin --plugin-dir .agents/plugins/xgauntlet` validerer med 0 fejl.",
+      "Den samlede suite af 11 Markdown-skills (`grill-me`, `grill-with-docs`, `domain-modeling`, `to-spec`, `to-tasks`, `old-coder`, `diagnose`, `codebase-design`, `improve-codebase-architecture`, `code-review`, `retro`) og manifestet indlejres i Rust-kernen (`include_str!`).",
+      "Cross-platform harness discovery engine implementeres i Rust med understøttelse af Linux, macOS (Intel og Apple Silicon M1–M4) og Windows (x64/arm64).",
+      "CLI subcommand `xgauntlet plugin install` implementeres med understøttelse af flagene `--global`, `--harness <name>`, `--dry-run`, `--force`, `--target <dir>` og `--json`.",
+      "Global plugin-installation opretter en gyldig plugin- og skill-struktur i de detekterede harness-kataloger uden at overskrive brugerdata uden `--force`.",
+      "Telemetrimotoren (`features/telemetry/`) genererer JIT fasedirektiver for samtlige 7 faser med aktive specialiserede AI-roller, positive targets, checkable gate-bounds, front-loaded pointers (<45 tokens pr. direktiv) samt Clean Worktree Guarantee ved session handoff.",
+      "Harness-adapterne (`antigravity`, `claude_code`, `codex`, `mistral`) udstiller de genererede 7 fasedirektiver i deres respektive hook-payloads (`PreInvocation` og `PostToolUse`).",
+      "`xgauntlet doctor` rapporterer fundne harnesses og status for globale xGauntlet-plugins under kategorien `Harnesses`.",
+      "`features/scaffold/templates.rs` saneres, så `xgauntlet init` stilladserer `docs/adr/template.md` frem for at okkupere `docs/adr/0001-package-by-feature-architecture.md`.",
+      "Skabeloner for `.agents/AGENTS.md` og JIT-prompts saneres for brudte referencer til lokale `docs/adr/0003-...` filer og benytter i stedet eksplicitte platforminvarianter.",
+      "Conformance-tests i `crates/xgauntlet-core/tests/` dækker cross-platform harness-opdagelse, plugin-installation, 7-faset JIT prompt-generering og opdateret template-scaffolding med 100% grøn status.",
+      "`cargo run -p xgauntlet-cli -- check-spec -t 023-pipeline-jit-governance-and-global-plugin-distribution` validerer med 0 fejl.",
+      "Fuld workspace testsuite passerer (`cargo test --workspace`) uden linter-advarsler (`cargo clippy --workspace --all-targets -- -D warnings`)."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "0987895d1f7c2f7c46f3e4721a338967f1e556fc5e69f1fe3bb0348ed524ce85",
-    "source_manifest_digest_pre": "da4564b3f4053d37076a9d1b20332d2e2f14aec3b3c2fec5a3b520ae897c842e",
-    "source_manifest_digest_post": "da4564b3f4053d37076a9d1b20332d2e2f14aec3b3c2fec5a3b520ae897c842e",
+    "source_content_digest": "56e4724fdfdecef86cec5106954d0ae940c9b054e0bf63aff9ef403edbd2329b",
+    "source_manifest_digest_pre": "0e881f3e555ea67001d312408600d5d5ea8cd7cbf70e3a04c487bc8699c6e5d7",
+    "source_manifest_digest_post": "0e881f3e555ea67001d312408600d5d5ea8cd7cbf70e3a04c487bc8699c6e5d7",
     "config_digest": "e52fd78871048c2f12a745274df243c595c350070b12ff73cd3f567cf492aa76",
-    "task_digest": "41b9bc66f14946364fd73db16f4518d823818cc912dcb81abb50e3c44dd40704",
+    "task_digest": "0632099b4222fb7c9bc20fd95cbf24f96315d611b929063d498b15ed6df95a8c",
     "policy_digest": "39975c2eca99d71b58f314d331610f07a00e251582deeba3d44a9d244f9a75eb",
     "check_definitions_digest": "acd753b5c5b1f14c179a6a97e9eea55dc81aa7414ff9f84065c10555ce9d3d8a",
-    "included_files_count": 149,
+    "included_files_count": 172,
     "vcs": {
       "type": "git",
-      "head": "cd9a4ae",
-      "commit": "cd9a4ae",
-      "is_dirty": true
+      "head": "f95a96d",
+      "commit": "f95a96d",
+      "is_dirty": false
     }
   },
   "execution_metadata": {
-    "started_at": "2026-09-13T13:42:11Z",
-    "finished_at": "2026-09-13T13:42:21Z",
-    "total_duration_seconds": 10.229501473,
+    "started_at": "2026-09-13T16:31:09Z",
+    "finished_at": "2026-09-13T16:31:22Z",
+    "total_duration_seconds": 12.693158807,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -54,43 +58,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.130142984,
+      "duration_seconds": 1.626422494,
       "optional": true,
       "passed": true,
-      "log_digest": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
+      "log_digest": "a325903db10e3da8392af27a2ca8f24af757ea525f14418c78840b21d1403639"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.118566188,
+      "duration_seconds": 0.628172711,
       "optional": true,
       "passed": true,
-      "log_digest": "a5f4c585ee974ca44916ac30a98bbc189e067a7e0a6bc6d2e8d6bc525be724af"
+      "log_digest": "6af275697d1dedca868e72e9d93d8d235295f4157494b9155278e67ece1d3d90"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 9.51751133,
+      "duration_seconds": 9.967263724,
       "optional": false,
       "passed": true,
-      "log_digest": "e04558599b78a556599809a03f5567bd2be6db8a193133d8ca19933884db0f12"
+      "log_digest": "aefd8c616aa852c47b40296a71c1d5b52521474ff5850d7c561cf4d27695555b"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.33195928,
+      "duration_seconds": 0.326125384,
       "optional": true,
       "passed": true,
-      "log_digest": "9d66a026667f28fc7003a5d5a3be930aa4a786931089460d6b339772ec5ba378"
+      "log_digest": "8ed1a576937c1ddc866479690d5515ca3081d6187c780d5824970c89fc0aed82"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.008977619,
+      "duration_seconds": 0.009667557,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"

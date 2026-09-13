@@ -2,14 +2,14 @@
 type: Task Package
 title: "Task 023: 7-Step Pipeline JIT Governance & Global Plugin Distribution"
 description: "Etablere cross-platform global plugin-distribution for xGauntlet-skills samt Just-In-Time prompt-styring forankret i README.md's 7-trins pipeline og 4 AI-roller"
-status: active
+status: done
 generated: { by: human:maintainer, at: "2026-09-13T16:35:00Z" }
 tags: [plugin, distribution, jit-skills, telemetry, 7-steps, ai-roles, antigravity, claude-code, codex, mistral, cross-platform, adr-0003, adr-0004, adr-0006, adr-0007]
 ---
 
 # Task 023: 7-Step Pipeline JIT Governance & Global Plugin Distribution
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-09-13`
 **Erstatter**: [Task 020](020-global-plugin-distribution-and-jit-skill-injection.md) (Deprecated)
