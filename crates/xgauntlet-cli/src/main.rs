@@ -95,8 +95,12 @@ enum Commands {
     /// Intercept agent tool calls and evaluate capability requests against policy engine
     Hook {
         /// Target harness environment (e.g. 'antigravity', 'claude_code', 'codex', 'mistral')
-        #[arg(default_value = "antigravity")]
-        harness: String,
+        #[arg(long)]
+        harness: Option<String>,
+
+        /// Positional target harness environment fallback (e.g. 'antigravity', 'mistral')
+        #[arg(value_name = "HARNESS")]
+        positional_harness: Option<String>,
 
         /// Path to repository workspace root
         #[arg(short, long, default_value = ".")]
@@ -190,8 +194,12 @@ enum Commands {
         workspace: std::path::PathBuf,
 
         /// Format to output telemetry in: box, antigravity-hook, antigravity-hud, claude-hook, codex-hook, mistral-hook, json, ansi, compact-box
-        #[arg(short, long, default_value = "box")]
-        format: String,
+        #[arg(short, long)]
+        format: Option<String>,
+
+        /// Target harness environment to auto-select format (e.g. 'antigravity', 'claude_code', 'codex', 'mistral')
+        #[arg(long)]
+        harness: Option<String>,
     },
     /// Create a phase-bound TDD checkpoint with pre-flight invariant verification and local conventional git commit
     Checkpoint {
@@ -526,15 +534,23 @@ async fn main() -> anyhow::Result<()> {
                 std::process::exit(1);
             }
         }
-        Some(Commands::Hook { harness, workspace }) => {
+        Some(Commands::Hook {
+            harness,
+            positional_harness,
+            workspace,
+        }) => {
             let canonical_ws = workspace
                 .canonicalize()
                 .unwrap_or_else(|_| workspace.clone());
-            let adapter = match xgauntlet_core::get_adapter(harness) {
+            let selected_harness = harness
+                .as_deref()
+                .or(positional_harness.as_deref())
+                .unwrap_or("antigravity");
+            let adapter = match xgauntlet_core::get_adapter(selected_harness) {
                 Some(a) => a,
                 None => {
                     eprintln!(
-                        "🛑 Unsupported harness '{harness}'. Supported harnesses: {:?}",
+                        "🛑 Unsupported harness '{selected_harness}'. Supported harnesses: {:?}",
                         xgauntlet_core::SUPPORTED_HARNESSES
                     );
                     std::process::exit(1);
@@ -802,6 +818,7 @@ async fn main() -> anyhow::Result<()> {
             task,
             workspace,
             format,
+            harness,
         }) => {
             let canonical_ws = if workspace.is_absolute() {
                 workspace.clone()
@@ -811,7 +828,22 @@ async fn main() -> anyhow::Result<()> {
 
             let telemetry = xgauntlet_core::inspect_task_telemetry(&canonical_ws, task.as_deref())?;
 
-            match format.to_ascii_lowercase().as_str() {
+            let effective_format = format
+                .as_deref()
+                .or_else(|| {
+                    harness
+                        .as_deref()
+                        .map(|h| match h.to_ascii_lowercase().as_str() {
+                            "antigravity" => "antigravity-hook",
+                            "claude_code" | "claude" => "claude-hook",
+                            "codex" => "codex-hook",
+                            "mistral" | "vibe" | "mistral_vibe" | "mistral-vibe" => "mistral-hook",
+                            _ => "box",
+                        })
+                })
+                .unwrap_or("box");
+
+            match effective_format.to_ascii_lowercase().as_str() {
                 "antigravity-hook" | "antigravity" => {
                     let ephemeral =
                         xgauntlet_core::AntigravityAdapter::format_ephemeral_telemetry(&telemetry);
@@ -1028,7 +1060,8 @@ async fn main() -> anyhow::Result<()> {
                         if *json {
                             println!("{}", graph.export_json()?);
                         } else {
-                            let ascii = xgauntlet_core::render_ascii_topology(&graph, root.as_deref())?;
+                            let ascii =
+                                xgauntlet_core::render_ascii_topology(&graph, root.as_deref())?;
                             println!("{ascii}");
                         }
                     }

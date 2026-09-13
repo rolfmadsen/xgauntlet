@@ -229,7 +229,7 @@ pub struct VerificationReport {
 }
 
 fn default_schema_url() -> String {
-    "https://agent-gauntlet.dev/schemas/v2/verification-report.json".to_string()
+    "https://xgauntlet.dev/schemas/v2/verification-report.json".to_string()
 }
 
 fn default_schema_version() -> String {

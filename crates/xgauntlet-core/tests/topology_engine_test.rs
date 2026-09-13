@@ -75,12 +75,32 @@ fn find_xgauntlet_binary() -> PathBuf {
 fn test_topology_graph_domain_models_and_structure() {
     let mut graph = TopologyGraph::new();
 
-    let node_pkg = TopologyNode::new("crate::core", "xgauntlet-core", NodeType::Package, "crates/xgauntlet-core")
-        .with_metadata("language", "rust");
-    let node_mod1 = TopologyNode::new("crate::core::telemetry", "telemetry", NodeType::Module, "crates/xgauntlet-core/src/features/telemetry")
-        .with_metadata("lines", "120");
-    let node_mod2 = TopologyNode::new("crate::core::policy", "policy", NodeType::Module, "crates/xgauntlet-core/src/features/policy");
-    let node_fn = TopologyNode::new("crate::core::telemetry::render_jit", "render_jit", NodeType::Function, "crates/xgauntlet-core/src/features/telemetry/jit.rs");
+    let node_pkg = TopologyNode::new(
+        "crate::core",
+        "xgauntlet-core",
+        NodeType::Package,
+        "crates/xgauntlet-core",
+    )
+    .with_metadata("language", "rust");
+    let node_mod1 = TopologyNode::new(
+        "crate::core::telemetry",
+        "telemetry",
+        NodeType::Module,
+        "crates/xgauntlet-core/src/features/telemetry",
+    )
+    .with_metadata("lines", "120");
+    let node_mod2 = TopologyNode::new(
+        "crate::core::policy",
+        "policy",
+        NodeType::Module,
+        "crates/xgauntlet-core/src/features/policy",
+    );
+    let node_fn = TopologyNode::new(
+        "crate::core::telemetry::render_jit",
+        "render_jit",
+        NodeType::Function,
+        "crates/xgauntlet-core/src/features/telemetry/jit.rs",
+    );
 
     graph.add_node(node_pkg);
     graph.add_node(node_mod1);
@@ -89,8 +109,16 @@ fn test_topology_graph_domain_models_and_structure() {
 
     let edge1 = TopologyEdge::new("crate::core", "crate::core::telemetry", EdgeType::Defines);
     let edge2 = TopologyEdge::new("crate::core", "crate::core::policy", EdgeType::Defines);
-    let edge3 = TopologyEdge::new("crate::core::telemetry", "crate::core::policy", EdgeType::Imports);
-    let edge4 = TopologyEdge::new("crate::core::telemetry", "crate::core::telemetry::render_jit", EdgeType::Defines);
+    let edge3 = TopologyEdge::new(
+        "crate::core::telemetry",
+        "crate::core::policy",
+        EdgeType::Imports,
+    );
+    let edge4 = TopologyEdge::new(
+        "crate::core::telemetry",
+        "crate::core::telemetry::render_jit",
+        EdgeType::Defines,
+    );
 
     graph.add_edge(edge1);
     graph.add_edge(edge2);
@@ -100,7 +128,9 @@ fn test_topology_graph_domain_models_and_structure() {
     assert_eq!(graph.node_count(), 4);
     assert_eq!(graph.edge_count(), 4);
 
-    let found_node = graph.get_node("crate::core::telemetry").expect("node must exist");
+    let found_node = graph
+        .get_node("crate::core::telemetry")
+        .expect("node must exist");
     assert_eq!(found_node.name, "telemetry");
     assert_eq!(found_node.node_type, NodeType::Module);
     assert!(!found_node.metadata.contains_key("language"));
@@ -108,7 +138,8 @@ fn test_topology_graph_domain_models_and_structure() {
 
     // Test JSON serialization roundtrip
     let json_str = graph.export_json().expect("graph must serialize to json");
-    let deserialized = TopologyGraph::from_json(&json_str).expect("graph must deserialize from json");
+    let deserialized =
+        TopologyGraph::from_json(&json_str).expect("graph must deserialize from json");
     assert_eq!(deserialized.node_count(), 4);
     assert_eq!(deserialized.edge_count(), 4);
 }
@@ -116,8 +147,18 @@ fn test_topology_graph_domain_models_and_structure() {
 #[test]
 fn test_render_ascii_tree_visualization() {
     let mut graph = TopologyGraph::new();
-    graph.add_node(TopologyNode::new("root", "Root", NodeType::Module, "src/root.rs"));
-    graph.add_node(TopologyNode::new("child", "Child", NodeType::Module, "src/child.rs"));
+    graph.add_node(TopologyNode::new(
+        "root",
+        "Root",
+        NodeType::Module,
+        "src/root.rs",
+    ));
+    graph.add_node(TopologyNode::new(
+        "child",
+        "Child",
+        NodeType::Module,
+        "src/child.rs",
+    ));
     graph.add_edge(TopologyEdge::new("root", "child", EdgeType::Defines));
 
     let ascii = render_ascii_topology(&graph, Some("root"))
@@ -134,9 +175,24 @@ fn test_render_ascii_tree_visualization() {
 fn test_graph_traversal_bfs_and_neighbor_discovery() {
     let mut graph = TopologyGraph::new();
 
-    graph.add_node(TopologyNode::new("A", "ModuleA", NodeType::Module, "src/a.rs"));
-    graph.add_node(TopologyNode::new("B", "ModuleB", NodeType::Module, "src/b.rs"));
-    graph.add_node(TopologyNode::new("C", "ModuleC", NodeType::Module, "src/c.rs"));
+    graph.add_node(TopologyNode::new(
+        "A",
+        "ModuleA",
+        NodeType::Module,
+        "src/a.rs",
+    ));
+    graph.add_node(TopologyNode::new(
+        "B",
+        "ModuleB",
+        NodeType::Module,
+        "src/b.rs",
+    ));
+    graph.add_node(TopologyNode::new(
+        "C",
+        "ModuleC",
+        NodeType::Module,
+        "src/c.rs",
+    ));
 
     graph.add_edge(TopologyEdge::new("A", "B", EdgeType::Imports));
     graph.add_edge(TopologyEdge::new("A", "C", EdgeType::Imports));
@@ -165,19 +221,44 @@ fn test_graph_traversal_bfs_and_neighbor_discovery() {
 fn test_graph_traversal_shortest_path_between_components() {
     let mut graph = TopologyGraph::new();
 
-    graph.add_node(TopologyNode::new("cli", "xgauntlet-cli", NodeType::Package, "crates/xgauntlet-cli"));
-    graph.add_node(TopologyNode::new("core", "xgauntlet-core", NodeType::Package, "crates/xgauntlet-core"));
-    graph.add_node(TopologyNode::new("telemetry", "telemetry", NodeType::Module, "crates/xgauntlet-core/telemetry"));
-    graph.add_node(TopologyNode::new("jit", "jit", NodeType::Module, "crates/xgauntlet-core/telemetry/jit.rs"));
-    graph.add_node(TopologyNode::new("unused", "unused", NodeType::Module, "crates/unused"));
+    graph.add_node(TopologyNode::new(
+        "cli",
+        "xgauntlet-cli",
+        NodeType::Package,
+        "crates/xgauntlet-cli",
+    ));
+    graph.add_node(TopologyNode::new(
+        "core",
+        "xgauntlet-core",
+        NodeType::Package,
+        "crates/xgauntlet-core",
+    ));
+    graph.add_node(TopologyNode::new(
+        "telemetry",
+        "telemetry",
+        NodeType::Module,
+        "crates/xgauntlet-core/telemetry",
+    ));
+    graph.add_node(TopologyNode::new(
+        "jit",
+        "jit",
+        NodeType::Module,
+        "crates/xgauntlet-core/telemetry/jit.rs",
+    ));
+    graph.add_node(TopologyNode::new(
+        "unused",
+        "unused",
+        NodeType::Module,
+        "crates/unused",
+    ));
 
     // cli -> core -> telemetry -> jit
     graph.add_edge(TopologyEdge::new("cli", "core", EdgeType::DependsOn));
     graph.add_edge(TopologyEdge::new("core", "telemetry", EdgeType::Defines));
     graph.add_edge(TopologyEdge::new("telemetry", "jit", EdgeType::Defines));
 
-    let path = find_shortest_path(&graph, "cli", "jit")
-        .expect("find_shortest_path query must succeed");
+    let path =
+        find_shortest_path(&graph, "cli", "jit").expect("find_shortest_path query must succeed");
     assert_eq!(
         path,
         Some(vec![
@@ -209,15 +290,53 @@ fn test_blast_radius_downstream_dependency_calculation() {
     //   parser <- engine (indirect, depth 2)
     //   traversal <- engine (indirect, depth 2)
     //   engine <- cli (indirect, depth 3)
-    graph.add_node(TopologyNode::new("core_models", "models", NodeType::Module, "src/models.rs"));
-    graph.add_node(TopologyNode::new("parser", "parser", NodeType::Module, "src/parser.rs"));
-    graph.add_node(TopologyNode::new("traversal", "traversal", NodeType::Module, "src/traversal.rs"));
-    graph.add_node(TopologyNode::new("engine", "engine", NodeType::Module, "src/engine.rs"));
-    graph.add_node(TopologyNode::new("cli", "cli", NodeType::Package, "crates/cli"));
-    graph.add_node(TopologyNode::new("isolated", "isolated", NodeType::Module, "src/isolated.rs"));
+    graph.add_node(TopologyNode::new(
+        "core_models",
+        "models",
+        NodeType::Module,
+        "src/models.rs",
+    ));
+    graph.add_node(TopologyNode::new(
+        "parser",
+        "parser",
+        NodeType::Module,
+        "src/parser.rs",
+    ));
+    graph.add_node(TopologyNode::new(
+        "traversal",
+        "traversal",
+        NodeType::Module,
+        "src/traversal.rs",
+    ));
+    graph.add_node(TopologyNode::new(
+        "engine",
+        "engine",
+        NodeType::Module,
+        "src/engine.rs",
+    ));
+    graph.add_node(TopologyNode::new(
+        "cli",
+        "cli",
+        NodeType::Package,
+        "crates/cli",
+    ));
+    graph.add_node(TopologyNode::new(
+        "isolated",
+        "isolated",
+        NodeType::Module,
+        "src/isolated.rs",
+    ));
 
-    graph.add_edge(TopologyEdge::new("parser", "core_models", EdgeType::Imports));
-    graph.add_edge(TopologyEdge::new("traversal", "core_models", EdgeType::Imports));
+    graph.add_edge(TopologyEdge::new(
+        "parser",
+        "core_models",
+        EdgeType::Imports,
+    ));
+    graph.add_edge(TopologyEdge::new(
+        "traversal",
+        "core_models",
+        EdgeType::Imports,
+    ));
     graph.add_edge(TopologyEdge::new("engine", "parser", EdgeType::Imports));
     graph.add_edge(TopologyEdge::new("engine", "traversal", EdgeType::Imports));
     graph.add_edge(TopologyEdge::new("cli", "engine", EdgeType::DependsOn));
@@ -265,7 +384,8 @@ fn test_polyglot_deterministic_ast_parser_zero_tokens() {
     fs::write(
         ws.join("crates/app/Cargo.toml"),
         "[package]\nname = \"app\"\nversion = \"0.1.0\"\n",
-    ).unwrap();
+    )
+    .unwrap();
     fs::write(
         rust_dir.join("main.rs"),
         r#"
@@ -276,7 +396,8 @@ fn main() {
     println!("hello");
 }
 "#,
-    ).unwrap();
+    )
+    .unwrap();
     fs::write(
         rust_dir.join("config.rs"),
         r#"
@@ -284,7 +405,8 @@ pub struct Settings {
     pub port: u16,
 }
 "#,
-    ).unwrap();
+    )
+    .unwrap();
 
     // 2. TypeScript / Node files
     let ts_dir = ws.join("packages/web/src");
@@ -292,7 +414,8 @@ pub struct Settings {
     fs::write(
         ws.join("packages/web/package.json"),
         r#"{"name": "web", "version": "1.0.0"}"#,
-    ).unwrap();
+    )
+    .unwrap();
     fs::write(
         ts_dir.join("index.ts"),
         r#"
@@ -301,7 +424,8 @@ export function render() {
     return formatName("world");
 }
 "#,
-    ).unwrap();
+    )
+    .unwrap();
     fs::write(
         ts_dir.join("utils.ts"),
         r#"
@@ -309,7 +433,8 @@ export function formatName(name: string): string {
     return "Hello " + name;
 }
 "#,
-    ).unwrap();
+    )
+    .unwrap();
 
     // 3. Python files
     let py_dir = ws.join("backend/app");
@@ -323,14 +448,16 @@ from app.auth import verify_token
 def run():
     pass
 "#,
-    ).unwrap();
+    )
+    .unwrap();
     fs::write(
         py_dir.join("auth.py"),
         r#"
 def verify_token(tok):
     return True
 "#,
-    ).unwrap();
+    )
+    .unwrap();
 
     // 4. Go files
     let go_dir = ws.join("cmd/server");
@@ -349,7 +476,8 @@ func main() {
     fmt.Println("Server running")
 }
 "#,
-    ).unwrap();
+    )
+    .unwrap();
 
     let options = TopologyOptions {
         workspace_root: ws.to_path_buf(),
@@ -370,25 +498,37 @@ func main() {
 
     // Verify Rust components detected
     assert!(
-        graph.nodes.values().any(|n| n.name == "app" || n.name == "main"),
+        graph
+            .nodes
+            .values()
+            .any(|n| n.name == "app" || n.name == "main"),
         "Rust nodes must be detected in graph"
     );
 
     // Verify TypeScript components detected
     assert!(
-        graph.nodes.values().any(|n| n.name.contains("utils") || n.name.contains("index")),
+        graph
+            .nodes
+            .values()
+            .any(|n| n.name.contains("utils") || n.name.contains("index")),
         "TypeScript nodes must be detected in graph"
     );
 
     // Verify Python components detected
     assert!(
-        graph.nodes.values().any(|n| n.name.contains("server") || n.name.contains("auth")),
+        graph
+            .nodes
+            .values()
+            .any(|n| n.name.contains("server") || n.name.contains("auth")),
         "Python nodes must be detected in graph"
     );
 
     // Verify Go components detected
     assert!(
-        graph.nodes.values().any(|n| n.name.contains("main") || n.path.contains("cmd/server")),
+        graph
+            .nodes
+            .values()
+            .any(|n| n.name.contains("main") || n.path.contains("cmd/server")),
         "Go nodes must be detected in graph"
     );
 }
@@ -403,13 +543,32 @@ fn test_topology_persistence_roundtrip_to_disk() {
     let ws = temp.path();
 
     let mut graph = TopologyGraph::new();
-    graph.add_node(TopologyNode::new("service::auth", "auth", NodeType::Module, "src/auth.rs"));
-    graph.add_node(TopologyNode::new("service::db", "db", NodeType::Module, "src/db.rs"));
-    graph.add_edge(TopologyEdge::new("service::auth", "service::db", EdgeType::Calls));
+    graph.add_node(TopologyNode::new(
+        "service::auth",
+        "auth",
+        NodeType::Module,
+        "src/auth.rs",
+    ));
+    graph.add_node(TopologyNode::new(
+        "service::db",
+        "db",
+        NodeType::Module,
+        "src/db.rs",
+    ));
+    graph.add_edge(TopologyEdge::new(
+        "service::auth",
+        "service::db",
+        EdgeType::Calls,
+    ));
 
     // Save topology to disk
-    let saved_path = save_topology(ws, &graph).expect("save_topology must write .xgauntlet/topology.json");
-    assert!(saved_path.is_file(), "topology.json must exist at {}", saved_path.display());
+    let saved_path =
+        save_topology(ws, &graph).expect("save_topology must write .xgauntlet/topology.json");
+    assert!(
+        saved_path.is_file(),
+        "topology.json must exist at {}",
+        saved_path.display()
+    );
     assert_eq!(saved_path, ws.join(TOPOLOGY_FILE_PATH));
 
     // Verify file content is valid JSON
@@ -441,15 +600,14 @@ fn test_cli_topology_subcommands_inspect_path_blast_radius() {
     fs::write(
         ws.join("Cargo.toml"),
         "[package]\nname = \"toy\"\nversion = \"0.1.0\"\n",
-    ).unwrap();
-    fs::write(
-        src.join("main.rs"),
-        "mod lib;\nfn main() {}\n",
-    ).unwrap();
+    )
+    .unwrap();
+    fs::write(src.join("main.rs"), "mod lib;\nfn main() {}\n").unwrap();
     fs::write(
         src.join("lib.rs"),
         "pub fn add(a: i32, b: i32) -> i32 { a + b }\n",
-    ).unwrap();
+    )
+    .unwrap();
 
     // 1. `xgauntlet topology inspect --json`
     let inspect_output = Command::new(&bin)
@@ -467,7 +625,10 @@ fn test_cli_topology_subcommands_inspect_path_blast_radius() {
         String::from_utf8_lossy(&inspect_output.stderr)
     );
     let inspect_str = String::from_utf8_lossy(&inspect_output.stdout);
-    assert!(inspect_str.contains("nodes"), "inspect output should contain nodes key");
+    assert!(
+        inspect_str.contains("nodes"),
+        "inspect output should contain nodes key"
+    );
 
     // 2. `xgauntlet topology path <from> <to> --json`
     let path_output = Command::new(&bin)
@@ -560,8 +721,8 @@ fn test_sub_3ms_cold_start_invariant() {
     }
 
     let start = Instant::now();
-    let report = calculate_blast_radius(&graph, "node_0", Some(5))
-        .expect("blast radius query must succeed");
+    let report =
+        calculate_blast_radius(&graph, "node_0", Some(5)).expect("blast radius query must succeed");
     let elapsed = start.elapsed();
 
     assert!(

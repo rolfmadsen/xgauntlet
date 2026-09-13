@@ -3,7 +3,7 @@ type: Architecture Documentation Index
 title: "Architecture Decision Records (ADRs)"
 description: "Oversigt over projektets arkitekturbeslutninger og ADR-governance"
 status: stable
-generated: { by: process:agent-gauntlet-init, at: "2026-08-23T12:00:00Z" }
+generated: { by: process:xgauntlet-init, at: "2026-08-23T12:00:00Z" }
 tags: [adr, architecture, index, okf]
 ---
 

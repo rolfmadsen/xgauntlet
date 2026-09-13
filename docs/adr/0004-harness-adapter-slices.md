@@ -20,7 +20,7 @@ verified:
 
 ## Context
 Forskellige AI-agenter og harnesses (Google Antigravity IDE, Claude Code, DeepSeek/OpenHands osv.) anvender vidt forskellige mekanismer til tool-interception, lifecycle hooks, manifest-filer og diagnostik-formater.
-Tidligere overvejede vi et tungt, flerlags Hexagonal/Ports & Adapters abstractions-lag. Dette ville dog introducere unødig kobling og bryde med `agent-gauntlet`'s etablerede Package-by-Feature princip (ADR 0001).
+Tidligere overvejede vi et tungt, flerlags Hexagonal/Ports & Adapters abstractions-lag. Dette ville dog introducere unødig kobling og bryde med `xGauntlet`'s etablerede Package-by-Feature princip (ADR 0001).
 
 ## Decision
 1. Hver harness-integration implementeres som en **selvstændig, autonom vertikal feature-slice** under `crates/xgauntlet-core/src/features/adapters/<harness>/` (f.eks. `antigravity`, `claude_code`, `codex`).

@@ -1,4 +1,4 @@
-# Agent Guidelines: agent-gauntlet
+# Agent Guidelines: xgauntlet
 
 This repository follows the **Evidence-First Development & Clean Craftsmanship** methodology.
 
@@ -17,7 +17,7 @@ Formatér altid toppen af samtlige synlige agent-svar med det transparente Cockp
 ---
 
 ## 🛠️ Bundled Agent Skills (`.agents/skills/`)
-The agent has direct access to bundled skills located in [.agents/skills/](.agents/skills/) (and packaged under [plugins/agent-gauntlet/skills/](plugins/agent-gauntlet/skills/)). When a skill is invoked, the agent MUST view its `SKILL.md` before proceeding:
+The agent has direct access to bundled skills located in [.agents/skills/](.agents/skills/) (and packaged under [plugins/xgauntlet/skills/](plugins/xgauntlet/skills/)). When a skill is invoked, the agent MUST view its `SKILL.md` before proceeding:
 
 1. **[old-coder](.agents/skills/old-coder/SKILL.md)**:
    * *Purpose*: Evidence-first development methodology (SPEC $	o$ RED $	o$ GREEN $	o$ REFACTOR $	o$ GAUNTLET $	o$ EVIDENCE).

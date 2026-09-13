@@ -1,5 +1,5 @@
 {
-  "agent-gauntlet-gatekeeper": {
+  "xgauntlet": {
     "PreInvocation": [
       {
         "hooks": [

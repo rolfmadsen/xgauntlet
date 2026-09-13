@@ -295,7 +295,7 @@ For at sikre sporbarhed, atomiske tilbagerulningspunkter og beskytte mod context
 
 fn render_hooks_json() -> String {
     r#"{
-  "agent-gauntlet-gatekeeper": {
+  "xgauntlet": {
     "enabled": true,
     "PreToolUse": [
       {

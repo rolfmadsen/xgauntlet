@@ -1,8 +1,8 @@
 //! Deterministic topology persistence to `.xgauntlet/topology.json`.
 
+use super::models::{TopologyError, TopologyGraph};
 use std::fs;
 use std::path::{Path, PathBuf};
-use super::models::{TopologyError, TopologyGraph};
 
 pub const TOPOLOGY_FILE_PATH: &str = ".xgauntlet/topology.json";
 

@@ -164,16 +164,16 @@ impl AntigravityAdapter {
                     None => serde_json::Map::new(),
                 };
 
-                let group_key = if root.contains_key("agent-gauntlet-gatekeeper") {
-                    "agent-gauntlet-gatekeeper".to_string()
-                } else if root.contains_key("xgauntlet") {
+                let group_key = if root.contains_key("xgauntlet") {
                     "xgauntlet".to_string()
+                } else if root.contains_key("agent-gauntlet-gatekeeper") {
+                    "agent-gauntlet-gatekeeper".to_string()
                 } else if root.contains_key("gauntlet-gatekeeper") {
                     "gauntlet-gatekeeper".to_string()
                 } else if let Some(first_key) = root.keys().next().cloned() {
                     first_key
                 } else {
-                    "agent-gauntlet-gatekeeper".to_string()
+                    "xgauntlet".to_string()
                 };
 
                 let mut group = root
@@ -264,10 +264,7 @@ impl AntigravityAdapter {
                     "PreInvocation".to_string(),
                     serde_json::Value::Array(vec![pre_invocation_entry]),
                 );
-                root.insert(
-                    "agent-gauntlet-gatekeeper".to_string(),
-                    serde_json::Value::Object(group),
-                );
+                root.insert("xgauntlet".to_string(), serde_json::Value::Object(group));
                 serde_json::Value::Object(root)
             }
         }

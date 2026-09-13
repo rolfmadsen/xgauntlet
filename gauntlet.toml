@@ -1,4 +1,4 @@
-# agent-gauntlet configuration for rust
+# xgauntlet configuration for rust
 stack = "rust"
 save_evidence = true
 evidence_file = "evidence.json"

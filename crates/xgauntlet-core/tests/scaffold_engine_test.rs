@@ -236,7 +236,11 @@ fn test_generated_templates_pass_check_spec_and_config_validation() {
     // 4. Validate hooks.json structure
     let hooks_content = fs::read_to_string(ws.join(".agents/hooks.json")).unwrap();
     let hooks_val: serde_json::Value = serde_json::from_str(&hooks_content).unwrap();
-    assert!(hooks_val.get("agent-gauntlet-gatekeeper").is_some());
+    assert!(
+        hooks_val.get("xgauntlet").is_some()
+            || hooks_val.get("agent-gauntlet-gatekeeper").is_some(),
+        "hooks.json must contain xgauntlet group"
+    );
 }
 
 #[test]

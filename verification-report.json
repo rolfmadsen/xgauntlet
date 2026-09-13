@@ -1,5 +1,5 @@
 {
-  "$schema": "https://agent-gauntlet.dev/schemas/v2/verification-report.json",
+  "$schema": "https://xgauntlet.dev/schemas/v2/verification-report.json",
   "schema_version": "2.0.0",
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",

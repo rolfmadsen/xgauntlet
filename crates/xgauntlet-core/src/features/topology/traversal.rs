@@ -2,8 +2,8 @@
 //!
 //! Sub-3ms cold start, zero tokens, zero background daemons.
 
-use std::collections::{HashSet, VecDeque};
 use super::models::{BlastRadiusReport, Direction, TopologyError, TopologyGraph};
+use std::collections::{HashSet, VecDeque};
 
 /// Finds all neighbors for a specified node along incoming, outgoing, or both edge directions.
 pub fn find_neighbors(
@@ -176,7 +176,12 @@ pub fn render_ascii_topology(
 
     for (idx, r) in roots.iter().enumerate() {
         if let Some(node) = graph.get_node(r) {
-            output.push_str(&format!("[{}] {} ({})\n", node.node_type.as_str(), node.name, node.id));
+            output.push_str(&format!(
+                "[{}] {} ({})\n",
+                node.node_type.as_str(),
+                node.name,
+                node.id
+            ));
             let mut outgoing_edges: Vec<&super::models::TopologyEdge> =
                 graph.edges.iter().filter(|e| e.from == *r).collect();
             outgoing_edges.sort_by(|a, b| a.to.cmp(&b.to));
@@ -184,7 +189,12 @@ pub fn render_ascii_topology(
             for (e_idx, edge) in outgoing_edges.iter().enumerate() {
                 let is_last = e_idx == outgoing_edges.len() - 1;
                 let branch = if is_last { "└──" } else { "├──" };
-                output.push_str(&format!("  {} [{}] {}\n", branch, edge.edge_type.as_str(), edge.to));
+                output.push_str(&format!(
+                    "  {} [{}] {}\n",
+                    branch,
+                    edge.edge_type.as_str(),
+                    edge.to
+                ));
             }
             if idx < roots.len() - 1 {
                 output.push('\n');

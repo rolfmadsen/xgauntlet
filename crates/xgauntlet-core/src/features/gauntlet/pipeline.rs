@@ -229,7 +229,7 @@ pub async fn execute_gauntlet_pipeline(
     };
 
     let report = VerificationReport {
-        schema: "https://agent-gauntlet.dev/schemas/v2/verification-report.json".to_string(),
+        schema: "https://xgauntlet.dev/schemas/v2/verification-report.json".to_string(),
         schema_version: "2.0.0".to_string(),
         execution_origin: "LOCAL".to_string(),
         verdict: verdict.to_string(),

@@ -109,7 +109,10 @@ fn collect_files(
 
         if path.is_dir() {
             if let Some(max_depth) = options.max_depth {
-                let depth = path.strip_prefix(root).map(|p| p.components().count()).unwrap_or(0);
+                let depth = path
+                    .strip_prefix(root)
+                    .map(|p| p.components().count())
+                    .unwrap_or(0);
                 if depth > max_depth {
                     continue;
                 }
@@ -187,7 +190,10 @@ fn parse_rust_file(
     let default_pkg = "crate".to_string();
     let pkg_name = find_enclosing_package(file_path, package_map).unwrap_or(&default_pkg);
 
-    let stem = file_path.file_stem().and_then(|s| s.to_str()).unwrap_or("mod");
+    let stem = file_path
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("mod");
     let rel_path = path_to_rel_str(root, file_path);
 
     let node_id = format!("{pkg_name}::{stem}");
@@ -204,7 +210,9 @@ fn parse_rust_file(
         let trimmed = line.trim();
 
         // mod foo;
-        if (trimmed.starts_with("mod ") || trimmed.starts_with("pub mod ")) && trimmed.ends_with(';') {
+        if (trimmed.starts_with("mod ") || trimmed.starts_with("pub mod "))
+            && trimmed.ends_with(';')
+        {
             let part = trimmed
                 .strip_prefix("pub mod ")
                 .or_else(|| trimmed.strip_prefix("mod "))
@@ -239,7 +247,8 @@ fn parse_rust_file(
                 let name = extract_identifier_after_keyword(trimmed, "fn ");
                 if let Some(fn_name) = name {
                     let sym_id = format!("{node_id}::{fn_name}");
-                    let sym_node = TopologyNode::new(&sym_id, &fn_name, NodeType::Function, &rel_path);
+                    let sym_node =
+                        TopologyNode::new(&sym_id, &fn_name, NodeType::Function, &rel_path);
                     graph.add_node(sym_node);
                     graph.add_edge(TopologyEdge::new(&node_id, &sym_id, EdgeType::Defines));
                 }
@@ -247,7 +256,8 @@ fn parse_rust_file(
                 let name = extract_identifier_after_keyword(trimmed, "struct ");
                 if let Some(st_name) = name {
                     let sym_id = format!("{node_id}::{st_name}");
-                    let sym_node = TopologyNode::new(&sym_id, &st_name, NodeType::Struct, &rel_path);
+                    let sym_node =
+                        TopologyNode::new(&sym_id, &st_name, NodeType::Struct, &rel_path);
                     graph.add_node(sym_node);
                     graph.add_edge(TopologyEdge::new(&node_id, &sym_id, EdgeType::Defines));
                 }
@@ -272,7 +282,10 @@ fn parse_ts_file(
     let default_pkg = "web".to_string();
     let pkg_name = find_enclosing_package(file_path, package_map).unwrap_or(&default_pkg);
 
-    let stem = file_path.file_stem().and_then(|s| s.to_str()).unwrap_or("index");
+    let stem = file_path
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("index");
     let rel_path = path_to_rel_str(root, file_path);
 
     let node_id = format!("{pkg_name}::{stem}");
@@ -307,7 +320,9 @@ fn parse_ts_file(
             }
         }
 
-        if options.detect_symbols && (trimmed.starts_with("function ") || trimmed.starts_with("export function ")) {
+        if options.detect_symbols
+            && (trimmed.starts_with("function ") || trimmed.starts_with("export function "))
+        {
             let name = extract_identifier_after_keyword(trimmed, "function ");
             if let Some(fn_name) = name {
                 let sym_id = format!("{node_id}::{fn_name}");
@@ -331,13 +346,14 @@ fn parse_python_file(
     options: &TopologyOptions,
     graph: &mut TopologyGraph,
 ) -> Result<(), TopologyError> {
-    let stem = file_path.file_stem().and_then(|s| s.to_str()).unwrap_or("module");
+    let stem = file_path
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("module");
     let rel_path = path_to_rel_str(root, file_path);
 
     // Python module ID based on relative path parts e.g. "backend.app.server"
-    let module_id = rel_path
-        .trim_end_matches(".py")
-        .replace('/', ".");
+    let module_id = rel_path.trim_end_matches(".py").replace('/', ".");
 
     let node = TopologyNode::new(&module_id, stem, NodeType::Module, &rel_path)
         .with_metadata("language", "python");
@@ -393,7 +409,10 @@ fn parse_go_file(
     options: &TopologyOptions,
     graph: &mut TopologyGraph,
 ) -> Result<(), TopologyError> {
-    let stem = file_path.file_stem().and_then(|s| s.to_str()).unwrap_or("main");
+    let stem = file_path
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("main");
     let rel_path = path_to_rel_str(root, file_path);
 
     let parent_dir_name = file_path

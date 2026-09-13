@@ -3,7 +3,7 @@ type: System Specification
 title: Specification - xGauntlet System Architecture & Capabilities
 description: Macro system architecture, philosophy, and invariants for xGauntlet
 status: stable
-generated: { by: process:agent-gauntlet-init, at: "2026-09-06T16:15:00Z" }
+generated: { by: process:xgauntlet-init, at: "2026-09-06T16:15:00Z" }
 tags: [specification, architecture, invariants, wasm, rust, npx]
 ---
 

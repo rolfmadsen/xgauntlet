@@ -146,7 +146,11 @@ impl BlastRadiusReport {
         if self.affected_nodes.is_empty() {
             format!("{} (isolated)", self.target)
         } else {
-            format!("{} (+{} downstream)", self.target, self.affected_nodes.len())
+            format!(
+                "{} (+{} downstream)",
+                self.target,
+                self.affected_nodes.len()
+            )
         }
     }
 }
