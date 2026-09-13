@@ -127,3 +127,11 @@ _Avoid_: Status badge, markdown header, info banner.
 A deterministic sequence of operational states (`ACTIVE`, `BLOCKED`, `DONE`), that governs task progression from initial intent scoping to evidence sealing.
 _Avoid_: Ticket workflow, task pipeline, sprint state.
 
+**Codebase Topology Graph**:
+A directed graph model, that maps workspace packages, modules, files, and symbols along with their deterministic import and call dependencies.
+_Avoid_: Dependency tree, code map, syntax graph.
+
+**Blast Radius Analysis**:
+A deterministic traversal query, that calculates the transitive downstream components affected by modifications to a specific module or symbol within bounded traversal depth.
+_Avoid_: Impact assessment, regression check, ripple effect.
+

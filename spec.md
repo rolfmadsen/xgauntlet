@@ -52,6 +52,8 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
   - `scaffold`: Safe, non-destructive project bootstrap engine (`xgauntlet init`).
   - `doctor`: Fast environment, Git, and toolchain diagnostics.
   - `release`: Release readiness gatekeeper, manifest version harmony, CHANGELOG.md verification, and ADR coverage validation (`check-release`).
+  - `plugin`: Global plugin distribution and embedded 11-skill suite (`xgauntlet plugin install`).
+  - `topology`: Deterministic AST codebase topology, graph traversals, and token-optimized blast-radius discovery engine (`xgauntlet topology`).
 - `crates/xgauntlet-cli`: Native CLI frontend.
 - `packages/cli`: Zero-dependency Node.js distribution launcher (`xgauntlet` / `npx xgauntlet`).
 

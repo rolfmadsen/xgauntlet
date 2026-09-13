@@ -43,19 +43,19 @@ Etablere en 100% deterministisk, sub-millisekund AST- og modul-topologimotor i `
 - **Nul "Cache Drift"**: Da grafen udledes direkte af den faktiske kildekode på disken, svarer agenten aldrig ud fra forældede hallucinationer.
 
 ## 📋 Acceptance Criteria
-- [ ] `crates/xgauntlet-core/src/features/topology/` etablerer domænemodeller (`TopologyGraph`, `TopologyNode`, `TopologyEdge`, `NodeType`, `EdgeType`, `BlastRadiusReport`).
-- [ ] Parser-modul implementerer deterministisk ekstraktion af moduler, symbols og imports for de understøttede programmeringsstacks (Rust, TypeScript/Node, Python, Go) med 0 tokenforbrug.
-- [ ] Graf-traverseringsmotor implementerer BFS (nabosøgning), DFS (afhængighedskæde/blast radius) og shortest path mellem to symboler/moduler.
-- [ ] Topologien persisteres deterministisk i `.xgauntlet/topology.json` ved eksplicit eksport og opdateres ved ændringer.
-- [ ] CLI subcommand `xgauntlet topology` udstiller:
+- [x] `crates/xgauntlet-core/src/features/topology/` etablerer domænemodeller (`TopologyGraph`, `TopologyNode`, `TopologyEdge`, `NodeType`, `EdgeType`, `BlastRadiusReport`).
+- [x] Parser-modul implementerer deterministisk ekstraktion af moduler, symbols og imports for de understøttede programmeringsstacks (Rust, TypeScript/Node, Python, Go) med 0 tokenforbrug.
+- [x] Graf-traverseringsmotor implementerer BFS (nabosøgning), DFS (afhængighedskæde/blast radius) og shortest path mellem to symboler/moduler.
+- [x] Topologien persisteres deterministisk i `.xgauntlet/topology.json` ved eksplicit eksport og opdateres ved ændringer.
+- [x] CLI subcommand `xgauntlet topology` udstiller:
   - `xgauntlet topology inspect`: Menneskevenlig ASCII visualisering af modulforbindelser.
   - `xgauntlet topology path <from> <to>`: Visning af afhængighedssti mellem to komponenter.
   - `xgauntlet topology blast-radius <target>`: Beregning af downstream komponenter der påvirkes.
   - `--json`: Maskinlæsbar JSON-eksport.
-- [ ] Telemetrimotoren (`features/telemetry/`) udvides til at injicere topologisk blast radius i HUD'ens `Scope`-linje og udstille grafdata i `PreInvocation` og `PostToolUse` payloads uden at overskride JIT token-budgettet (<45 tokens).
-- [ ] Conformance integrationstest i `crates/xgauntlet-core/tests/topology_engine_test.rs` verificerer sub-3ms koldstart, 0 token-forbrug under scanning og korrekt blast-radius analyse.
-- [ ] `cargo run -p xgauntlet-cli -- check-spec -t 021-ast-topology-and-codebase-discovery-engine` validerer med 0 fejl.
-- [ ] Fuld workspace testsuite passerer (`cargo test --workspace`) uden linter-fejl (`cargo clippy --workspace --all-targets -- -D warnings`).
+- [x] Telemetrimotoren (`features/telemetry/`) udvides til at injicere topologisk blast radius i HUD'ens `Scope`-linje og udstille grafdata i `PreInvocation` og `PostToolUse` payloads uden at overskride JIT token-budgettet (<45 tokens).
+- [x] Conformance integrationstest i `crates/xgauntlet-core/tests/topology_engine_test.rs` verificerer sub-3ms koldstart, 0 token-forbrug under scanning og korrekt blast-radius analyse.
+- [x] `cargo run -p xgauntlet-cli -- check-spec -t 021-ast-topology-and-codebase-discovery-engine` validerer med 0 fejl.
+- [x] Fuld workspace testsuite passerer (`cargo test --workspace`) uden linter-fejl (`cargo clippy --workspace --all-targets -- -D warnings`).
 
 ## 🚫 Must NOT
 - Må IKKE anvende LLM-tokens eller eksterne netværkskald til at opbygge eller forespørge grafen.
