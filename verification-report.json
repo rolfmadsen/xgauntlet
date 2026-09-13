@@ -4,45 +4,44 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "019-hud-and-adapter-hardening",
-    "task_title": "Task 019: HUD & Harness Adapter Hardening, OS Resilience & Refactor",
-    "task_digest": "0222aeaa17a4773447274383f752c12093ad82e6571a74ce4f5d642c0bf2b219",
+    "task_id": "022-mistral-vibe-harness-adapter",
+    "task_title": "Task 022: Mistral Vibe Harness Adapter & Hooks Integration",
+    "task_digest": "41b9bc66f14946364fd73db16f4518d823818cc912dcb81abb50e3c44dd40704",
     "acceptance_criteria": [
-      "`TaskTelemetry::render_box_card` garanterer præcis 64 tegn pr. linje selv ved ekstreme strenglængder for scope, git branch, status eller ref-stier.",
-      "`TaskTelemetry::render_box_card` og sti-håndtering normaliserer Windows-stier med backslashes (`\\`) til standard fremadrettede POSIX-skråstreger (`/`).",
-      "`crates/xgauntlet-cli/src/main.rs` fjerner `let _ =` og propagerer IO-fejl ved harness-scaffolding under `xgauntlet init`.",
-      "Harness-specifikke filer inkluderes i `ScaffoldResult` ved `xgauntlet init --harness ...`.",
-      "Den delte JSON merge-logik for `PostToolUse` i Claude Code og Codex er konsolideret i et fælles modul uden kodeduplikering.",
-      "Harness-aliaser (`codex`, `openai`, `openai_codex`, `antigravity`, `claude_code`) er ensartet defineret på tværs af CLI og core.",
-      "`AntigravityAdapter::generate_hooks_json` opgraderer forældede python-hooks til `xgauntlet hook antigravity`.",
-      "Workspace `.agents/hooks.json` er opdateret til at anvende `xgauntlet hook antigravity` i stedet for `python3`.",
-      "`Commands::Checkpoint` og `Commands::Verify` understøtter `--harness` respons-wrapping med det respektive telemetry-kort.",
-      "Unit- og integrationstests i `harness_adapters_test.rs` og `task_lifecycle_test.rs` dækker samtlige nye grænsetilfælde for lange navne, Windows-stier og fejlforhold.",
-      "`cargo test --workspace` og `cargo clippy` forbliver 100% grønne uden advarsler."
+      "`SUPPORTED_HARNESSES` indeholder `\"mistral\"` og `HarnessKind::parse_alias` genkender `\"mistral\"`, `\"mistral_vibe\"`, `\"mistral-vibe\"` og `\"vibe\"`.",
+      "`get_adapter(\"mistral\")` returnerer en gyldig `Box<dyn HarnessAdapter>`.",
+      "`MistralAdapter::normalize_tool_call` mapper `bash`, `write_file`, `edit`, `read`, `grep`, `task` og `ask_user_question` korrekt til `ToolActionType`.",
+      "`MistralAdapter::handle_hook` håndterer `pre_tool` hooks:",
+      "`MistralAdapter::format_post_tool_use_payload` genererer gyldig JSON med `hook_specific_output.additional_context`.",
+      "`xgauntlet telemetry --format mistral-hook` genererer JSON-payload klar til Mistral Vibes `post_tool` hook.",
+      "`MistralAdapter::scaffold_hooks` opretter eller merger `./.vibe/hooks.toml` uden at ødelægge eksisterende TOML-konfiguration.",
+      "CLI subcommand `xgauntlet hook --harness mistral` modtager og evaluerer Mistral Vibe stdin JSON.",
+      "CLI subcommand `xgauntlet init --harness mistral` stilladserer `./.vibe/hooks.toml`.",
+      "Alle nye og eksisterende enhedstests i `crates/xgauntlet-core/tests/harness_adapters_test.rs` består med 100% grøn status."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "5abe932df546cf7635a51ea23b36a0c40cfa9a267aabe755aa437e118af376cb",
-    "source_manifest_digest_pre": "6fd41747c1b4fa731a3392ec1f7c4cff4d6a09f8dae7da61fcd64a154aaa043e",
-    "source_manifest_digest_post": "6fd41747c1b4fa731a3392ec1f7c4cff4d6a09f8dae7da61fcd64a154aaa043e",
+    "source_content_digest": "0987895d1f7c2f7c46f3e4721a338967f1e556fc5e69f1fe3bb0348ed524ce85",
+    "source_manifest_digest_pre": "da4564b3f4053d37076a9d1b20332d2e2f14aec3b3c2fec5a3b520ae897c842e",
+    "source_manifest_digest_post": "da4564b3f4053d37076a9d1b20332d2e2f14aec3b3c2fec5a3b520ae897c842e",
     "config_digest": "e52fd78871048c2f12a745274df243c595c350070b12ff73cd3f567cf492aa76",
-    "task_digest": "0222aeaa17a4773447274383f752c12093ad82e6571a74ce4f5d642c0bf2b219",
+    "task_digest": "41b9bc66f14946364fd73db16f4518d823818cc912dcb81abb50e3c44dd40704",
     "policy_digest": "39975c2eca99d71b58f314d331610f07a00e251582deeba3d44a9d244f9a75eb",
     "check_definitions_digest": "acd753b5c5b1f14c179a6a97e9eea55dc81aa7414ff9f84065c10555ce9d3d8a",
-    "included_files_count": 145,
+    "included_files_count": 149,
     "vcs": {
       "type": "git",
-      "head": "41210ad",
-      "commit": "41210ad",
+      "head": "cd9a4ae",
+      "commit": "cd9a4ae",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-09-09T20:34:32Z",
-    "finished_at": "2026-09-09T20:34:43Z",
-    "total_duration_seconds": 10.448483938,
+    "started_at": "2026-09-13T13:42:11Z",
+    "finished_at": "2026-09-13T13:42:21Z",
+    "total_duration_seconds": 10.229501473,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -55,43 +54,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.580426879,
+      "duration_seconds": 0.130142984,
       "optional": true,
       "passed": true,
-      "log_digest": "29f44fbc3aba0c7d331c3166b2954678dd6833847304768de649a2ee9b39177d"
+      "log_digest": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.49681662,
+      "duration_seconds": 0.118566188,
       "optional": true,
       "passed": true,
-      "log_digest": "2addfa3381cd16a0d2b6161753e8442594a745cbde3426dcc7d884e889d8c54b"
+      "log_digest": "a5f4c585ee974ca44916ac30a98bbc189e067a7e0a6bc6d2e8d6bc525be724af"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 8.941152399,
+      "duration_seconds": 9.51751133,
       "optional": false,
       "passed": true,
-      "log_digest": "d7efe22857754db9a91b23a1f0843bcc0c6747a16664a4b85bdd08afb43d1a13"
+      "log_digest": "e04558599b78a556599809a03f5567bd2be6db8a193133d8ca19933884db0f12"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.28937401,
+      "duration_seconds": 0.33195928,
       "optional": true,
       "passed": true,
-      "log_digest": "fa4395dbfbb9260c716a50d6f898a8582944e7b6cdd0b4d588024efd70bde6c2"
+      "log_digest": "9d66a026667f28fc7003a5d5a3be930aa4a786931089460d6b339772ec5ba378"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.009418518,
+      "duration_seconds": 0.008977619,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"

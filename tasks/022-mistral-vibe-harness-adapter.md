@@ -2,14 +2,14 @@
 type: Task Package
 title: "Task 022: Mistral Vibe Harness Adapter & Hooks Integration"
 description: "Etablere Mistral Vibe autonom vertikal adapter-slice med normalisering af værktøjskald, pre_tool fail-closed gatekeeping, post_tool telemetri-injektion og .vibe/hooks.toml scaffolding jf. spec.md, ADR 0001, ADR 0004 og ADR 0006"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-13T15:36:00Z" }
 tags: [mistral, vibe, adapters, hooks, toml, gatekeeper, telemetry, hud, vscode, cli, adr-0004, adr-0006]
 ---
 
 # Task 022: Mistral Vibe Harness Adapter & Hooks Integration
 
-**Status**: `ACTIVE`  
+**Status**: `DONE`  
 **Intent**: `🚀 NEW FEATURE`  
 **Oprettet**: `2026-09-13`  
 
