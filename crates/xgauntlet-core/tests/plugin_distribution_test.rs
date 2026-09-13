@@ -163,6 +163,16 @@ fn test_embedded_11_skill_suite_and_plugin_rename() {
     );
 }
 
+#[test]
+fn test_crlf_frontmatter_detection() {
+    let crlf_skill_content = "---\r\nname: test-skill\r\ndescription: test\r\n---\r\n# Skill\r\n";
+    // Exact symptom on Windows CI: starts_with("---\n") fails when file has CRLF endings
+    assert!(
+        crlf_skill_content.starts_with("---\n"),
+        "Skill must have valid YAML frontmatter header"
+    );
+}
+
 // ============================================================================
 // 2. Cross-Platform Harness Discovery Engine (Linux, macOS, Windows)
 // ============================================================================
