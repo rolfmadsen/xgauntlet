@@ -17,9 +17,7 @@ const pkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
 const VERSION = pkg.version;
 const REPO = 'rolfmadsen/xgauntlet';
 
-function getPlatformInfo() {
-  const platform = os.platform();
-  const arch = os.arch();
+export function getPlatformInfo(platform = os.platform(), arch = os.arch()) {
   const isWindows = platform === 'win32';
   const binName = isWindows ? 'xgauntlet.exe' : 'xgauntlet';
 
@@ -188,4 +186,17 @@ async function main() {
   });
 }
 
-main();
+function isMainModule() {
+  if (!process.argv[1]) return false;
+  try {
+    const scriptPath = fs.realpathSync(process.argv[1]);
+    const modulePath = fs.realpathSync(fileURLToPath(import.meta.url));
+    return scriptPath === modulePath;
+  } catch {
+    return false;
+  }
+}
+
+if (isMainModule()) {
+  main();
+}
