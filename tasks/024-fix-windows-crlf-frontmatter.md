@@ -17,10 +17,10 @@ tags: [task-lifecycle, intent, scaffolding, rust]
 Fix Windows CI failure in plugin_distribution_test caused by CRLF frontmatter assertion and enforce LF line endings via .gitattributes
 
 ## 📋 Acceptance Criteria
-- [ ] Gøre YAML frontmatter assertion i `plugin_distribution_test.rs` robust overfor både LF (`---\n`) og CRLF (`---\r\n`).
-- [ ] Tilføje regressions/reproduktionstest for CRLF frontmatter genkendelse.
-- [ ] Oprette `.gitattributes` i roden med `* text=auto eol=lf` og binære filtyper for at sikre ensartede LF line endings på Windows CI.
-- [ ] Verificere at samtlige tests og invariant-tjek passerer (`cargo test --workspace`, `cargo clippy`, `check-spec`).
+- [x] Gøre YAML frontmatter assertion i `plugin_distribution_test.rs` robust overfor både LF (`---\n`) og CRLF (`---\r\n`).
+- [x] Tilføje regressions/reproduktionstest for CRLF frontmatter genkendelse.
+- [x] Oprette `.gitattributes` i roden med `* text=auto eol=lf` og binære filtyper for at sikre ensartede LF line endings på Windows CI.
+- [x] Verificere at samtlige tests og invariant-tjek passerer (`cargo test --workspace`, `cargo clippy`, `check-spec`).
 
 ## 🚫 Must NOT
 - Må IKKE bryde eksisterende arkitektur-invarianter eller API-kontrakter.

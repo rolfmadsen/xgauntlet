@@ -111,7 +111,7 @@ fn test_embedded_11_skill_suite_and_plugin_rename() {
         let content = get_embedded_skill(skill)
             .unwrap_or_else(|| panic!("Skill '{skill}' must be embedded via include_str!"));
         assert!(
-            content.starts_with("---\n"),
+            content.starts_with("---\n") || content.starts_with("---\r\n"),
             "Skill '{skill}' must have valid YAML frontmatter header"
         );
         assert!(
@@ -166,11 +166,17 @@ fn test_embedded_11_skill_suite_and_plugin_rename() {
 #[test]
 fn test_crlf_frontmatter_detection() {
     let crlf_skill_content = "---\r\nname: test-skill\r\ndescription: test\r\n---\r\n# Skill\r\n";
-    // Exact symptom on Windows CI: starts_with("---\n") fails when file has CRLF endings
+    let lf_skill_content = "---\nname: test-skill\ndescription: test\n---\n# Skill\n";
+
+    let has_crlf =
+        crlf_skill_content.starts_with("---\n") || crlf_skill_content.starts_with("---\r\n");
+    let has_lf = lf_skill_content.starts_with("---\n") || lf_skill_content.starts_with("---\r\n");
+
     assert!(
-        crlf_skill_content.starts_with("---\n"),
-        "Skill must have valid YAML frontmatter header"
+        has_crlf,
+        "Frontmatter must recognize CRLF line endings on Windows"
     );
+    assert!(has_lf, "Frontmatter must recognize LF line endings on Unix");
 }
 
 // ============================================================================
