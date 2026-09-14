@@ -2,14 +2,14 @@
 type: Task Package
 title: "Task 027: Multi-Harness Hook Contracts, Schema Validation and Platform Hardening"
 description: "Etablere præcise kontrakt- og schema/snapshot-tests for alle 4 harnesses (Antigravity, Claude Code, Codex, Mistral), mock-proces livscyklus på Windows/Unix, Wasm CRLF/Windows-path determinisme og platform-resilience"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-14T15:45:02Z" }
 tags: [harness, contracts, schemas, claude-code, mistral-vibe, antigravity, codex, wasm, exit-codes, windows, unix, adr-0006]
 ---
 
 # Task 027: Multi-Harness Hook Contracts, Schema Validation and Platform Hardening
 
-**Status**: `ACTIVE`  
+**Status**: `DONE`  
 **Intent**: `🚀 NEW FEATURE`  
 **Oprettet**: `2026-09-14`  
 

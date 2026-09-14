@@ -4,39 +4,58 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "025-arm64-linux-support",
-    "task_title": "Task 025: Native ARM64 Linux CI Pipeline and Release Distribution",
-    "task_digest": "72be562c4e0c19643fec64559387695b78b9a8adb300cbfd930ffa59014f3a1e",
+    "task_id": "027-harness-contracts-and-lifecycle-hardening",
+    "task_title": "Task 027: Multi-Harness Hook Contracts, Schema Validation and Platform Hardening",
+    "task_digest": "6d1a1d5a724a3fdf7f43356c7d99066f59a80ef7e95c076f11f64b6d2135a477",
     "acceptance_criteria": [
-      "Gøre `getPlatformInfo` i `packages/cli/bin/xgauntlet.js` deterministisk testbar med valgfrie platform- og arch-parametre og eksportere funktionen.",
-      "Tilføje tests i `packages/cli/test/launcher.test.js`, der beviser platform-opløsning for `linux` + `arm64` (`xgauntlet-linux-arm64.tar.gz`) samt de øvrige understøttede platforme.",
-      "Tilføje `ubuntu-24.04-arm` runner til `.github/workflows/ci.yml` matrixen for native CI-test på Linux ARM64.",
-      "Tilføje `aarch64-unknown-linux-gnu` target med `ubuntu-24.04-arm` runner til `.github/workflows/release.yml` matrixen for automatisk byg og upload af `xgauntlet-linux-arm64.tar.gz`.",
-      "Verificere at samtlige tests og invariant-tjek passerer (`npm test --workspaces`, `cargo test --workspace`, `cargo clippy`, `check-spec`)."
+      "Oprette deterministiske snapshot-fixtures eller JSON schema validering for de genererede filer for alle 4 adaptere:",
+      "`.agents/hooks.json` (Google Antigravity)",
+      "`.claude/settings.json` (Claude Code)",
+      "`.vibe/hooks.toml` (Mistral Vibe)",
+      "`.codex/hooks.json` (OpenAI Codex)",
+      "Validere at serialiserede telemetri- og gatekeeper-payloads overholder felterne i ovenstående specifikationstabeller på tværs af Linux, macOS og Windows.",
+      "Opdatere `ClaudeCodeAdapter::handle_hook` til:",
+      "Returnere exit code **2** ved afvisning af værktøjskald (i overensstemmelse med Claude Codes blokeringskontrakt).",
+      "Generere stdout JSON med `hookSpecificOutput.permissionDecision = \"deny\"` og `permissionDecisionReason`.",
+      "Sikre at exit code 0 fortsat returneres ved tilladte handlinger (`\"permissionDecision\": \"allow\"`).",
+      "Oprette en integrationstest i `crates/xgauntlet-core/tests/` der spawner `xgauntlet hook` og `xgauntlet telemetry` som rigtige subprocesser.",
+      "Teste piping af syntetiske tool-kald via stdin og modtagelse af stdout/stderr under:",
+      "Unix shell (`sh -c`)",
+      "Windows CMD (`cmd.exe /c` eller PowerShell hvis tilgængelig)",
+      "Bekræfte identiske exit-koder (0 ved allow, 2/1 ved deny jf. harness) på tværs af platforme.",
+      "Tilføje integrationstest der evaluerer `gauntlet_policy.wasm` via Wasmtime med:",
+      "Windows absolutte stier (f.eks. `C:\\repo\\src\\main.rs`) og relative Windows backslashes (`crates\\core\\lib.rs`).",
+      "CRLF (`\\r\\n`) linjeskift indlejret i `payload_json`.",
+      "Verificere at Wasm-evalueringen leverer identiske verdicts og reason-koder uanset værts-OS.",
+      "Tilføje integrationstests for git checkpointing under filsystem-konflikter:",
+      "Opdagelse og sikker fejl-lukning hvis `.git/index.lock` er til stede.",
+      "Validering af at preflight-fejl ikke efterlader efterladte git stashing- eller commit-artefakter.",
+      "Sikre at `render_box_card` og `render_blockquote_hud` forbliver immune over for panics, hvis stdout er omdirigeret til non-TTY, fil eller et miljø uden ANSI escape-understøttelse.",
+      "Verificere korrekt breddeberegning (64 synlige kolonner) ved UTF-8 multi-byte tegn."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "b593d7507dade88bc7a2fffee6df08b00d1243e4afbd46fb4923b94f19301c8d",
-    "source_manifest_digest_pre": "fa17a87b9f5acd0c596a0ac16fb633796947ffedd3d258077c1c6975bd19e733",
-    "source_manifest_digest_post": "fa17a87b9f5acd0c596a0ac16fb633796947ffedd3d258077c1c6975bd19e733",
+    "source_content_digest": "e5480a0f1cf7253c442daa09800735abdfd0539dba758f1018f7b896193adf8f",
+    "source_manifest_digest_pre": "cc3b8df247019760c5181c3c43032b53496cdbda81121c87ad96d8c4c01814f1",
+    "source_manifest_digest_post": "cc3b8df247019760c5181c3c43032b53496cdbda81121c87ad96d8c4c01814f1",
     "config_digest": "4e0db89b6275a39605f79ab9c65cc66473df241dc6df781294880b30961e3cea",
-    "task_digest": "72be562c4e0c19643fec64559387695b78b9a8adb300cbfd930ffa59014f3a1e",
-    "policy_digest": "1ddf22af04a5dce3768f4179be4c93c9ef3139571fc8d910b929ef9956fa566d",
+    "task_digest": "6d1a1d5a724a3fdf7f43356c7d99066f59a80ef7e95c076f11f64b6d2135a477",
+    "policy_digest": "2968663a300842fcc0b3196ffdc817c0f94f1f72bab913ec04659139b84f264d",
     "check_definitions_digest": "acd753b5c5b1f14c179a6a97e9eea55dc81aa7414ff9f84065c10555ce9d3d8a",
-    "included_files_count": 180,
+    "included_files_count": 183,
     "vcs": {
       "type": "git",
-      "head": "815f7c7",
-      "commit": "815f7c7",
-      "is_dirty": true
+      "head": "ecff91c",
+      "commit": "ecff91c",
+      "is_dirty": false
     }
   },
   "execution_metadata": {
-    "started_at": "2026-09-13T20:13:17Z",
-    "finished_at": "2026-09-13T20:13:28Z",
-    "total_duration_seconds": 11.327335483,
+    "started_at": "2026-09-14T19:19:53Z",
+    "finished_at": "2026-09-14T19:20:09Z",
+    "total_duration_seconds": 16.019039926,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -49,43 +68,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.734129515,
-      "optional": true,
-      "passed": true,
-      "log_digest": "6cadc18e9132c6a63d01706ea677be7cb377ec770656c121908e595b749483fe"
-    },
-    {
-      "name": "types",
-      "status": "PASSED",
-      "exit_code": 0,
-      "duration_seconds": 0.090345397,
+      "duration_seconds": 0.105793335,
       "optional": true,
       "passed": true,
       "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
     },
     {
+      "name": "types",
+      "status": "PASSED",
+      "exit_code": 0,
+      "duration_seconds": 0.632251055,
+      "optional": true,
+      "passed": true,
+      "log_digest": "ab2f55fac83e8639c52e3d09d6c3b0a2eeffdab5339709f317fb941b7e146fe4"
+    },
+    {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 9.007334398,
+      "duration_seconds": 14.781491604,
       "optional": false,
       "passed": true,
-      "log_digest": "401795bd6510a5863903c8f43bf2cef56cfaec942b79e77338f531d5398f78f9"
+      "log_digest": "bb0b590a90ae46ca2fe4e979098e7a30d148de29df5aa58f0078a672d01dba1f"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.348983847,
+      "duration_seconds": 0.349924537,
       "optional": true,
       "passed": true,
-      "log_digest": "12f375bfd1a96295ddd427f311eb711265b6e3dfb68db846392e8c5c5c456642"
+      "log_digest": "06460e576a44ddbc6e926e2a1404311f6d772a9e085bcbbfe63ac647ae6af8da"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.008578553,
+      "duration_seconds": 0.010127591,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
