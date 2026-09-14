@@ -25,26 +25,43 @@ Etablere en udtømmende test- og kontraktvalideringssuite for xgauntlets 4 harne
 
 ---
 
-## 📚 Harness Specifikationsreferencer & I/O Kontrakter
+## 📚 Harness Specifikationsreferencer & I/O Kontrakter (Primærkilder)
 
 ### 1. Google Antigravity IDE (`antigravity`)
+- **Primærkilde**: Antigravity IDE Built-in Specifikation (`skills/agy-customizations/docs/hooks.md`).
 - **Konfigurationsfil**: `.agents/hooks.json` (eller global `~/.gemini/config/hooks.json`).
-- **Nøglestruktur**: JSON objekt med navngivne hook-blokke i camelCase (`conversationId`, `stepIdx`, `toolCall`).
+- **Nøglestruktur**: JSON objekt med navngivne hook-blokke i protojson camelCase (`conversationId`, `workspacePaths`, `transcriptPath`, `artifactDirectoryPath`, `stepIdx`, `toolCall`).
 - **Events**:
   - `PreInvocation`: Kører før modellen kaldes. Returnerer stdout JSON:
     ```json
     { "injectSteps": [{ "ephemeralMessage": "[XGAUNTLET COCKPIT TELEMETRY]\n..." }] }
     ```
-  - `PreToolUse`: Kører før værktøj eksekveres. Modtager `{"toolCall": {"name": "...", "args": {...}}}`.
-    Returnerer stdout JSON: `{"decision": "allow" | "deny" | "ask" | "force_ask", "reason": "..."}`. Exit code 0 ved gyldig respons, exit code 1 ved parsefejl.
-  - `PostToolUse`: Forventer `{}`.
+  - `PreToolUse`: Kører før værktøj eksekveres. Modtager `{"toolCall": {"name": "...", "args": {...}}, ...}` på stdin.
+    Returnerer stdout JSON:
+    ```json
+    {
+      "decision": "allow" | "deny" | "ask" | "force_ask",
+      "reason": "Forklaring",
+      "overwrite": { "CommandLine": "..." }
+    }
+    ```
+    Exit code 0 ved gyldig respons, exit code 1 ved parsefejl.
+  - `PostToolUse`: Forventer tomt JSON-objekt `{}`.
 
 ### 2. Claude Code (`claude_code`)
-- **Konfigurationsfil**: `.claude/settings.json` (eller `~/.claude/settings.json`).
-- **Nøglestruktur**: `{"hooks": {"PreToolUse": [...], "PostToolUse": [...]}}`.
-- **Events**:
-  - `PreToolUse`: Kører før et værktøj kaldes. Modtager på stdin: `{"name": "...", "input": {...}}`.
-    - **Blokering**: Exit code **2** afviser værktøjskaldet med fejlmeddelelse på stderr; eller returnerer stdout JSON:
+- **Primærkilde**: `@anthropic-ai/claude-code` npm package & Claude Code official settings documentation.
+- **Konfigurationsfil**: `.claude/settings.json` (eller global `~/.claude/settings.json`).
+- **Miljøvariabler injiceret i hook processen**:
+  - `CLAUDE_TOOL_NAME`: Navnet på værktøjet (`Bash`, `Edit`, `Write` osv.)
+  - `CLAUDE_TOOL_INPUT`: Værktøjets argumenter serialiseret som JSON-streng
+  - `CLAUDE_PROJECT_DIR`: Projektets rodsti
+  - `CLAUDE_FILE_PATH`: Sti til berørt fil (ved fil-værktøjer)
+  - `CLAUDE_SESSION_ID`: Aktivt sessions-ID
+- **Nøglestruktur**: `{"hooks": {"PreToolUse": [...], "PostToolUse": [...]}}` med `matcher` (`"Bash"`, `"Edit|Write"`, `"*"`).
+- **Events & Blokeringskontrakt**:
+  - `PreToolUse`: Kører før værktøjskald. Modtager på stdin: `{"name": "...", "input": {...}}`.
+    - **Blokering**: Returnerer **exit code 2** (officiel blocking code). Tekst på `stderr` sendes direkte til Claude som forklaring.
+    - **Struktureret JSON på stdout**:
       ```json
       {
         "hookSpecificOutput": {
@@ -65,21 +82,45 @@ Etablere en udtømmende test- og kontraktvalideringssuite for xgauntlets 4 harne
     ```
 
 ### 3. Mistral Vibe (`mistral`)
-- **Konfigurationsfil**: `.vibe/hooks.toml` (eller `~/.vibe/hooks.toml`).
-- **Nøglestruktur**: TOML `[[hooks]]` med `name`, `type` (`pre_tool`, `post_tool`, `post_agent`), `command`, `match`, `timeout`, `strict`.
-- **Events**:
-  - `pre_tool`: Kører før værktøjet. Modtager på stdin: `tool_name`, `tool_call_id`, `tool_input`.
-    - **Blokering**: Exit code **0** med stdout JSON: `{"decision": "deny", "reason": "..."}`.
-    - `strict = true`: Non-zero exit betragtes som en hård fejl og blokerer kaldet.
-  - `post_tool`: Kører kun hvis værktøjet kørte. Modtager `tool_status`, `tool_output`, `tool_output_text`.
-    - Output på stdout JSON: `{"hook_specific_output": {"additional_context": "<Box-Card Telemetri>"}}`.
+- **Primærkilde**: [mistralai/mistral-vibe](https://github.com/mistralai/mistral-vibe) (Apache-2.0) og [docs.mistral.ai/vibe/code/cli/hooks](https://docs.mistral.ai/vibe/code/cli/hooks).
+- **Konfigurationsfil**: `.vibe/hooks.toml` (projekt-niveau) og `~/.vibe/hooks.toml` (bruger-niveau).
+- **Nøglestruktur**: TOML `[[hooks]]` med felterne `name`, `type` (`pre_tool`, `post_tool`, `post_agent`), `command`, `match` (glob eller `re:` regex), `timeout` (float sekunder, default 60.0), `strict` (bool, default false).
+- **Bemærkning om navngivning**: Vibe 2.21+ standardiserede hook-typer: `before_tool` $\rightarrow$ `pre_tool`, `after_tool` $\rightarrow$ `post_tool`, `post_agent_turn` $\rightarrow$ `post_agent`. Kommandoer afvikles shell-frit mod injection.
+- **Events & Blokeringskontrakt**:
+  - `pre_tool`: Modtager på stdin: `session_id`, `cwd`, `hook_event_name`, `tool_name`, `tool_call_id`, `tool_input`.
+    - **Blokering**: Returnerer **exit code 0** med stdout JSON:
+      ```json
+      { "decision": "deny", "reason": "Afvisningsbegrundelse" }
+      ```
+    - `strict = true`: Non-zero exit betragtes som parse-/kørselsfejl og medfører hård afvisning.
+  - `post_tool`: Kører kun hvis værktøjet kørte. Modtager `tool_status`, `tool_output`, `tool_output_text`, `duration_ms`.
+    - Output på stdout JSON:
+      ```json
+      { "hook_specific_output": { "additional_context": "<Box-Card Telemetri>" } }
+      ```
   - `post_agent`: Kører ved afslutning af assistent-turn.
 
-### 4. OpenAI Codex CLI (`codex`)
-- **Konfigurationsfil**: `.codex/hooks.json` (eller i `config.toml` med `codex_hooks = true`).
-- **Nøglestruktur**: `{"hooks": {"PreToolUse": [...], "PostToolUse": [...]}}`.
+### 4. OpenAI Codex / Tool Calling CLI (`codex`)
+- **Primærkilde**: [openai/openai-openapi](https://github.com/openai/openai-openapi) (`openapi.yaml` komponenterne `ChatCompletionTool`, `FunctionObject`).
+- **Tool-definition Schema**:
+  ```json
+  {
+    "type": "function",
+    "function": {
+      "name": "string",
+      "description": "string",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "strict": true
+    }
+  }
+  ```
+- **Konfigurationsfil**: `.codex/hooks.json` (eller aktiveret via `config.toml` med `codex_hooks = true`).
+- **Instruktionsfiler**: `AGENTS.md` / `CODEX.md` indlæses som system- og developer-instruktioner.
 - **Events**:
-  - Modtager enten OpenAI 1.x function calling format (`type: "function"`) eller standard flad JSON.
   - `PreToolUse`: Blokerer via exit code 2 eller `decision: "deny"`.
   - `PostToolUse`: Modtager `hookSpecificOutput.additionalContext`.
 
