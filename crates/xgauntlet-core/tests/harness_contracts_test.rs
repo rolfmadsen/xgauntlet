@@ -1348,3 +1348,97 @@ fn test_render_blockquote_hud_multibyte_and_redirected_resilience() {
         "Markdown HUD must not contain raw ANSI escape sequences"
     );
 }
+
+#[test]
+fn test_all_four_adapters_bom_immunity() {
+    let temp = TempDir::new("bom_immunity_test");
+    let ws = &temp.path;
+
+    // 1. Claude Code with BOM
+    let claude = get_adapter("claude_code").unwrap();
+    let claude_payload = "\u{feff}{\"name\": \"FileRead\", \"input\": {\"file_path\": \"README.md\"}}";
+    let (code_claude, out_claude) = claude.handle_hook(ws, claude_payload);
+    assert_eq!(code_claude, 0, "Claude Code MUST accept UTF-8 BOM without error");
+    let parsed_claude: serde_json::Value = serde_json::from_str(&out_claude).unwrap();
+    assert_eq!(parsed_claude["hookSpecificOutput"]["permissionDecision"], "allow");
+
+    // 2. OpenAI Codex with BOM
+    let codex = get_adapter("codex").unwrap();
+    let codex_payload = "\u{feff}{\"name\": \"FileRead\", \"input\": {\"file_path\": \"README.md\"}}";
+    let (code_codex, out_codex) = codex.handle_hook(ws, codex_payload);
+    assert_eq!(code_codex, 0, "Codex MUST accept UTF-8 BOM without error");
+    let parsed_codex: serde_json::Value = serde_json::from_str(&out_codex).unwrap();
+    assert_eq!(parsed_codex["decision"], "allow");
+
+    // 3. Antigravity with BOM
+    let agy = get_adapter("antigravity").unwrap();
+    let agy_payload = "\u{feff}{\"toolCall\": {\"name\": \"view_file\", \"args\": {\"AbsolutePath\": \"README.md\"}}}";
+    let (code_agy, out_agy) = agy.handle_hook(ws, agy_payload);
+    assert_eq!(code_agy, 0, "Antigravity MUST accept UTF-8 BOM without error");
+    let parsed_agy: serde_json::Value = serde_json::from_str(&out_agy).unwrap();
+    assert_eq!(parsed_agy["decision"], "allow");
+
+    // 4. Mistral Vibe with BOM
+    let mistral = get_adapter("mistral").unwrap();
+    let mistral_payload = "\u{feff}{\"tool_call\": {\"name\": \"view_file\", \"args\": {\"path\": \"README.md\"}}}";
+    let (code_mistral, out_mistral) = mistral.handle_hook(ws, mistral_payload);
+    assert_eq!(code_mistral, 0, "Mistral MUST accept UTF-8 BOM without error");
+    let parsed_mistral: serde_json::Value = serde_json::from_str(&out_mistral).unwrap();
+    assert_eq!(parsed_mistral["decision"], "allow");
+}
+
+#[test]
+fn test_subprocess_hook_with_utf8_bom_pipe() {
+    let bin = find_xgauntlet_binary();
+    if !bin.is_file() {
+        return;
+    }
+
+    let temp = TempDir::new("subprocess_bom_pipe_test");
+    let ws = &temp.path;
+
+    use std::io::Write;
+
+    let read_payload = serde_json::json!({
+        "name": "FileRead",
+        "input": { "file_path": "README.md" }
+    })
+    .to_string();
+
+    let mut raw_bytes_with_bom = vec![0xEF, 0xBB, 0xBF];
+    raw_bytes_with_bom.extend_from_slice(read_payload.as_bytes());
+
+    let mut child = Command::new(&bin)
+        .args([
+            "hook",
+            "--harness",
+            "claude_code",
+            "--workspace",
+            ws.to_str().unwrap(),
+        ])
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .expect("Failed to spawn xgauntlet hook process");
+
+    child
+        .stdin
+        .as_mut()
+        .expect("stdin available")
+        .write_all(&raw_bytes_with_bom)
+        .expect("write to stdin");
+
+    let output = child.wait_with_output().expect("wait on child");
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "Subprocess hook MUST accept raw UTF-8 BOM without error. stdout: {}, stderr: {}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let parsed: serde_json::Value = serde_json::from_str(stdout.trim()).expect("valid JSON stdout");
+    assert_eq!(parsed["hookSpecificOutput"]["permissionDecision"], "allow");
+}
+
