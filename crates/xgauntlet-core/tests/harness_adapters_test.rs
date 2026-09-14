@@ -804,7 +804,16 @@ fn test_claude_code_hook_handler() {
 
     let (code, out) = adapter.handle_hook(ws, &read_payload);
     assert_eq!(code, 0);
-    assert!(out.contains("allow") || out.contains("\"decision\":\"allow\""));
+    let out_json: serde_json::Value =
+        serde_json::from_str(&out).expect("valid JSON response on allow");
+    assert_eq!(
+        out_json["hookSpecificOutput"]["hookEventName"],
+        "PreToolUse"
+    );
+    assert_eq!(
+        out_json["hookSpecificOutput"]["permissionDecision"],
+        "allow"
+    );
 
     let push_payload = serde_json::json!({
         "name": "Bash",
@@ -813,8 +822,27 @@ fn test_claude_code_hook_handler() {
     .to_string();
 
     let (code_deny, out_deny) = adapter.handle_hook(ws, &push_payload);
-    assert_eq!(code_deny, 1);
-    assert!(out_deny.contains("deny") || out_deny.contains("denied"));
+    assert_eq!(
+        code_deny, 2,
+        "Claude Code gatekeeper MUST return exit code 2 on tool denial"
+    );
+    let deny_json: serde_json::Value =
+        serde_json::from_str(&out_deny).expect("valid JSON response on deny");
+    assert_eq!(
+        deny_json["hookSpecificOutput"]["hookEventName"],
+        "PreToolUse"
+    );
+    assert_eq!(
+        deny_json["hookSpecificOutput"]["permissionDecision"],
+        "deny"
+    );
+    assert!(
+        deny_json["hookSpecificOutput"]["permissionDecisionReason"]
+            .as_str()
+            .map(|r| !r.is_empty())
+            .unwrap_or(false),
+        "permissionDecisionReason must be non-empty"
+    );
 }
 
 #[test]
