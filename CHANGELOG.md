@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.7.1] - 2026-09-14
+
+### 🐛 Fixed
+- **Windows CI Native Shell Piping Resilience (`Task 027`)**:
+  - Gjort integrationstesten `test_subprocess_hook_via_native_shell_piping` robust på Windows CI-runners ved at anvende PowerShell til subprocess-piping og korrekt udbredelse af proces-exitkoder.
+  - Omgået Windows `cmd.exe /C` citat-stripping (Rust issue #29494) der forårsagede syntaksfejl 255 ved piping af JSON-payloads til eksekverbare filer med mellemrum i stien.
+
 ## [0.7.0] - 2026-09-14
 
 ### 🚀 Added
