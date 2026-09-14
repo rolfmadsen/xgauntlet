@@ -156,13 +156,13 @@ Etablere en udtømmende test- og kontraktvalideringssuite for xgauntlets 4 harne
 - [x] Verificere at Wasm-evalueringen leverer identiske verdicts og reason-koder uanset værts-OS.
 
 ### Klynge 5: Filsystem- og Checkpoint-Resilience
-- [ ] Tilføje integrationstests for git checkpointing under filsystem-konflikter:
-  - [ ] Opdagelse og sikker fejl-lukning hvis `.git/index.lock` er til stede.
-  - [ ] Validering af at preflight-fejl ikke efterlader efterladte git stashing- eller commit-artefakter.
+- [x] Tilføje integrationstests for git checkpointing under filsystem-konflikter:
+  - [x] Opdagelse og sikker fejl-lukning hvis `.git/index.lock` er til stede.
+  - [x] Validering af at preflight-fejl ikke efterlader efterladte git stashing- eller commit-artefakter.
 
 ### Klynge 6: HUD & Terminal Rendering Resilience
-- [ ] Sikre at `render_box_card` og `render_blockquote_hud` forbliver immune over for panics, hvis stdout er omdirigeret til non-TTY, fil eller et miljø uden ANSI escape-understøttelse.
-- [ ] Verificere korrekt breddeberegning (64 synlige kolonner) ved UTF-8 multi-byte tegn.
+- [x] Sikre at `render_box_card` og `render_blockquote_hud` forbliver immune over for panics, hvis stdout er omdirigeret til non-TTY, fil eller et miljø uden ANSI escape-understøttelse.
+- [x] Verificere korrekt breddeberegning (64 synlige kolonner) ved UTF-8 multi-byte tegn.
 
 ---
 

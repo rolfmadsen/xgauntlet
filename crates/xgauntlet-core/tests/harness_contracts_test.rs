@@ -1,14 +1,18 @@
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use xgauntlet_core::features::adapters::{
     get_adapter, AntigravityAdapter, ClaudeCodeAdapter, CodexAdapter, MistralAdapter,
 };
+use xgauntlet_core::features::checkpoint::{
+    run_checkpoint, stage_workspace_changes, CheckpointError, CheckpointOptions, CheckpointPhase,
+};
 use xgauntlet_core::features::policy::{
     CapabilityRequest, DecisionVerdict, EnforcementContext, PolicyEvaluator, ToolActionType,
     WasmPolicyEngine,
 };
+use xgauntlet_core::features::tasks::{CriteriaProgress, GitTelemetry, TaskStatus, TaskTelemetry};
 
 static TEST_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
 
@@ -33,6 +37,33 @@ impl TempDir {
         fs::create_dir_all(&path).unwrap();
         Self { path }
     }
+
+    fn path(&self) -> &Path {
+        &self.path
+    }
+}
+
+fn init_git_repo(path: &Path) {
+    let _ = Command::new("git")
+        .args(["init", "-b", "main"])
+        .current_dir(path)
+        .output()
+        .or_else(|_| {
+            Command::new("git")
+                .args(["init"])
+                .current_dir(path)
+                .output()
+        });
+
+    let _ = Command::new("git")
+        .args(["config", "user.name", "Test Committer"])
+        .current_dir(path)
+        .output();
+
+    let _ = Command::new("git")
+        .args(["config", "user.email", "test@example.com"])
+        .current_dir(path)
+        .output();
 }
 
 impl Drop for TempDir {
@@ -1003,4 +1034,265 @@ fn test_telemetry_and_gatekeeper_payload_schema_compliance_all_four_adapters() {
     assert_eq!(codex_code_deny, 1);
     let codex_json_deny: serde_json::Value = serde_json::from_str(&codex_out_deny).unwrap();
     assert_eq!(codex_json_deny["decision"], "deny");
+}
+
+// ============================================================================
+// Klynge 5: Filsystem- og Checkpoint-Resilience
+// ============================================================================
+
+fn setup_mock_glossary(workspace: &Path) {
+    let glossary = r#"---
+type: Knowledge Bundle Index
+title: "xGauntlet Context & Domain Glossary"
+description: "Test glossary"
+status: stable
+---
+
+# xGauntlet Context & Domain Glossary
+
+**Task**:
+An executable unit of engineering work, that has bounded acceptance criteria.
+_Avoid_: Ticket, issue.
+
+**Phase Checkpoint**:
+A verified local Git commit, that binds the workspace to a lifecycle phase.
+_Avoid_: Quick save, commit hook.
+"#;
+    fs::write(workspace.join("CONTEXT.md"), glossary).unwrap();
+}
+
+fn setup_mock_task(workspace: &Path, task_id: &str, status: &str) {
+    let tasks_dir = workspace.join("tasks");
+    fs::create_dir_all(&tasks_dir).unwrap();
+    let content = format!(
+        r#"---
+type: Task Package
+title: "Task {task_id}: Test Task"
+description: "Test task description"
+status: {status}
+---
+
+# Task {task_id}: Test Task
+
+**Status**: `{status}`
+
+## 🎯 Formål
+Test task purpose.
+
+## 📋 Acceptance Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+
+## 🚫 Must NOT
+- Must not violate invariants.
+"#
+    );
+    fs::write(tasks_dir.join(format!("{task_id}.md")), content).unwrap();
+}
+
+#[tokio::test]
+async fn test_git_checkpoint_lockfile_conflict_fails_closed() {
+    let temp = TempDir::new("checkpoint_lockfile_conflict");
+    let ws = temp.path();
+    init_git_repo(ws);
+
+    // Create an initial commit so repo is initialized
+    fs::write(ws.join("README.md"), "# Test Repo\n").unwrap();
+    let initial_files = stage_workspace_changes(ws).expect("initial staging");
+    assert!(!initial_files.is_empty());
+
+    let _ = Command::new("git")
+        .args(["commit", "-m", "chore: initial commit"])
+        .current_dir(ws)
+        .output()
+        .unwrap();
+
+    // Setup mock glossary and active task
+    setup_mock_glossary(ws);
+    setup_mock_task(ws, "027-test-task", "active");
+
+    // Modify a file
+    fs::write(ws.join("README.md"), "# Test Repo Updated\n").unwrap();
+
+    // Simulate concurrent git process or lockfile conflict by creating .git/index.lock
+    let lockfile = ws.join(".git").join("index.lock");
+    fs::write(&lockfile, "locked").unwrap();
+    assert!(lockfile.is_file(), ".git/index.lock must exist");
+
+    // Attempting to stage MUST fail closed with CheckpointError::GitError
+    let stage_res = stage_workspace_changes(ws);
+    assert!(
+        stage_res.is_err(),
+        "Staging MUST fail closed when .git/index.lock is present"
+    );
+    match stage_res {
+        Err(CheckpointError::GitError(msg)) => {
+            assert!(
+                msg.contains("failed") || msg.contains("exit code"),
+                "Error message must indicate git failure: {}",
+                msg
+            );
+        }
+        other => panic!("Expected GitError, got: {:?}", other),
+    }
+
+    // Attempting checkpoint directly must also fail closed without panic
+    let opts = CheckpointOptions::new(CheckpointPhase::Spec, ws);
+    let cp_res = run_checkpoint(&opts).await;
+    assert!(
+        cp_res.is_err(),
+        "Checkpoint MUST fail closed when index is locked"
+    );
+
+    // Clean up lockfile and verify checkpoint now succeeds cleanly
+    fs::remove_file(&lockfile).unwrap();
+    let cp_success = run_checkpoint(&opts).await;
+    assert!(
+        cp_success.is_ok(),
+        "Checkpoint must succeed after removing index.lock: {:?}",
+        cp_success.err()
+    );
+    let record = cp_success.unwrap();
+    assert!(record.commit_oid.is_some());
+}
+
+#[tokio::test]
+async fn test_preflight_verification_failure_leaves_clean_workspace() {
+    let temp = TempDir::new("checkpoint_preflight_clean");
+    let ws = temp.path();
+    init_git_repo(ws);
+
+    fs::write(ws.join("README.md"), "# Preflight Cleanliness\n").unwrap();
+    let _ = Command::new("git")
+        .args(["add", "-A"])
+        .current_dir(ws)
+        .output()
+        .unwrap();
+    let _ = Command::new("git")
+        .args(["commit", "-m", "chore: initial commit"])
+        .current_dir(ws)
+        .output()
+        .unwrap();
+
+    // Create an uncommitted change
+    fs::write(ws.join("uncommitted.txt"), "fresh data\n").unwrap();
+
+    // Try to run a Spec checkpoint without active task in tasks/ -> NoActiveTask error
+    let opts = CheckpointOptions::new(CheckpointPhase::Spec, ws);
+    let res = run_checkpoint(&opts).await;
+    assert!(res.is_err(), "Checkpoint without active task MUST fail");
+    match res {
+        Err(CheckpointError::NoActiveTask) => {}
+        other => panic!("Expected NoActiveTask error, got: {:?}", other),
+    }
+
+    // Workspace must not have corrupted commits or modified HEAD
+    let log_out = Command::new("git")
+        .args(["log", "-n", "1", "--oneline"])
+        .current_dir(ws)
+        .output()
+        .unwrap();
+    let log_str = String::from_utf8_lossy(&log_out.stdout);
+    assert!(
+        log_str.contains("chore: initial commit"),
+        "HEAD commit must remain untouched after failed preflight"
+    );
+    assert!(
+        ws.join("uncommitted.txt").is_file(),
+        "User file must remain intact"
+    );
+}
+
+// ============================================================================
+// Klynge 6: HUD & Terminal Rendering Resilience
+// ============================================================================
+
+#[test]
+fn test_render_box_card_multibyte_utf8_exact_64_columns_and_no_panic() {
+    let telemetry = TaskTelemetry {
+        task_id: "027-harness-æøå-ünicöde-🚀".to_string(),
+        title: "Test multi-byte: ÆØÅ, üöä, 日本語, 🛡️, 📦".to_string(),
+        status: TaskStatus::Active,
+        intent: Some("🚀 NY FUNKTION".to_string()),
+        criteria: CriteriaProgress {
+            total: 10,
+            completed: 4,
+            pending: 6,
+            percentage: 40,
+            bar: "[████░░░░░░]".to_string(),
+        },
+        git: GitTelemetry {
+            branch: "feature/æøå-branch-長いブランチ名".to_string(),
+            head_oid: "abcdef0".to_string(),
+            is_clean: false,
+            dirty_count: 5,
+        },
+        file_path: "tasks/027-æøå.md".to_string(),
+        scope: Some("crates/xgauntlet-core/æøå".to_string()),
+        invariants: Some("14/14 PASS (æøå)".to_string()),
+        evidence: Some("forseglet".to_string()),
+        phase: Some("GREEN".to_string()),
+    };
+
+    // Rendering must NEVER panic on multi-byte UTF-8
+    let card = telemetry.render_box_card();
+    let lines: Vec<&str> = card.lines().collect();
+
+    assert_eq!(lines.len(), 6, "Box card must have exactly 6 lines");
+
+    for (idx, line) in lines.iter().enumerate() {
+        let char_count = line.chars().count();
+        assert_eq!(
+            char_count, 64,
+            "Line {} character count must be exactly 64 (got {}, content: '{}')",
+            idx, char_count, line
+        );
+    }
+}
+
+#[test]
+fn test_render_blockquote_hud_multibyte_and_redirected_resilience() {
+    let telemetry = TaskTelemetry {
+        task_id: "027".to_string(),
+        title: "Platform Hardening & Resilience".to_string(),
+        status: TaskStatus::Active,
+        intent: Some("NEW FEATURE".to_string()),
+        criteria: CriteriaProgress {
+            total: 24,
+            completed: 13,
+            pending: 11,
+            percentage: 54,
+            bar: "[█████░░░░░]".to_string(),
+        },
+        git: GitTelemetry {
+            branch: "main".to_string(),
+            head_oid: "add3b98".to_string(),
+            is_clean: true,
+            dirty_count: 0,
+        },
+        file_path: "tasks/027.md".to_string(),
+        scope: Some("crates/*".to_string()),
+        invariants: Some("14/14 PASS".to_string()),
+        evidence: Some("pending".to_string()),
+        phase: Some("GREEN".to_string()),
+    };
+
+    // Very long next action with multi-byte characters
+    let long_action = "Fortsæt venligst med Klynge 5 & 6: afprøvning af filsystem-låse (.git/index.lock) og validering af UTF-8 (æøå, emojis 🛡️ 🚀 🧪) uden panics.".repeat(5);
+
+    let hud = AntigravityAdapter::render_blockquote_hud(&telemetry, Some(&long_action));
+    let lines: Vec<&str> = hud.lines().collect();
+
+    assert_eq!(lines.len(), 5, "Blockquote HUD must have exactly 5 lines");
+    assert!(lines[0].starts_with("> ### 🛡️ [Task: "));
+    assert!(lines[1].starts_with("> **Status**: "));
+    assert!(lines[2].starts_with("> **Progress**: "));
+    assert!(lines[3].starts_with("> **Links**: "));
+    assert!(lines[4].starts_with("> 💡 **Next Action:** "));
+
+    // Safe to write to file / redirect to pipe without ANSI escapes or non-UTF-8 bytes
+    assert!(
+        !hud.contains("\x1b["),
+        "Markdown HUD must not contain raw ANSI escape sequences"
+    );
 }
