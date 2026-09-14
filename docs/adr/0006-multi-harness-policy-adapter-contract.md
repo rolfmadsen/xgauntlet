@@ -36,9 +36,11 @@ ADR 0004 established vertical adapter slices for agent harnesses. However, the i
 
 2. **Harness-Specific Fail-Closed Enforcement**:
    All adapter entrypoints and hook parsers MUST fail closed according to their platform's specific hook contract:
-   - For Google Antigravity: Emit stdout `{"decision": "deny", "reason": "..."}` AND return exit code 1.
-   - For Claude Code & OpenAI Codex: Return exit code 1 with structured rejection message.
-   - Corrupted, empty, or unparseable input streams fail closed immediately.
+   - For Google Antigravity: Emit stdout JSON `{"decision": "deny", "reason": "..."}` on `PreToolUse`.
+   - For Claude Code: Return exit code 2 (official blocking code) and emit stdout JSON `{"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny", "permissionDecisionReason": "..."}}`.
+   - For OpenAI Codex: Return exit code 2 / structured rejection payload.
+   - For Mistral Vibe: Emit stdout JSON `{"decision": "deny", "reason": "..."}` on `pre_tool` (and fail closed on non-zero exit when `strict = true`).
+   - Corrupted, empty, or unparseable input streams fail closed immediately across all adapters.
 
 3. **Zero Cryptographic Authority**:
    Adapters are strictly transport-layer translators. They MUST NOT manage cryptographic keys, issue signatures, or alter verification reports.

@@ -33,7 +33,7 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
    - Multi-layer gauntlet: Linters, typecheckers, unit/feature tests, invariant tests, and mutation gauntlet (`cargo-mutants`).
 
 5. **Multi-Harness Native Support**:
-   - Autonomous vertical slices for Google Antigravity IDE, Claude Code, and OpenAI Codex.
+   - Autonomous vertical slices for Google Antigravity IDE, Claude Code, OpenAI Codex, and Mistral Vibe.
 
 ---
 
@@ -47,7 +47,7 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
   - `gauntlet`: Multi-layer process runner (`std::process::Command`), timeouts, exit code handling.
   - `diagnostics`: Actionable diagnostics parser transforming compiler/test output into structured LLM hints.
   - `tasks`: OKF v0.2 Markdown parser, task binding, and Aristotelian glossary validation (`check-spec`).
-  - `adapters`: Vertical slices for Antigravity, Claude Code, and OpenAI Codex.
+  - `adapters`: Vertical slices for Antigravity, Claude Code, OpenAI Codex, and Mistral Vibe.
   - `config`: Declarative `gauntlet.toml` schema and stack profiles.
   - `scaffold`: Safe, non-destructive project bootstrap engine (`xgauntlet init`).
   - `doctor`: Fast environment, Git, and toolchain diagnostics.
