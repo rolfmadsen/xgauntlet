@@ -129,12 +129,12 @@ Etablere en udtømmende test- og kontraktvalideringssuite for xgauntlets 4 harne
 ## 📋 Acceptance Criteria
 
 ### Klynge 1: Kontrakt-, Schema- og Snapshot-Validering
-- [ ] Oprette deterministiske snapshot-fixtures eller JSON schema validering for de genererede filer for alle 4 adaptere:
-  - [ ] `.agents/hooks.json` (Google Antigravity)
-  - [ ] `.claude/settings.json` (Claude Code)
-  - [ ] `.vibe/hooks.toml` (Mistral Vibe)
-  - [ ] `.codex/hooks.json` (OpenAI Codex)
-- [ ] Validere at serialiserede telemetri- og gatekeeper-payloads overholder felterne i ovenstående specifikationstabeller på tværs af Linux, macOS og Windows.
+- [x] Oprette deterministiske snapshot-fixtures eller JSON schema validering for de genererede filer for alle 4 adaptere:
+  - [x] `.agents/hooks.json` (Google Antigravity)
+  - [x] `.claude/settings.json` (Claude Code)
+  - [x] `.vibe/hooks.toml` (Mistral Vibe)
+  - [x] `.codex/hooks.json` (OpenAI Codex)
+- [x] Validere at serialiserede telemetri- og gatekeeper-payloads overholder felterne i ovenstående specifikationstabeller på tværs af Linux, macOS og Windows.
 
 ### Klynge 2: Claude Code Gatekeeper Opdatering & Exit Code 2
 - [x] Opdatere `ClaudeCodeAdapter::handle_hook` til:

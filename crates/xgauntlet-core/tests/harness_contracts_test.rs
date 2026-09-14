@@ -2,7 +2,9 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 
-use xgauntlet_core::features::adapters::get_adapter;
+use xgauntlet_core::features::adapters::{
+    get_adapter, AntigravityAdapter, ClaudeCodeAdapter, CodexAdapter, MistralAdapter,
+};
 use xgauntlet_core::features::policy::{
     CapabilityRequest, DecisionVerdict, EnforcementContext, PolicyEvaluator, ToolActionType,
     WasmPolicyEngine,
@@ -712,4 +714,293 @@ fn test_wasm_policy_determinism_crlf_newlines() {
     let decision_pretty = engine.evaluate(&req_pretty_crlf, &ctx).unwrap();
     assert_eq!(decision_pretty.verdict, DecisionVerdict::Allow);
     assert_eq!(decision_pretty.reason_code, 2002);
+}
+
+// ============================================================================
+// Klynge 1: Kontrakt-, Schema- og Snapshot-Validering (Alle 4 Adaptere)
+// ============================================================================
+
+#[test]
+fn test_harness_scaffold_config_snapshots_all_four_adapters() {
+    let temp = TempDir::new("harness_scaffold_snapshots");
+    let ws = &temp.path;
+
+    // 1. Google Antigravity: .agents/hooks.json
+    let ag_path = AntigravityAdapter::scaffold_hooks(ws).expect("scaffold antigravity hooks");
+    assert!(ag_path.is_file(), ".agents/hooks.json must be created");
+    let ag_raw = fs::read_to_string(&ag_path).expect("read .agents/hooks.json");
+    let ag_json: serde_json::Value =
+        serde_json::from_str(&ag_raw).expect(".agents/hooks.json must be valid JSON");
+
+    let xgauntlet_obj = ag_json
+        .get("xgauntlet")
+        .expect("must contain top-level 'xgauntlet' key");
+    assert_eq!(
+        xgauntlet_obj.get("enabled"),
+        Some(&serde_json::Value::Bool(true))
+    );
+    let pre_tool = xgauntlet_obj
+        .get("PreToolUse")
+        .and_then(|v| v.as_array())
+        .expect("PreToolUse array");
+    assert_eq!(pre_tool[0]["matcher"], "*");
+    assert_eq!(
+        pre_tool[0]["hooks"][0]["command"],
+        "xgauntlet hook antigravity"
+    );
+    let pre_inv = xgauntlet_obj
+        .get("PreInvocation")
+        .and_then(|v| v.as_array())
+        .expect("PreInvocation array");
+    assert_eq!(pre_inv[0]["matcher"], ".*");
+    assert_eq!(
+        pre_inv[0]["hooks"][0]["command"],
+        "xgauntlet telemetry --format antigravity-hook"
+    );
+
+    // 2. Claude Code: .claude/settings.json
+    let claude_path = ClaudeCodeAdapter::scaffold_settings(ws).expect("scaffold claude settings");
+    assert!(
+        claude_path.is_file(),
+        ".claude/settings.json must be created"
+    );
+    let claude_raw = fs::read_to_string(&claude_path).expect("read .claude/settings.json");
+    let claude_json: serde_json::Value =
+        serde_json::from_str(&claude_raw).expect(".claude/settings.json must be valid JSON");
+
+    let claude_post = claude_json["hooks"]["PostToolUse"]
+        .as_array()
+        .expect("hooks.PostToolUse array");
+    assert_eq!(claude_post[0]["matcher"], "Edit|Write");
+    assert_eq!(
+        claude_post[0]["hooks"][0]["command"],
+        "xgauntlet telemetry --format claude-hook"
+    );
+
+    // 3. OpenAI Codex: .codex/hooks.json
+    let codex_path = CodexAdapter::scaffold_hooks(ws).expect("scaffold codex hooks");
+    assert!(codex_path.is_file(), ".codex/hooks.json must be created");
+    let codex_raw = fs::read_to_string(&codex_path).expect("read .codex/hooks.json");
+    let codex_json: serde_json::Value =
+        serde_json::from_str(&codex_raw).expect(".codex/hooks.json must be valid JSON");
+
+    let codex_post = codex_json["hooks"]["PostToolUse"]
+        .as_array()
+        .expect("hooks.PostToolUse array");
+    assert_eq!(codex_post[0]["matcher"], "apply_patch|Edit|Write|Bash");
+    assert_eq!(
+        codex_post[0]["hooks"][0]["command"],
+        "xgauntlet telemetry --format codex-hook"
+    );
+
+    // 4. Mistral Vibe: .vibe/hooks.toml
+    let vibe_path = MistralAdapter::scaffold_hooks(ws).expect("scaffold mistral hooks");
+    assert!(vibe_path.is_file(), ".vibe/hooks.toml must be created");
+    let vibe_raw = fs::read_to_string(&vibe_path).expect("read .vibe/hooks.toml");
+
+    assert!(
+        vibe_raw.contains("[[hooks]]"),
+        "Must contain TOML [[hooks]] tables"
+    );
+    assert!(
+        vibe_raw.contains("name = \"xgauntlet-gatekeeper\""),
+        "Must declare xgauntlet-gatekeeper hook"
+    );
+    assert!(
+        vibe_raw.contains("type = \"pre_tool\""),
+        "Must declare pre_tool type"
+    );
+    assert!(
+        vibe_raw.contains("command = \"xgauntlet hook --harness mistral\""),
+        "Must declare gatekeeper command"
+    );
+    assert!(
+        vibe_raw.contains("strict = true"),
+        "Gatekeeper hook must be strict"
+    );
+    assert!(
+        vibe_raw.contains("name = \"xgauntlet-hud\""),
+        "Must declare xgauntlet-hud hook"
+    );
+    assert!(
+        vibe_raw.contains("type = \"post_tool\""),
+        "Must declare post_tool type"
+    );
+    assert!(
+        vibe_raw.contains("command = \"xgauntlet telemetry --format mistral-hook\""),
+        "Must declare HUD telemetry command"
+    );
+}
+
+#[test]
+fn test_telemetry_and_gatekeeper_payload_schema_compliance_all_four_adapters() {
+    let temp = TempDir::new("payload_schema_test");
+    let ws = &temp.path;
+    let card = "┌─── xgauntlet: Task 027 ───┐\n│ Status: ACTIVE             │\n└───────────────────────────┘";
+
+    // 1. Google Antigravity
+    // PreInvocation payload
+    let ag_pre_inv = AntigravityAdapter::format_pre_invocation_payload(card);
+    assert!(ag_pre_inv.is_object());
+    let inject_steps = ag_pre_inv["injectSteps"]
+        .as_array()
+        .expect("injectSteps array");
+    assert_eq!(inject_steps[0]["ephemeralMessage"].as_str(), Some(card));
+
+    // PreToolUse gatekeeper payload
+    let ag_adapter = get_adapter("antigravity").unwrap();
+    let (ag_code_allow, ag_out_allow) = ag_adapter.handle_hook(
+        ws,
+        &serde_json::json!({
+            "toolCall": { "name": "view_file", "args": { "AbsolutePath": "README.md" } }
+        })
+        .to_string(),
+    );
+    assert_eq!(ag_code_allow, 0);
+    let ag_json_allow: serde_json::Value = serde_json::from_str(&ag_out_allow).unwrap();
+    assert_eq!(ag_json_allow["decision"], "allow");
+
+    let (ag_code_deny, ag_out_deny) = ag_adapter.handle_hook(
+        ws,
+        &serde_json::json!({
+            "toolCall": { "name": "run_command", "args": { "CommandLine": "git push origin main" } }
+        })
+        .to_string(),
+    );
+    assert_eq!(ag_code_deny, 1);
+    let ag_json_deny: serde_json::Value = serde_json::from_str(&ag_out_deny).unwrap();
+    assert_eq!(ag_json_deny["decision"], "deny");
+    assert!(ag_json_deny["reason"].as_str().is_some());
+
+    // 2. Claude Code
+    // PostToolUse telemetry payload
+    let claude_post = ClaudeCodeAdapter::format_post_tool_use_payload(card);
+    assert_eq!(
+        claude_post["hookSpecificOutput"]["hookEventName"],
+        "PostToolUse"
+    );
+    assert_eq!(claude_post["hookSpecificOutput"]["additionalContext"], card);
+
+    // PreToolUse gatekeeper payload
+    let claude_adapter = get_adapter("claude_code").unwrap();
+    let (claude_code_allow, claude_out_allow) = claude_adapter.handle_hook(
+        ws,
+        &serde_json::json!({
+            "name": "FileRead",
+            "input": { "file_path": "README.md" }
+        })
+        .to_string(),
+    );
+    assert_eq!(claude_code_allow, 0);
+    let claude_json_allow: serde_json::Value = serde_json::from_str(&claude_out_allow).unwrap();
+    assert_eq!(
+        claude_json_allow["hookSpecificOutput"]["hookEventName"],
+        "PreToolUse"
+    );
+    assert_eq!(
+        claude_json_allow["hookSpecificOutput"]["permissionDecision"],
+        "allow"
+    );
+
+    let (claude_code_deny, claude_out_deny) = claude_adapter.handle_hook(
+        ws,
+        &serde_json::json!({
+            "name": "Bash",
+            "input": { "command": "git push origin main" }
+        })
+        .to_string(),
+    );
+    assert_eq!(claude_code_deny, 2);
+    let claude_json_deny: serde_json::Value = serde_json::from_str(&claude_out_deny).unwrap();
+    assert_eq!(
+        claude_json_deny["hookSpecificOutput"]["hookEventName"],
+        "PreToolUse"
+    );
+    assert_eq!(
+        claude_json_deny["hookSpecificOutput"]["permissionDecision"],
+        "deny"
+    );
+    assert!(
+        claude_json_deny["hookSpecificOutput"]["permissionDecisionReason"]
+            .as_str()
+            .is_some()
+    );
+
+    // 3. Mistral Vibe
+    // PostToolUse telemetry payload
+    let mistral_post = MistralAdapter::format_post_tool_use_payload(card);
+    assert_eq!(
+        mistral_post["hook_specific_output"]["additional_context"],
+        card
+    );
+
+    // pre_tool gatekeeper payload
+    let mistral_adapter = get_adapter("mistral").unwrap();
+    let (mistral_code_allow, mistral_out_allow) = mistral_adapter.handle_hook(
+        ws,
+        &serde_json::json!({
+            "hook_event_name": "pre_tool",
+            "tool_name": "read_file",
+            "tool_input": { "path": "README.md" }
+        })
+        .to_string(),
+    );
+    assert_eq!(mistral_code_allow, 0);
+    let mistral_json_allow: serde_json::Value = serde_json::from_str(&mistral_out_allow).unwrap();
+    assert_eq!(mistral_json_allow["decision"], "allow");
+
+    let (mistral_code_deny, mistral_out_deny) = mistral_adapter.handle_hook(
+        ws,
+        &serde_json::json!({
+            "hook_event_name": "pre_tool",
+            "tool_name": "bash",
+            "tool_input": { "command": "git push origin main" }
+        })
+        .to_string(),
+    );
+    assert_eq!(mistral_code_deny, 0);
+    let mistral_json_deny: serde_json::Value = serde_json::from_str(&mistral_out_deny).unwrap();
+    assert_eq!(mistral_json_deny["decision"], "deny");
+    assert!(mistral_json_deny["reason"].as_str().is_some());
+
+    // 4. OpenAI Codex
+    // PostToolUse telemetry payload
+    let codex_post = CodexAdapter::format_post_tool_use_payload(card);
+    assert_eq!(
+        codex_post["hookSpecificOutput"]["hookEventName"],
+        "PostToolUse"
+    );
+    assert_eq!(codex_post["hookSpecificOutput"]["additionalContext"], card);
+
+    // PreToolUse gatekeeper payload
+    let codex_adapter = get_adapter("codex").unwrap();
+    let (codex_code_allow, codex_out_allow) = codex_adapter.handle_hook(
+        ws,
+        &serde_json::json!({
+            "type": "function",
+            "function": {
+                "name": "read_file",
+                "arguments": "{\"path\":\"README.md\"}"
+            }
+        })
+        .to_string(),
+    );
+    assert_eq!(codex_code_allow, 0);
+    let codex_json_allow: serde_json::Value = serde_json::from_str(&codex_out_allow).unwrap();
+    assert_eq!(codex_json_allow["decision"], "allow");
+
+    let (codex_code_deny, codex_out_deny) = codex_adapter.handle_hook(
+        ws,
+        &serde_json::json!({
+            "type": "function",
+            "function": {
+                "name": "execute_command",
+                "arguments": "{\"command\":\"git push origin main\"}"
+            }
+        })
+        .to_string(),
+    );
+    assert_eq!(codex_code_deny, 1);
+    let codex_json_deny: serde_json::Value = serde_json::from_str(&codex_out_deny).unwrap();
+    assert_eq!(codex_json_deny["decision"], "deny");
 }
