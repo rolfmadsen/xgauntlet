@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.7.0] - 2026-09-14
+
+### 🚀 Added
+- **Multi-Harness Hook Contracts & Schema Validation (`Task 027`)**:
+  - Determinisk snapshot-fixtures og schema-overensstemmelsestests for samtlige 4 harness-konfigurationer (`.agents/hooks.json`, `.claude/settings.json`, `.vibe/hooks.toml`, `.codex/hooks.json`) samt deres telemetri- og gatekeeper-payloads.
+  - End-to-end mock-proces livscyklustests med rigtig subprocess-spawning over native shell (`sh -c` og `cmd.exe /c`) der verificerer stdin-piping, stdout-parsing og konsistente exit-koder (0, 1, 2).
+  - Wasm policy engine determinisme-tests for absolutte Windows-stier, backslashes og indlejrede CRLF-linjeskift.
+  - Filsystem- og checkpoint-resilience tests under `.git/index.lock` filsystem-konflikter og afbrudte preflight-valideringer.
+  - HUD og terminal rendering resilience: verificeret præcis 64-kolonners rammestruktur ved multi-byte UTF-8 og sikker omdirigering til non-TTY uden panics.
+
+### 🛡️ Hardened & Fixed
+- **Claude Code Gatekeeper Blocking Contract**:
+  - Justeret `ClaudeCodeAdapter::handle_hook` til den officielle Claude Code standard: Returnerer Exit Code 2 ved afvisninger med struktureret JSON `hookSpecificOutput.permissionDecision = "deny"` og `permissionDecisionReason` på stdout, samt Exit Code 0 med `"permissionDecision": "allow"` ved godkendte værktøjskald.
+- **Wasm Policy CRLF Command Injection Defense**:
+  - Flyttet kontrol mod indlejrede ny-linjer (`\r` og `\n`) til før `.trim()` i `ToolActionType::ExecuteCommand`, så trailing CRLF-sekvenser i hvidlistede kommando-præfikser ikke kan omgå sikkerhedskontrollen.
+
 ## [0.6.0] - 2026-09-13
 
 ### 🚀 Added

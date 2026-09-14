@@ -4,10 +4,10 @@
 **Task Title**: Task 027: Multi-Harness Hook Contracts, Schema Validation and Platform Hardening  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `cc3b8df247019760c5181c3c43032b53496cdbda81121c87ad96d8c4c01814f1`  
-**Timestamp**: `2026-09-14T19:20:09Z`  
-**Head**: `ecff91c`  
-**Commit**: `ecff91c`  
+**Source Manifest Digest**: `e1f6ef45143f06fb1315461d565206c9c76e1fee10320db0a7b75ff3c0b4a369`  
+**Timestamp**: `2026-09-14T19:34:20Z`  
+**Head**: `b20f2a5`  
+**Commit**: `b20f2a5`  
 
 ## Acceptance Criteria
 
@@ -42,10 +42,10 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `lint` | `PASSED` | `0` | `0.106s` |
-| `types` | `PASSED` | `0` | `0.632s` |
-| `unit` | `PASSED` | `0` | `14.781s` |
-| `invariants` | `PASSED` | `0` | `0.350s` |
+| `lint` | `PASSED` | `0` | `0.108s` |
+| `types` | `PASSED` | `0` | `0.110s` |
+| `unit` | `PASSED` | `0` | `14.620s` |
+| `invariants` | `PASSED` | `0` | `0.353s` |
 | `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---

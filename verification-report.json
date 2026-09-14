@@ -6,7 +6,7 @@
   "task_contract": {
     "task_id": "027-harness-contracts-and-lifecycle-hardening",
     "task_title": "Task 027: Multi-Harness Hook Contracts, Schema Validation and Platform Hardening",
-    "task_digest": "6d1a1d5a724a3fdf7f43356c7d99066f59a80ef7e95c076f11f64b6d2135a477",
+    "task_digest": "3f066751e2778301a09c7e05858ab0f41fdd7f9aa84c1b8eb7285a53c0118e3a",
     "acceptance_criteria": [
       "Oprette deterministiske snapshot-fixtures eller JSON schema validering for de genererede filer for alle 4 adaptere:",
       "`.agents/hooks.json` (Google Antigravity)",
@@ -37,30 +37,30 @@
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "e5480a0f1cf7253c442daa09800735abdfd0539dba758f1018f7b896193adf8f",
-    "source_manifest_digest_pre": "cc3b8df247019760c5181c3c43032b53496cdbda81121c87ad96d8c4c01814f1",
-    "source_manifest_digest_post": "cc3b8df247019760c5181c3c43032b53496cdbda81121c87ad96d8c4c01814f1",
-    "config_digest": "4e0db89b6275a39605f79ab9c65cc66473df241dc6df781294880b30961e3cea",
-    "task_digest": "6d1a1d5a724a3fdf7f43356c7d99066f59a80ef7e95c076f11f64b6d2135a477",
+    "source_content_digest": "3af1e572be587e9bf97d39b734082e4b343a0e8d3326182818571055f9321934",
+    "source_manifest_digest_pre": "e1f6ef45143f06fb1315461d565206c9c76e1fee10320db0a7b75ff3c0b4a369",
+    "source_manifest_digest_post": "e1f6ef45143f06fb1315461d565206c9c76e1fee10320db0a7b75ff3c0b4a369",
+    "config_digest": "d9a7d7b8671245717af3a6fd53dcebffedf7351d9c17600ef681a589cc4f258a",
+    "task_digest": "3f066751e2778301a09c7e05858ab0f41fdd7f9aa84c1b8eb7285a53c0118e3a",
     "policy_digest": "2968663a300842fcc0b3196ffdc817c0f94f1f72bab913ec04659139b84f264d",
     "check_definitions_digest": "acd753b5c5b1f14c179a6a97e9eea55dc81aa7414ff9f84065c10555ce9d3d8a",
     "included_files_count": 183,
     "vcs": {
       "type": "git",
-      "head": "ecff91c",
-      "commit": "ecff91c",
-      "is_dirty": false
+      "head": "b20f2a5",
+      "commit": "b20f2a5",
+      "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-09-14T19:19:53Z",
-    "finished_at": "2026-09-14T19:20:09Z",
-    "total_duration_seconds": 16.019039926,
+    "started_at": "2026-09-14T19:34:05Z",
+    "finished_at": "2026-09-14T19:34:20Z",
+    "total_duration_seconds": 15.36703942,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
       "platform": "linux",
-      "version": "0.6.0"
+      "version": "0.7.0"
     }
   },
   "checks": [
@@ -68,7 +68,7 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.105793335,
+      "duration_seconds": 0.107560108,
       "optional": true,
       "passed": true,
       "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
@@ -77,34 +77,34 @@
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.632251055,
+      "duration_seconds": 0.110176421,
       "optional": true,
       "passed": true,
-      "log_digest": "ab2f55fac83e8639c52e3d09d6c3b0a2eeffdab5339709f317fb941b7e146fe4"
+      "log_digest": "a5f4c585ee974ca44916ac30a98bbc189e067a7e0a6bc6d2e8d6bc525be724af"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 14.781491604,
+      "duration_seconds": 14.619925797,
       "optional": false,
       "passed": true,
-      "log_digest": "bb0b590a90ae46ca2fe4e979098e7a30d148de29df5aa58f0078a672d01dba1f"
+      "log_digest": "c8498d6ff24b59a640db525d0f95e2033538efdbdfe1c3a3534932dafd85f052"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.349924537,
+      "duration_seconds": 0.353402828,
       "optional": true,
       "passed": true,
-      "log_digest": "06460e576a44ddbc6e926e2a1404311f6d772a9e085bcbbfe63ac647ae6af8da"
+      "log_digest": "867dc25044f1190267d6818b0bf287c5ece88d24f8847c06e512d0f631325da7"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.010127591,
+      "duration_seconds": 0.010404164,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
