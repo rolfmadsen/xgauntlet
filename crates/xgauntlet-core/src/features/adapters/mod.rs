@@ -152,4 +152,3 @@ pub fn wrap_response_with_hud(hud_or_card: &str, body: &str) -> String {
 pub fn clean_stdin(raw: &str) -> &str {
     raw.trim().trim_start_matches('\u{feff}').trim()
 }
-

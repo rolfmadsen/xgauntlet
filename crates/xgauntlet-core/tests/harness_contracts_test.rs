@@ -1356,11 +1356,18 @@ fn test_all_four_adapters_bom_immunity() {
 
     // 1. Claude Code with BOM
     let claude = get_adapter("claude_code").unwrap();
-    let claude_payload = "\u{feff}{\"name\": \"FileRead\", \"input\": {\"file_path\": \"README.md\"}}";
+    let claude_payload =
+        "\u{feff}{\"name\": \"FileRead\", \"input\": {\"file_path\": \"README.md\"}}";
     let (code_claude, out_claude) = claude.handle_hook(ws, claude_payload);
-    assert_eq!(code_claude, 0, "Claude Code MUST accept UTF-8 BOM without error");
+    assert_eq!(
+        code_claude, 0,
+        "Claude Code MUST accept UTF-8 BOM without error"
+    );
     let parsed_claude: serde_json::Value = serde_json::from_str(&out_claude).unwrap();
-    assert_eq!(parsed_claude["hookSpecificOutput"]["permissionDecision"], "allow");
+    assert_eq!(
+        parsed_claude["hookSpecificOutput"]["permissionDecision"],
+        "allow"
+    );
 
     // 2. OpenAI Codex with BOM
     let codex = get_adapter("codex").unwrap();
@@ -1375,7 +1382,10 @@ fn test_all_four_adapters_bom_immunity() {
     let agy = get_adapter("antigravity").unwrap();
     let agy_payload = "\u{feff}{\"toolCall\": {\"name\": \"view_file\", \"args\": {\"AbsolutePath\": \"README.md\"}}}";
     let (code_agy, out_agy) = agy.handle_hook(ws, agy_payload);
-    assert_eq!(code_agy, 0, "Antigravity MUST accept UTF-8 BOM without error");
+    assert_eq!(
+        code_agy, 0,
+        "Antigravity MUST accept UTF-8 BOM without error"
+    );
     let parsed_agy: serde_json::Value = serde_json::from_str(&out_agy).unwrap();
     assert_eq!(parsed_agy["decision"], "allow");
 
@@ -1384,7 +1394,10 @@ fn test_all_four_adapters_bom_immunity() {
     let mistral_payload =
         "\u{feff}{\"tool_name\": \"read\", \"tool_input\": {\"path\": \"README.md\"}}";
     let (code_mistral, out_mistral) = mistral.handle_hook(ws, mistral_payload);
-    assert_eq!(code_mistral, 0, "Mistral MUST accept UTF-8 BOM without error");
+    assert_eq!(
+        code_mistral, 0,
+        "Mistral MUST accept UTF-8 BOM without error"
+    );
     let parsed_mistral: serde_json::Value = serde_json::from_str(&out_mistral).unwrap();
     assert_eq!(parsed_mistral["decision"], "allow");
 }
@@ -1443,4 +1456,3 @@ fn test_subprocess_hook_with_utf8_bom_pipe() {
     let parsed: serde_json::Value = serde_json::from_str(stdout.trim()).expect("valid JSON stdout");
     assert_eq!(parsed["hookSpecificOutput"]["permissionDecision"], "allow");
 }
-
