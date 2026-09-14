@@ -137,23 +137,23 @@ Etablere en udtømmende test- og kontraktvalideringssuite for xgauntlets 4 harne
 - [ ] Validere at serialiserede telemetri- og gatekeeper-payloads overholder felterne i ovenstående specifikationstabeller på tværs af Linux, macOS og Windows.
 
 ### Klynge 2: Claude Code Gatekeeper Opdatering & Exit Code 2
-- [ ] Opdatere `ClaudeCodeAdapter::handle_hook` til:
-  - [ ] Returnere exit code **2** ved afvisning af værktøjskald (i overensstemmelse med Claude Codes blokeringskontrakt).
-  - [ ] Generere stdout JSON med `hookSpecificOutput.permissionDecision = "deny"` og `permissionDecisionReason`.
-- [ ] Sikre at exit code 0 fortsat returneres ved tilladte handlinger (`"permissionDecision": "allow"`).
+- [x] Opdatere `ClaudeCodeAdapter::handle_hook` til:
+  - [x] Returnere exit code **2** ved afvisning af værktøjskald (i overensstemmelse med Claude Codes blokeringskontrakt).
+  - [x] Generere stdout JSON med `hookSpecificOutput.permissionDecision = "deny"` og `permissionDecisionReason`.
+- [x] Sikre at exit code 0 fortsat returneres ved tilladte handlinger (`"permissionDecision": "allow"`).
 
 ### Klynge 3: End-to-End Mock-Proces Livscyklus
-- [ ] Oprette en integrationstest i `crates/xgauntlet-core/tests/` der spawner `xgauntlet hook` og `xgauntlet telemetry` som rigtige subprocesser.
-- [ ] Teste piping af syntetiske tool-kald via stdin og modtagelse af stdout/stderr under:
-  - [ ] Unix shell (`sh -c`)
-  - [ ] Windows CMD (`cmd.exe /c` eller PowerShell hvis tilgængelig)
-- [ ] Bekræfte identiske exit-koder (0 ved allow, 2/1 ved deny jf. harness) på tværs af platforme.
+- [x] Oprette en integrationstest i `crates/xgauntlet-core/tests/` der spawner `xgauntlet hook` og `xgauntlet telemetry` som rigtige subprocesser.
+- [x] Teste piping af syntetiske tool-kald via stdin og modtagelse af stdout/stderr under:
+  - [x] Unix shell (`sh -c`)
+  - [x] Windows CMD (`cmd.exe /c` eller PowerShell hvis tilgængelig)
+- [x] Bekræfte identiske exit-koder (0 ved allow, 2/1 ved deny jf. harness) på tværs af platforme.
 
 ### Klynge 4: Wasm Policy Engine Sti- og Linjeskifts-Determinisme
-- [ ] Tilføje integrationstest der evaluerer `gauntlet_policy.wasm` via Wasmtime med:
-  - [ ] Windows absolutte stier (f.eks. `C:\repo\src\main.rs`) og relative Windows backslashes (`crates\core\lib.rs`).
-  - [ ] CRLF (`\r\n`) linjeskift indlejret i `payload_json`.
-- [ ] Verificere at Wasm-evalueringen leverer identiske verdicts og reason-koder uanset værts-OS.
+- [x] Tilføje integrationstest der evaluerer `gauntlet_policy.wasm` via Wasmtime med:
+  - [x] Windows absolutte stier (f.eks. `C:\repo\src\main.rs`) og relative Windows backslashes (`crates\core\lib.rs`).
+  - [x] CRLF (`\r\n`) linjeskift indlejret i `payload_json`.
+- [x] Verificere at Wasm-evalueringen leverer identiske verdicts og reason-koder uanset værts-OS.
 
 ### Klynge 5: Filsystem- og Checkpoint-Resilience
 - [ ] Tilføje integrationstests for git checkpointing under filsystem-konflikter:
