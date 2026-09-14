@@ -88,7 +88,9 @@ fn test_claude_code_gatekeeper_denial_contract_exit_code_2() {
         Some("PreToolUse")
     );
     assert_eq!(
-        hook_output.get("permissionDecision").and_then(|v| v.as_str()),
+        hook_output
+            .get("permissionDecision")
+            .and_then(|v| v.as_str()),
         Some("deny")
     );
     let reason = hook_output
@@ -180,7 +182,9 @@ fn test_claude_code_gatekeeper_allow_contract_exit_code_0() {
         Some("PreToolUse")
     );
     assert_eq!(
-        hook_output.get("permissionDecision").and_then(|v| v.as_str()),
+        hook_output
+            .get("permissionDecision")
+            .and_then(|v| v.as_str()),
         Some("allow")
     );
 
@@ -266,10 +270,7 @@ fn test_subprocess_hook_mock_execution_claude_code() {
     );
     let stdout = String::from_utf8_lossy(&output.stdout);
     let parsed: serde_json::Value = serde_json::from_str(stdout.trim()).expect("valid JSON stdout");
-    assert_eq!(
-        parsed["hookSpecificOutput"]["permissionDecision"],
-        "allow"
-    );
+    assert_eq!(parsed["hookSpecificOutput"]["permissionDecision"], "allow");
 
     // 2. Claude Code Deny -> subprocess exits with 2 (official blocking code)
     let push_payload = serde_json::json!({
@@ -349,7 +350,12 @@ fn test_subprocess_hook_mock_execution_antigravity() {
         .spawn()
         .unwrap();
 
-    child.stdin.as_mut().unwrap().write_all(read_payload.as_bytes()).unwrap();
+    child
+        .stdin
+        .as_mut()
+        .unwrap()
+        .write_all(read_payload.as_bytes())
+        .unwrap();
     let output = child.wait_with_output().unwrap();
     assert_eq!(output.status.code(), Some(0));
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -379,7 +385,12 @@ fn test_subprocess_hook_mock_execution_antigravity() {
         .spawn()
         .unwrap();
 
-    child_deny.stdin.as_mut().unwrap().write_all(push_payload.as_bytes()).unwrap();
+    child_deny
+        .stdin
+        .as_mut()
+        .unwrap()
+        .write_all(push_payload.as_bytes())
+        .unwrap();
     let output_deny = child_deny.wait_with_output().unwrap();
     assert_eq!(output_deny.status.code(), Some(1));
     let stdout_deny = String::from_utf8_lossy(&output_deny.stdout);
@@ -406,7 +417,10 @@ fn test_subprocess_hook_via_native_shell_piping() {
             "echo '{{\"name\": \"FileRead\", \"input\": {{\"file_path\": \"README.md\"}}}}' | '{}' hook --harness claude_code --workspace '{}'",
             bin_str, ws_str
         );
-        let out_allow = Command::new("sh").args(["-c", &allow_cmd]).output().unwrap();
+        let out_allow = Command::new("sh")
+            .args(["-c", &allow_cmd])
+            .output()
+            .unwrap();
         assert_eq!(out_allow.status.code(), Some(0));
 
         // Deny case -> exit 2
@@ -424,7 +438,10 @@ fn test_subprocess_hook_via_native_shell_piping() {
             "echo {{\"name\": \"Bash\", \"input\": {{\"command\": \"git push origin main\"}}}} | \"{}\" hook --harness claude_code --workspace \"{}\"",
             bin_str, ws_str
         );
-        let out_deny = Command::new("cmd").args(["/C", &deny_cmd]).output().unwrap();
+        let out_deny = Command::new("cmd")
+            .args(["/C", &deny_cmd])
+            .output()
+            .unwrap();
         assert_eq!(out_deny.status.code(), Some(2));
     }
 }
@@ -461,16 +478,11 @@ fn test_subprocess_telemetry_lifecycle() {
     assert_eq!(output.status.code(), Some(0));
     let stdout = String::from_utf8_lossy(&output.stdout);
     let parsed: serde_json::Value = serde_json::from_str(stdout.trim()).expect("valid JSON stdout");
-    assert_eq!(
-        parsed["hookSpecificOutput"]["hookEventName"],
-        "PostToolUse"
-    );
-    assert!(
-        parsed["hookSpecificOutput"]["additionalContext"]
-            .as_str()
-            .map(|s| !s.is_empty())
-            .unwrap_or(false)
-    );
+    assert_eq!(parsed["hookSpecificOutput"]["hookEventName"], "PostToolUse");
+    assert!(parsed["hookSpecificOutput"]["additionalContext"]
+        .as_str()
+        .map(|s| !s.is_empty())
+        .unwrap_or(false));
 }
 
 // ============================================================================

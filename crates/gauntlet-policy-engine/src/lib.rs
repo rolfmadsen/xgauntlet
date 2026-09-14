@@ -169,6 +169,15 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
             }
         }
         ToolActionType::ExecuteCommand => {
+            // Reject newline injection in commands (fail-closed against CRLF / newline injection)
+            if req.target_resource.contains('\n') || req.target_resource.contains('\r') {
+                return PolicyDecision {
+                    verdict: DecisionVerdict::Deny,
+                    reason: "Newline injection in command execution is strictly prohibited.".into(),
+                    reason_code: 4039,
+                };
+            }
+
             let cmd = req.target_resource.trim();
 
             // Explicitly block dangerous destructive commands
@@ -194,15 +203,6 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
                         reason_code: 4039,
                     };
                 }
-            }
-
-            // Reject newline injection in commands
-            if cmd.contains('\n') || cmd.contains('\r') {
-                return PolicyDecision {
-                    verdict: DecisionVerdict::Deny,
-                    reason: "Newline injection in command execution is strictly prohibited.".into(),
-                    reason_code: 4039,
-                };
             }
 
             // Command chaining with &&, ;, ||, | is prohibited from inheriting safe prefix allowances

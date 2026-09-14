@@ -240,15 +240,21 @@ impl HarnessAdapter for ClaudeCodeAdapter {
         let verdict = self.evaluate_invocation(workspace, &payload);
         if verdict.allowed {
             let res = serde_json::json!({
-                "decision": "allow"
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "permissionDecision": "allow"
+                }
             });
             (0, res.to_string())
         } else {
             let res = serde_json::json!({
-                "decision": "deny",
-                "reason": verdict.reason
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "permissionDecision": "deny",
+                    "permissionDecisionReason": verdict.reason
+                }
             });
-            (1, res.to_string())
+            (2, res.to_string())
         }
     }
 }
