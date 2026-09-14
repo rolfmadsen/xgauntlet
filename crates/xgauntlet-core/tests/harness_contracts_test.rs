@@ -467,15 +467,67 @@ fn test_subprocess_hook_via_native_shell_piping() {
         let bin_str = bin.to_str().unwrap();
         let ws_str = ws.to_str().unwrap();
 
-        let deny_cmd = format!(
-            "echo {{\"name\": \"Bash\", \"input\": {{\"command\": \"git push origin main\"}}}} | \"{}\" hook --harness claude_code --workspace \"{}\"",
-            bin_str, ws_str
-        );
-        let out_deny = Command::new("cmd")
-            .args(["/C", &deny_cmd])
-            .output()
-            .unwrap();
-        assert_eq!(out_deny.status.code(), Some(2));
+        let shell = if Command::new("powershell").arg("-v").output().is_ok() {
+            "powershell"
+        } else if Command::new("pwsh").arg("-v").output().is_ok() {
+            "pwsh"
+        } else {
+            "cmd"
+        };
+
+        if shell == "powershell" || shell == "pwsh" {
+            // Allow case -> exit 0
+            let allow_payload = r#"{"name": "FileRead", "input": {"file_path": "README.md"}}"#;
+            let allow_cmd = format!(
+                "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; Write-Output '{}' | & '{}' hook --harness claude_code --workspace '{}'; exit $LASTEXITCODE",
+                allow_payload.replace('\'', "''"),
+                bin_str.replace('\'', "''"),
+                ws_str.replace('\'', "''"),
+            );
+            let out_allow = Command::new(shell)
+                .args([
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-Command",
+                    &allow_cmd,
+                ])
+                .output()
+                .unwrap();
+            assert_eq!(
+                out_allow.status.code(),
+                Some(0),
+                "PowerShell allow stdout: {}, stderr: {}",
+                String::from_utf8_lossy(&out_allow.stdout),
+                String::from_utf8_lossy(&out_allow.stderr)
+            );
+
+            // Deny case -> exit 2
+            let deny_payload = r#"{"name": "Bash", "input": {"command": "git push origin main"}}"#;
+            let deny_cmd = format!(
+                "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; Write-Output '{}' | & '{}' hook --harness claude_code --workspace '{}'; exit $LASTEXITCODE",
+                deny_payload.replace('\'', "''"),
+                bin_str.replace('\'', "''"),
+                ws_str.replace('\'', "''"),
+            );
+            let out_deny = Command::new(shell)
+                .args([
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-Command",
+                    &deny_cmd,
+                ])
+                .output()
+                .unwrap();
+            assert_eq!(
+                out_deny.status.code(),
+                Some(2),
+                "PowerShell deny stdout: {}, stderr: {}",
+                String::from_utf8_lossy(&out_deny.stdout),
+                String::from_utf8_lossy(&out_deny.stderr)
+            );
+        }
     }
 }
 
