@@ -1,6 +1,6 @@
 {
   "name": "xgauntlet-monorepo",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "Universal multi-stack verification gauntlet & tamper-proof policy sidecar for AI coding agents",
   "private": true,
   "type": "module",

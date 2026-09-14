@@ -4,63 +4,45 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "027-harness-contracts-and-lifecycle-hardening",
-    "task_title": "Task 027: Multi-Harness Hook Contracts, Schema Validation and Platform Hardening",
-    "task_digest": "3f066751e2778301a09c7e05858ab0f41fdd7f9aa84c1b8eb7285a53c0118e3a",
+    "task_id": "028-fix-windows-powershell-stdin-bom",
+    "task_title": "Task 028: Fix Windows PowerShell Hook Stdin BOM Immunity",
+    "task_digest": "fbf6a123140f8b47ca2f9e911496becab621049479d528cde94f3a70595dd305",
     "acceptance_criteria": [
-      "Oprette deterministiske snapshot-fixtures eller JSON schema validering for de genererede filer for alle 4 adaptere:",
-      "`.agents/hooks.json` (Google Antigravity)",
-      "`.claude/settings.json` (Claude Code)",
-      "`.vibe/hooks.toml` (Mistral Vibe)",
-      "`.codex/hooks.json` (OpenAI Codex)",
-      "Validere at serialiserede telemetri- og gatekeeper-payloads overholder felterne i ovenstående specifikationstabeller på tværs af Linux, macOS og Windows.",
-      "Opdatere `ClaudeCodeAdapter::handle_hook` til:",
-      "Returnere exit code **2** ved afvisning af værktøjskald (i overensstemmelse med Claude Codes blokeringskontrakt).",
-      "Generere stdout JSON med `hookSpecificOutput.permissionDecision = \"deny\"` og `permissionDecisionReason`.",
-      "Sikre at exit code 0 fortsat returneres ved tilladte handlinger (`\"permissionDecision\": \"allow\"`).",
-      "Oprette en integrationstest i `crates/xgauntlet-core/tests/` der spawner `xgauntlet hook` og `xgauntlet telemetry` som rigtige subprocesser.",
-      "Teste piping af syntetiske tool-kald via stdin og modtagelse af stdout/stderr under:",
-      "Unix shell (`sh -c`)",
-      "Windows CMD (`cmd.exe /c` eller PowerShell hvis tilgængelig)",
-      "Bekræfte identiske exit-koder (0 ved allow, 2/1 ved deny jf. harness) på tværs af platforme.",
-      "Tilføje integrationstest der evaluerer `gauntlet_policy.wasm` via Wasmtime med:",
-      "Windows absolutte stier (f.eks. `C:\\repo\\src\\main.rs`) og relative Windows backslashes (`crates\\core\\lib.rs`).",
-      "CRLF (`\\r\\n`) linjeskift indlejret i `payload_json`.",
-      "Verificere at Wasm-evalueringen leverer identiske verdicts og reason-koder uanset værts-OS.",
-      "Tilføje integrationstests for git checkpointing under filsystem-konflikter:",
-      "Opdagelse og sikker fejl-lukning hvis `.git/index.lock` er til stede.",
-      "Validering af at preflight-fejl ikke efterlader efterladte git stashing- eller commit-artefakter.",
-      "Sikre at `render_box_card` og `render_blockquote_hud` forbliver immune over for panics, hvis stdout er omdirigeret til non-TTY, fil eller et miljø uden ANSI escape-understøttelse.",
-      "Verificere korrekt breddeberegning (64 synlige kolonner) ved UTF-8 multi-byte tegn."
+      "Implementere `clean_stdin` helper i `xgauntlet-core::features::adapters` der fjerner UTF-8 BOM (`\\u{feff}`) og normaliserer whitespace.",
+      "Opdatere alle 4 harness-adaptere (`ClaudeCodeAdapter`, `CodexAdapter`, `AntigravityAdapter`, `MistralAdapter`) til at rense `stdin_content` for BOM før JSON parsing.",
+      "Tilføje unit-test for BOM-immunitet på tværs af alle 4 adaptere (`test_all_four_adapters_bom_immunity`).",
+      "Tilføje integrationstest for subprocess execution med rå UTF-8 BOM bytes (`\\xef\\xbb\\xbf`) over stdin.",
+      "Sikre at `test_subprocess_hook_via_native_shell_piping` konfigurerer `$OutputEncoding = [System.Text.UTF8Encoding]::new($false)` og kører stabilt på Windows PowerShell.",
+      "Verificere at samtlige tests og gauntlet-lag passerer (`cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo fmt --check`)."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "371b8744a9e01b286bbb34d06928366ac5b501450157c7e72fd755b1db9bcc3e",
-    "source_manifest_digest_pre": "cb80c1fceb13607620ab1b352452bddabae04be178737fc12388df24a46bdc6c",
-    "source_manifest_digest_post": "cb80c1fceb13607620ab1b352452bddabae04be178737fc12388df24a46bdc6c",
-    "config_digest": "ad8c3281bad5295445e2d093bb6c234dc2eeb9d597f6a9c294171d8ad56f3db7",
-    "task_digest": "3f066751e2778301a09c7e05858ab0f41fdd7f9aa84c1b8eb7285a53c0118e3a",
+    "source_content_digest": "fdc059eac9e4ac0d2ac9f0da336b99cbbb8bd7b222797d46163df677138ca2cb",
+    "source_manifest_digest_pre": "011928f86d7b1760ab55a5b0a8ccf2be0735ce18ceecce124084aee41943dc79",
+    "source_manifest_digest_post": "011928f86d7b1760ab55a5b0a8ccf2be0735ce18ceecce124084aee41943dc79",
+    "config_digest": "d77e9f9515eb2810d97bf65daa1bd045f3a745d101d9e96140ffcb17dd232f25",
+    "task_digest": "fbf6a123140f8b47ca2f9e911496becab621049479d528cde94f3a70595dd305",
     "policy_digest": "2968663a300842fcc0b3196ffdc817c0f94f1f72bab913ec04659139b84f264d",
     "check_definitions_digest": "acd753b5c5b1f14c179a6a97e9eea55dc81aa7414ff9f84065c10555ce9d3d8a",
-    "included_files_count": 183,
+    "included_files_count": 184,
     "vcs": {
       "type": "git",
-      "head": "cf8d668",
-      "commit": "cf8d668",
+      "head": "0309f10",
+      "commit": "0309f10",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-09-14T19:56:30Z",
-    "finished_at": "2026-09-14T19:56:59Z",
-    "total_duration_seconds": 28.986134936,
+    "started_at": "2026-09-14T20:23:24Z",
+    "finished_at": "2026-09-14T20:23:40Z",
+    "total_duration_seconds": 15.909109387,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
       "platform": "linux",
-      "version": "0.7.1"
+      "version": "0.7.2"
     }
   },
   "checks": [
@@ -68,43 +50,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 9.656337818,
+      "duration_seconds": 0.099501287,
       "optional": true,
       "passed": true,
-      "log_digest": "3c7ba41be5c70e8367ad97e1c6f7dc3e91f20e870359b0c80eb4bf7f53834432"
+      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.6204317449999999,
+      "duration_seconds": 0.085202297,
       "optional": true,
       "passed": true,
-      "log_digest": "30e37f9990e44bc8b64d9938a5fcd8ab0b52c4861311a19d1082b100ba76f029"
+      "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 17.220070813,
+      "duration_seconds": 15.211289265,
       "optional": false,
       "passed": true,
-      "log_digest": "7a7485c2d45566175a2d15ec48f9809cdff874f286db921f38f73a4d0cfd6ba9"
+      "log_digest": "0c5df04fb0e951c8417afa4c7cdff4dc3526b0a24708ca971825e99931e394d1"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.339356025,
+      "duration_seconds": 0.352997773,
       "optional": true,
       "passed": true,
-      "log_digest": "eedecc15d81956d302ae2d85f2fa090b22ee96be928207529fa9cabdcd44e7ac"
+      "log_digest": "4bd2dff4b21d765bf7ac16d7e6472b0e6f7fc8d5837385de7f828eab61864c09"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.008774052,
+      "duration_seconds": 0.010225966,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.7.2] - 2026-09-14
+
+### 🐛 Fixed
+- **Windows PowerShell Hook Stdin BOM Immunity (`Task 028`)**:
+  - Implementeret `clean_stdin` hjælpefunktion der fjerner UTF-8 Byte Order Mark (`\u{FEFF}` / `0xEF, 0xBB, 0xBF`) og normaliserer whitespace på alle harness hook inputs.
+  - Opdateret samtlige 4 harness-adaptere (`ClaudeCodeAdapter`, `CodexAdapter`, `AntigravityAdapter`, `MistralAdapter`) til robust at afvise/acceptere payloads med BOM uden `serde_json` parsefejl ved linje 1 kolonne 1 (`Corrupt JSON payload on stdin`).
+  - Sikret `$OutputEncoding = [System.Text.UTF8Encoding]::new($false)` i PowerShell shell-piping tests for ren binær UTF-8 proceskommunikation.
+
 ## [0.7.1] - 2026-09-14
 
 ### 🐛 Fixed
