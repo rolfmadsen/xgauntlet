@@ -147,3 +147,9 @@ pub fn wrap_response_with_hud(hud_or_card: &str, body: &str) -> String {
         format!("{}\n\n{}", hud_or_card.trim_end(), trimmed_body)
     }
 }
+
+/// Strips UTF-8 byte-order-marks (BOM) and leading/trailing whitespace from incoming hook payloads.
+pub fn clean_stdin(raw: &str) -> &str {
+    raw.trim().trim_start_matches('\u{feff}').trim()
+}
+

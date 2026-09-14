@@ -216,7 +216,16 @@ impl HarnessAdapter for MistralAdapter {
     }
 
     fn handle_hook(&self, workspace: &Path, stdin_content: &str) -> (i32, String) {
-        let payload: Value = match serde_json::from_str(stdin_content) {
+        let content = crate::features::adapters::clean_stdin(stdin_content);
+        if content.is_empty() {
+            let err_resp = serde_json::json!({
+                "decision": "deny",
+                "reason": "Empty payload received on stdin."
+            });
+            return (1, serde_json::to_string(&err_resp).unwrap());
+        }
+
+        let payload: Value = match serde_json::from_str(content) {
             Ok(v) => v,
             Err(e) => {
                 let err_resp = serde_json::json!({

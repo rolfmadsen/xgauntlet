@@ -217,7 +217,7 @@ impl HarnessAdapter for ClaudeCodeAdapter {
     }
 
     fn handle_hook(&self, workspace: &Path, stdin_content: &str) -> (i32, String) {
-        let content = stdin_content.trim();
+        let content = crate::features::adapters::clean_stdin(stdin_content);
         if content.is_empty() {
             let res = serde_json::json!({
                 "decision": "deny",

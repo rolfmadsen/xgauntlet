@@ -479,7 +479,7 @@ fn test_subprocess_hook_via_native_shell_piping() {
             // Allow case -> exit 0
             let allow_payload = r#"{"name": "FileRead", "input": {"file_path": "README.md"}}"#;
             let allow_cmd = format!(
-                "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; Write-Output '{}' | & '{}' hook --harness claude_code --workspace '{}'; exit $LASTEXITCODE",
+                "$OutputEncoding = [System.Text.UTF8Encoding]::new($false); [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; Write-Output '{}' | & '{}' hook --harness claude_code --workspace '{}'; exit $LASTEXITCODE",
                 allow_payload.replace('\'', "''"),
                 bin_str.replace('\'', "''"),
                 ws_str.replace('\'', "''"),
@@ -505,7 +505,7 @@ fn test_subprocess_hook_via_native_shell_piping() {
             // Deny case -> exit 2
             let deny_payload = r#"{"name": "Bash", "input": {"command": "git push origin main"}}"#;
             let deny_cmd = format!(
-                "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; Write-Output '{}' | & '{}' hook --harness claude_code --workspace '{}'; exit $LASTEXITCODE",
+                "$OutputEncoding = [System.Text.UTF8Encoding]::new($false); [Console]::OutputEncoding = [System.Text.Encoding]::UTF8; Write-Output '{}' | & '{}' hook --harness claude_code --workspace '{}'; exit $LASTEXITCODE",
                 deny_payload.replace('\'', "''"),
                 bin_str.replace('\'', "''"),
                 ws_str.replace('\'', "''"),
@@ -1364,7 +1364,8 @@ fn test_all_four_adapters_bom_immunity() {
 
     // 2. OpenAI Codex with BOM
     let codex = get_adapter("codex").unwrap();
-    let codex_payload = "\u{feff}{\"name\": \"FileRead\", \"input\": {\"file_path\": \"README.md\"}}";
+    let codex_payload =
+        "\u{feff}{\"name\": \"read_file\", \"arguments\": {\"path\": \"README.md\"}}";
     let (code_codex, out_codex) = codex.handle_hook(ws, codex_payload);
     assert_eq!(code_codex, 0, "Codex MUST accept UTF-8 BOM without error");
     let parsed_codex: serde_json::Value = serde_json::from_str(&out_codex).unwrap();
@@ -1380,7 +1381,8 @@ fn test_all_four_adapters_bom_immunity() {
 
     // 4. Mistral Vibe with BOM
     let mistral = get_adapter("mistral").unwrap();
-    let mistral_payload = "\u{feff}{\"tool_call\": {\"name\": \"view_file\", \"args\": {\"path\": \"README.md\"}}}";
+    let mistral_payload =
+        "\u{feff}{\"tool_name\": \"read\", \"tool_input\": {\"path\": \"README.md\"}}";
     let (code_mistral, out_mistral) = mistral.handle_hook(ws, mistral_payload);
     assert_eq!(code_mistral, 0, "Mistral MUST accept UTF-8 BOM without error");
     let parsed_mistral: serde_json::Value = serde_json::from_str(&out_mistral).unwrap();
