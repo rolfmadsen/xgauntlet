@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.7.3] - 2026-09-21
+
+### 🚀 Added
+- **Open Knowledge Format (OKF v0.2) Task Management Protocol (`crates/xgauntlet-core`)**:
+  - Opdateret scaffold-skabelonen i `crates/xgauntlet-core/src/features/scaffold/templates.rs` og `.agents/AGENTS.md` til obligatorisk OKF v0.2 YAML frontmatter for opgavepakker i `tasks/`.
+  - Tilføjet opgavespecifikationer for composite TypeScript project references detektion (`Task 029`), autonom RED-til-GREEN TDD-transition (`Task 030`) og ADR OKF v0.2 frontmatter-validering (`Task 031`).
+
+### 📖 Documentation & Ergonomics
+- **CLI Native Engine Pre-fetch (`README.md`)**:
+  - Tilføjet `xgauntlet status` i installationsvejledningen til forhåndsafhentning af seneste native platform-binære motor til `~/.cache/xgauntlet/` før plugin-installation.
+
+### 🛡️ Hardened & Synchronized
+- **Wasm Policy Engine Synchronized (`crates/gauntlet-policy-engine`)**:
+  - Genkompileret deterministisk WebAssembly policy verifier (`crates/xgauntlet-core/wasm/gauntlet_policy.wasm`) synkroniseret med version 0.7.3.
+
 ## [0.7.2] - 2026-09-14
 
 ### 🐛 Fixed
