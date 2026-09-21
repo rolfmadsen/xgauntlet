@@ -53,7 +53,10 @@ Kør følgende to trin for at installere CLI-motoren globalt og aktivere de 11 m
 # Trin 1a: Installer CLI-motoren og gatekeeperen globalt i dit system ($PATH):
 npm install -g xgauntlet
 
-# Trin 1b: Installer de 11 indbyggede agent-skills i dine AI-harnesses (Antigravity, Claude Code, Codex, Mistral):
+# Trin 1b: Fetch native engine latest version for your operating system in ~/.cache/xgauntlet/
+xgauntlet status
+
+# Trin 1c: Installer de 11 indbyggede agent-skills i dine AI-harnesses (Antigravity - Home/.gemini/config/plugins, Claude Code, Codex, Mistral):
 xgauntlet plugin install --global
 ```
 

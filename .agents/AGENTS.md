@@ -48,15 +48,41 @@ The agent has direct access to bundled skills located in [.agents/skills/](.agen
 
 ## 🗂️ Task Management Protocol (`tasks/`)
 1. **Curated Scope:** Every non-trivial work item is tracked as a concise markdown file in `tasks/<number>-<title>.md`.
-2. **Standard Task Structure:**
-   * `# Task <number>: <Title>` (Header with `Status: ACTIVE | DONE`, `Intent: 🚀 NEW FEATURE | 🐛 BUG FIX | 🔄 REFACTOR`)
-   * `## 🎯 Formål`: Konkret målsætning og afgrænsning.
-   * `## 📋 Acceptance Criteria`: Eksekverbare `- [ ]` punkter med klare forventede inputs og outputs.
-   * `## 🚫 Must NOT`: Negative begrænsninger og arkitektur-invarianter, der under ingen omstændigheder må brydes.
-   * `## 📝 Revisions`: Append-only ændringslog for mid-task ændringer og afviste forslag (hvad brugeren sagde nej til).
-   * `## 🧪 Verifikation`: Konkrete kommandoer til afprøvning og validering.
+2. **Standard Task Structure (OKF v0.2 Compliant):**
+   Alle opgaver i `tasks/` SKAL starte med Open Knowledge Format (OKF v0.2) YAML frontmatter for at overholde `check-spec` og `verify`:
+   ```markdown
+   ---
+   type: Task Package
+   title: "Task <number>: <Title>"
+   description: "<Kort formålsbeskrivelse>"
+   status: active
+   generated: { by: process:antigravity-task-init, at: "<YYYY-MM-DDTHH:MM:SSZ>" }
+   tags: [<feature-tags>]
+   ---
+
+   # Task <number>: <Title>
+
+   **Status**: `ACTIVE`
+   **Intent**: `🚀 NEW FEATURE` | `🐛 BUG FIX` | `🔄 REFACTOR` | `🔄 ENHANCEMENT`
+   **Oprettet**: `YYYY-MM-DD`
+
+   ## 🎯 Formål
+   Konkret målsætning og afgrænsning.
+
+   ## 📋 Acceptance Criteria
+   - [ ] Eksekverbare kriterier med klare forventede inputs og outputs.
+
+   ## 🚫 Must NOT
+   - Negative begrænsninger og arkitektur-invarianter, der under ingen omstændigheder må brydes.
+
+   ## 📝 Revisions
+   - YYYY-MM-DD: Oprettet opgavepakke.
+
+   ## 🧪 Verifikation
+   - Konkrete testkommandoer til afprøvning og validering.
+   ```
 3. **Clean Session Handoffs:** A new chat session starts by reading the designated `tasks/<task>.md` and `CONTEXT.md`.
-4. **No Memory Rot:** Completed tasks are marked `DONE` and remain frozen; persistent domain knowledge is distilled into `CONTEXT.md` and `docs/adr/`.
+4. **No Memory Rot:** Completed tasks are marked `DONE` (i både frontmatter `status: done` og body `**Status**: DONE`) and remain frozen; persistent domain knowledge is distilled into `CONTEXT.md` and `docs/adr/`.
 
 ---
 

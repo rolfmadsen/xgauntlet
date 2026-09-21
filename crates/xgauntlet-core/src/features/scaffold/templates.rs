@@ -257,6 +257,46 @@ Når en bruger henvender sig med et ustruktureret eller uformelt ønske, fungere
 
 ---
 
+## 🗂️ Task Management Protocol (`tasks/`)
+1. **Curated Scope:** Hvert ikke-trivielt arbejdsstykke spores som en præcis markdown-fil i `tasks/<number>-<slug>.md`.
+2. **Standard Task Structure (OKF v0.2 Compliant):**
+   Alle opgaver i `tasks/` SKAL starte med Open Knowledge Format (OKF v0.2) YAML frontmatter for at overholde `check-spec` og `verify`:
+   ```markdown
+   ---
+   type: Task Package
+   title: "Task <number>: <Title>"
+   description: "<Kort formålsbeskrivelse>"
+   status: active
+   generated: {{ by: process:antigravity-task-init, at: "<YYYY-MM-DDTHH:MM:SSZ>" }}
+   tags: [<feature-tags>]
+   ---
+
+   # Task <number>: <Title>
+
+   **Status**: `ACTIVE`
+   **Intent**: `🚀 NEW FEATURE` | `🐛 BUG FIX` | `🔄 REFACTOR` | `🔄 ENHANCEMENT`
+   **Oprettet**: `YYYY-MM-DD`
+
+   ## 🎯 Formål
+   Konkret målsætning og afgrænsning.
+
+   ## 📋 Acceptance Criteria
+   - [ ] Eksekverbare kriterier med klare forventede inputs og outputs.
+
+   ## 🚫 Must NOT
+   - Negative begrænsninger og arkitektur-invarianter, der under ingen omstændigheder må brydes.
+
+   ## 📝 Revisions
+   - YYYY-MM-DD: Oprettet opgavepakke.
+
+   ## 🧪 Verifikation
+   - Konkrete testkommandoer til afprøvning og validering.
+   ```
+3. **Clean Session Handoffs:** En ny chat-session starter ved at læse den udpegede `tasks/<task>.md` og `CONTEXT.md`.
+4. **No Memory Rot:** Afsluttede opgaver markeres `DONE` (i både frontmatter `status: done` og body `**Status**: DONE`) og forbliver frosne.
+
+---
+
 ## 🔄 Core Development Loop
 ```text
 SPEC / GRILL → (Human Approval) → RED → GREEN → REFACTOR → GAUNTLET → EVIDENCE

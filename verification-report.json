@@ -2,42 +2,45 @@
   "$schema": "https://xgauntlet.dev/schemas/v2/verification-report.json",
   "schema_version": "2.0.0",
   "execution_origin": "LOCAL",
-  "verdict": "PARTIAL",
+  "verdict": "INCOMPLETE",
   "task_contract": {
-    "task_id": "028-fix-windows-powershell-stdin-bom",
-    "task_title": "Task 028: Fix Windows PowerShell Hook Stdin BOM Immunity",
-    "task_digest": "fbf6a123140f8b47ca2f9e911496becab621049479d528cde94f3a70595dd305",
+    "task_id": "029-detect-composite-typescript-references",
+    "task_title": "Task 029: Detect Composite TypeScript Project References in Stack Profile",
+    "task_digest": "5eb0b4a29d800593b5fc541255e9c913021dc4b5c5050ce6d3f1e2634a961e1b",
     "acceptance_criteria": [
-      "Implementere `clean_stdin` helper i `xgauntlet-core::features::adapters` der fjerner UTF-8 BOM (`\\u{feff}`) og normaliserer whitespace.",
-      "Opdatere alle 4 harness-adaptere (`ClaudeCodeAdapter`, `CodexAdapter`, `AntigravityAdapter`, `MistralAdapter`) til at rense `stdin_content` for BOM før JSON parsing.",
-      "Tilføje unit-test for BOM-immunitet på tværs af alle 4 adaptere (`test_all_four_adapters_bom_immunity`).",
-      "Tilføje integrationstest for subprocess execution med rå UTF-8 BOM bytes (`\\xef\\xbb\\xbf`) over stdin.",
-      "Sikre at `test_subprocess_hook_via_native_shell_piping` konfigurerer `$OutputEncoding = [System.Text.UTF8Encoding]::new($false)` og kører stabilt på Windows PowerShell.",
-      "Verificere at samtlige tests og gauntlet-lag passerer (`cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo fmt --check`)."
+      "**AC1 (Detection Engine)**: Stack profiler scanner rodens `tsconfig.json` for tilstedeværelse af `\"references\"` og tomme/manglende kilde-inclusions i roden.",
+      "**AC2 (Profile Generation)**: `xgauntlet init` genererer automatisk `command = [\"npx\", \"tsc\", \"-b\"]` i `gauntlet.toml` [layers.types], når composite references detekteres.",
+      "**AC3 (Doctor Warning)**: `xgauntlet doctor` advarer, hvis `gauntlet.toml` bruger `tsc --noEmit` i et repository med composite project references.",
+      "**AC4 (Test Suite)**: Unit tests for composite tsconfig detection og profiler output."
     ],
-    "unresolved_criteria": []
+    "unresolved_criteria": [
+      "**AC1 (Detection Engine)**: Stack profiler scanner rodens `tsconfig.json` for tilstedeværelse af `\"references\"` og tomme/manglende kilde-inclusions i roden.",
+      "**AC2 (Profile Generation)**: `xgauntlet init` genererer automatisk `command = [\"npx\", \"tsc\", \"-b\"]` i `gauntlet.toml` [layers.types], når composite references detekteres.",
+      "**AC3 (Doctor Warning)**: `xgauntlet doctor` advarer, hvis `gauntlet.toml` bruger `tsc --noEmit` i et repository med composite project references.",
+      "**AC4 (Test Suite)**: Unit tests for composite tsconfig detection og profiler output."
+    ]
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "fdc059eac9e4ac0d2ac9f0da336b99cbbb8bd7b222797d46163df677138ca2cb",
-    "source_manifest_digest_pre": "011928f86d7b1760ab55a5b0a8ccf2be0735ce18ceecce124084aee41943dc79",
-    "source_manifest_digest_post": "011928f86d7b1760ab55a5b0a8ccf2be0735ce18ceecce124084aee41943dc79",
+    "source_content_digest": "061eb74a60ad31f6afec1206ae386be7f5e6c9e1732b2adc7f2d11cd2e6309d8",
+    "source_manifest_digest_pre": "d153476c18ffd077221ba7c9a327920530c3cc8a9428918a81552cb9f40c62be",
+    "source_manifest_digest_post": "d153476c18ffd077221ba7c9a327920530c3cc8a9428918a81552cb9f40c62be",
     "config_digest": "d77e9f9515eb2810d97bf65daa1bd045f3a745d101d9e96140ffcb17dd232f25",
-    "task_digest": "fbf6a123140f8b47ca2f9e911496becab621049479d528cde94f3a70595dd305",
+    "task_digest": "5eb0b4a29d800593b5fc541255e9c913021dc4b5c5050ce6d3f1e2634a961e1b",
     "policy_digest": "2968663a300842fcc0b3196ffdc817c0f94f1f72bab913ec04659139b84f264d",
     "check_definitions_digest": "acd753b5c5b1f14c179a6a97e9eea55dc81aa7414ff9f84065c10555ce9d3d8a",
-    "included_files_count": 184,
+    "included_files_count": 187,
     "vcs": {
       "type": "git",
-      "head": "0309f10",
-      "commit": "0309f10",
+      "head": "59ee0eb",
+      "commit": "59ee0eb",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-09-14T20:23:24Z",
-    "finished_at": "2026-09-14T20:23:40Z",
-    "total_duration_seconds": 15.909109387,
+    "started_at": "2026-09-19T20:39:30Z",
+    "finished_at": "2026-09-19T20:39:46Z",
+    "total_duration_seconds": 16.615309368,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -50,43 +53,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.099501287,
+      "duration_seconds": 0.133968194,
       "optional": true,
       "passed": true,
-      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
+      "log_digest": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.085202297,
+      "duration_seconds": 0.074977434,
       "optional": true,
       "passed": true,
-      "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
+      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 15.211289265,
+      "duration_seconds": 15.933112301,
       "optional": false,
       "passed": true,
-      "log_digest": "0c5df04fb0e951c8417afa4c7cdff4dc3526b0a24708ca971825e99931e394d1"
+      "log_digest": "052174f4aae745d8919ae9c9d2151dda8dddfcdd6e973616fe86b68d0d43a9f3"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.352997773,
+      "duration_seconds": 0.314599546,
       "optional": true,
       "passed": true,
-      "log_digest": "4bd2dff4b21d765bf7ac16d7e6472b0e6f7fc8d5837385de7f828eab61864c09"
+      "log_digest": "9b7bf155dbbcc05db24705e30f713e8b0fb925dc8eca3d5b2443f0e387fc63dd"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.010225966,
+      "duration_seconds": 0.011513468,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"

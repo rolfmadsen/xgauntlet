@@ -1,22 +1,20 @@
 # Verification Report
 
-**Task ID**: `028-fix-windows-powershell-stdin-bom`  
-**Task Title**: Task 028: Fix Windows PowerShell Hook Stdin BOM Immunity  
-**Verdict**: `PARTIAL`  
+**Task ID**: `029-detect-composite-typescript-references`  
+**Task Title**: Task 029: Detect Composite TypeScript Project References in Stack Profile  
+**Verdict**: `INCOMPLETE`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `011928f86d7b1760ab55a5b0a8ccf2be0735ce18ceecce124084aee41943dc79`  
-**Timestamp**: `2026-09-14T20:23:40Z`  
-**Head**: `0309f10`  
-**Commit**: `0309f10`  
+**Source Manifest Digest**: `d153476c18ffd077221ba7c9a327920530c3cc8a9428918a81552cb9f40c62be`  
+**Timestamp**: `2026-09-19T20:39:46Z`  
+**Head**: `59ee0eb`  
+**Commit**: `59ee0eb`  
 
 ## Acceptance Criteria
 
-- [x] Implementere `clean_stdin` helper i `xgauntlet-core::features::adapters` der fjerner UTF-8 BOM (`\u{feff}`) og normaliserer whitespace.
-- [x] Opdatere alle 4 harness-adaptere (`ClaudeCodeAdapter`, `CodexAdapter`, `AntigravityAdapter`, `MistralAdapter`) til at rense `stdin_content` for BOM før JSON parsing.
-- [x] Tilføje unit-test for BOM-immunitet på tværs af alle 4 adaptere (`test_all_four_adapters_bom_immunity`).
-- [x] Tilføje integrationstest for subprocess execution med rå UTF-8 BOM bytes (`\xef\xbb\xbf`) over stdin.
-- [x] Sikre at `test_subprocess_hook_via_native_shell_piping` konfigurerer `$OutputEncoding = [System.Text.UTF8Encoding]::new($false)` og kører stabilt på Windows PowerShell.
-- [x] Verificere at samtlige tests og gauntlet-lag passerer (`cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo fmt --check`).
+- [ ] **AC1 (Detection Engine)**: Stack profiler scanner rodens `tsconfig.json` for tilstedeværelse af `"references"` og tomme/manglende kilde-inclusions i roden.
+- [ ] **AC2 (Profile Generation)**: `xgauntlet init` genererer automatisk `command = ["npx", "tsc", "-b"]` i `gauntlet.toml` [layers.types], når composite references detekteres.
+- [ ] **AC3 (Doctor Warning)**: `xgauntlet doctor` advarer, hvis `gauntlet.toml` bruger `tsc --noEmit` i et repository med composite project references.
+- [ ] **AC4 (Test Suite)**: Unit tests for composite tsconfig detection og profiler output.
 
 ---
 
@@ -24,10 +22,10 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `lint` | `PASSED` | `0` | `0.100s` |
-| `types` | `PASSED` | `0` | `0.085s` |
-| `unit` | `PASSED` | `0` | `15.211s` |
-| `invariants` | `PASSED` | `0` | `0.353s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
+| `lint` | `PASSED` | `0` | `0.134s` |
+| `types` | `PASSED` | `0` | `0.075s` |
+| `unit` | `PASSED` | `0` | `15.933s` |
+| `invariants` | `PASSED` | `0` | `0.315s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
 
 ---
