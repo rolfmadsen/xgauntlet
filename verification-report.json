@@ -2,50 +2,47 @@
   "$schema": "https://xgauntlet.dev/schemas/v2/verification-report.json",
   "schema_version": "2.0.0",
   "execution_origin": "LOCAL",
-  "verdict": "INCOMPLETE",
+  "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "029-detect-composite-typescript-references",
-    "task_title": "Task 029: Detect Composite TypeScript Project References in Stack Profile",
-    "task_digest": "5eb0b4a29d800593b5fc541255e9c913021dc4b5c5050ce6d3f1e2634a961e1b",
+    "task_id": "033-sovereign-agentic-sdlc-task-scoping-and-design-tokens",
+    "task_title": "Task 033: Sovereign Agentic SDLC, Task Scoping & Accessible Design Tokens",
+    "task_digest": "ba671531a6cb73ad669e6647139b04714850b4a44465d48b862ebefc4ad9e54f",
     "acceptance_criteria": [
-      "**AC1 (Detection Engine)**: Stack profiler scanner rodens `tsconfig.json` for tilstedeværelse af `\"references\"` og tomme/manglende kilde-inclusions i roden.",
-      "**AC2 (Profile Generation)**: `xgauntlet init` genererer automatisk `command = [\"npx\", \"tsc\", \"-b\"]` i `gauntlet.toml` [layers.types], når composite references detekteres.",
-      "**AC3 (Doctor Warning)**: `xgauntlet doctor` advarer, hvis `gauntlet.toml` bruger `tsc --noEmit` i et repository med composite project references.",
-      "**AC4 (Test Suite)**: Unit tests for composite tsconfig detection og profiler output."
+      "**AC1 (OKF Model Udvidelse)**: `OkfMetadata` i `crates/xgauntlet-core/src/features/tasks/okf.rs` og `TaskPackageInfo` i `models.rs` udvides med `scope: Vec<String>` og `test_refs: Vec<String>` med fail-safe defaults for bagudkompatibilitet.",
+      "**AC2 (Task Scope & Test-Target Validering)**: `check_task_specification` i `validator.rs` validerer, at enhver aktiv task deklarerer mindst én sti under `scope` og mindst én testfil under `test_refs`.",
+      "**AC3 (Anti-Monolit Test Guard)**: `check_task_specification` udsteder en diagnostisk fejl (`MONOLITHIC_TEST_FILE_PROHIBITED`), hvis et deklareret `test_refs` mål overskrider 1.000 linjer, medmindre tasken specifikt er en refactoring-opgave.",
+      "**AC4 (WASM EnforcementContext Udvidelse)**: `EnforcementContext` i `crates/gauntlet-policy-engine/src/lib.rs` udvides med `allowed_scopes: Vec<String>` og `allowed_test_targets: Vec<String>`.",
+      "**AC5 (WASM Scope Gatekeeper)**: `evaluate()` i policy-motoren afviser (`DecisionVerdict::Deny`, fejlkode `4037`) enhver `WriteFile` handling mod kildekode (`src/**`, `crates/**`) eller tests (`tests/**`), der falder uden for taskens tilladte stier.",
+      "**AC6 (Regression & Invariant Validering)**: Samtlige eksisterende tests i `tasks_engine_test.rs` og `policy_engine_test.rs` passerer uden regressionsfejl."
     ],
-    "unresolved_criteria": [
-      "**AC1 (Detection Engine)**: Stack profiler scanner rodens `tsconfig.json` for tilstedeværelse af `\"references\"` og tomme/manglende kilde-inclusions i roden.",
-      "**AC2 (Profile Generation)**: `xgauntlet init` genererer automatisk `command = [\"npx\", \"tsc\", \"-b\"]` i `gauntlet.toml` [layers.types], når composite references detekteres.",
-      "**AC3 (Doctor Warning)**: `xgauntlet doctor` advarer, hvis `gauntlet.toml` bruger `tsc --noEmit` i et repository med composite project references.",
-      "**AC4 (Test Suite)**: Unit tests for composite tsconfig detection og profiler output."
-    ]
+    "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "061eb74a60ad31f6afec1206ae386be7f5e6c9e1732b2adc7f2d11cd2e6309d8",
-    "source_manifest_digest_pre": "d153476c18ffd077221ba7c9a327920530c3cc8a9428918a81552cb9f40c62be",
-    "source_manifest_digest_post": "d153476c18ffd077221ba7c9a327920530c3cc8a9428918a81552cb9f40c62be",
-    "config_digest": "d77e9f9515eb2810d97bf65daa1bd045f3a745d101d9e96140ffcb17dd232f25",
-    "task_digest": "5eb0b4a29d800593b5fc541255e9c913021dc4b5c5050ce6d3f1e2634a961e1b",
-    "policy_digest": "2968663a300842fcc0b3196ffdc817c0f94f1f72bab913ec04659139b84f264d",
+    "source_content_digest": "14333116f7c548eba9004bd45b2457f05e1f8378ba89cc1cca1a2c61adc6db31",
+    "source_manifest_digest_pre": "34fd5dfec26729de7cc89e2e46a8da2d721914b2d4ec47274b80ed0eb4088766",
+    "source_manifest_digest_post": "34fd5dfec26729de7cc89e2e46a8da2d721914b2d4ec47274b80ed0eb4088766",
+    "config_digest": "1c5d63ed5053f285855bfff95df72576791b50632ed0a49a903ec25c07bfd732",
+    "task_digest": "ba671531a6cb73ad669e6647139b04714850b4a44465d48b862ebefc4ad9e54f",
+    "policy_digest": "64f8a6c6472b337b2e63605d0d1e254620f2445cebcbfcec7df75a7ec6d12a99",
     "check_definitions_digest": "acd753b5c5b1f14c179a6a97e9eea55dc81aa7414ff9f84065c10555ce9d3d8a",
-    "included_files_count": 187,
+    "included_files_count": 191,
     "vcs": {
       "type": "git",
-      "head": "59ee0eb",
-      "commit": "59ee0eb",
+      "head": "d9bf79b",
+      "commit": "d9bf79b",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-09-19T20:39:30Z",
-    "finished_at": "2026-09-19T20:39:46Z",
-    "total_duration_seconds": 16.615309368,
+    "started_at": "2026-10-16T16:29:18Z",
+    "finished_at": "2026-10-16T16:29:34Z",
+    "total_duration_seconds": 16.5143993,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
       "platform": "linux",
-      "version": "0.7.2"
+      "version": "0.7.3"
     }
   },
   "checks": [
@@ -53,43 +50,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.133968194,
+      "duration_seconds": 0.167563453,
       "optional": true,
       "passed": true,
-      "log_digest": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
+      "log_digest": "22e0df986057b9ba5be07526ac5fb348862a3dedef42108383cc3e088acbb889"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.074977434,
+      "duration_seconds": 0.130763193,
       "optional": true,
       "passed": true,
-      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
+      "log_digest": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 15.933112301,
+      "duration_seconds": 15.698479252,
       "optional": false,
       "passed": true,
-      "log_digest": "052174f4aae745d8919ae9c9d2151dda8dddfcdd6e973616fe86b68d0d43a9f3"
+      "log_digest": "87ba0a2343dfeddf3c401497d77993960c68898fda35db483f5d5965064dc6d0"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.314599546,
+      "duration_seconds": 0.328383845,
       "optional": true,
       "passed": true,
-      "log_digest": "9b7bf155dbbcc05db24705e30f713e8b0fb925dc8eca3d5b2443f0e387fc63dd"
+      "log_digest": "471afa1ab410fc84c9e3bc66d648ea15d0564987f84ebb448421ff3f945ce62a"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.011513468,
+      "duration_seconds": 0.010098728,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
