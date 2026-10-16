@@ -1,22 +1,22 @@
 # Verification Report
 
-**Task ID**: `033-sovereign-agentic-sdlc-task-scoping-and-design-tokens`  
-**Task Title**: Task 033: Sovereign Agentic SDLC, Task Scoping & Accessible Design Tokens  
+**Task ID**: `034-declarative-architecture-gate-and-sovereign-skills`  
+**Task Title**: Task 034: Declarative Architecture Gate & Sovereign Skills  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `34fd5dfec26729de7cc89e2e46a8da2d721914b2d4ec47274b80ed0eb4088766`  
-**Timestamp**: `2026-10-16T16:29:34Z`  
-**Head**: `d9bf79b`  
-**Commit**: `d9bf79b`  
+**Source Manifest Digest**: `7dac8811cb6f4531b7a55e78d27e805fd196bb2db78188e5a3bddf721617a805`  
+**Timestamp**: `2026-10-16T19:09:19Z`  
+**Head**: `a2e0c47`  
+**Commit**: `a2e0c47`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (OKF Model Udvidelse)**: `OkfMetadata` i `crates/xgauntlet-core/src/features/tasks/okf.rs` og `TaskPackageInfo` i `models.rs` udvides med `scope: Vec<String>` og `test_refs: Vec<String>` med fail-safe defaults for bagudkompatibilitet.
-- [x] **AC2 (Task Scope & Test-Target Validering)**: `check_task_specification` i `validator.rs` validerer, at enhver aktiv task deklarerer mindst én sti under `scope` og mindst én testfil under `test_refs`.
-- [x] **AC3 (Anti-Monolit Test Guard)**: `check_task_specification` udsteder en diagnostisk fejl (`MONOLITHIC_TEST_FILE_PROHIBITED`), hvis et deklareret `test_refs` mål overskrider 1.000 linjer, medmindre tasken specifikt er en refactoring-opgave.
-- [x] **AC4 (WASM EnforcementContext Udvidelse)**: `EnforcementContext` i `crates/gauntlet-policy-engine/src/lib.rs` udvides med `allowed_scopes: Vec<String>` og `allowed_test_targets: Vec<String>`.
-- [x] **AC5 (WASM Scope Gatekeeper)**: `evaluate()` i policy-motoren afviser (`DecisionVerdict::Deny`, fejlkode `4037`) enhver `WriteFile` handling mod kildekode (`src/**`, `crates/**`) eller tests (`tests/**`), der falder uden for taskens tilladte stier.
-- [x] **AC6 (Regression & Invariant Validering)**: Samtlige eksisterende tests i `tasks_engine_test.rs` og `policy_engine_test.rs` passerer uden regressionsfejl.
+- [x] **AC1 (Architecture Config i `gauntlet.toml`)**: `GauntletConfig` i `crates/xgauntlet-core/src/features/config/models.rs` udvides med `#[serde(default)] pub architecture: ArchitectureConfig` med understøttelse af `max_file_lines`, `max_test_file_lines`, `exemptions`, `forbidden_tokens` og `forbidden_imports`.
+- [x] **AC2 (Architecture Checker Engine)**: `crates/xgauntlet-core/src/features/architecture/` implementerer `run_architecture_check`, der scanner workspace-kildetræet, validerer linjetal mod grænser (med respekt for explicit begrundede undtagelser jf. Ratchet-modellen), og fanger forbudte tokens og imports.
+- [x] **AC3 (CLI Subcommand `check-architecture`)**: `xgauntlet check-architecture` implementeres i `xgauntlet-cli` med formateret terminal-output, der ved overtrædelser returnerer exit code 1 og handlingsanvisende hints.
+- [x] **AC4 (Gauntlet Layer Integration)**: Arkitektur-tjekket kan konfigureres og eksekveres som et verifikationslag i `xgauntlet verify`.
+- [x] **AC5 (Udrulning af 6 Suveræne Skills)**: De 11 eksterne skills i `.agents/plugins/xgauntlet/skills/` erstattes af de 6 suveræne skills: `discover`, `spec`, `tdd`, `review`, `diagnose`, `release`. `plugin.json` og `ALL_EMBEDDED_SKILLS` i `bundle.rs` opdateres tilsvarende.
+- [x] **AC6 (Regression & Verification Gauntlet)**: `architecture_gate_test.rs` og `plugin_distribution_test.rs` samt hele workspace passerer med 0 fejl og clippy clean.
 
 ---
 
@@ -24,10 +24,11 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `lint` | `PASSED` | `0` | `0.168s` |
-| `types` | `PASSED` | `0` | `0.131s` |
-| `unit` | `PASSED` | `0` | `15.698s` |
-| `invariants` | `PASSED` | `0` | `0.328s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
+| `architecture` | `PASSED` | `0` | `0.070s` |
+| `lint` | `PASSED` | `0` | `0.153s` |
+| `types` | `PASSED` | `0` | `1.489s` |
+| `unit` | `PASSED` | `0` | `15.867s` |
+| `invariants` | `PASSED` | `0` | `0.349s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.009s` |
 
 ---

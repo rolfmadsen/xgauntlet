@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 034: Declarative Architecture Gate & Sovereign Skills"
 description: "Etablering af deklarativ [architecture] gatekeeper i gauntlet.toml og udrulning af xGauntlets 6 suveræne skills jf. ADR 0008"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-10-16T20:55:00Z" }
 tags: [architecture, design-tokens, skills, gauntlet-toml, linter, ratchet, adr-0008]
 scope:
@@ -18,7 +18,7 @@ test_refs:
 
 # Task 034: Declarative Architecture Gate & Sovereign Skills
 
-**Status**: `ACTIVE`  
+**Status**: `DONE`  
 **Intent**: `🚀 NEW FEATURE`  
 **Oprettet**: `2026-10-16`  
 
@@ -29,12 +29,12 @@ Etablere xGauntlets deklarative arkitektur-gatekeeper og suveræne Agentic SDLC 
 3. Erstatte de 11 eksterne/Matt Pocock skills med xGauntlets 6 suveræne skills (`discover`, `spec`, `tdd`, `review`, `diagnose`, `release`), som håndhæver xGauntlets metodik uden fremmede dogmer.
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Architecture Config i `gauntlet.toml`)**: `GauntletConfig` i `crates/xgauntlet-core/src/features/config/models.rs` udvides med `#[serde(default)] pub architecture: ArchitectureConfig` med understøttelse af `max_file_lines`, `max_test_file_lines`, `exemptions`, `forbidden_tokens` og `forbidden_imports`.
-- [ ] **AC2 (Architecture Checker Engine)**: `crates/xgauntlet-core/src/features/architecture/` implementerer `run_architecture_check`, der scanner workspace-kildetræet, validerer linjetal mod grænser (med respekt for explicit begrundede undtagelser jf. Ratchet-modellen), og fanger forbudte tokens og imports.
-- [ ] **AC3 (CLI Subcommand `check-architecture`)**: `xgauntlet check-architecture` implementeres i `xgauntlet-cli` med formateret terminal-output, der ved overtrædelser returnerer exit code 1 og handlingsanvisende hints.
-- [ ] **AC4 (Gauntlet Layer Integration)**: Arkitektur-tjekket kan konfigureres og eksekveres som et verifikationslag i `xgauntlet verify`.
-- [ ] **AC5 (Udrulning af 6 Suveræne Skills)**: De 11 eksterne skills i `.agents/plugins/xgauntlet/skills/` erstattes af de 6 suveræne skills: `discover`, `spec`, `tdd`, `review`, `diagnose`, `release`. `plugin.json` og `ALL_EMBEDDED_SKILLS` i `bundle.rs` opdateres tilsvarende.
-- [ ] **AC6 (Regression & Verification Gauntlet)**: `architecture_gate_test.rs` og `plugin_distribution_test.rs` samt hele workspace passerer med 0 fejl og clippy clean.
+- [x] **AC1 (Architecture Config i `gauntlet.toml`)**: `GauntletConfig` i `crates/xgauntlet-core/src/features/config/models.rs` udvides med `#[serde(default)] pub architecture: ArchitectureConfig` med understøttelse af `max_file_lines`, `max_test_file_lines`, `exemptions`, `forbidden_tokens` og `forbidden_imports`.
+- [x] **AC2 (Architecture Checker Engine)**: `crates/xgauntlet-core/src/features/architecture/` implementerer `run_architecture_check`, der scanner workspace-kildetræet, validerer linjetal mod grænser (med respekt for explicit begrundede undtagelser jf. Ratchet-modellen), og fanger forbudte tokens og imports.
+- [x] **AC3 (CLI Subcommand `check-architecture`)**: `xgauntlet check-architecture` implementeres i `xgauntlet-cli` med formateret terminal-output, der ved overtrædelser returnerer exit code 1 og handlingsanvisende hints.
+- [x] **AC4 (Gauntlet Layer Integration)**: Arkitektur-tjekket kan konfigureres og eksekveres som et verifikationslag i `xgauntlet verify`.
+- [x] **AC5 (Udrulning af 6 Suveræne Skills)**: De 11 eksterne skills i `.agents/plugins/xgauntlet/skills/` erstattes af de 6 suveræne skills: `discover`, `spec`, `tdd`, `review`, `diagnose`, `release`. `plugin.json` og `ALL_EMBEDDED_SKILLS` i `bundle.rs` opdateres tilsvarende.
+- [x] **AC6 (Regression & Verification Gauntlet)**: `architecture_gate_test.rs` og `plugin_distribution_test.rs` samt hele workspace passerer med 0 fejl og clippy clean.
 
 ## 🚫 Must NOT
 - Må IKKE bryde bagudkompatibilitet for eksisterende `gauntlet.toml` filer uden `[architecture]` sektion (skal falde tilbage på sikre defaults).

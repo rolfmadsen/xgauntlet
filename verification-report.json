@@ -4,40 +4,40 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "033-sovereign-agentic-sdlc-task-scoping-and-design-tokens",
-    "task_title": "Task 033: Sovereign Agentic SDLC, Task Scoping & Accessible Design Tokens",
-    "task_digest": "ba671531a6cb73ad669e6647139b04714850b4a44465d48b862ebefc4ad9e54f",
+    "task_id": "034-declarative-architecture-gate-and-sovereign-skills",
+    "task_title": "Task 034: Declarative Architecture Gate & Sovereign Skills",
+    "task_digest": "0ae2dbed6dd8097918b8193a2a007b486705789560b0c6716118483ced6d9c4b",
     "acceptance_criteria": [
-      "**AC1 (OKF Model Udvidelse)**: `OkfMetadata` i `crates/xgauntlet-core/src/features/tasks/okf.rs` og `TaskPackageInfo` i `models.rs` udvides med `scope: Vec<String>` og `test_refs: Vec<String>` med fail-safe defaults for bagudkompatibilitet.",
-      "**AC2 (Task Scope & Test-Target Validering)**: `check_task_specification` i `validator.rs` validerer, at enhver aktiv task deklarerer mindst én sti under `scope` og mindst én testfil under `test_refs`.",
-      "**AC3 (Anti-Monolit Test Guard)**: `check_task_specification` udsteder en diagnostisk fejl (`MONOLITHIC_TEST_FILE_PROHIBITED`), hvis et deklareret `test_refs` mål overskrider 1.000 linjer, medmindre tasken specifikt er en refactoring-opgave.",
-      "**AC4 (WASM EnforcementContext Udvidelse)**: `EnforcementContext` i `crates/gauntlet-policy-engine/src/lib.rs` udvides med `allowed_scopes: Vec<String>` og `allowed_test_targets: Vec<String>`.",
-      "**AC5 (WASM Scope Gatekeeper)**: `evaluate()` i policy-motoren afviser (`DecisionVerdict::Deny`, fejlkode `4037`) enhver `WriteFile` handling mod kildekode (`src/**`, `crates/**`) eller tests (`tests/**`), der falder uden for taskens tilladte stier.",
-      "**AC6 (Regression & Invariant Validering)**: Samtlige eksisterende tests i `tasks_engine_test.rs` og `policy_engine_test.rs` passerer uden regressionsfejl."
+      "**AC1 (Architecture Config i `gauntlet.toml`)**: `GauntletConfig` i `crates/xgauntlet-core/src/features/config/models.rs` udvides med `#[serde(default)] pub architecture: ArchitectureConfig` med understøttelse af `max_file_lines`, `max_test_file_lines`, `exemptions`, `forbidden_tokens` og `forbidden_imports`.",
+      "**AC2 (Architecture Checker Engine)**: `crates/xgauntlet-core/src/features/architecture/` implementerer `run_architecture_check`, der scanner workspace-kildetræet, validerer linjetal mod grænser (med respekt for explicit begrundede undtagelser jf. Ratchet-modellen), og fanger forbudte tokens og imports.",
+      "**AC3 (CLI Subcommand `check-architecture`)**: `xgauntlet check-architecture` implementeres i `xgauntlet-cli` med formateret terminal-output, der ved overtrædelser returnerer exit code 1 og handlingsanvisende hints.",
+      "**AC4 (Gauntlet Layer Integration)**: Arkitektur-tjekket kan konfigureres og eksekveres som et verifikationslag i `xgauntlet verify`.",
+      "**AC5 (Udrulning af 6 Suveræne Skills)**: De 11 eksterne skills i `.agents/plugins/xgauntlet/skills/` erstattes af de 6 suveræne skills: `discover`, `spec`, `tdd`, `review`, `diagnose`, `release`. `plugin.json` og `ALL_EMBEDDED_SKILLS` i `bundle.rs` opdateres tilsvarende.",
+      "**AC6 (Regression & Verification Gauntlet)**: `architecture_gate_test.rs` og `plugin_distribution_test.rs` samt hele workspace passerer med 0 fejl og clippy clean."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "14333116f7c548eba9004bd45b2457f05e1f8378ba89cc1cca1a2c61adc6db31",
-    "source_manifest_digest_pre": "34fd5dfec26729de7cc89e2e46a8da2d721914b2d4ec47274b80ed0eb4088766",
-    "source_manifest_digest_post": "34fd5dfec26729de7cc89e2e46a8da2d721914b2d4ec47274b80ed0eb4088766",
-    "config_digest": "1c5d63ed5053f285855bfff95df72576791b50632ed0a49a903ec25c07bfd732",
-    "task_digest": "ba671531a6cb73ad669e6647139b04714850b4a44465d48b862ebefc4ad9e54f",
+    "source_content_digest": "948cde6c07680c4d4e35a043b618b9272985f763db150563e51660a7ca8a46db",
+    "source_manifest_digest_pre": "7dac8811cb6f4531b7a55e78d27e805fd196bb2db78188e5a3bddf721617a805",
+    "source_manifest_digest_post": "7dac8811cb6f4531b7a55e78d27e805fd196bb2db78188e5a3bddf721617a805",
+    "config_digest": "383d5d916b93ef4c99e5630f0b84c5510002bca50b55855441a990f616be4568",
+    "task_digest": "0ae2dbed6dd8097918b8193a2a007b486705789560b0c6716118483ced6d9c4b",
     "policy_digest": "64f8a6c6472b337b2e63605d0d1e254620f2445cebcbfcec7df75a7ec6d12a99",
-    "check_definitions_digest": "acd753b5c5b1f14c179a6a97e9eea55dc81aa7414ff9f84065c10555ce9d3d8a",
-    "included_files_count": 191,
+    "check_definitions_digest": "cf0a7f067cd04464f9383abca5a540459ce0c9271ad29b2bed58c0873b0dfb5b",
+    "included_files_count": 180,
     "vcs": {
       "type": "git",
-      "head": "d9bf79b",
-      "commit": "d9bf79b",
+      "head": "a2e0c47",
+      "commit": "a2e0c47",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-10-16T16:29:18Z",
-    "finished_at": "2026-10-16T16:29:34Z",
-    "total_duration_seconds": 16.5143993,
+    "started_at": "2026-10-16T19:09:01Z",
+    "finished_at": "2026-10-16T19:09:19Z",
+    "total_duration_seconds": 18.119376071,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -47,46 +47,55 @@
   },
   "checks": [
     {
+      "name": "architecture",
+      "status": "PASSED",
+      "exit_code": 0,
+      "duration_seconds": 0.069825481,
+      "optional": false,
+      "passed": true,
+      "log_digest": "2ba87187dcbbd3d1225618685da0f61d6d1c7edb1deffd6c5832449f6d3842b5"
+    },
+    {
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.167563453,
-      "optional": true,
-      "passed": true,
-      "log_digest": "22e0df986057b9ba5be07526ac5fb348862a3dedef42108383cc3e088acbb889"
-    },
-    {
-      "name": "types",
-      "status": "PASSED",
-      "exit_code": 0,
-      "duration_seconds": 0.130763193,
+      "duration_seconds": 0.15338325,
       "optional": true,
       "passed": true,
       "log_digest": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
     },
     {
+      "name": "types",
+      "status": "PASSED",
+      "exit_code": 0,
+      "duration_seconds": 1.4889140410000001,
+      "optional": true,
+      "passed": true,
+      "log_digest": "a5be652e7ea092d43c316bdbdc6c8215e1714cd6d389b3d20060695a995b92f8"
+    },
+    {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 15.698479252,
+      "duration_seconds": 15.867058283,
       "optional": false,
       "passed": true,
-      "log_digest": "87ba0a2343dfeddf3c401497d77993960c68898fda35db483f5d5965064dc6d0"
+      "log_digest": "12083a51417ef8737c69268cfef94c222432b507d89b19c8f5ed8bcdacdea09e"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.328383845,
+      "duration_seconds": 0.349088193,
       "optional": true,
       "passed": true,
-      "log_digest": "471afa1ab410fc84c9e3bc66d648ea15d0564987f84ebb448421ff3f945ce62a"
+      "log_digest": "069182f78d8c066d395918496352cbbaece0cc6a4096672432c68de678590b68"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.010098728,
+      "duration_seconds": 0.009314673,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
