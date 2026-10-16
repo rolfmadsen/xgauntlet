@@ -140,3 +140,79 @@ pub fn execute_git_commit(
         .to_string();
     Ok(oid)
 }
+
+/// Resolves the current git branch name.
+pub fn get_current_branch(workspace: &Path) -> Result<String, CheckpointError> {
+    let output = Command::new("git")
+        .args(["rev-parse", "--abbrev-ref", "HEAD"])
+        .current_dir(workspace)
+        .output()
+        .map_err(|e| CheckpointError::GitError(format!("Failed to rev-parse branch: {e}")))?;
+
+    if !output.status.success() {
+        return Err(CheckpointError::GitError(
+            "Failed to determine current git branch".to_string(),
+        ));
+    }
+
+    let branch = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    if branch.is_empty() || branch == "HEAD" {
+        Ok("main".to_string())
+    } else {
+        Ok(branch)
+    }
+}
+
+/// Resolves the current HEAD commit hash (40-char OID).
+pub fn get_head_commit_oid(workspace: &Path) -> Result<String, CheckpointError> {
+    let output = Command::new("git")
+        .args(["rev-parse", "HEAD"])
+        .current_dir(workspace)
+        .output()
+        .map_err(|e| CheckpointError::GitError(format!("Failed to rev-parse HEAD: {e}")))?;
+
+    if !output.status.success() {
+        return Err(CheckpointError::GitError(
+            "Failed to resolve HEAD commit OID".to_string(),
+        ));
+    }
+
+    Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
+}
+
+/// Inspects how many commits the current branch is ahead of its remote upstream.
+pub fn get_commits_ahead(workspace: &Path) -> Result<usize, CheckpointError> {
+    let output = Command::new("git")
+        .args(["rev-list", "--count", "@{u}..HEAD"])
+        .current_dir(workspace)
+        .output();
+
+    match output {
+        Ok(out) if out.status.success() => {
+            let s = String::from_utf8_lossy(&out.stdout).trim().to_string();
+            Ok(s.parse::<usize>().unwrap_or(0))
+        }
+        _ => {
+            // Upstream might not exist, count commits on branch as fallback
+            Ok(0)
+        }
+    }
+}
+
+/// Checks whether the Git workspace is clean (no unstaged/staged modifications).
+pub fn is_worktree_clean(workspace: &Path) -> Result<bool, CheckpointError> {
+    let output = Command::new("git")
+        .args(["status", "--porcelain"])
+        .current_dir(workspace)
+        .output()
+        .map_err(|e| CheckpointError::GitError(format!("Failed to check git status: {e}")))?;
+
+    if !output.status.success() {
+        return Err(CheckpointError::GitError(
+            "Failed to inspect git worktree status".to_string(),
+        ));
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    Ok(stdout.trim().is_empty())
+}

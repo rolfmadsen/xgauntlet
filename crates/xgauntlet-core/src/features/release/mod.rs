@@ -10,10 +10,10 @@ pub mod manifests;
 pub mod models;
 
 pub use adr::{check_adr_coverage, AdrCoverageSummary};
-pub use changelog::{parse_changelog_versions, validate_changelog};
+pub use changelog::{parse_changelog_versions, prepare_changelog_release, validate_changelog};
 pub use engine::{check_release_readiness, ReleaseReadinessEngine};
-pub use manifests::{extract_declared_versions, ManifestVersionSummary};
+pub use manifests::{extract_declared_versions, update_manifest_versions, ManifestVersionSummary};
 pub use models::{
-    ReleaseError, ReleaseFinding, ReleaseFindingCategory, ReleaseReadinessOptions,
-    ReleaseReadinessReport,
+    bump_semver, generate_release_git_instructions, ReleaseError, ReleaseFinding,
+    ReleaseFindingCategory, ReleaseReadinessOptions, ReleaseReadinessReport, SemverBump,
 };

@@ -13,7 +13,7 @@ pub use features::architecture::{
 pub use features::checkpoint::{
     compose_commit_message, execute_git_commit, extract_short_task_id, run_checkpoint,
     run_preflight_check, stage_workspace_changes, CheckpointError, CheckpointOptions,
-    CheckpointPhase, CheckpointResult,
+    CheckpointPhase, CheckpointResult, SessionHandoff,
 };
 pub use features::config::{
     default_config_for_stack, detect_stack, get_stack_profile, list_supported_stacks, load_config,
@@ -32,7 +32,7 @@ pub use features::doctor::{
 };
 pub use features::evidence::{
     classify_evidence_payload, compute_digest_of_files, compute_file_git_blob_oid,
-    compute_file_raw_hash, compute_workspace_manifest, generate_report_json,
+    compute_file_raw_hash, compute_workspace_manifest, current_iso_utc, generate_report_json,
     generate_report_markdown, is_binary_buffer, is_excluded, load_report_json,
     load_verification_report, save_verification_report, verify_self_mutation,
     verify_workspace_state_match, AttestationStatus, CanonicalWorkspaceManifest, CheckStatus,
@@ -57,10 +57,11 @@ pub use features::policy::{
     PolicyError, PolicyEvaluator, ToolActionType, WasmPolicyEngine, WorkspaceRelativePath,
 };
 pub use features::release::{
-    check_adr_coverage, check_release_readiness, extract_declared_versions,
-    parse_changelog_versions, validate_changelog, AdrCoverageSummary, ManifestVersionSummary,
+    bump_semver, check_adr_coverage, check_release_readiness, extract_declared_versions,
+    generate_release_git_instructions, parse_changelog_versions, prepare_changelog_release,
+    update_manifest_versions, validate_changelog, AdrCoverageSummary, ManifestVersionSummary,
     ReleaseError, ReleaseFinding, ReleaseFindingCategory, ReleaseReadinessEngine,
-    ReleaseReadinessOptions, ReleaseReadinessReport,
+    ReleaseReadinessOptions, ReleaseReadinessReport, SemverBump,
 };
 pub use features::scaffold::{
     generate_templates, run_scaffold, ScaffoldAction, ScaffoldError, ScaffoldFileReport,

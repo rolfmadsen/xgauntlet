@@ -111,6 +111,72 @@ pub enum ReleaseError {
     #[error("Invalid workspace path: {0}")]
     InvalidWorkspace(String),
 
+    #[error("Invalid SemVer version string: {0}")]
+    InvalidVersion(String),
+
     #[error("General release engine error: {0}")]
     General(String),
+}
+
+/// Semantic versioning bump increment type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SemverBump {
+    Patch,
+    Minor,
+    Major,
+}
+
+impl std::str::FromStr for SemverBump {
+    type Err = ReleaseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_ascii_lowercase().trim() {
+            "patch" => Ok(Self::Patch),
+            "minor" => Ok(Self::Minor),
+            "major" => Ok(Self::Major),
+            other => Err(ReleaseError::General(format!(
+                "Invalid SemVer bump increment: '{other}' (expected: patch, minor, major)"
+            ))),
+        }
+    }
+}
+
+/// Calculates the next semantic version given a current version string and bump increment.
+pub fn bump_semver(current: &str, bump: SemverBump) -> Result<String, ReleaseError> {
+    let clean = current.trim().trim_start_matches(['v', 'V']);
+    let main_part = clean.split(['-', '+']).next().unwrap_or(clean);
+    let parts: Vec<&str> = main_part.split('.').collect();
+    if parts.len() < 3 {
+        return Err(ReleaseError::InvalidVersion(format!(
+            "Cannot parse SemVer from '{current}': expected 3 numeric components (MAJOR.MINOR.PATCH)"
+        )));
+    }
+
+    let major: u64 = parts[0].parse().map_err(|_| {
+        ReleaseError::InvalidVersion(format!("Non-numeric MAJOR in SemVer '{current}'"))
+    })?;
+    let minor: u64 = parts[1].parse().map_err(|_| {
+        ReleaseError::InvalidVersion(format!("Non-numeric MINOR in SemVer '{current}'"))
+    })?;
+    let patch: u64 = parts[2].parse().map_err(|_| {
+        ReleaseError::InvalidVersion(format!("Non-numeric PATCH in SemVer '{current}'"))
+    })?;
+
+    match bump {
+        SemverBump::Major => Ok(format!("{}.0.0", major + 1)),
+        SemverBump::Minor => Ok(format!("{}.{}.0", major, minor + 1)),
+        SemverBump::Patch => Ok(format!("{}.{}.{}", major, minor, patch + 1)),
+    }
+}
+
+/// Generates standard conventional Git publication commands for a release version and branch.
+pub fn generate_release_git_instructions(new_version: &str, branch: &str) -> String {
+    let ver = new_version.trim().trim_start_matches(['v', 'V']);
+    format!(
+        "git add Cargo.toml Cargo.lock CHANGELOG.md\n\
+         git commit -m \"chore(release): prepare v{ver}\"\n\
+         git tag -a v{ver} -m \"Release v{ver}\"\n\
+         git push origin {branch} --tags"
+    )
 }

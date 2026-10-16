@@ -3,6 +3,9 @@
 use clap::{Parser, Subcommand};
 use xgauntlet_core::get_engine_info;
 
+mod render;
+use render::*;
+
 #[derive(Parser, Debug)]
 #[command(name = "xgauntlet")]
 #[command(about = "Universal cross-platform verification gauntlet & policy sidecar", long_about = None)]
@@ -241,6 +244,29 @@ enum Commands {
         #[arg(long)]
         harness: Option<String>,
     },
+    /// Generate and display deterministic session handoff card for active or completed task
+    Handoff {
+        /// Explicit task identifier (e.g. '035' or '035-mechanical-session-handoff-and-release-engine')
+        #[arg(short, long)]
+        task: Option<String>,
+
+        /// Inferred next engineering role (e.g. 'Architect', 'Software Engineer', 'QA')
+        #[arg(short, long)]
+        role: Option<String>,
+
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Output handoff card in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
+    /// Semantic version release manager: bump manifests, rotate changelog, and emit Git tags
+    Release {
+        #[command(subcommand)]
+        command: ReleaseCommands,
+    },
     /// Global plugin distribution and skills management
     Plugin {
         #[command(subcommand)]
@@ -250,6 +276,45 @@ enum Commands {
     Topology {
         #[command(subcommand)]
         command: TopologyCommands,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+enum ReleaseCommands {
+    /// Bump declared project version across manifests and rotate CHANGELOG.md
+    Bump {
+        /// Increment type: patch, minor, or major
+        #[arg(value_parser = ["patch", "minor", "major"])]
+        increment: String,
+
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Dry run without writing changes to disk
+        #[arg(long)]
+        dry_run: bool,
+
+        /// Output results in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
+    /// Set an explicit declared version across manifests and rotate CHANGELOG.md
+    Prepare {
+        /// Explicit target version string (e.g. '1.0.0' or '0.4.0')
+        version: String,
+
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Dry run without writing changes to disk
+        #[arg(long)]
+        dry_run: bool,
+
+        /// Output results in structured JSON format
+        #[arg(long)]
+        json: bool,
     },
 }
 
@@ -975,13 +1040,17 @@ async fn main() -> anyhow::Result<()> {
                             .as_deref()
                             .map(|oid| if oid.len() >= 7 { &oid[..7] } else { oid })
                             .unwrap_or("unknown");
-                        let body = format!(
+                        let mut body = format!(
                             "Phase Checkpoint [{}] committed: {} (commit: {})\nStaged files: {}",
                             res.phase.as_str().to_uppercase(),
                             res.commit_message,
                             oid_short,
                             res.staged_files.join(", ")
                         );
+                        if let Some(ref handoff) = res.handoff {
+                            body.push_str("\n\n");
+                            body.push_str(&handoff.formatted_card);
+                        }
                         match xgauntlet_core::HarnessKind::parse_alias(h) {
                             Some(xgauntlet_core::HarnessKind::Antigravity) => {
                                 let hud = telemetry
@@ -1033,6 +1102,139 @@ async fn main() -> anyhow::Result<()> {
                 }
             }
         }
+
+        Some(Commands::Handoff {
+            task,
+            role,
+            workspace,
+            json,
+        }) => {
+            let canonical_ws = if workspace.is_absolute() {
+                workspace.clone()
+            } else {
+                std::env::current_dir()?.join(workspace)
+            };
+
+            let target_task = if let Some(ref t) = task {
+                t.clone()
+            } else if let Some(active) = xgauntlet_core::resolve_active_task_id(&canonical_ws) {
+                active
+            } else if let Some(latest) = xgauntlet_core::resolve_latest_done_task_id(&canonical_ws) {
+                latest
+            } else {
+                eprintln!("🛑 No active or completed task found in workspace");
+                std::process::exit(1);
+            };
+
+            let handoff = match xgauntlet_core::SessionHandoff::generate(
+                &canonical_ws,
+                &target_task,
+                role.as_deref(),
+            ) {
+                Ok(h) => h,
+                Err(e) => {
+                    eprintln!("🛑 Failed to generate session handoff: {e}");
+                    std::process::exit(1);
+                }
+            };
+
+            if *json {
+                println!("{}", serde_json::to_string_pretty(&handoff)?);
+            } else {
+                println!("{}", handoff.formatted_card);
+            }
+        }
+
+        Some(Commands::Release { command }) => match command {
+            ReleaseCommands::Bump {
+                increment,
+                workspace,
+                dry_run,
+                json,
+            } => {
+                let canonical_ws = if workspace.is_absolute() {
+                    workspace.clone()
+                } else {
+                    std::env::current_dir()?.join(workspace)
+                };
+
+                let bump: xgauntlet_core::SemverBump = match increment.parse() {
+                    Ok(b) => b,
+                    Err(e) => {
+                        eprintln!("🛑 {e}");
+                        std::process::exit(1);
+                    }
+                };
+
+                let manifest_summary = match xgauntlet_core::extract_declared_versions(&canonical_ws) {
+                    Ok(m) => m,
+                    Err(e) => {
+                        eprintln!("🛑 Failed to inspect manifests: {e}");
+                        std::process::exit(1);
+                    }
+                };
+
+                let current_version = manifest_summary
+                    .versions_by_source
+                    .values()
+                    .next()
+                    .cloned()
+                    .unwrap_or_else(|| "0.1.0".to_string());
+
+                let next_version = match xgauntlet_core::bump_semver(&current_version, bump) {
+                    Ok(v) => v,
+                    Err(e) => {
+                        eprintln!("🛑 Failed to compute SemVer bump: {e}");
+                        std::process::exit(1);
+                    }
+                };
+
+                execute_release_workflow(
+                    &canonical_ws,
+                    &current_version,
+                    &next_version,
+                    *dry_run,
+                    *json,
+                )?;
+            }
+            ReleaseCommands::Prepare {
+                version,
+                workspace,
+                dry_run,
+                json,
+            } => {
+                let canonical_ws = if workspace.is_absolute() {
+                    workspace.clone()
+                } else {
+                    std::env::current_dir()?.join(workspace)
+                };
+
+                let manifest_summary = match xgauntlet_core::extract_declared_versions(&canonical_ws) {
+                    Ok(m) => m,
+                    Err(e) => {
+                        eprintln!("🛑 Failed to inspect manifests: {e}");
+                        std::process::exit(1);
+                    }
+                };
+
+                let current_version = manifest_summary
+                    .versions_by_source
+                    .values()
+                    .next()
+                    .cloned()
+                    .unwrap_or_else(|| "0.0.0".to_string());
+
+                let clean_version = version.trim().trim_start_matches(['v', 'V']).to_string();
+
+                execute_release_workflow(
+                    &canonical_ws,
+                    &current_version,
+                    &clean_version,
+                    *dry_run,
+                    *json,
+                )?;
+            }
+        },
 
         Some(Commands::Plugin { command }) => match command {
             PluginCommands::Install {
@@ -1632,330 +1834,4 @@ fn render_check_architecture_summary(report: &xgauntlet_core::ArchitectureReport
         }
         println!();
     }
-}
-
-fn render_init_summary(result: &xgauntlet_core::ScaffoldResult, dry_run: bool) {
-    println!("\n=== xGauntlet Project Initialization & Scaffold Engine ===\n");
-    if dry_run {
-        println!(
-            "\x1b[33m[DRY RUN] Previewing file actions without modifying filesystem:\x1b[0m\n"
-        );
-    }
-
-    println!("Workspace:     {}", result.workspace.display());
-    println!("Stack profile: {}", result.stack);
-    println!("\nFiles:");
-
-    for file in &result.files {
-        let (tag, color) = match file.action {
-            xgauntlet_core::ScaffoldAction::Created => ("[+] CREATED", "\x1b[32m"),
-            xgauntlet_core::ScaffoldAction::Skipped => ("[*] SKIPPED", "\x1b[33m"),
-            xgauntlet_core::ScaffoldAction::Overwritten => ("[!] OVERWRITTEN", "\x1b[35m"),
-            xgauntlet_core::ScaffoldAction::WouldCreate => ("[+] WOULD CREATE", "\x1b[32m"),
-            xgauntlet_core::ScaffoldAction::WouldSkip => ("[*] WOULD SKIP", "\x1b[33m"),
-            xgauntlet_core::ScaffoldAction::WouldOverwrite => ("[!] WOULD OVERWRITE", "\x1b[35m"),
-        };
-
-        let reason_str = match &file.reason {
-            Some(r) => format!(" ({r})"),
-            None => String::new(),
-        };
-
-        println!("  {}{:<17}\x1b[0m {}{}", color, tag, file.path, reason_str);
-    }
-
-    println!();
-    if dry_run {
-        let would_create = result
-            .files
-            .iter()
-            .filter(|f| f.action == xgauntlet_core::ScaffoldAction::WouldCreate)
-            .count();
-        let would_skip = result
-            .files
-            .iter()
-            .filter(|f| f.action == xgauntlet_core::ScaffoldAction::WouldSkip)
-            .count();
-        let would_overwrite = result
-            .files
-            .iter()
-            .filter(|f| f.action == xgauntlet_core::ScaffoldAction::WouldOverwrite)
-            .count();
-        println!(
-            "Summary: {} would create, {} would skip, {} would overwrite.",
-            would_create, would_skip, would_overwrite
-        );
-    } else {
-        println!(
-            "Summary: {} created, {} skipped, {} overwritten.",
-            result.created_count, result.skipped_count, result.overwritten_count
-        );
-        println!("\n\x1b[32m[SUCCESS] In-repo governance files initialized safely.\x1b[0m");
-        println!("Next steps:");
-        println!("  1. Inspect 'gauntlet.toml' and 'CONTEXT.md'.");
-        println!("  2. Run 'xgauntlet check-spec' to validate specification contracts.");
-        println!("  3. Run 'xgauntlet verify' to execute your verification gauntlet.\n");
-    }
-}
-
-fn render_doctor_summary(report: &xgauntlet_core::DoctorReport, verbose: bool) {
-    println!("\n=== xGauntlet Workspace Diagnostics & Doctor Engine ===\n");
-    println!("Workspace: {}", report.workspace.display());
-    println!(
-        "Platform:  {} (Engine v{})",
-        report.target_platform, report.engine_version
-    );
-    println!("Timestamp: {}", report.timestamp);
-    println!();
-
-    let categories = [
-        xgauntlet_core::DoctorCategory::Host,
-        xgauntlet_core::DoctorCategory::Git,
-        xgauntlet_core::DoctorCategory::Governance,
-        xgauntlet_core::DoctorCategory::Toolchains,
-        xgauntlet_core::DoctorCategory::Engine,
-        xgauntlet_core::DoctorCategory::Harnesses,
-    ];
-
-    for cat in &categories {
-        let cat_checks: Vec<_> = report
-            .checks
-            .iter()
-            .filter(|c| c.category == *cat)
-            .collect();
-        if cat_checks.is_empty() {
-            continue;
-        }
-
-        println!("Category: \x1b[1m{}\x1b[0m", cat.as_str().to_uppercase());
-        for check in cat_checks {
-            let (tag, color) = match check.status {
-                xgauntlet_core::DoctorCheckStatus::Pass => ("[PASS]", "\x1b[32m"),
-                xgauntlet_core::DoctorCheckStatus::Warn => ("[WARN]", "\x1b[33m"),
-                xgauntlet_core::DoctorCheckStatus::Fail => ("[FAIL]", "\x1b[31m"),
-                xgauntlet_core::DoctorCheckStatus::Info => ("[INFO]", "\x1b[36m"),
-            };
-
-            println!(
-                "  {}{:<6}\x1b[0m {:<28} {} ({:.1}ms)",
-                color, tag, check.name, check.message, check.duration_ms
-            );
-
-            if verbose {
-                if let Some(ref detail) = check.detail {
-                    println!("         \x1b[90mDetail: {}\x1b[0m", detail);
-                }
-            }
-
-            if let Some(ref remediation) = check.remediation {
-                println!("         \x1b[33mAction: {}\x1b[0m", remediation);
-            }
-        }
-        println!();
-    }
-
-    println!("--------------------------------------------------");
-    println!(
-        "Summary: {} passed, {} warning(s), {} failed, {} info. Total time: {}ms",
-        report.passed_count,
-        report.warn_count,
-        report.failed_count,
-        report.info_count,
-        report.duration_total_ms
-    );
-
-    match report.verdict {
-        xgauntlet_core::DoctorVerdict::Healthy => {
-            println!("\x1b[32m[HEALTHY] Workspace environment and toolchains are ready.\x1b[0m\n");
-        }
-        xgauntlet_core::DoctorVerdict::Degraded => {
-            println!(
-                "\x1b[33m[DEGRADED] Workspace has warnings. Inspect remediation hints above.\x1b[0m\n"
-            );
-        }
-        xgauntlet_core::DoctorVerdict::Critical => {
-            println!(
-                "\x1b[31m[CRITICAL] Workspace has failing checks. Remediation required.\x1b[0m\n"
-            );
-        }
-    }
-}
-
-fn render_release_summary(report: &xgauntlet_core::ReleaseReadinessReport) {
-    println!("\n=== \x1b[1m🛡️ xGauntlet Release Readiness Gatekeeper\x1b[0m ===\n");
-    println!(
-        "Target Declared Version: \x1b[1m{}\x1b[0m",
-        report.declared_version
-    );
-    println!("Inspected Files:         {}", report.inspected_files.len());
-    println!("Execution Duration:      {}ms\n", report.duration_ms);
-
-    println!("Manifests & Versions:");
-    if report.versions_by_source.is_empty() {
-        println!("  \x1b[33m(no manifests found)\x1b[0m");
-    } else {
-        for (src, ver) in &report.versions_by_source {
-            println!("  • {:<30} \x1b[32m{}\x1b[0m", src, ver);
-        }
-    }
-    println!();
-
-    println!("Changelog Releases:");
-    if report.changelog_versions.is_empty() {
-        println!("  \x1b[33m(no releases recorded in CHANGELOG.md)\x1b[0m");
-    } else {
-        let preview: Vec<_> = report.changelog_versions.iter().take(5).collect();
-        println!(
-            "  • Found {} release(s): {}",
-            report.changelog_versions.len(),
-            preview
-                .iter()
-                .map(|s| s.as_str())
-                .collect::<Vec<_>>()
-                .join(", ")
-        );
-    }
-    println!();
-
-    let adr_count = report
-        .inspected_files
-        .iter()
-        .filter(|f| f.starts_with("docs/adr/"))
-        .count();
-    let unref_count = report.unreferenced_adrs.len();
-    let ref_count = adr_count.saturating_sub(unref_count);
-    println!("Architecture Decision Records (ADRs):");
-    if adr_count == 0 {
-        println!("  \x1b[90m(no ADRs found in docs/adr/)\x1b[0m");
-    } else {
-        let pct = (ref_count * 100).checked_div(adr_count).unwrap_or(100);
-        println!(
-            "  • Coverage: {}/{} ADRs referenced in README.md/spec.md ({}%)",
-            ref_count, adr_count, pct
-        );
-    }
-    println!();
-
-    if !report.diagnostics.is_empty() {
-        println!("--------------------------------------------------");
-        println!("\x1b[31m[!] Release Discrepancies & Blockers:\x1b[0m");
-        for d in &report.diagnostics {
-            println!(
-                "  \x1b[31m• [{}] {}\x1b[0m: {}",
-                d.category, d.file_path, d.message
-            );
-            println!("    \x1b[33mAction: {}\x1b[0m", d.remediation_hint);
-        }
-        println!("--------------------------------------------------\n");
-    }
-
-    if report.is_ready {
-        println!("\x1b[32;1m✅ RELEASE READY\x1b[0m: All manifests in harmony, changelog synced, and ADR coverage complete.\n");
-    } else {
-        println!(
-            "\x1b[31;1m❌ RELEASE BLOCKED\x1b[0m: Resolve the {} issue(s) detailed above before publishing.\n",
-            report.diagnostics.len()
-        );
-    }
-}
-
-fn render_task_scaffold_summary(res: &xgauntlet_core::TaskScaffoldResult) {
-    println!("✅ Scaffolding complete for task [{}]", res.task_id);
-    println!("   Number: {:03}", res.task_number);
-    println!("   Title:  {}", res.title);
-    println!("   Intent: {}", res.intent);
-    println!("   Path:   {}", res.path.display());
-}
-
-fn render_task_status_summary(telemetry: &xgauntlet_core::TaskTelemetry) {
-    println!(
-        "🛡️  Task Telemetry: [{}] {}",
-        telemetry.task_id, telemetry.title
-    );
-    let intent_str = telemetry.intent.as_deref().unwrap_or("🚀 NEW FEATURE");
-    println!(
-        "   Status:   {} | Intent: {}",
-        telemetry.status.as_str(),
-        intent_str
-    );
-    println!(
-        "   Progress: Criteria: {}/{} {} {}%",
-        telemetry.criteria.completed,
-        telemetry.criteria.total,
-        telemetry.criteria.bar,
-        telemetry.criteria.percentage
-    );
-    let git_status = if telemetry.git.is_clean {
-        "clean".to_string()
-    } else {
-        format!("dirty: {} files", telemetry.git.dirty_count)
-    };
-    println!(
-        "   Git:      {}@{} • {}",
-        telemetry.git.branch, telemetry.git.head_oid, git_status
-    );
-    println!("   Path:     {}", telemetry.file_path);
-}
-
-fn render_task_list_summary(items: &[xgauntlet_core::TaskSummaryItem]) {
-    if items.is_empty() {
-        println!("No task packages discovered in tasks/.");
-        return;
-    }
-    println!("📋 Task Packages ({} total):", items.len());
-    println!("{:<6} {:<10} {:<18} TITLE", "ID", "STATUS", "PROGRESS");
-    println!("{}", "-".repeat(75));
-    for item in items {
-        let num_str = item
-            .task_number
-            .map(|n| format!("{n:03}"))
-            .unwrap_or_else(|| "---".to_string());
-        let prog_str = format!(
-            "{}/{} {} {:>3}%",
-            item.criteria.completed,
-            item.criteria.total,
-            item.criteria.bar,
-            item.criteria.percentage
-        );
-        println!(
-            "{:<6} {:<10} {:<18} {}",
-            num_str,
-            item.status.as_str(),
-            prog_str,
-            item.title
-        );
-    }
-}
-
-fn render_checkpoint_summary(res: &xgauntlet_core::CheckpointResult) {
-    println!("\n=== xGauntlet Phase Checkpoint Engine ===");
-    let phase_badge = match res.phase {
-        xgauntlet_core::CheckpointPhase::Spec => "\x1b[36m[SPEC]\x1b[0m",
-        xgauntlet_core::CheckpointPhase::Red => "\x1b[31m[RED]\x1b[0m",
-        xgauntlet_core::CheckpointPhase::Green => "\x1b[32m[GREEN]\x1b[0m",
-        xgauntlet_core::CheckpointPhase::Refactor => "\x1b[33m[REFACTOR]\x1b[0m",
-        xgauntlet_core::CheckpointPhase::Done => "\x1b[35m[DONE]\x1b[0m",
-    };
-    println!(
-        "🛡️  Phase:      {} {}",
-        res.phase.as_str().to_uppercase(),
-        phase_badge
-    );
-    println!("📋 Task ID:    {}", res.task_id);
-    let oid_short = res
-        .commit_oid
-        .as_deref()
-        .map(|oid| if oid.len() >= 7 { &oid[..7] } else { oid })
-        .unwrap_or("unknown");
-    println!(
-        "🔒 Commit OID: {} ({})",
-        oid_short,
-        res.commit_oid.as_deref().unwrap_or("none")
-    );
-    println!("💬 Message:    {}", res.commit_message);
-    println!("📦 Staged:     {} file(s)", res.staged_files.len());
-    for f in &res.staged_files {
-        println!("   + {}", f);
-    }
-    println!();
 }

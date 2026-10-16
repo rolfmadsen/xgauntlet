@@ -213,3 +213,165 @@ pub fn extract_declared_versions(workspace: &Path) -> Result<ManifestVersionSumm
         inspected_files,
     })
 }
+
+/// Updates declared versions across all recognized project manifests (Cargo.toml, package.json, pyproject.toml)
+/// with the specified target version string.
+///
+/// Returns a list of relative paths for all manifest files that were modified.
+pub fn update_manifest_versions(
+    workspace: &Path,
+    new_version: &str,
+) -> Result<Vec<String>, ReleaseError> {
+    let clean_version = new_version.trim().trim_start_matches(['v', 'V']);
+    let mut updated_files = Vec::new();
+
+    // 1. Root Cargo.toml
+    let root_cargo = workspace.join("Cargo.toml");
+    if root_cargo.is_file() {
+        let content = fs::read_to_string(&root_cargo)?;
+        let mut new_lines = Vec::new();
+        let mut in_target_section = false;
+        let mut modified = false;
+
+        for line in content.lines() {
+            let trimmed = line.trim();
+            if trimmed.starts_with('[') && trimmed.ends_with(']') {
+                let section = trimmed.trim_start_matches('[').trim_end_matches(']').trim();
+                in_target_section = section == "workspace.package" || section == "package";
+                new_lines.push(line.to_string());
+                continue;
+            }
+
+            if in_target_section && trimmed.starts_with("version") {
+                let mut parts = trimmed.splitn(2, '=');
+                let key = parts.next().unwrap_or("").trim();
+                if key == "version" {
+                    let indent = line.chars().take_while(|c| c.is_whitespace()).collect::<String>();
+                    new_lines.push(format!("{indent}version = \"{clean_version}\""));
+                    modified = true;
+                    continue;
+                }
+            }
+
+            new_lines.push(line.to_string());
+        }
+
+        if modified {
+            fs::write(&root_cargo, new_lines.join("\n") + "\n")?;
+            updated_files.push("Cargo.toml".to_string());
+        }
+    }
+
+    // 2. Child crates/*/Cargo.toml (only if package.version is not inheriting workspace)
+    let crates_dir = workspace.join("crates");
+    if crates_dir.is_dir() {
+        if let Ok(entries) = fs::read_dir(crates_dir) {
+            for entry in entries.flatten() {
+                let sub_cargo = entry.path().join("Cargo.toml");
+                if sub_cargo.is_file() {
+                    let content = fs::read_to_string(&sub_cargo)?;
+                    let (_, _, inherits) = parse_cargo_toml_versions(&content);
+                    if !inherits {
+                        let mut new_lines = Vec::new();
+                        let mut in_pkg = false;
+                        let mut modified = false;
+
+                        for line in content.lines() {
+                            let trimmed = line.trim();
+                            if trimmed == "[package]" {
+                                in_pkg = true;
+                                new_lines.push(line.to_string());
+                                continue;
+                            } else if trimmed.starts_with('[') && trimmed.ends_with(']') {
+                                in_pkg = false;
+                                new_lines.push(line.to_string());
+                                continue;
+                            }
+
+                            if in_pkg && trimmed.starts_with("version") {
+                                let mut parts = trimmed.splitn(2, '=');
+                                let key = parts.next().unwrap_or("").trim();
+                                if key == "version" {
+                                    let indent = line.chars().take_while(|c| c.is_whitespace()).collect::<String>();
+                                    new_lines.push(format!("{indent}version = \"{clean_version}\""));
+                                    modified = true;
+                                    continue;
+                                }
+                            }
+
+                            new_lines.push(line.to_string());
+                        }
+
+                        if modified {
+                            fs::write(&sub_cargo, new_lines.join("\n") + "\n")?;
+                            let rel = sub_cargo
+                                .strip_prefix(workspace)
+                                .unwrap_or(&sub_cargo)
+                                .to_string_lossy()
+                                .replace('\\', "/");
+                            updated_files.push(rel);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // 3. package.json
+    let pkg_json = workspace.join("package.json");
+    if pkg_json.is_file() {
+        let content = fs::read_to_string(&pkg_json)?;
+        if let Ok(mut val) = serde_json::from_str::<serde_json::Value>(&content) {
+            if let Some(obj) = val.as_object_mut() {
+                if obj.contains_key("version") {
+                    obj.insert(
+                        "version".to_string(),
+                        serde_json::Value::String(clean_version.to_string()),
+                    );
+                    let formatted = serde_json::to_string_pretty(&val)?;
+                    fs::write(&pkg_json, formatted + "\n")?;
+                    updated_files.push("package.json".to_string());
+                }
+            }
+        }
+    }
+
+    // 4. pyproject.toml
+    let pyproject = workspace.join("pyproject.toml");
+    if pyproject.is_file() {
+        let content = fs::read_to_string(&pyproject)?;
+        let mut new_lines = Vec::new();
+        let mut in_project = false;
+        let mut modified = false;
+
+        for line in content.lines() {
+            let trimmed = line.trim();
+            if trimmed.starts_with('[') && trimmed.ends_with(']') {
+                let section = trimmed.trim_start_matches('[').trim_end_matches(']').trim();
+                in_project = section == "project" || section == "tool.poetry";
+                new_lines.push(line.to_string());
+                continue;
+            }
+
+            if in_project && trimmed.starts_with("version") {
+                let mut parts = trimmed.splitn(2, '=');
+                let key = parts.next().unwrap_or("").trim();
+                if key == "version" {
+                    let indent = line.chars().take_while(|c| c.is_whitespace()).collect::<String>();
+                    new_lines.push(format!("{indent}version = \"{clean_version}\""));
+                    modified = true;
+                    continue;
+                }
+            }
+
+            new_lines.push(line.to_string());
+        }
+
+        if modified {
+            fs::write(&pyproject, new_lines.join("\n") + "\n")?;
+            updated_files.push("pyproject.toml".to_string());
+        }
+    }
+
+    Ok(updated_files)
+}

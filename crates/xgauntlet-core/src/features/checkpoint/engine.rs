@@ -39,6 +39,12 @@ pub async fn run_checkpoint(
 
     let commit_oid = execute_git_commit(&options.workspace, &commit_message, options.allow_empty)?;
 
+    let handoff = if options.phase == super::models::CheckpointPhase::Done {
+        super::models::SessionHandoff::generate(&options.workspace, &task_id, None).ok()
+    } else {
+        None
+    };
+
     Ok(CheckpointResult {
         phase: options.phase,
         task_id,
@@ -47,5 +53,6 @@ pub async fn run_checkpoint(
         staged_files,
         preflight_passed: !options.skip_verify,
         details: None,
+        handoff,
     })
 }

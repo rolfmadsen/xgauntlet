@@ -113,6 +113,7 @@ pub fn resolve_active_task_id(workspace: &Path) -> Option<String> {
         .filter(|p| p.extension().is_some_and(|ext| ext == "md"))
         .collect();
     paths.sort();
+    paths.reverse();
 
     for path in paths {
         if let Ok(content) = fs::read_to_string(&path) {

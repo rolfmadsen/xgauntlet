@@ -158,6 +158,77 @@ pub struct CheckpointResult {
     pub preflight_passed: bool,
     /// Optional contextual details or warnings.
     pub details: Option<String>,
+    /// Pre-rendered session handoff card (populated upon Done phase).
+    #[serde(default)]
+    pub handoff: Option<SessionHandoff>,
+}
+
+/// Deterministic Session Handoff metadata and pre-rendered presentation card.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SessionHandoff {
+    pub task_id: String,
+    pub branch: String,
+    pub commit_oid: String,
+    pub commits_ahead: usize,
+    pub is_clean: bool,
+    pub next_role: String,
+    pub formatted_card: String,
+}
+
+impl SessionHandoff {
+    /// Deterministically generates session handoff card by inspecting the local git workspace.
+    pub fn generate(
+        workspace: &std::path::Path,
+        task_id: &str,
+        next_role: Option<&str>,
+    ) -> Result<Self, CheckpointError> {
+        let branch = super::git::get_current_branch(workspace).unwrap_or_else(|_| "main".to_string());
+        let commit_oid = super::git::get_head_commit_oid(workspace).unwrap_or_else(|_| "unknown".to_string());
+        let short_oid = if commit_oid.len() >= 7 { &commit_oid[..7] } else { &commit_oid };
+        let commits_ahead = super::git::get_commits_ahead(workspace).unwrap_or(0);
+        let is_clean = super::git::is_worktree_clean(workspace).unwrap_or(true);
+        let role = next_role.unwrap_or("Software Engineer").to_string();
+        let short_task = super::git::extract_short_task_id(task_id);
+
+        let clean_str = if is_clean { "clean" } else { "dirty" };
+        let ahead_note = if commits_ahead > 0 {
+            format!(" ({commits_ahead} commits ahead of remote)")
+        } else {
+            String::new()
+        };
+
+        let starter_prompt = format!(
+            "Hej! Vi skal i denne session fortsætte arbejdet efter afslutning af task {short_task}.\n\
+             Læs venligst CONTEXT.md og spec.md samt opgavelisten i tasks/ for at afklare næste opgave."
+        );
+
+        let formatted_card = format!(
+            "> ### 🏁 SESSION HANDOFF • {short_task}\n\
+             > **Status**: `TASK: DONE` | **Evidens**: `FORSEGLET (Two-Tier Model)` | **Næste Rolle**: `{role}`\n\
+             > **Git State**: `{branch}@{short_oid}` • `{clean_str}{ahead_note}`\n\
+             > 💡 *Start venligst en frisk chat-session for at bevare et skarpt kontekstvindue uden context rot.*\n\
+             >\n\
+             > 📋 **Kopiér og indsæt følgende starter-prompt i en ny chat:**\n\
+             > ```text\n\
+             > {starter_prompt}\n\
+             > ```\n\
+             >\n\
+             > 🚀 **Synkroniser dine commits til remote:**\n\
+             > ```bash\n\
+             > git push origin {branch}\n\
+             > ```\n"
+        );
+
+        Ok(Self {
+            task_id: task_id.to_string(),
+            branch,
+            commit_oid,
+            commits_ahead,
+            is_clean,
+            next_role: role,
+            formatted_card,
+        })
+    }
 }
 
 /// Structured errors emitted during phase checkpoint operations.

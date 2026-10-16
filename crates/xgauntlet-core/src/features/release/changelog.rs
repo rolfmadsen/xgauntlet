@@ -107,3 +107,53 @@ pub fn validate_changelog(
 
     Ok((findings, versions, false))
 }
+
+/// Prepares CHANGELOG.md for a new release by rotating the `## [Unreleased]` section
+/// into `## [Unreleased]\n\n## [<new_version>] - <release_date>`.
+///
+/// Returns true if CHANGELOG.md was updated, or false if not found or already has the version.
+pub fn prepare_changelog_release(
+    workspace: &Path,
+    new_version: &str,
+    release_date: &str,
+) -> Result<bool, ReleaseError> {
+    let changelog_path = workspace.join("CHANGELOG.md");
+    if !changelog_path.is_file() {
+        return Ok(false);
+    }
+
+    let clean_version = new_version.trim().trim_start_matches(['v', 'V']);
+    let content = fs::read_to_string(&changelog_path)?;
+
+    // If version is already present, no rotation needed
+    let existing_versions = parse_changelog_versions(&changelog_path)?;
+    if existing_versions
+        .iter()
+        .any(|v| v.trim_start_matches(['v', 'V']) == clean_version)
+    {
+        return Ok(true);
+    }
+
+    // Look for ## [Unreleased] header
+    let mut new_lines = Vec::new();
+    let mut rotated = false;
+
+    for line in content.lines() {
+        let trimmed = line.trim();
+        if !rotated && trimmed.eq_ignore_ascii_case("## [unreleased]") {
+            new_lines.push("## [Unreleased]".to_string());
+            new_lines.push(String::new());
+            new_lines.push(format!("## [{clean_version}] - {release_date}"));
+            rotated = true;
+            continue;
+        }
+        new_lines.push(line.to_string());
+    }
+
+    if rotated {
+        fs::write(&changelog_path, new_lines.join("\n") + "\n")?;
+        Ok(true)
+    } else {
+        Ok(false)
+    }
+}

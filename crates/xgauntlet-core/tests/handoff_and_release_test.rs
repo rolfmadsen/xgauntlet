@@ -2,8 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use xgauntlet_core::{
     bump_semver, generate_release_git_instructions, prepare_changelog_release,
-    update_manifest_versions, CheckpointOptions, CheckpointPhase, ReleaseError, SemverBump,
-    SessionHandoff,
+    update_manifest_versions, SemverBump, SessionHandoff,
 };
 
 static TEST_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
