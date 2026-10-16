@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-10-16
+
+### 🛡️ Hardened & Fixed
+- **Universal Code Formatting Layer (`gauntlet.toml`, `crates/xgauntlet-core`)**:
+  - Tilføjet obligatorisk `format` lag (`cargo fmt --check`) til `gauntlet.toml`.
+  - Opdateret standard stack-profiler for Rust, Python, Node/TypeScript og Go til automatisk at inkludere format-lag.
+  - Hærdet `xgauntlet check-release` så den aktivt eksekverer kildekode-formatering og fail-closer ved syntaktiske eller linter afvigelser (`UNFORMATTED_CODE`).
+  - Hærdet `--strict` mode til at afvise release-evaluering ved ucommittede ændringer (`DIRTY_WORKTREE`).
+
 ## [0.8.0] - 2026-10-16
 
 ### 🚀 Added
