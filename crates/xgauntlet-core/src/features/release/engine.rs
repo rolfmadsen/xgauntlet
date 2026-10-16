@@ -93,7 +93,61 @@ impl ReleaseReadinessEngine {
         inspected_files.extend(adr_summary.inspected_adrs);
         diagnostics.extend(adr_summary.diagnostics);
 
-        // 4. Overall readiness
+        // 4. Validate code formatting if gauntlet.toml is present and defines a format layer
+        let gauntlet_toml = ws.join("gauntlet.toml");
+        if gauntlet_toml.is_file() {
+            if let Ok(config) = crate::features::config::GauntletConfig::load(ws) {
+                if let Some(format_layer) = config.layers.iter().find(|l| l.name == "format") {
+                    if !format_layer.command.is_empty() {
+                        let prog = &format_layer.command[0];
+                        let args = &format_layer.command[1..];
+                        if let Ok(output) = std::process::Command::new(prog)
+                            .args(args)
+                            .current_dir(ws)
+                            .output()
+                        {
+                            if !output.status.success() {
+                                let stderr = String::from_utf8_lossy(&output.stderr);
+                                let stdout = String::from_utf8_lossy(&output.stdout);
+                                let details = if !stderr.trim().is_empty() {
+                                    stderr.trim().to_string()
+                                } else {
+                                    stdout.lines().take(3).collect::<Vec<_>>().join(" ")
+                                };
+                                diagnostics.push(ReleaseFinding {
+                                    file_path: "gauntlet.toml".to_string(),
+                                    category: ReleaseFindingCategory::UnformattedCode,
+                                    message: format!(
+                                        "Code formatting check failed ({prog} {}): {details}",
+                                        args.join(" ")
+                                    ),
+                                    remediation_hint:
+                                        "Run code formatter before releasing (e.g. cargo fmt / ruff format / prettier)."
+                                            .to_string(),
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 5. Clean worktree check under strict mode
+        if options.strict && ws.join(".git").exists() {
+            if let Ok(false) = crate::features::checkpoint::git::is_worktree_clean(ws) {
+                diagnostics.push(ReleaseFinding {
+                    file_path: ".git".to_string(),
+                    category: ReleaseFindingCategory::DirtyWorktree,
+                    message: "Working tree contains uncommitted changes or unstaged files."
+                        .to_string(),
+                    remediation_hint:
+                        "Commit or stash all changes before evaluating release readiness or tagging."
+                            .to_string(),
+                });
+            }
+        }
+
+        // 6. Overall readiness
         let is_ready = diagnostics.is_empty();
         let duration_ms = start.elapsed().as_millis() as u64;
 

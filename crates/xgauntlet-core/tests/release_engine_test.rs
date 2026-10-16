@@ -523,3 +523,56 @@ fn test_cli_check_release_integration() {
     assert_eq!(parsed["is_ready"], true);
     assert_eq!(parsed["declared_version"], env!("CARGO_PKG_VERSION"));
 }
+
+#[test]
+fn test_unformatted_code_detection_in_release_gatekeeper() {
+    let (_guard, ws) = create_temp_workspace();
+
+    // 1. Cargo.toml
+    fs::write(
+        ws.join("Cargo.toml"),
+        r#"
+[package]
+name = "dummy"
+version = "1.0.0"
+edition = "2021"
+"#,
+    )
+    .unwrap();
+
+    // 2. CHANGELOG.md
+    fs::write(
+        ws.join("CHANGELOG.md"),
+        "# Changelog\n\n## [1.0.0] - 2026-10-16\n- Initial release\n",
+    )
+    .unwrap();
+
+    // 3. gauntlet.toml with a format layer that deliberately fails
+    fs::write(
+        ws.join("gauntlet.toml"),
+        r#"
+stack = "rust"
+save_evidence = false
+
+[[layers]]
+name = "format"
+command = ["false"]
+optional = false
+timeout_seconds = 10.0
+"#,
+    )
+    .unwrap();
+
+    let options = ReleaseReadinessOptions {
+        workspace: ws.clone(),
+        allow_unreleased: false,
+        strict: false,
+    };
+
+    let report = check_release_readiness(&options).expect("evaluation failed");
+    assert!(!report.is_ready);
+    assert!(report
+        .diagnostics
+        .iter()
+        .any(|d| d.category == ReleaseFindingCategory::UnformattedCode));
+}

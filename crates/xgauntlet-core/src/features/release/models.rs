@@ -20,6 +20,10 @@ pub enum ReleaseFindingCategory {
     UnreferencedAdr,
     /// No supported manifest file found to determine project version.
     MissingManifest,
+    /// Working tree contains uncommitted modifications or untracked files.
+    DirtyWorktree,
+    /// Code formatting check failed according to gauntlet.toml format layer.
+    UnformattedCode,
     /// General error encountered during release evaluation.
     GeneralError,
 }
@@ -33,6 +37,8 @@ impl ReleaseFindingCategory {
             Self::ChangelogVersionMismatch => "CHANGELOG_VERSION_MISMATCH",
             Self::UnreferencedAdr => "UNREFERENCED_ADR",
             Self::MissingManifest => "MISSING_MANIFEST",
+            Self::DirtyWorktree => "DIRTY_WORKTREE",
+            Self::UnformattedCode => "UNFORMATTED_CODE",
             Self::GeneralError => "GENERAL_ERROR",
         }
     }

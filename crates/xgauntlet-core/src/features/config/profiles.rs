@@ -90,6 +90,16 @@ pub fn default_config_for_stack(stack: &str) -> GauntletConfig {
 fn rust_layers() -> Vec<LayerConfig> {
     vec![
         LayerConfig {
+            name: "format".to_string(),
+            command: vec![
+                "cargo".to_string(),
+                "fmt".to_string(),
+                "--check".to_string(),
+            ],
+            optional: false,
+            timeout_seconds: 30.0,
+        },
+        LayerConfig {
             name: "lint".to_string(),
             command: vec![
                 "cargo".to_string(),
@@ -136,6 +146,16 @@ fn rust_layers() -> Vec<LayerConfig> {
 fn python_layers() -> Vec<LayerConfig> {
     vec![
         LayerConfig {
+            name: "format".to_string(),
+            command: vec![
+                "ruff".to_string(),
+                "format".to_string(),
+                "--check".to_string(),
+            ],
+            optional: false,
+            timeout_seconds: 30.0,
+        },
+        LayerConfig {
             name: "lint".to_string(),
             command: vec!["ruff".to_string(), "check".to_string()],
             optional: true,
@@ -175,6 +195,17 @@ fn python_layers() -> Vec<LayerConfig> {
 fn node_layers() -> Vec<LayerConfig> {
     vec![
         LayerConfig {
+            name: "format".to_string(),
+            command: vec![
+                "npx".to_string(),
+                "prettier".to_string(),
+                "--check".to_string(),
+                ".".to_string(),
+            ],
+            optional: false,
+            timeout_seconds: 30.0,
+        },
+        LayerConfig {
             name: "lint".to_string(),
             command: vec!["npm".to_string(), "run".to_string(), "lint".to_string()],
             optional: true,
@@ -197,6 +228,12 @@ fn node_layers() -> Vec<LayerConfig> {
 
 fn go_layers() -> Vec<LayerConfig> {
     vec![
+        LayerConfig {
+            name: "format".to_string(),
+            command: vec!["gofmt".to_string(), "-l".to_string(), ".".to_string()],
+            optional: false,
+            timeout_seconds: 30.0,
+        },
         LayerConfig {
             name: "lint".to_string(),
             command: vec!["golangci-lint".to_string(), "run".to_string()],
