@@ -2,14 +2,14 @@
 type: Task Package
 title: "Task 030: Autonomous RED to GREEN TDD Phase Transition"
 description: "Eliminere overflødig human-in-the-loop gate mellem RED og GREEN faserne ved verificeret fejlet test og etablere en autonom indre TDD-løkke"
-status: active
+status: todo
 generated: { by: process:xgauntlet-task-init, at: "2026-09-19T13:45:00Z" }
 tags: [task-lifecycle, tdd, checkpoint, autonomy, preflight, jit, human-in-the-loop, adr-0003]
 ---
 
 # Task 030: Autonomous RED to GREEN TDD Phase Transition
 
-**Status**: `ACTIVE`  
+**Status**: `TODO`  
 **Intent**: `🚀 NEW FEATURE`  
 **Oprettet**: `2026-09-19`  
 

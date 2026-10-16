@@ -2,14 +2,14 @@
 type: Task Package
 title: "Task 029: Detect Composite TypeScript Project References in Stack Profile"
 description: "Enable stack profiler and doctor to automatically detect composite tsconfig setups (files: [], references) and configure tsc -b instead of tsc --noEmit to prevent silent typecheck bypasses."
-status: active
+status: todo
 generated: { by: process:xgauntlet-task-init, at: "2026-09-15T16:40:34Z" }
 tags: [stack-profiler, typescript, vite, project-references, gauntlet]
 ---
 
 # Task 029: Detect Composite TypeScript Project References in Stack Profile
 
-**Status**: `ACTIVE`
+**Status**: `TODO`
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-09-15`
 

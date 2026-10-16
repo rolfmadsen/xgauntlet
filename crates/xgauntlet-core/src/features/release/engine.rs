@@ -132,7 +132,42 @@ impl ReleaseReadinessEngine {
             }
         }
 
-        // 5. Clean worktree check under strict mode
+        // 5. Validate WASM Policy Engine bytecode version matches declared release version
+        let policy_crate = ws.join("crates/gauntlet-policy-engine");
+        if policy_crate.is_dir() {
+            let wasm_path = ws.join("crates/xgauntlet-core/wasm/gauntlet_policy.wasm");
+            if wasm_path.is_file() {
+                inspected_files.push("crates/xgauntlet-core/wasm/gauntlet_policy.wasm".to_string());
+                if let Ok(bytes) = std::fs::read(&wasm_path) {
+                    if let Ok(mut engine) =
+                        crate::features::policy::WasmPolicyEngine::from_wasm_bytes(&bytes)
+                    {
+                        if let Ok(wasm_ver) = engine.get_policy_version() {
+                            if wasm_ver != declared_version {
+                                diagnostics.push(ReleaseFinding {
+                                    file_path: "crates/xgauntlet-core/wasm/gauntlet_policy.wasm"
+                                        .to_string(),
+                                    category: ReleaseFindingCategory::ConfigVersionMismatch,
+                                    message: format!(
+                                        "Embedded WebAssembly policy bytecode version ({wasm_ver}) does not match workspace declared release version ({declared_version})."
+                                    ),
+                                    remediation_hint: "Rebuild wasm policy engine and synchronize: cargo build -p gauntlet-policy-engine --target wasm32-unknown-unknown --release && cp target/wasm32-unknown-unknown/release/gauntlet_policy_engine.wasm crates/xgauntlet-core/wasm/gauntlet_policy.wasm".to_string(),
+                                });
+                            }
+                        }
+                    }
+                }
+            } else {
+                diagnostics.push(ReleaseFinding {
+                    file_path: "crates/xgauntlet-core/wasm/gauntlet_policy.wasm".to_string(),
+                    category: ReleaseFindingCategory::MissingManifest,
+                    message: "Required WebAssembly policy bytecode binary (gauntlet_policy.wasm) is missing from crates/xgauntlet-core/wasm/.".to_string(),
+                    remediation_hint: "Compile gauntlet-policy-engine to wasm32-unknown-unknown and place in crates/xgauntlet-core/wasm/gauntlet_policy.wasm".to_string(),
+                });
+            }
+        }
+
+        // 6. Clean worktree check under strict mode
         if options.strict && ws.join(".git").exists() {
             if let Ok(false) = crate::features::checkpoint::git::is_worktree_clean(ws) {
                 diagnostics.push(ReleaseFinding {
@@ -147,7 +182,7 @@ impl ReleaseReadinessEngine {
             }
         }
 
-        // 6. Overall readiness
+        // 7. Overall readiness
         let is_ready = diagnostics.is_empty();
         let duration_ms = start.elapsed().as_millis() as u64;
 

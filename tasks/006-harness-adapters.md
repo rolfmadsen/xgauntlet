@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 006: Harness Adapters"
 description: "Implementere autonome vertikale feature-slices for Google Antigravity IDE, Claude Code og OpenAI Codex, herunder normalisering, mekanisk plugin- og manifest-validering, fail-closed hook evaluering og conformance testsuite i crates/xgauntlet-core og xgauntlet-cli"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-06T17:50:00Z" }
 tags: [adapters, antigravity, claude-code, codex, harness, normalization, plugin-validation, hook, fail-closed, adr-0001, adr-0004, adr-0006]
 ---

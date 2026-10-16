@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 004: Evidence & Workspace Manifest Engine"
 description: "Implementere deterministisk Git-blob/tree OID workspace manifest (immune overfor CRLF/LF), self-mutation invarianten, Tier 1 verifikationsrapporten (verification-report.json og evidence.md) samt drift-kontrol i crates/xgauntlet-core"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-06T17:30:00Z" }
 tags: [evidence, manifest, git-oid, crlf-immunity, self-mutation, drift, verification-report, adr-0005]
 ---

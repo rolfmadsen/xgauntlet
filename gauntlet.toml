@@ -45,20 +45,26 @@ timeout_seconds = 30.0
 [[layers]]
 name = "lint"
 command = ["cargo", "clippy", "--", "-D", "warnings"]
-optional = true
+optional = false
 timeout_seconds = 60.0
 
 [[layers]]
 name = "types"
 command = ["cargo", "check"]
-optional = true
+optional = false
 timeout_seconds = 60.0
 
 [[layers]]
 name = "unit"
-command = ["cargo", "test"]
+command = ["cargo", "test", "--workspace"]
 optional = false
 timeout_seconds = 120.0
+
+[[layers]]
+name = "npm"
+command = ["npm", "test", "--workspaces"]
+optional = false
+timeout_seconds = 60.0
 
 [[layers]]
 name = "invariants"

@@ -343,15 +343,48 @@ pub fn execute_release_workflow(
         xgauntlet_core::generate_release_git_instructions(target_version, &branch);
 
     let updated_files = if dry_run {
-        vec![
+        let mut dry_files = vec![
             "Cargo.toml (dry-run)".to_string(),
             "CHANGELOG.md (dry-run)".to_string(),
-        ]
+        ];
+        if workspace.join("crates/gauntlet-policy-engine").is_dir() {
+            dry_files.push("crates/xgauntlet-core/wasm/gauntlet_policy.wasm (dry-run)".to_string());
+        }
+        dry_files
     } else {
         let mut modified = xgauntlet_core::update_manifest_versions(workspace, target_version)?;
         if xgauntlet_core::prepare_changelog_release(workspace, target_version, today)? {
             modified.push("CHANGELOG.md".to_string());
         }
+
+        // Automatic WASM policy engine compilation & synchronization
+        let policy_crate = workspace.join("crates/gauntlet-policy-engine");
+        if policy_crate.is_dir() {
+            let status = std::process::Command::new("cargo")
+                .args([
+                    "build",
+                    "-p",
+                    "gauntlet-policy-engine",
+                    "--target",
+                    "wasm32-unknown-unknown",
+                    "--release",
+                ])
+                .current_dir(workspace)
+                .status();
+            if let Ok(st) = status {
+                if st.success() {
+                    let source_wasm = workspace
+                        .join("target/wasm32-unknown-unknown/release/gauntlet_policy_engine.wasm");
+                    let dest_wasm =
+                        workspace.join("crates/xgauntlet-core/wasm/gauntlet_policy.wasm");
+                    if source_wasm.is_file() && std::fs::copy(&source_wasm, &dest_wasm).is_ok() {
+                        modified
+                            .push("crates/xgauntlet-core/wasm/gauntlet_policy.wasm".to_string());
+                    }
+                }
+            }
+        }
+
         modified
     };
 

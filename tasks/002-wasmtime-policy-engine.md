@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 002: Embedded Wasmtime Host & Deterministic Policy Engine"
 description: "Implementere Wasmtime runtime host (features/wasm) og deterministisk policy engine (features/policy) i crates/xgauntlet-core med Nul Ambient Authority"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-06T17:10:00Z" }
 tags: [wasm, wasmtime, policy, security, gatekeeper, zero-ambient-authority]
 ---

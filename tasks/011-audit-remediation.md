@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 011: Code Review & Architecture Audit Remediation"
 description: "Udbedre fund fra uafhængig to-akset revision: eliminere unwrap() i produktionskode, konsolidere duplikeret tidslogik, rette rustdoc link og fjerne forældet systemd dokumentation"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-06T18:34:00Z" }
 tags: [audit, remediation, refactor, unwrap-elimination, time-consolidation, rustdoc, adr-0001]
 ---

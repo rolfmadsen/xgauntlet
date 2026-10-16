@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 005: Gauntlet Execution Engine"
 description: "Implementere det deterministiske multi-layer gauntlet pipeline løb, processtyring med timeouts og exit-koder, diagnostic finding aggregation, samt kobling til pre/post manifest og self-mutation invarianten i crates/xgauntlet-core og xgauntlet-cli"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-06T17:40:00Z" }
 tags: [gauntlet, pipeline, multi-layer, process-runner, timeouts, diagnostics, self-mutation, verification-report, adr-0001, adr-0005]
 ---

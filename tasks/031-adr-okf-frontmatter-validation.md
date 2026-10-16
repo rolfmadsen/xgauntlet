@@ -2,14 +2,14 @@
 type: Task Package
 title: "Task 031: ADR OKF v0.2 Frontmatter Validation & Template Hardening"
 description: "Håndhæve OKF v0.2 påkrævede felter (generated, verified) i ADR-filer via check-spec-validering og rette scaffold-template til at inkludere dem"
-status: active
+status: todo
 generated: { by: process:xgauntlet-task-init, at: "2026-09-19T13:50:00Z" }
 tags: [okf, adr, frontmatter, validation, check-spec, scaffold, template, docs]
 ---
 
 # Task 031: ADR OKF v0.2 Frontmatter Validation & Template Hardening
 
-**Status**: `ACTIVE`  
+**Status**: `TODO`  
 **Intent**: `🚀 NEW FEATURE`  
 **Oprettet**: `2026-09-19`  
 

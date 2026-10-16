@@ -108,13 +108,13 @@ fn rust_layers() -> Vec<LayerConfig> {
                 "-D".to_string(),
                 "warnings".to_string(),
             ],
-            optional: true,
+            optional: false,
             timeout_seconds: 60.0,
         },
         LayerConfig {
             name: "types".to_string(),
             command: vec!["cargo".to_string(), "check".to_string()],
-            optional: true,
+            optional: false,
             timeout_seconds: 60.0,
         },
         LayerConfig {
@@ -158,13 +158,13 @@ fn python_layers() -> Vec<LayerConfig> {
         LayerConfig {
             name: "lint".to_string(),
             command: vec!["ruff".to_string(), "check".to_string()],
-            optional: true,
+            optional: false,
             timeout_seconds: 60.0,
         },
         LayerConfig {
             name: "types".to_string(),
             command: vec!["pyright".to_string()],
-            optional: true,
+            optional: false,
             timeout_seconds: 60.0,
         },
         LayerConfig {
@@ -208,13 +208,13 @@ fn node_layers() -> Vec<LayerConfig> {
         LayerConfig {
             name: "lint".to_string(),
             command: vec!["npm".to_string(), "run".to_string(), "lint".to_string()],
-            optional: true,
+            optional: false,
             timeout_seconds: 60.0,
         },
         LayerConfig {
             name: "types".to_string(),
             command: vec!["npx".to_string(), "tsc".to_string(), "--noEmit".to_string()],
-            optional: true,
+            optional: false,
             timeout_seconds: 60.0,
         },
         LayerConfig {
@@ -237,13 +237,13 @@ fn go_layers() -> Vec<LayerConfig> {
         LayerConfig {
             name: "lint".to_string(),
             command: vec!["golangci-lint".to_string(), "run".to_string()],
-            optional: true,
+            optional: false,
             timeout_seconds: 60.0,
         },
         LayerConfig {
             name: "types".to_string(),
             command: vec!["go".to_string(), "vet".to_string(), "./...".to_string()],
-            optional: true,
+            optional: false,
             timeout_seconds: 60.0,
         },
         LayerConfig {

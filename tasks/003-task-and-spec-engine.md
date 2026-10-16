@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 003: Task & Spec Engine"
 description: "Implementere OKF v0.2 Markdown parser for tasks/*.md, validering af formål, acceptkriterier og Must NOT, samt mekanisk Aristoteles validering af CONTEXT.md (genus et differentiam) og tilhørende check-spec valideringslogik i crates/xgauntlet-core"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-06T17:15:00Z" }
 tags: [tasks, spec, okf, aristotle, context, parser, check-spec]
 ---

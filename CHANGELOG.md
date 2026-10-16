@@ -9,14 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.8.1] - 2026-10-16
+## [0.8.2] - 2026-10-16
 
 ### 🛡️ Hardened & Fixed
-- **Universal Code Formatting Layer (`gauntlet.toml`, `crates/xgauntlet-core`)**:
-  - Tilføjet obligatorisk `format` lag (`cargo fmt --check`) til `gauntlet.toml`.
-  - Opdateret standard stack-profiler for Rust, Python, Node/TypeScript og Go til automatisk at inkludere format-lag.
+- **Universal Code Formatting Layer & Release Gatekeeper (`gauntlet.toml`, `crates/xgauntlet-core`)**:
+  - Tilføjet obligatorisk `format` lag (`cargo fmt --check`) og `npm` verifikationslag til `gauntlet.toml`.
+  - Opdateret standard stack-profiler for Rust, Python, Node/TypeScript og Go til automatisk at inkludere format-lag som ikke-valgfrit.
   - Hærdet `xgauntlet check-release` så den aktivt eksekverer kildekode-formatering og fail-closer ved syntaktiske eller linter afvigelser (`UNFORMATTED_CODE`).
   - Hærdet `--strict` mode til at afvise release-evaluering ved ucommittede ændringer (`DIRTY_WORKTREE`).
+- **Synchronized WebAssembly Policy Verifier (`crates/gauntlet-policy-engine`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`)**:
+  - Genkompileret ren WebAssembly-binær motor (`wasm32-unknown-unknown`) synkroniseret med version 0.8.2.
+  - Tilføjet automatiseret WASM-kompilering og distribution ved `xgauntlet release bump`.
+  - Tilføjet Release Gatekeeper verifikation i `check-release`, der validerer at det indlejrede WebAssembly-bytecode matcher workspace-releasens version (`CONFIG_VERSION_MISMATCH`).
+- **Idempotent NPM Publishing Pipeline (`.github/workflows/release.yml`)**:
+  - Tilføjet registry-opslag (`npm view`) i GitHub Actions release pipeline før `npm publish`, hvilket forhindrer fatale `E403 Forbidden` fejl ved gentagne CI-kørsler over allerede udgivne versioner.
+- **Task Lifecycle Status Harmony (`tasks/`)**:
+  - Synkroniseret OKF v0.2 frontmatter status for historiske opgaver (002–011 til `done`, 029–032 til `todo`), så `check-spec` og `verify` kører med 100% grøn overholdelse.
+
+## [0.8.1] - 2026-10-16
+- Initial patch attempt (superseded by 0.8.2).
 
 ## [0.8.0] - 2026-10-16
 

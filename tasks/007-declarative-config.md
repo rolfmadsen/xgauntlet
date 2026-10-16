@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 007: Declarative Config & Stack Profiles"
 description: "Etablere features/config i crates/xgauntlet-core med en nul-afhængigheds gauntlet.toml loader, deklarativ skemavalidering, multi-stack profiler (Rust, Python, Node/TS, Go) samt fuld bagudkompatibel integration med gauntlet pipelinen"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-06T17:55:00Z" }
 tags: [config, toml, json, validation, stack-profiles, rust, python, node, go, adr-0001]
 ---

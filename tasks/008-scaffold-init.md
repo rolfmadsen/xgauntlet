@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 008: Safe Non-Destructive Project Bootstrap Engine"
 description: "Etablere features/scaffold i crates/xgauntlet-core samt CLI subcommand 'init' med ikke-destruktiv garanti, skabeloner for understøttede stack-profiler og fuld integration mod spec.md og CONTEXT.md"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-06T18:05:00Z" }
 tags: [scaffold, init, non-destructive, templates, cli, rust, python, node, go, adr-0001]
 ---

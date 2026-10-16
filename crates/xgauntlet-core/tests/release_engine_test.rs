@@ -576,3 +576,51 @@ timeout_seconds = 10.0
         .iter()
         .any(|d| d.category == ReleaseFindingCategory::UnformattedCode));
 }
+
+#[test]
+fn test_wasm_policy_version_mismatch_detection_in_release_gatekeeper() {
+    let (_guard, ws) = create_temp_workspace();
+
+    // 1. Cargo.toml declaring version 9.9.9
+    fs::write(
+        ws.join("Cargo.toml"),
+        r#"
+[package]
+name = "dummy"
+version = "9.9.9"
+edition = "2021"
+"#,
+    )
+    .unwrap();
+
+    // 2. CHANGELOG.md with entry for 9.9.9
+    fs::write(
+        ws.join("CHANGELOG.md"),
+        "# Changelog\n\n## [9.9.9] - 2026-10-16\n- Test version\n",
+    )
+    .unwrap();
+
+    // 3. Fake gauntlet-policy-engine crate directory
+    fs::create_dir_all(ws.join("crates/gauntlet-policy-engine")).unwrap();
+
+    // 4. Place valid wasm bytecode (from real current crate, which is version 0.8.2 != 9.9.9)
+    let wasm_dir = ws.join("crates/xgauntlet-core/wasm");
+    fs::create_dir_all(&wasm_dir).unwrap();
+    let current_wasm = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("wasm/gauntlet_policy.wasm");
+    fs::copy(&current_wasm, wasm_dir.join("gauntlet_policy.wasm")).unwrap();
+
+    let options = ReleaseReadinessOptions {
+        workspace: ws.clone(),
+        allow_unreleased: false,
+        strict: false,
+    };
+
+    let report = check_release_readiness(&options).expect("evaluation failed");
+    assert!(!report.is_ready);
+    assert!(report.diagnostics.iter().any(|d| {
+        d.file_path == "crates/xgauntlet-core/wasm/gauntlet_policy.wasm"
+            && d.category == ReleaseFindingCategory::ConfigVersionMismatch
+            && d.message
+                .contains("Embedded WebAssembly policy bytecode version")
+    }));
+}

@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 010: Release Readiness Gatekeeper & Manifest Harmony Engine"
 description: "Etablere features/release i crates/xgauntlet-core samt CLI subcommand 'check-release' med manifest versionsharmoni, CHANGELOG.md validering og ADR-dækningskontrol jf. spec.md, CONTEXT.md og README.md"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-06T18:22:00Z" }
 tags: [release, readiness, manifest, changelog, adr, cli, rust, adr-0001, adr-0003]
 ---

@@ -115,6 +115,13 @@ jobs:
 
       - name: Publish to NPM Registry
         working-directory: ./packages/cli
-        run: npm publish --access public --provenance
+        run: |
+          PKG_NAME=$(node -p "require('./package.json').name")
+          PKG_VER=$(node -p "require('./package.json').version")
+          if npm view "${PKG_NAME}@${PKG_VER}" version > /dev/null 2>&1; then
+            echo "::warning::Package ${PKG_NAME}@${PKG_VER} is already published on npm registry. Skipping publish to avoid E403 conflict."
+          else
+            npm publish --access public --provenance
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

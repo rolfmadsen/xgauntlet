@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 009: Fast Environment, Git, and Toolchain Diagnostics Engine"
 description: "Etablere features/doctor i crates/xgauntlet-core samt CLI subcommand 'doctor' med hurtig inspektion af host-miljø, Git-tilstand, in-repo styringsfiler, detekterede stakke og toolchain binærer uden dæmoner eller sideeffekter jf. spec.md, CONTEXT.md og README.md"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-06T18:12:00Z" }
 tags: [doctor, diagnostics, environment, git, toolchains, governance, cli, rust, adr-0001]
 ---
