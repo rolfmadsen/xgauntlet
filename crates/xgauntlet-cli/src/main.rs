@@ -730,7 +730,8 @@ async fn main() -> anyhow::Result<()> {
             };
 
             let config = xgauntlet_core::GauntletConfig::load(&canonical_ws)?;
-            let report = xgauntlet_core::run_architecture_check(&canonical_ws, &config.architecture)?;
+            let report =
+                xgauntlet_core::run_architecture_check(&canonical_ws, &config.architecture)?;
 
             if *json {
                 println!("{}", serde_json::to_string_pretty(&report)?);
@@ -1119,7 +1120,8 @@ async fn main() -> anyhow::Result<()> {
                 t.clone()
             } else if let Some(active) = xgauntlet_core::resolve_active_task_id(&canonical_ws) {
                 active
-            } else if let Some(latest) = xgauntlet_core::resolve_latest_done_task_id(&canonical_ws) {
+            } else if let Some(latest) = xgauntlet_core::resolve_latest_done_task_id(&canonical_ws)
+            {
                 latest
             } else {
                 eprintln!("🛑 No active or completed task found in workspace");
@@ -1166,13 +1168,14 @@ async fn main() -> anyhow::Result<()> {
                     }
                 };
 
-                let manifest_summary = match xgauntlet_core::extract_declared_versions(&canonical_ws) {
-                    Ok(m) => m,
-                    Err(e) => {
-                        eprintln!("🛑 Failed to inspect manifests: {e}");
-                        std::process::exit(1);
-                    }
-                };
+                let manifest_summary =
+                    match xgauntlet_core::extract_declared_versions(&canonical_ws) {
+                        Ok(m) => m,
+                        Err(e) => {
+                            eprintln!("🛑 Failed to inspect manifests: {e}");
+                            std::process::exit(1);
+                        }
+                    };
 
                 let current_version = manifest_summary
                     .versions_by_source
@@ -1209,13 +1212,14 @@ async fn main() -> anyhow::Result<()> {
                     std::env::current_dir()?.join(workspace)
                 };
 
-                let manifest_summary = match xgauntlet_core::extract_declared_versions(&canonical_ws) {
-                    Ok(m) => m,
-                    Err(e) => {
-                        eprintln!("🛑 Failed to inspect manifests: {e}");
-                        std::process::exit(1);
-                    }
-                };
+                let manifest_summary =
+                    match xgauntlet_core::extract_declared_versions(&canonical_ws) {
+                        Ok(m) => m,
+                        Err(e) => {
+                            eprintln!("🛑 Failed to inspect manifests: {e}");
+                            std::process::exit(1);
+                        }
+                    };
 
                 let current_version = manifest_summary
                     .versions_by_source
@@ -1826,10 +1830,7 @@ fn render_check_architecture_summary(report: &xgauntlet_core::ArchitectureReport
                 Some(line) => format!("{}:{}", finding.file_path, line),
                 None => finding.file_path.clone(),
             };
-            println!(
-                "  - [{:?}] {}: {}",
-                finding.category, loc, finding.message
-            );
+            println!("  - [{:?}] {}: {}", finding.category, loc, finding.message);
             println!("    Hint: {}", finding.remediation_hint);
         }
         println!();

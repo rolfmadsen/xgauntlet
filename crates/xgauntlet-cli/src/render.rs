@@ -380,7 +380,9 @@ pub fn execute_release_workflow(
             println!();
         }
 
-        println!("📋 \x1b[1mUdfør følgende Git-kommandoer for at forsegle og publicere releasen:\x1b[0m");
+        println!(
+            "📋 \x1b[1mUdfør følgende Git-kommandoer for at forsegle og publicere releasen:\x1b[0m"
+        );
         println!("```bash\n{}\n```\n", git_instructions);
     }
 

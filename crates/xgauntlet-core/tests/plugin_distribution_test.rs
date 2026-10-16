@@ -71,14 +71,7 @@ fn find_xgauntlet_binary() -> PathBuf {
 #[test]
 fn test_embedded_sovereign_skills_and_plugin_rename() {
     // 1. All 6 canonical sovereign skills must be listed in ALL_EMBEDDED_SKILLS
-    let expected_skills = [
-        "discover",
-        "spec",
-        "tdd",
-        "review",
-        "diagnose",
-        "release",
-    ];
+    let expected_skills = ["discover", "spec", "tdd", "review", "diagnose", "release"];
 
     assert_eq!(
         ALL_EMBEDDED_SKILLS.len(),

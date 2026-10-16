@@ -146,7 +146,11 @@ fn test_session_handoff_card_generation() {
     assert_eq!(handoff.task_id, "035-mechanical-session-handoff");
     assert_eq!(handoff.branch, "main");
     assert_eq!(handoff.next_role, "Architect");
-    assert!(handoff.formatted_card.contains("### 🏁 SESSION HANDOFF • 035"));
+    assert!(handoff
+        .formatted_card
+        .contains("### 🏁 SESSION HANDOFF • 035"));
     assert!(handoff.formatted_card.contains("git push origin main"));
-    assert!(handoff.formatted_card.contains("Kopiér og indsæt følgende starter-prompt"));
+    assert!(handoff
+        .formatted_card
+        .contains("Kopiér og indsæt følgende starter-prompt"));
 }

@@ -246,7 +246,10 @@ pub fn update_manifest_versions(
                 let mut parts = trimmed.splitn(2, '=');
                 let key = parts.next().unwrap_or("").trim();
                 if key == "version" {
-                    let indent = line.chars().take_while(|c| c.is_whitespace()).collect::<String>();
+                    let indent = line
+                        .chars()
+                        .take_while(|c| c.is_whitespace())
+                        .collect::<String>();
                     new_lines.push(format!("{indent}version = \"{clean_version}\""));
                     modified = true;
                     continue;
@@ -292,8 +295,12 @@ pub fn update_manifest_versions(
                                 let mut parts = trimmed.splitn(2, '=');
                                 let key = parts.next().unwrap_or("").trim();
                                 if key == "version" {
-                                    let indent = line.chars().take_while(|c| c.is_whitespace()).collect::<String>();
-                                    new_lines.push(format!("{indent}version = \"{clean_version}\""));
+                                    let indent = line
+                                        .chars()
+                                        .take_while(|c| c.is_whitespace())
+                                        .collect::<String>();
+                                    new_lines
+                                        .push(format!("{indent}version = \"{clean_version}\""));
                                     modified = true;
                                     continue;
                                 }
@@ -378,7 +385,10 @@ pub fn update_manifest_versions(
                 let mut parts = trimmed.splitn(2, '=');
                 let key = parts.next().unwrap_or("").trim();
                 if key == "version" {
-                    let indent = line.chars().take_while(|c| c.is_whitespace()).collect::<String>();
+                    let indent = line
+                        .chars()
+                        .take_while(|c| c.is_whitespace())
+                        .collect::<String>();
                     new_lines.push(format!("{indent}version = \"{clean_version}\""));
                     modified = true;
                     continue;

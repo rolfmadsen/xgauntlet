@@ -12,5 +12,7 @@ pub use engine::run_checkpoint;
 pub use git::{
     compose_commit_message, execute_git_commit, extract_short_task_id, stage_workspace_changes,
 };
-pub use models::{CheckpointError, CheckpointOptions, CheckpointPhase, CheckpointResult, SessionHandoff};
+pub use models::{
+    CheckpointError, CheckpointOptions, CheckpointPhase, CheckpointResult, SessionHandoff,
+};
 pub use preflight::run_preflight_check;

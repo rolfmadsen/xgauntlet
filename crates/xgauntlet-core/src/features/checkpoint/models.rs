@@ -182,9 +182,15 @@ impl SessionHandoff {
         task_id: &str,
         next_role: Option<&str>,
     ) -> Result<Self, CheckpointError> {
-        let branch = super::git::get_current_branch(workspace).unwrap_or_else(|_| "main".to_string());
-        let commit_oid = super::git::get_head_commit_oid(workspace).unwrap_or_else(|_| "unknown".to_string());
-        let short_oid = if commit_oid.len() >= 7 { &commit_oid[..7] } else { &commit_oid };
+        let branch =
+            super::git::get_current_branch(workspace).unwrap_or_else(|_| "main".to_string());
+        let commit_oid =
+            super::git::get_head_commit_oid(workspace).unwrap_or_else(|_| "unknown".to_string());
+        let short_oid = if commit_oid.len() >= 7 {
+            &commit_oid[..7]
+        } else {
+            &commit_oid
+        };
         let commits_ahead = super::git::get_commits_ahead(workspace).unwrap_or(0);
         let is_clean = super::git::is_worktree_clean(workspace).unwrap_or(true);
         let role = next_role.unwrap_or("Software Engineer").to_string();

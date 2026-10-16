@@ -340,4 +340,3 @@ fn test_policy_engine_enforces_task_allowed_scopes_and_test_targets() {
     assert_eq!(decision.verdict, DecisionVerdict::Allow);
     assert_eq!(decision.reason_code, 2001);
 }
-

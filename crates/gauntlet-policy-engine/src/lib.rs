@@ -350,7 +350,6 @@ pub fn parse_capability_request(json: &str) -> CapabilityRequest {
     })
 }
 
-
 pub fn parse_enforcement_context(json: &str) -> EnforcementContext {
     serde_json::from_str(json).unwrap_or_default()
 }

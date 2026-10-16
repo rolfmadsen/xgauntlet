@@ -125,10 +125,18 @@ pub fn parse_toml(content: &str) -> Result<GauntletConfig, ConfigError> {
                 }
             } else if current_section == "architecture" {
                 match key {
-                    "max_file_lines" => config.architecture.max_file_lines = Some(parse_usize_val(val)),
-                    "max_test_file_lines" => config.architecture.max_test_file_lines = Some(parse_usize_val(val)),
-                    "forbidden_tokens" => config.architecture.forbidden_tokens = parse_str_list(val),
-                    "forbidden_imports" => config.architecture.forbidden_imports = parse_str_list(val),
+                    "max_file_lines" => {
+                        config.architecture.max_file_lines = Some(parse_usize_val(val))
+                    }
+                    "max_test_file_lines" => {
+                        config.architecture.max_test_file_lines = Some(parse_usize_val(val))
+                    }
+                    "forbidden_tokens" => {
+                        config.architecture.forbidden_tokens = parse_str_list(val)
+                    }
+                    "forbidden_imports" => {
+                        config.architecture.forbidden_imports = parse_str_list(val)
+                    }
                     _ => {}
                 }
             } else if current_section == "paths" {
@@ -216,7 +224,10 @@ pub fn render_toml(config: &GauntletConfig) -> String {
             .iter()
             .map(|i| format!("\"{}\"", i.replace('\"', "\\\"")))
             .collect();
-        out.push_str(&format!("forbidden_imports = [{}]\n", imports_fmt.join(", ")));
+        out.push_str(&format!(
+            "forbidden_imports = [{}]\n",
+            imports_fmt.join(", ")
+        ));
     }
     out.push('\n');
 

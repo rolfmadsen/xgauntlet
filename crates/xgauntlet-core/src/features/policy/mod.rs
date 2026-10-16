@@ -68,7 +68,6 @@ pub struct EnforcementContext {
     pub allowed_test_targets: Vec<String>,
 }
 
-
 impl EnforcementContext {
     /// Creates an enforcement context directly resolved from a workspace directory.
     pub fn from_workspace(workspace: &std::path::Path, read_only: bool) -> Self {

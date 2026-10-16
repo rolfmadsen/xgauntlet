@@ -162,9 +162,9 @@ fn inspect_file(
             let line_num = line_idx + 1;
 
             // Check forbidden tokens
-        for token in &config.forbidden_tokens {
-            if line.contains(token) {
-                report.add_finding(ArchitectureFinding {
+            for token in &config.forbidden_tokens {
+                if line.contains(token) {
+                    report.add_finding(ArchitectureFinding {
                     file_path: rel_path.clone(),
                     line_number: Some(line_num),
                     category: ArchitectureFindingCategory::ForbiddenTokenDetected,
@@ -174,18 +174,18 @@ fn inspect_file(
                     ),
                     remediation_hint: "Use standardized Design Tokens or centralized abstractions instead of raw tokens.".into(),
                 });
+                }
             }
-        }
 
-        // Check forbidden imports
-        for import_pattern in &config.forbidden_imports {
-            if line.contains(import_pattern) {
-                let trimmed = line.trim();
-                if trimmed.starts_with("use ")
-                    || trimmed.starts_with("import ")
-                    || trimmed.starts_with("from ")
-                {
-                    report.add_finding(ArchitectureFinding {
+            // Check forbidden imports
+            for import_pattern in &config.forbidden_imports {
+                if line.contains(import_pattern) {
+                    let trimmed = line.trim();
+                    if trimmed.starts_with("use ")
+                        || trimmed.starts_with("import ")
+                        || trimmed.starts_with("from ")
+                    {
+                        report.add_finding(ArchitectureFinding {
                         file_path: rel_path.clone(),
                         line_number: Some(line_num),
                         category: ArchitectureFindingCategory::ForbiddenImportDetected,
@@ -195,10 +195,10 @@ fn inspect_file(
                         ),
                         remediation_hint: "Decouple dependency and respect architectural package-by-feature module boundaries.".into(),
                     });
+                    }
                 }
             }
         }
-    }
     }
 
     Ok(())

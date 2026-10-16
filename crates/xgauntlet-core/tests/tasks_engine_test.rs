@@ -369,11 +369,17 @@ Test scope parsing.
 
     let (meta_opt, _) = parse_frontmatter(markdown).expect("frontmatter parse ok");
     let meta = meta_opt.expect("meta present");
-    assert_eq!(meta.scope, vec!["crates/xgauntlet-core/src/features/tasks/**"]);
+    assert_eq!(
+        meta.scope,
+        vec!["crates/xgauntlet-core/src/features/tasks/**"]
+    );
     assert_eq!(meta.test_refs, vec!["tests/tasks_engine_test.rs"]);
 
     let task_info = parse_task_content(markdown, "099-scoped-task").expect("task info parse ok");
-    assert_eq!(task_info.scope, vec!["crates/xgauntlet-core/src/features/tasks/**"]);
+    assert_eq!(
+        task_info.scope,
+        vec!["crates/xgauntlet-core/src/features/tasks/**"]
+    );
     assert_eq!(task_info.test_refs, vec!["tests/tasks_engine_test.rs"]);
 }
 
@@ -404,8 +410,14 @@ fn test_check_task_specification_enforces_active_scope_and_test_refs() {
 
     let rep = check_task_specification(&task_path, &temp_dir);
     assert!(!rep.is_valid);
-    assert!(rep.diagnostics.iter().any(|d| d.tool_name == "MISSING_TASK_SCOPE"));
-    assert!(rep.diagnostics.iter().any(|d| d.tool_name == "MISSING_TASK_TEST_REFS"));
+    assert!(rep
+        .diagnostics
+        .iter()
+        .any(|d| d.tool_name == "MISSING_TASK_SCOPE"));
+    assert!(rep
+        .diagnostics
+        .iter()
+        .any(|d| d.tool_name == "MISSING_TASK_TEST_REFS"));
 
     let _ = fs::remove_dir_all(temp_dir);
 }
@@ -444,8 +456,10 @@ fn test_check_task_specification_prohibits_monolithic_test_file() {
 
     let rep = check_task_specification(&task_path, &temp_dir);
     assert!(!rep.is_valid);
-    assert!(rep.diagnostics.iter().any(|d| d.tool_name == "MONOLITHIC_TEST_FILE_PROHIBITED"));
+    assert!(rep
+        .diagnostics
+        .iter()
+        .any(|d| d.tool_name == "MONOLITHIC_TEST_FILE_PROHIBITED"));
 
     let _ = fs::remove_dir_all(temp_dir);
 }
-

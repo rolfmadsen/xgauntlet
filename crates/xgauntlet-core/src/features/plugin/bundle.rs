@@ -1,14 +1,8 @@
 //! Embedded plugin assets and skill catalog.
 
 /// Complete canonical list of the 6 sovereign Markdown-skills for xGauntlet jf. Task 034 & ADR 0008.
-pub const ALL_EMBEDDED_SKILLS: &[&str] = &[
-    "discover",
-    "spec",
-    "tdd",
-    "review",
-    "diagnose",
-    "release",
-];
+pub const ALL_EMBEDDED_SKILLS: &[&str] =
+    &["discover", "spec", "tdd", "review", "diagnose", "release"];
 
 /// Returns list of embedded skill names.
 pub fn list_embedded_skills() -> &'static [&'static str] {
@@ -45,16 +39,12 @@ pub const COMPANION_FILES: &[(&str, &str, &str)] = &[
     (
         "discover",
         "ADR-FORMAT.md",
-        include_str!(
-            "../../../../../.agents/plugins/xgauntlet/skills/discover/ADR-FORMAT.md"
-        ),
+        include_str!("../../../../../.agents/plugins/xgauntlet/skills/discover/ADR-FORMAT.md"),
     ),
     (
         "discover",
         "CONTEXT-FORMAT.md",
-        include_str!(
-            "../../../../../.agents/plugins/xgauntlet/skills/discover/CONTEXT-FORMAT.md"
-        ),
+        include_str!("../../../../../.agents/plugins/xgauntlet/skills/discover/CONTEXT-FORMAT.md"),
     ),
 ];
 
