@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+## [0.8.0] - 2026-10-16
+
+### 🚀 Added
+- **Declarative Architecture Ratchet Gatekeeper (`Task 034`, `crates/xgauntlet-core`)**:
+  - `gauntlet.toml` schema udvidet med `[architecture]` sektion for deterministisk håndhævelse af kodestruktur.
+  - Håndhæver filstørrelsesgrænser: kildekode (`max_source_lines = 800`) og tests (`max_test_lines = 1000`).
+  - Monitored ratchet exemptions (`[[architecture.ratchet_exemptions]]`) med spærrehage: filer på undtagelseslisten må kun falde i linjetal, aldrig stige.
+  - Statisk forbudte tokens og imports (`forbidden_tokens`) til forebyggelse af utypede/forældede API-kald.
+  - CLI subcommand: `xgauntlet check-architecture` samt integration i `xgauntlet verify`.
+- **Mechanical Session Handoff & Semantic Release Engine (`Task 035`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`)**:
+  - Automatisk generering af deterministisk `🏁 SESSION HANDOFF` kort ved `xgauntlet checkpoint --phase done` og `xgauntlet handoff`.
+  - To-niveau Git governance: Niveau A (daglig task-synkronisering med `git push origin <branch>` uden tag-forurening) og Niveau B (officiel udgivelse med SemVer tags).
+  - Deterministisk SemVer 2.0.0 release manager via `xgauntlet release bump [patch|minor|major]`.
+  - Manifest harmony synkronisering på tværs af Rust (`Cargo.toml`, alle crates) og npm (`package.json`, `packages/cli/package.json`).
+  - Automatisk Keep a Changelog rotation og release readiness audit via `xgauntlet check-release`.
+- **OKF v0.2 Task Scope & Test Reference Enforcement (`Task 033`, `crates/gauntlet-policy-engine`)**:
+  - WebAssembly policy engine udvidet med `4037: Deny` gatekeeper, der forhindrer ændringer uden for den aktive opgaves erklærede `scope`-stier.
+  - Validering af `test_refs` og krav om isolerede testsuiter før produktionstildelinger.
+- **Sovereign Agent Skills**:
+  - Etableret 6 suveræne skills: `discover`, `spec`, `tdd`, `review`, `diagnose`, `release`.
+
+### 🛡️ Hardened & Refactored
+- **CLI Codebase Modular Decomposition**:
+  - Opdelt monolitisk CLI kildekode i fokuserede moduler (`render.rs` m.fl.) for streng overholdelse af 800-linjers arkitekturgrænsen.
+
 ## [0.7.3] - 2026-09-21
 
 ### 🚀 Added

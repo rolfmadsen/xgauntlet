@@ -317,9 +317,25 @@ pub fn update_manifest_versions(
         }
     }
 
-    // 3. package.json
-    let pkg_json = workspace.join("package.json");
-    if pkg_json.is_file() {
+    // 3. package.json and packages/*/package.json
+    let mut pkg_json_targets = Vec::new();
+    let root_pkg = workspace.join("package.json");
+    if root_pkg.is_file() {
+        pkg_json_targets.push(root_pkg);
+    }
+    let packages_dir = workspace.join("packages");
+    if packages_dir.is_dir() {
+        if let Ok(entries) = fs::read_dir(&packages_dir) {
+            for entry in entries.flatten() {
+                let sub_pkg = entry.path().join("package.json");
+                if sub_pkg.is_file() {
+                    pkg_json_targets.push(sub_pkg);
+                }
+            }
+        }
+    }
+
+    for pkg_json in pkg_json_targets {
         let content = fs::read_to_string(&pkg_json)?;
         if let Ok(mut val) = serde_json::from_str::<serde_json::Value>(&content) {
             if let Some(obj) = val.as_object_mut() {
@@ -330,7 +346,12 @@ pub fn update_manifest_versions(
                     );
                     let formatted = serde_json::to_string_pretty(&val)?;
                     fs::write(&pkg_json, formatted + "\n")?;
-                    updated_files.push("package.json".to_string());
+                    let rel = pkg_json
+                        .strip_prefix(workspace)
+                        .unwrap_or(&pkg_json)
+                        .to_string_lossy()
+                        .replace('\\', "/");
+                    updated_files.push(rel);
                 }
             }
         }

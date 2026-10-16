@@ -1,17 +1,8 @@
 {
-  "name": "xgauntlet-monorepo",
-  "version": "0.7.3",
+  "author": "Antigravity Team",
   "description": "Universal multi-stack verification gauntlet & tamper-proof policy sidecar for AI coding agents",
-  "private": true,
-  "type": "module",
-  "workspaces": [
-    "packages/*"
-  ],
-  "scripts": {
-    "build": "npm run build --workspaces --if-present && cargo build",
-    "test": "npm run test --workspaces --if-present && cargo test",
-    "lint": "cargo clippy",
-    "format": "cargo fmt --check"
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": [
     "ai-agent",
@@ -23,13 +14,22 @@
     "rust",
     "typescript"
   ],
-  "author": "Antigravity Team",
   "license": "MIT",
+  "name": "xgauntlet-monorepo",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rolfmadsen/xgauntlet.git"
   },
-  "engines": {
-    "node": ">=18.0.0"
-  }
+  "scripts": {
+    "build": "npm run build --workspaces --if-present && cargo build",
+    "format": "cargo fmt --check",
+    "lint": "cargo clippy",
+    "test": "npm run test --workspaces --if-present && cargo test"
+  },
+  "type": "module",
+  "version": "0.8.0",
+  "workspaces": [
+    "packages/*"
+  ]
 }
