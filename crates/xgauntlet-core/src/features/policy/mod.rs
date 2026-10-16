@@ -56,13 +56,18 @@ pub struct CapabilityRequest {
 }
 
 /// Immutable trusted context provided by the supervisor runtime.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub struct EnforcementContext {
     pub workspace_id: String,
     pub has_active_task: bool,
     pub active_task_id: String,
     pub read_only: bool,
+    #[serde(default)]
+    pub allowed_scopes: Vec<String>,
+    #[serde(default)]
+    pub allowed_test_targets: Vec<String>,
 }
+
 
 impl EnforcementContext {
     /// Creates an enforcement context directly resolved from a workspace directory.
@@ -75,11 +80,25 @@ impl EnforcementContext {
             .unwrap_or("workspace")
             .to_string();
 
+        let mut allowed_scopes = Vec::new();
+        let mut allowed_test_targets = Vec::new();
+        if let Some(ref tid) = active_task_id {
+            let task_file = workspace.join("tasks").join(format!("{tid}.md"));
+            if task_file.is_file() {
+                if let Ok(info) = crate::features::tasks::parse_task_file(&task_file) {
+                    allowed_scopes = info.scope;
+                    allowed_test_targets = info.test_refs;
+                }
+            }
+        }
+
         Self {
             workspace_id,
             has_active_task,
             active_task_id: active_task_id.unwrap_or_default(),
             read_only,
+            allowed_scopes,
+            allowed_test_targets,
         }
     }
 }
@@ -202,6 +221,8 @@ pub fn evaluate_reference(req: &CapabilityRequest, ctx: &EnforcementContext) -> 
         has_active_task: ctx.has_active_task,
         active_task_id: ctx.active_task_id.clone(),
         read_only: ctx.read_only,
+        allowed_scopes: ctx.allowed_scopes.clone(),
+        allowed_test_targets: ctx.allowed_test_targets.clone(),
     };
 
     let dec = gauntlet_policy_engine::evaluate(&internal_req, &internal_ctx);
@@ -246,6 +267,7 @@ mod tests {
                     has_active_task: false,
                     active_task_id: "".into(),
                     read_only: false,
+                    ..Default::default()
                 },
             ),
             (
@@ -260,6 +282,7 @@ mod tests {
                     has_active_task: false,
                     active_task_id: "".into(),
                     read_only: false,
+                    ..Default::default()
                 },
             ),
             (
@@ -274,6 +297,7 @@ mod tests {
                     has_active_task: true,
                     active_task_id: "T-1".into(),
                     read_only: false,
+                    ..Default::default()
                 },
             ),
             (
@@ -288,6 +312,7 @@ mod tests {
                     has_active_task: true,
                     active_task_id: "T-1".into(),
                     read_only: false,
+                    ..Default::default()
                 },
             ),
         ];

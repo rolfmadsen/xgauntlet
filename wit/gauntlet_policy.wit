@@ -21,7 +21,9 @@ record enforcement-context {
     workspace-id: string,
     has-active-task: bool,
     active-task-id: string,
-    read-only: bool
+    read-only: bool,
+    allowed-scopes: list<string>,
+    allowed-test-targets: list<string>
 }
 
 /// Policy evaluation decision verdict.

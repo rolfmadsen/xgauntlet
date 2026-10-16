@@ -244,6 +244,9 @@ pub fn parse_task_content(content: &str, task_id: &str) -> Result<TaskPackageInf
         }
     }
 
+    let scope = metadata.as_ref().map(|m| m.scope.clone()).unwrap_or_default();
+    let test_refs = metadata.as_ref().map(|m| m.test_refs.clone()).unwrap_or_default();
+
     Ok(TaskPackageInfo {
         task_id: task_id.to_string(),
         title,
@@ -253,6 +256,8 @@ pub fn parse_task_content(content: &str, task_id: &str) -> Result<TaskPackageInf
         acceptance_criteria,
         unresolved_criteria,
         must_not,
+        scope,
+        test_refs,
         metadata,
     })
 }

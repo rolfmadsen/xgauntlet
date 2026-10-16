@@ -133,6 +133,10 @@ pub struct OkfMetadata {
     pub verified: Vec<VerifiedEntry>,
     pub sources: Vec<SourceEntry>,
     pub stale_after: Option<String>,
+    #[serde(default)]
+    pub scope: Vec<String>,
+    #[serde(default)]
+    pub test_refs: Vec<String>,
 }
 
 /// Validates strict ISO 8601 UTC timestamp (e.g. `2026-09-06T16:15:00Z`).
@@ -232,12 +236,42 @@ fn strip_quotes(s: &str) -> &str {
     }
 }
 
+fn parse_yaml_list(val: &str, lines: &[&str], i: &mut usize) -> Vec<String> {
+    let mut items = Vec::new();
+    if val.starts_with('[') && val.ends_with(']') {
+        let inner = &val[1..val.len() - 1];
+        for item in inner.split(',') {
+            let item_clean = strip_quotes(item.trim());
+            if !item_clean.is_empty() {
+                items.push(item_clean.to_string());
+            }
+        }
+    } else if val.is_empty() {
+        while *i + 1 < lines.len() {
+            let next = lines[*i + 1];
+            let next_trim = next.trim();
+            if let Some(stripped) = next_trim.strip_prefix("- ") {
+                let item = strip_quotes(stripped);
+                if !item.is_empty() {
+                    items.push(item.to_string());
+                }
+                *i += 1;
+            } else {
+                break;
+            }
+        }
+    }
+    items
+}
+
 fn parse_yaml_metadata(lines: &[&str]) -> Result<OkfMetadata, OkfError> {
     let mut doc_type: Option<String> = None;
     let mut title: Option<String> = None;
     let mut description: Option<String> = None;
     let mut status: Option<String> = None;
     let mut tags: Vec<String> = Vec::new();
+    let mut scope: Vec<String> = Vec::new();
+    let mut test_refs: Vec<String> = Vec::new();
     let mut generated: Option<GeneratedEntry> = None;
     let verified: Vec<VerifiedEntry> = Vec::new();
     let sources: Vec<SourceEntry> = Vec::new();
@@ -279,30 +313,13 @@ fn parse_yaml_metadata(lines: &[&str]) -> Result<OkfMetadata, OkfError> {
                     }
                 }
                 "tags" => {
-                    if val.starts_with('[') && val.ends_with(']') {
-                        let inner = &val[1..val.len() - 1];
-                        for item in inner.split(',') {
-                            let item_clean = strip_quotes(item.trim());
-                            if !item_clean.is_empty() {
-                                tags.push(item_clean.to_string());
-                            }
-                        }
-                    } else if val.is_empty() {
-                        // Check subsequent indented lines
-                        while i + 1 < lines.len() {
-                            let next = lines[i + 1];
-                            let next_trim = next.trim();
-                            if let Some(stripped) = next_trim.strip_prefix("- ") {
-                                let item = strip_quotes(stripped);
-                                if !item.is_empty() {
-                                    tags.push(item.to_string());
-                                }
-                                i += 1;
-                            } else {
-                                break;
-                            }
-                        }
-                    }
+                    tags = parse_yaml_list(val, lines, &mut i);
+                }
+                "scope" => {
+                    scope = parse_yaml_list(val, lines, &mut i);
+                }
+                "test_refs" => {
+                    test_refs = parse_yaml_list(val, lines, &mut i);
                 }
                 "generated" => {
                     if val.starts_with('{') && val.ends_with('}') {
@@ -373,5 +390,7 @@ fn parse_yaml_metadata(lines: &[&str]) -> Result<OkfMetadata, OkfError> {
         verified,
         sources,
         stale_after,
+        scope,
+        test_refs,
     })
 }

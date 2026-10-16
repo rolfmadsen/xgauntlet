@@ -85,6 +85,10 @@ pub struct TaskPackageInfo {
     pub acceptance_criteria: Vec<String>,
     pub unresolved_criteria: Vec<String>,
     pub must_not: Vec<String>,
+    #[serde(default)]
+    pub scope: Vec<String>,
+    #[serde(default)]
+    pub test_refs: Vec<String>,
     pub metadata: Option<OkfMetadata>,
 }
 

@@ -582,6 +582,7 @@ fn test_wasm_policy_determinism_windows_absolute_paths() {
         has_active_task: true,
         active_task_id: "027".into(),
         read_only: false,
+        ..Default::default()
     };
 
     let illegal_windows_paths = [
@@ -652,6 +653,7 @@ fn test_wasm_policy_determinism_windows_backslashes_parity() {
         has_active_task: false,
         active_task_id: "".into(),
         read_only: false,
+        ..Default::default()
     };
 
     for (win_path, unix_path, is_code) in &pairs {
@@ -697,6 +699,7 @@ fn test_wasm_policy_determinism_windows_backslashes_parity() {
         has_active_task: true,
         active_task_id: "027".into(),
         read_only: false,
+        ..Default::default()
     };
 
     for (win_path, unix_path, is_code) in &pairs {
@@ -736,6 +739,7 @@ fn test_wasm_policy_determinism_crlf_newlines() {
         has_active_task: true,
         active_task_id: "027".into(),
         read_only: false,
+        ..Default::default()
     };
 
     // 1. CRLF in ExecuteCommand target_resource -> must Deny (reason code 4039)
@@ -1122,6 +1126,10 @@ type: Task Package
 title: "Task {task_id}: Test Task"
 description: "Test task description"
 status: {status}
+scope:
+  - "crates/**"
+test_refs:
+  - "tests/**"
 ---
 
 # Task {task_id}: Test Task

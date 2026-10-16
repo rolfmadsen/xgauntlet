@@ -77,6 +77,10 @@ fn setup_test_workspace() -> TempDir {
 type: Task Package
 title: "Task 001: Active Feature"
 status: active
+scope:
+  - "crates/**"
+test_refs:
+  - "tests/**"
 ---
 # Task 001: Active Feature
 ## 🎯 Formål

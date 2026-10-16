@@ -17,6 +17,7 @@ fn test_wasm_policy_engine_cold_start() {
         has_active_task: false,
         active_task_id: "".into(),
         read_only: false,
+        ..Default::default()
     };
 
     let start = std::time::Instant::now();
@@ -49,6 +50,7 @@ fn test_read_operations_unrestricted() {
         has_active_task: false,
         active_task_id: "".into(),
         read_only: false,
+        ..Default::default()
     };
 
     let decision = engine.evaluate(&req, &ctx).unwrap();
@@ -70,6 +72,7 @@ fn test_read_only_workspace_blocks_modifications() {
         has_active_task: true,
         active_task_id: "001".into(),
         read_only: true, // Locked!
+        ..Default::default()
     };
 
     let decision = engine.evaluate(&req, &ctx).unwrap();
@@ -96,6 +99,7 @@ fn test_documentation_and_tasks_writable_without_active_task() {
         has_active_task: false,
         active_task_id: "".into(),
         read_only: false,
+        ..Default::default()
     };
 
     for target in safe_targets {
@@ -133,6 +137,7 @@ fn test_production_code_write_requires_active_task() {
         has_active_task: false,
         active_task_id: "".into(),
         read_only: false,
+        ..Default::default()
     };
 
     for target in protected_targets {
@@ -157,6 +162,7 @@ fn test_production_code_write_requires_active_task() {
         has_active_task: true,
         active_task_id: "002-wasmtime-policy-engine".into(),
         read_only: false,
+        ..Default::default()
     };
 
     for target in protected_targets {
@@ -195,6 +201,7 @@ fn test_destructive_commands_strictly_denied() {
         has_active_task: true,
         active_task_id: "002".into(),
         read_only: false,
+        ..Default::default()
     };
 
     for cmd in dangerous_commands {
@@ -244,6 +251,7 @@ fn test_verification_and_inspection_commands_whitelisted() {
         has_active_task: false,
         active_task_id: "".into(),
         read_only: false,
+        ..Default::default()
     };
 
     for cmd in safe_commands {

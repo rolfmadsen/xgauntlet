@@ -174,6 +174,10 @@ description: "Initialisere projektstruktur, deklarativ gauntlet konfiguration og
 status: active
 generated: {{ by: process:xgauntlet-init, at: "{timestamp}" }}
 tags: [bootstrap, setup, gauntlet]
+scope:
+  - "src/**"
+test_refs:
+  - "tests/**"
 ---
 
 # Task 001: Project Setup & Baseline Verification Gauntlet

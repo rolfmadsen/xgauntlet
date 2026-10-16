@@ -232,7 +232,58 @@ pub fn check_task_specification(task_path: &Path, workspace: &Path) -> SpecReadi
         ));
     }
 
-    // 6. Validate CONTEXT.md Glossary Format
+    // 6. Validate Task Scope and Test Targets (for active tasks)
+    if task_info.status.is_active() {
+        if task_info.scope.is_empty() {
+            report.diagnostics.push(DiagnosticFinding::new(
+                FindingType::GeneralError,
+                "MISSING_TASK_SCOPE",
+                &rel_task,
+                "Active task specification is missing declared target paths in frontmatter 'scope: [...]'.",
+                "Add frontmatter 'scope: [\"src/features/<slice>/**\"]' declaring the bounded directory scope for this task.",
+            ));
+        }
+
+        if task_info.test_refs.is_empty() {
+            report.diagnostics.push(DiagnosticFinding::new(
+                FindingType::GeneralError,
+                "MISSING_TASK_TEST_REFS",
+                &rel_task,
+                "Active task specification is missing declared test file references in frontmatter 'test_refs: [...]'.",
+                "Add frontmatter 'test_refs: [\"tests/<slice>_test.rs\"]' referencing the dedicated test target for this task.",
+            ));
+        }
+
+        // Anti-Monolithic Test Guard: Check if declared test target exists and exceeds 1,000 lines
+        for test_ref in &task_info.test_refs {
+            let test_path = if Path::new(test_ref).is_absolute() {
+                Path::new(test_ref).to_path_buf()
+            } else {
+                workspace.join(test_ref)
+            };
+            if test_path.is_file() {
+                if let Ok(test_content) = fs::read_to_string(&test_path) {
+                    let line_count = test_content.lines().count();
+                    let is_refactor = task_info
+                        .intent
+                        .as_deref()
+                        .map(|i| i.to_ascii_lowercase().contains("refactor"))
+                        .unwrap_or(false);
+                    if line_count > 1000 && !is_refactor {
+                        report.diagnostics.push(DiagnosticFinding::new(
+                            FindingType::GeneralError,
+                            "MONOLITHIC_TEST_FILE_PROHIBITED",
+                            &rel_task,
+                            format!("Test target '{test_ref}' contains {line_count} lines (exceeds 1000 line limit). Monolithic test files are prohibited."),
+                            "Decompose and extract slice-specific tests into a separate, focused test file (e.g. tests/<slice>_test.rs).",
+                        ));
+                    }
+                }
+            }
+        }
+    }
+
+    // 7. Validate CONTEXT.md Glossary Format
     let context_diags = validate_context_glossary(workspace);
     if workspace.join("CONTEXT.md").is_file() {
         report.inspected_files.push("CONTEXT.md".to_string());

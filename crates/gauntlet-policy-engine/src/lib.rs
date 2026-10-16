@@ -33,7 +33,7 @@ pub struct CapabilityRequest {
     pub payload_json: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub struct EnforcementContext {
     #[serde(default)]
     pub workspace_id: String,
@@ -43,6 +43,10 @@ pub struct EnforcementContext {
     pub active_task_id: String,
     #[serde(default)]
     pub read_only: bool,
+    #[serde(default)]
+    pub allowed_scopes: Vec<String>,
+    #[serde(default)]
+    pub allowed_test_targets: Vec<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -70,6 +74,32 @@ pub struct PolicyDecision {
     pub verdict: DecisionVerdict,
     pub reason: String,
     pub reason_code: u32,
+}
+
+fn matches_pattern(path: &str, pattern: &str) -> bool {
+    let p = pattern.trim().replace('\\', "/");
+    let path = path.trim().replace('\\', "/");
+    if p == "*" || p == "**" || p == path {
+        return true;
+    }
+    if let Some(prefix) = p.strip_suffix("/**") {
+        return path == prefix || path.starts_with(&format!("{prefix}/"));
+    }
+    if let Some(prefix) = p.strip_suffix("/*") {
+        if path.starts_with(&format!("{prefix}/")) {
+            let rest = &path[prefix.len() + 1..];
+            return !rest.contains('/');
+        }
+        return false;
+    }
+    if let Some(suffix) = p.strip_prefix('*') {
+        return path.ends_with(suffix);
+    }
+    path == p
+}
+
+fn matches_any(path: &str, patterns: &[String]) -> bool {
+    patterns.iter().any(|pat| matches_pattern(path, pat))
 }
 
 /// Deterministically evaluates a capability request against trusted context.
@@ -143,6 +173,24 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
                         reason_code: 4031,
                     };
                 }
+
+                let has_scope_restriction =
+                    !ctx.allowed_scopes.is_empty() || !ctx.allowed_test_targets.is_empty();
+                if has_scope_restriction {
+                    let is_in_scope = matches_any(target_str, &ctx.allowed_scopes)
+                        || matches_any(target_str, &ctx.allowed_test_targets);
+                    if !is_in_scope {
+                        return PolicyDecision {
+                            verdict: DecisionVerdict::Deny,
+                            reason: format!(
+                                "Writing to '{}' prohibited: target is outside active task '{}' declared scope or test targets.",
+                                target_str, ctx.active_task_id
+                            ),
+                            reason_code: 4037,
+                        };
+                    }
+                }
+
                 return PolicyDecision {
                     verdict: DecisionVerdict::Allow,
                     reason: format!(
@@ -161,6 +209,23 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
                     reason_code: 4032,
                 }
             } else {
+                let has_scope_restriction =
+                    !ctx.allowed_scopes.is_empty() || !ctx.allowed_test_targets.is_empty();
+                if has_scope_restriction {
+                    let is_in_scope = matches_any(target_str, &ctx.allowed_scopes)
+                        || matches_any(target_str, &ctx.allowed_test_targets);
+                    if !is_in_scope {
+                        return PolicyDecision {
+                            verdict: DecisionVerdict::Deny,
+                            reason: format!(
+                                "Writing to '{}' prohibited: target is outside active task '{}' declared scope or test targets.",
+                                target_str, ctx.active_task_id
+                            ),
+                            reason_code: 4037,
+                        };
+                    }
+                }
+
                 PolicyDecision {
                     verdict: DecisionVerdict::Allow,
                     reason: "Write operation permitted under active task.".into(),
@@ -285,13 +350,9 @@ pub fn parse_capability_request(json: &str) -> CapabilityRequest {
     })
 }
 
+
 pub fn parse_enforcement_context(json: &str) -> EnforcementContext {
-    serde_json::from_str(json).unwrap_or(EnforcementContext {
-        workspace_id: String::new(),
-        has_active_task: false,
-        active_task_id: String::new(),
-        read_only: false,
-    })
+    serde_json::from_str(json).unwrap_or_default()
 }
 
 impl PolicyDecision {
@@ -417,6 +478,7 @@ mod tests {
             has_active_task: false,
             active_task_id: "".into(),
             read_only: false,
+            ..Default::default()
         };
         let dec = evaluate(&req, &ctx);
         assert_eq!(dec.verdict, DecisionVerdict::Allow);
@@ -435,6 +497,7 @@ mod tests {
             has_active_task: false,
             active_task_id: "".into(),
             read_only: false,
+            ..Default::default()
         };
         let dec = evaluate(&req, &ctx);
         assert_eq!(dec.verdict, DecisionVerdict::Deny);
@@ -454,6 +517,7 @@ mod tests {
             has_active_task: true,
             active_task_id: "001-bootstrap".into(),
             read_only: false,
+            ..Default::default()
         };
         let dec = evaluate(&req, &ctx);
         assert_eq!(dec.verdict, DecisionVerdict::Allow);
@@ -472,6 +536,7 @@ mod tests {
             has_active_task: true,
             active_task_id: "001-bootstrap".into(),
             read_only: false,
+            ..Default::default()
         };
         let dec = evaluate(&req, &ctx);
         assert_eq!(dec.verdict, DecisionVerdict::Deny);

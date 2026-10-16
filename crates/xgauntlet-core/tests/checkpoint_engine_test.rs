@@ -97,6 +97,10 @@ type: Task Package
 title: "Task {task_id}: Test Task"
 description: "Test task description"
 status: {status}
+scope:
+  - "crates/**"
+test_refs:
+  - "tests/**"
 ---
 
 # Task {task_id}: Test Task
@@ -416,6 +420,10 @@ type: Task Package
 title: "Task 014: Test Task"
 description: "Test task description"
 status: active
+scope:
+  - "crates/**"
+test_refs:
+  - "tests/**"
 ---
 
 # Task 014: Test Task

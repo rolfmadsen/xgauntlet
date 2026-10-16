@@ -165,6 +165,10 @@ description: "{purpose}"
 status: active
 generated: {{ by: process:xgauntlet-task-init, at: "{now_iso}" }}
 tags: [task-lifecycle, intent, scaffolding, rust]
+scope:
+  - "src/**"
+test_refs:
+  - "tests/**"
 ---
 
 # Task {padded_num}: {title}
