@@ -26,3 +26,5 @@ Dette katalog indeholder Architecture Decision Records (ADR) for `xGauntlet`.
 | [ADR 0005](0005-two-tier-verification-and-attestation-model.md) | Two-Tier Evidence and Trust Boundary | `ACCEPTED` | Lokal drift-kontrol (Tier 1) adskilles fra autoritativ Sigstore OIDC attestering i CI (Tier 2). |
 | [ADR 0006](0006-multi-harness-policy-adapter-contract.md) | Multi-Harness Policy Adapter Contract | `ACCEPTED` | Strikt adskillelse af `CapabilityRequest` og `EnforcementContext`. Zero cryptographic authority. |
 | [ADR 0007](0007-local-transparent-supervisor-and-wasm-verifier.md) | Zero-Daemon WASM Policy Verifier | `ACCEPTED` | Nul ambient authority via in-memory Wasmtime og matematisk pre/post manifestkontrol. |
+| [ADR 0008](0008-sovereign-agentic-sdlc-task-scoping-and-design-tokens.md) | Sovereign Agentic SDLC & Task Scoping | `ACCEPTED` | 7-faset SDLC, suveræn skill suite, obligatorisk task scoping og tilgængelige design tokens. |
+
