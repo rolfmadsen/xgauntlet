@@ -45,9 +45,37 @@ Bekræft:
 git commit -m "chore(<id>): seal evidence and mark task DONE"
 ```
 
-### 4. Clean Worktree Guarantee & Session Handoff
+### 4. Clean Worktree Guarantee & To-Niveau Session Handoff
 Kontroller at Git-træet er 100% rent:
 ```bash
 git status
 ```
-Vis det officielle `🏁 SESSION HANDOFF` kort i agent-svaret med starter-prompt til den næste session for at forhindre context rot.
+
+#### Niveau A: Almindelig Task-Afslutning (Hverdags-synkronisering)
+Ved afslutning af et standard arbejds-slice eller en task, skal der **IKKE** oprettes Git tags.
+Vis det officielle `🏁 SESSION HANDOFF` kort med den rene push-kommando:
+```text
+> ### 🏁 SESSION HANDOFF • <task_id>
+> **Status**: `TASK: DONE` | **Evidens**: `FORSEGLET`
+> 
+> 📋 Kopiér og kør for at synkronisere dine lokale commits:
+> ```bash
+> git push origin <branch>
+> ```
+> 💡 Start en frisk chat-session for næste opgave.
+```
+
+#### Niveau B: Eksplicit Release Session (Når en ny version skal frigives)
+KUN når brugeren specifikt anmoder om at udgive en version eller milepæl:
+1. **Evaluer Kontrakt-Kompatibilitet (SemVer 2.0.0):**
+   - **MAJOR:** Inkompatible API-ændringer, fjernede funktioner eller brydende schema/konfigurationsændringer.
+   - **MINOR:** Nye additive, bagudkompatible funktioner eller moduler.
+   - **PATCH:** Bagudkompatible fejlrettelser og interne refaktoriseringer.
+2. **Bekræft med Brugeren:** Fremlæg den foreslåede versionsstigning og afvent bekræftelse.
+3. **Opdater Manifests:** Bump version i `Cargo.toml`, `package.json`, osv.
+4. **Vis Udgivelses- og Tag-Kommandoer:**
+```bash
+git push origin <branch>
+git tag -a v<version> -m "Release v<version>: <kort titel>"
+git push origin --tags
+```
