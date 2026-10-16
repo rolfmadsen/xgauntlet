@@ -130,6 +130,16 @@ enum Commands {
         #[arg(long)]
         json: bool,
     },
+    /// Declarative architecture quality gate, file line limits, and design token enforcement
+    CheckArchitecture {
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Output findings in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
     /// Initialize in-repo governance files, stack profile, and agent hooks with safe non-destructive guarantee
     Init {
         /// Path to repository workspace root
@@ -641,6 +651,26 @@ async fn main() -> anyhow::Result<()> {
                 println!("{}", serde_json::to_string_pretty(&payload)?);
             } else {
                 render_check_config_summary(&config, &report);
+            }
+
+            if !report.is_valid {
+                std::process::exit(1);
+            }
+        }
+        Some(Commands::CheckArchitecture { workspace, json }) => {
+            let canonical_ws = if workspace.is_absolute() {
+                workspace.clone()
+            } else {
+                std::env::current_dir()?.join(workspace)
+            };
+
+            let config = xgauntlet_core::GauntletConfig::load(&canonical_ws)?;
+            let report = xgauntlet_core::run_architecture_check(&canonical_ws, &config.architecture)?;
+
+            if *json {
+                println!("{}", serde_json::to_string_pretty(&report)?);
+            } else {
+                render_check_architecture_summary(&report);
             }
 
             if !report.is_valid {
@@ -1575,6 +1605,30 @@ fn render_check_config_summary(
             if let Some(ref rem) = issue.remediation {
                 println!("    Hint: {}", rem);
             }
+        }
+        println!();
+    }
+}
+
+fn render_check_architecture_summary(report: &xgauntlet_core::ArchitectureReport) {
+    println!("\n=== xGauntlet Declarative Architecture Gatekeeper ===\n");
+    println!("Files scanned:      {}", report.files_scanned);
+    println!("Violations found:   {}", report.findings.len());
+    println!();
+    if report.is_valid {
+        println!("\x1b[32m[PASSED] Architecture is COMPLIANT (0 violations).\x1b[0m\n");
+    } else {
+        println!("\x1b[31m[FAILED] Architecture Violations Detected:\x1b[0m");
+        for finding in &report.findings {
+            let loc = match finding.line_number {
+                Some(line) => format!("{}:{}", finding.file_path, line),
+                None => finding.file_path.clone(),
+            };
+            println!(
+                "  - [{:?}] {}: {}",
+                finding.category, loc, finding.message
+            );
+            println!("    Hint: {}", finding.remediation_hint);
         }
         println!();
     }

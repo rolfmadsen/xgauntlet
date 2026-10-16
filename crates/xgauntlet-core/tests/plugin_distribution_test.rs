@@ -69,26 +69,21 @@ fn find_xgauntlet_binary() -> PathBuf {
 // ============================================================================
 
 #[test]
-fn test_embedded_11_skill_suite_and_plugin_rename() {
-    // 1. All 11 canonical skills must be listed in ALL_EMBEDDED_SKILLS
+fn test_embedded_sovereign_skills_and_plugin_rename() {
+    // 1. All 6 canonical sovereign skills must be listed in ALL_EMBEDDED_SKILLS
     let expected_skills = [
-        "grill-me",
-        "grill-with-docs",
-        "domain-modeling",
-        "to-spec",
-        "to-tasks",
-        "old-coder",
+        "discover",
+        "spec",
+        "tdd",
+        "review",
         "diagnose",
-        "codebase-design",
-        "improve-codebase-architecture",
-        "code-review",
-        "retro",
+        "release",
     ];
 
     assert_eq!(
         ALL_EMBEDDED_SKILLS.len(),
-        11,
-        "ALL_EMBEDDED_SKILLS must define exactly 11 canonical skills"
+        6,
+        "ALL_EMBEDDED_SKILLS must define exactly 6 canonical skills"
     );
     for skill in &expected_skills {
         assert!(
@@ -97,12 +92,12 @@ fn test_embedded_11_skill_suite_and_plugin_rename() {
         );
     }
 
-    // 2. list_embedded_skills() must expose all 11 skills
+    // 2. list_embedded_skills() must expose all 6 skills
     let embedded = list_embedded_skills();
     assert_eq!(
         embedded.len(),
-        11,
-        "list_embedded_skills must return all 11 skills, found: {:?}",
+        6,
+        "list_embedded_skills must return all 6 skills, found: {:?}",
         embedded
     );
 
@@ -139,8 +134,8 @@ fn test_embedded_11_skill_suite_and_plugin_rename() {
         .expect("Plugin manifest must contain 'skills' array");
     assert_eq!(
         manifest_skills.len(),
-        11,
-        "Plugin manifest skills array must contain 11 skills"
+        6,
+        "Plugin manifest skills array must contain 6 skills"
     );
 
     // 5. Repository folder .agents/plugins/xgauntlet/ must exist on disk and agent-gauntlet removed
@@ -316,11 +311,11 @@ fn test_plugin_install_target_and_dry_run() {
 fn test_plugin_install_safe_non_destructive_and_force() {
     let temp = TempDir::new("plugin_install_safe");
     let target = temp.path().join("plugin");
-    fs::create_dir_all(target.join("skills/old-coder")).unwrap();
+    fs::create_dir_all(target.join("skills/tdd")).unwrap();
 
-    let custom_content = "# CUSTOM USER MODIFIED OLD CODER SKILL";
-    let old_coder_path = target.join("skills/old-coder/SKILL.md");
-    fs::write(&old_coder_path, custom_content).unwrap();
+    let custom_content = "# CUSTOM USER MODIFIED TDD SKILL";
+    let tdd_path = target.join("skills/tdd/SKILL.md");
+    fs::write(&tdd_path, custom_content).unwrap();
 
     // 1. Install without force: must preserve user-modified skill
     let options_safe = PluginInstallOptions {
@@ -334,7 +329,7 @@ fn test_plugin_install_safe_non_destructive_and_force() {
     let report_safe = run_plugin_install(&options_safe).expect("Install should succeed");
     assert!(report_safe.success);
     assert_eq!(
-        fs::read_to_string(&old_coder_path).unwrap(),
+        fs::read_to_string(&tdd_path).unwrap(),
         custom_content,
         "Non-destructive install MUST preserve existing custom skills when force=false"
     );
@@ -351,7 +346,7 @@ fn test_plugin_install_safe_non_destructive_and_force() {
     let report_force = run_plugin_install(&options_force).expect("Force install should succeed");
     assert!(report_force.success);
     assert_ne!(
-        fs::read_to_string(&old_coder_path).unwrap(),
+        fs::read_to_string(&tdd_path).unwrap(),
         custom_content,
         "Force install MUST overwrite existing skills when force=true"
     );

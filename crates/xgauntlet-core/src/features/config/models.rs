@@ -179,6 +179,51 @@ pub struct StackProfile {
     pub default_layers: Vec<LayerConfig>,
 }
 
+/// Individual file exemption from architectural limits.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize, Default)]
+pub struct ArchitectureExemption {
+    pub path: String,
+    #[serde(default)]
+    pub reason: String,
+    #[serde(default)]
+    pub max_lines: Option<usize>,
+}
+
+/// Declarative architectural governance and quality gate configuration.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct ArchitectureConfig {
+    #[serde(default = "default_max_file_lines")]
+    pub max_file_lines: Option<usize>,
+    #[serde(default = "default_max_test_file_lines")]
+    pub max_test_file_lines: Option<usize>,
+    #[serde(default)]
+    pub forbidden_tokens: Vec<String>,
+    #[serde(default)]
+    pub forbidden_imports: Vec<String>,
+    #[serde(default)]
+    pub exemptions: Vec<ArchitectureExemption>,
+}
+
+fn default_max_file_lines() -> Option<usize> {
+    Some(800)
+}
+
+fn default_max_test_file_lines() -> Option<usize> {
+    Some(1000)
+}
+
+impl Default for ArchitectureConfig {
+    fn default() -> Self {
+        Self {
+            max_file_lines: default_max_file_lines(),
+            max_test_file_lines: default_max_test_file_lines(),
+            forbidden_tokens: Vec::new(),
+            forbidden_imports: Vec::new(),
+            exemptions: Vec::new(),
+        }
+    }
+}
+
 /// Root gauntlet configuration.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct GauntletConfig {
@@ -192,6 +237,8 @@ pub struct GauntletConfig {
     pub evidence_markdown_file: String,
     #[serde(default)]
     pub paths: PathsConfig,
+    #[serde(default)]
+    pub architecture: ArchitectureConfig,
     #[serde(default)]
     pub layers: Vec<LayerConfig>,
 }

@@ -2,7 +2,7 @@
 
 use std::path::Path;
 
-use super::models::{GauntletConfig, LayerConfig, PathsConfig, StackProfile};
+use super::models::{ArchitectureConfig, GauntletConfig, LayerConfig, PathsConfig, StackProfile};
 
 pub const SUPPORTED_STACKS: &[&str] = &["rust", "python", "node", "typescript", "javascript", "go"];
 
@@ -82,6 +82,7 @@ pub fn default_config_for_stack(stack: &str) -> GauntletConfig {
         evidence_file: "evidence.json".to_string(),
         evidence_markdown_file: "evidence.md".to_string(),
         paths: PathsConfig::default(),
+        architecture: ArchitectureConfig::default(),
         layers,
     }
 }

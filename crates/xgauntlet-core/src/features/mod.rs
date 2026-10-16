@@ -1,4 +1,5 @@
 pub mod adapters;
+pub mod architecture;
 pub mod checkpoint;
 pub mod config;
 pub mod diagnostics;

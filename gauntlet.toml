@@ -10,6 +10,32 @@ spec_file = "spec.md"
 context_file = "CONTEXT.md"
 coding_standards_file = "CODING_STANDARDS.md"
 
+[architecture]
+max_file_lines = 800
+max_test_file_lines = 1000
+forbidden_tokens = ["Color::from_rgb", "Color::from_rgba"]
+
+[[architecture.exemptions]]
+path = "crates/xgauntlet-cli/src/main.rs"
+reason = "CLI root dispatcher containing multi-subcommand handlers; ratchet limit"
+max_lines = 2100
+
+[[architecture.exemptions]]
+path = "crates/xgauntlet-core/tests/harness_contracts_test.rs"
+reason = "Multi-adapter subprocess contract tests; ratchet limit"
+max_lines = 1600
+
+[[architecture.exemptions]]
+path = "crates/xgauntlet-core/tests/harness_adapters_test.rs"
+reason = "Multi-adapter payload roundtrip and conformance suite; ratchet limit"
+max_lines = 1700
+
+[[layers]]
+name = "architecture"
+command = ["cargo", "run", "-p", "xgauntlet-cli", "--", "check-architecture"]
+optional = false
+timeout_seconds = 60.0
+
 [[layers]]
 name = "lint"
 command = ["cargo", "clippy", "--", "-D", "warnings"]

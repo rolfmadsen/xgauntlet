@@ -3,7 +3,7 @@
 use std::fs;
 use std::path::Path;
 
-use super::models::{ConfigError, GauntletConfig, LayerConfig};
+use super::models::{ArchitectureExemption, ConfigError, GauntletConfig, LayerConfig};
 use super::profiles::{default_config_for_stack, detect_stack};
 
 /// Loads configuration from workspace root looking for gauntlet.toml, gauntlet.json, or fallback to stack detection.
@@ -24,6 +24,15 @@ pub fn load_config(workspace: &Path) -> Result<GauntletConfig, ConfigError> {
     Ok(default_config_for_stack(detected_stack))
 }
 
+/// Loads configuration from string content given a filename or path hint.
+pub fn load_config_from_str(content: &str, path: &Path) -> Result<GauntletConfig, ConfigError> {
+    if path.extension().and_then(|s| s.to_str()) == Some("json") {
+        parse_json(content)
+    } else {
+        parse_toml(content)
+    }
+}
+
 /// Parses gauntlet.json into GauntletConfig via serde_json.
 pub fn parse_json(content: &str) -> Result<GauntletConfig, ConfigError> {
     serde_json::from_str(content).map_err(ConfigError::JsonError)
@@ -38,6 +47,7 @@ pub fn parse_toml(content: &str) -> Result<GauntletConfig, ConfigError> {
 
     let mut current_section = "";
     let mut current_layer: Option<LayerConfig> = None;
+    let mut current_exemption: Option<ArchitectureExemption> = None;
 
     for (line_idx, line) in content.lines().enumerate() {
         let trimmed = line.trim();
@@ -49,6 +59,9 @@ pub fn parse_toml(content: &str) -> Result<GauntletConfig, ConfigError> {
             if let Some(layer) = current_layer.take() {
                 config.layers.push(layer);
             }
+            if let Some(ex) = current_exemption.take() {
+                config.architecture.exemptions.push(ex);
+            }
             current_layer = Some(LayerConfig {
                 name: String::new(),
                 command: Vec::new(),
@@ -59,13 +72,29 @@ pub fn parse_toml(content: &str) -> Result<GauntletConfig, ConfigError> {
             continue;
         }
 
+        if trimmed == "[[architecture.exemptions]]" {
+            if let Some(layer) = current_layer.take() {
+                config.layers.push(layer);
+            }
+            if let Some(ex) = current_exemption.take() {
+                config.architecture.exemptions.push(ex);
+            }
+            current_exemption = Some(ArchitectureExemption::default());
+            current_section = "architecture.exemptions";
+            continue;
+        }
+
         if trimmed.starts_with('[') && trimmed.ends_with(']') {
             if let Some(layer) = current_layer.take() {
                 config.layers.push(layer);
             }
+            if let Some(ex) = current_exemption.take() {
+                config.architecture.exemptions.push(ex);
+            }
             let section_name = trimmed.trim_start_matches('[').trim_end_matches(']').trim();
             current_section = match section_name {
                 "paths" => "paths",
+                "architecture" => "architecture",
                 other => other,
             };
             continue;
@@ -84,6 +113,23 @@ pub fn parse_toml(content: &str) -> Result<GauntletConfig, ConfigError> {
                         "timeout_seconds" => l.timeout_seconds = parse_float_val(val, 60.0),
                         _ => {}
                     }
+                }
+            } else if current_section == "architecture.exemptions" {
+                if let Some(ref mut ex) = current_exemption {
+                    match key {
+                        "path" => ex.path = parse_str_val(val),
+                        "reason" => ex.reason = parse_str_val(val),
+                        "max_lines" => ex.max_lines = Some(parse_usize_val(val)),
+                        _ => {}
+                    }
+                }
+            } else if current_section == "architecture" {
+                match key {
+                    "max_file_lines" => config.architecture.max_file_lines = Some(parse_usize_val(val)),
+                    "max_test_file_lines" => config.architecture.max_test_file_lines = Some(parse_usize_val(val)),
+                    "forbidden_tokens" => config.architecture.forbidden_tokens = parse_str_list(val),
+                    "forbidden_imports" => config.architecture.forbidden_imports = parse_str_list(val),
+                    _ => {}
                 }
             } else if current_section == "paths" {
                 match key {
@@ -116,6 +162,9 @@ pub fn parse_toml(content: &str) -> Result<GauntletConfig, ConfigError> {
     if let Some(layer) = current_layer.take() {
         config.layers.push(layer);
     }
+    if let Some(ex) = current_exemption.take() {
+        config.architecture.exemptions.push(ex);
+    }
 
     Ok(config)
 }
@@ -144,6 +193,43 @@ pub fn render_toml(config: &GauntletConfig) -> String {
         config.paths.coding_standards_file
     ));
 
+    out.push_str("[architecture]\n");
+    if let Some(max) = config.architecture.max_file_lines {
+        out.push_str(&format!("max_file_lines = {}\n", max));
+    }
+    if let Some(max) = config.architecture.max_test_file_lines {
+        out.push_str(&format!("max_test_file_lines = {}\n", max));
+    }
+    if !config.architecture.forbidden_tokens.is_empty() {
+        let tokens_fmt: Vec<String> = config
+            .architecture
+            .forbidden_tokens
+            .iter()
+            .map(|t| format!("\"{}\"", t.replace('\"', "\\\"")))
+            .collect();
+        out.push_str(&format!("forbidden_tokens = [{}]\n", tokens_fmt.join(", ")));
+    }
+    if !config.architecture.forbidden_imports.is_empty() {
+        let imports_fmt: Vec<String> = config
+            .architecture
+            .forbidden_imports
+            .iter()
+            .map(|i| format!("\"{}\"", i.replace('\"', "\\\"")))
+            .collect();
+        out.push_str(&format!("forbidden_imports = [{}]\n", imports_fmt.join(", ")));
+    }
+    out.push('\n');
+
+    for ex in &config.architecture.exemptions {
+        out.push_str("[[architecture.exemptions]]\n");
+        out.push_str(&format!("path = \"{}\"\n", ex.path));
+        out.push_str(&format!("reason = \"{}\"\n", ex.reason));
+        if let Some(ml) = ex.max_lines {
+            out.push_str(&format!("max_lines = {}\n", ml));
+        }
+        out.push('\n');
+    }
+
     for layer in &config.layers {
         out.push_str("[[layers]]\n");
         out.push_str(&format!("name = \"{}\"\n", layer.name));
@@ -161,6 +247,10 @@ pub fn render_toml(config: &GauntletConfig) -> String {
     }
 
     out
+}
+
+fn parse_usize_val(val: &str) -> usize {
+    val.trim().parse::<usize>().unwrap_or(0)
 }
 
 fn parse_str_val(val: &str) -> String {

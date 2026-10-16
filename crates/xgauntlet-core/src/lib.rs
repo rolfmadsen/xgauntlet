@@ -6,6 +6,10 @@ pub use features::adapters::{
     AntigravityAdapter, ClaudeCodeAdapter, CodexAdapter, HarnessAdapter, HarnessKind,
     MistralAdapter, NormalizedToolCall, ValidationIssue, ValidationSeverity, SUPPORTED_HARNESSES,
 };
+pub use features::architecture::{
+    run_architecture_check, ArchitectureConfig, ArchitectureExemption, ArchitectureFinding,
+    ArchitectureFindingCategory, ArchitectureReport,
+};
 pub use features::checkpoint::{
     compose_commit_message, execute_git_commit, extract_short_task_id, run_checkpoint,
     run_preflight_check, stage_workspace_changes, CheckpointError, CheckpointOptions,

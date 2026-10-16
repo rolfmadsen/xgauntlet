@@ -8,10 +8,11 @@ pub mod models;
 pub mod profiles;
 pub mod validation;
 
-pub use loader::{load_config, parse_json, parse_toml, render_toml};
+pub use loader::{load_config, load_config_from_str, parse_json, parse_toml, render_toml};
 pub use models::{
-    ConfigError, ConfigValidationIssue, ConfigValidationReport, GauntletConfig, LayerConfig,
-    PathsConfig, StackProfile, ValidationSeverity,
+    ArchitectureConfig, ArchitectureExemption, ConfigError, ConfigValidationIssue,
+    ConfigValidationReport, GauntletConfig, LayerConfig, PathsConfig, StackProfile,
+    ValidationSeverity,
 };
 pub use profiles::{
     default_config_for_stack, detect_stack, get_stack_profile, list_supported_stacks,
