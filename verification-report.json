@@ -4,40 +4,40 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "034-declarative-architecture-gate-and-sovereign-skills",
-    "task_title": "Task 034: Declarative Architecture Gate & Sovereign Skills",
-    "task_digest": "0ae2dbed6dd8097918b8193a2a007b486705789560b0c6716118483ced6d9c4b",
+    "task_id": "035-mechanical-session-handoff-and-release-engine",
+    "task_title": "Task 035: Mechanical Session Handoff and Deterministic Release Engine",
+    "task_digest": "475cd60abe82333925986dfdcd3a7920b5b05b542933361ededc09f12d32033c",
     "acceptance_criteria": [
-      "**AC1 (Architecture Config i `gauntlet.toml`)**: `GauntletConfig` i `crates/xgauntlet-core/src/features/config/models.rs` udvides med `#[serde(default)] pub architecture: ArchitectureConfig` med understøttelse af `max_file_lines`, `max_test_file_lines`, `exemptions`, `forbidden_tokens` og `forbidden_imports`.",
-      "**AC2 (Architecture Checker Engine)**: `crates/xgauntlet-core/src/features/architecture/` implementerer `run_architecture_check`, der scanner workspace-kildetræet, validerer linjetal mod grænser (med respekt for explicit begrundede undtagelser jf. Ratchet-modellen), og fanger forbudte tokens og imports.",
-      "**AC3 (CLI Subcommand `check-architecture`)**: `xgauntlet check-architecture` implementeres i `xgauntlet-cli` med formateret terminal-output, der ved overtrædelser returnerer exit code 1 og handlingsanvisende hints.",
-      "**AC4 (Gauntlet Layer Integration)**: Arkitektur-tjekket kan konfigureres og eksekveres som et verifikationslag i `xgauntlet verify`.",
-      "**AC5 (Udrulning af 6 Suveræne Skills)**: De 11 eksterne skills i `.agents/plugins/xgauntlet/skills/` erstattes af de 6 suveræne skills: `discover`, `spec`, `tdd`, `review`, `diagnose`, `release`. `plugin.json` og `ALL_EMBEDDED_SKILLS` i `bundle.rs` opdateres tilsvarende.",
-      "**AC6 (Regression & Verification Gauntlet)**: `architecture_gate_test.rs` og `plugin_distribution_test.rs` samt hele workspace passerer med 0 fejl og clippy clean."
+      "**AC1 (Session Handoff Model & Engine)**: `crates/xgauntlet-core/src/features/checkpoint/` beriges med en `SessionHandoff` model, der via git-inspektion udleder `branch`, `commit_oid`, `commits_ahead`, `is_clean`, `next_role` og genererer det færdige Markdown-kort.",
+      "**AC2 (Automatisk Handoff ved Checkpoint Done)**: Når `xgauntlet checkpoint --phase done` eksekveres, indeholder resultatet automatisk `SessionHandoff`, og CLI'en printer det fulde `🏁 SESSION HANDOFF` kort i terminalen.",
+      "**AC3 (Dedikeret CLI Subcommand `xgauntlet handoff`)**: `xgauntlet handoff` CLI-kommandoen kan til enhver tid kaldes for at generere og printe handoff-kortet for den aktive eller senest afsluttede opgave.",
+      "**AC4 (Deterministisk SemVer & Manifest Bumping)**: `crates/xgauntlet-core/src/features/release/` beriges med funktioner til at beregne SemVer-bump (`bump_semver`), opdatere deklarerede versioner i manifester (`update_manifest_versions`) og opdatere `CHANGELOG.md` (`prepare_changelog_release`).",
+      "**AC5 (CLI Subcommand `xgauntlet release`)**: `xgauntlet release prepare <version>` / `xgauntlet release bump --patch|--minor|--major` opdaterer manifester og changelog deterministisk, og printer de autoritative git commit & tag kommandoer til brugeren.",
+      "**AC6 (Regression & Verification Gauntlet)**: `handoff_and_release_test.rs` og hele workspacet passerer uden fejl, og koden er 100% `cargo clippy` ren."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "948cde6c07680c4d4e35a043b618b9272985f763db150563e51660a7ca8a46db",
-    "source_manifest_digest_pre": "7dac8811cb6f4531b7a55e78d27e805fd196bb2db78188e5a3bddf721617a805",
-    "source_manifest_digest_post": "7dac8811cb6f4531b7a55e78d27e805fd196bb2db78188e5a3bddf721617a805",
+    "source_content_digest": "1b7e28fa3eadf68b55578bf95d08a09dc3a0ef7396f145f6aac84175d45aac06",
+    "source_manifest_digest_pre": "35daaf64eebac7dc3de4760f39be81f19536a5d4071ece31155cca1d4509bdbc",
+    "source_manifest_digest_post": "35daaf64eebac7dc3de4760f39be81f19536a5d4071ece31155cca1d4509bdbc",
     "config_digest": "383d5d916b93ef4c99e5630f0b84c5510002bca50b55855441a990f616be4568",
-    "task_digest": "0ae2dbed6dd8097918b8193a2a007b486705789560b0c6716118483ced6d9c4b",
+    "task_digest": "475cd60abe82333925986dfdcd3a7920b5b05b542933361ededc09f12d32033c",
     "policy_digest": "64f8a6c6472b337b2e63605d0d1e254620f2445cebcbfcec7df75a7ec6d12a99",
     "check_definitions_digest": "cf0a7f067cd04464f9383abca5a540459ce0c9271ad29b2bed58c0873b0dfb5b",
-    "included_files_count": 180,
+    "included_files_count": 183,
     "vcs": {
       "type": "git",
-      "head": "a2e0c47",
-      "commit": "a2e0c47",
+      "head": "adc5e1a",
+      "commit": "adc5e1a",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-10-16T19:09:01Z",
-    "finished_at": "2026-10-16T19:09:19Z",
-    "total_duration_seconds": 18.119376071,
+    "started_at": "2026-10-16T19:45:32Z",
+    "finished_at": "2026-10-16T19:45:49Z",
+    "total_duration_seconds": 16.57951669,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -50,52 +50,52 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.069825481,
+      "duration_seconds": 0.07553141,
       "optional": false,
       "passed": true,
-      "log_digest": "2ba87187dcbbd3d1225618685da0f61d6d1c7edb1deffd6c5832449f6d3842b5"
+      "log_digest": "1f12d22681f6a709ced89772dc496b75322223ee46acff2dfcbe15279ce0e101"
     },
     {
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.15338325,
+      "duration_seconds": 0.11939368,
       "optional": true,
       "passed": true,
-      "log_digest": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
+      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.4889140410000001,
+      "duration_seconds": 0.101336511,
       "optional": true,
       "passed": true,
-      "log_digest": "a5be652e7ea092d43c316bdbdc6c8215e1714cd6d389b3d20060695a995b92f8"
+      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 15.867058283,
+      "duration_seconds": 15.716867061,
       "optional": false,
       "passed": true,
-      "log_digest": "12083a51417ef8737c69268cfef94c222432b507d89b19c8f5ed8bcdacdea09e"
+      "log_digest": "986d8f3a2f072b039bd00191a3cc998bd116cdf118a251ee3220db4c4e2a9436"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.349088193,
+      "duration_seconds": 0.379256657,
       "optional": true,
       "passed": true,
-      "log_digest": "069182f78d8c066d395918496352cbbaece0cc6a4096672432c68de678590b68"
+      "log_digest": "0bd868fc7a403069da20eca273b37e443e04af4f5ddfc083b65a2b4c70206313"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.009314673,
+      "duration_seconds": 0.010400739,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"

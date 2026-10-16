@@ -1,22 +1,22 @@
 # Verification Report
 
-**Task ID**: `034-declarative-architecture-gate-and-sovereign-skills`  
-**Task Title**: Task 034: Declarative Architecture Gate & Sovereign Skills  
+**Task ID**: `035-mechanical-session-handoff-and-release-engine`  
+**Task Title**: Task 035: Mechanical Session Handoff and Deterministic Release Engine  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `7dac8811cb6f4531b7a55e78d27e805fd196bb2db78188e5a3bddf721617a805`  
-**Timestamp**: `2026-10-16T19:09:19Z`  
-**Head**: `a2e0c47`  
-**Commit**: `a2e0c47`  
+**Source Manifest Digest**: `35daaf64eebac7dc3de4760f39be81f19536a5d4071ece31155cca1d4509bdbc`  
+**Timestamp**: `2026-10-16T19:45:49Z`  
+**Head**: `adc5e1a`  
+**Commit**: `adc5e1a`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (Architecture Config i `gauntlet.toml`)**: `GauntletConfig` i `crates/xgauntlet-core/src/features/config/models.rs` udvides med `#[serde(default)] pub architecture: ArchitectureConfig` med understøttelse af `max_file_lines`, `max_test_file_lines`, `exemptions`, `forbidden_tokens` og `forbidden_imports`.
-- [x] **AC2 (Architecture Checker Engine)**: `crates/xgauntlet-core/src/features/architecture/` implementerer `run_architecture_check`, der scanner workspace-kildetræet, validerer linjetal mod grænser (med respekt for explicit begrundede undtagelser jf. Ratchet-modellen), og fanger forbudte tokens og imports.
-- [x] **AC3 (CLI Subcommand `check-architecture`)**: `xgauntlet check-architecture` implementeres i `xgauntlet-cli` med formateret terminal-output, der ved overtrædelser returnerer exit code 1 og handlingsanvisende hints.
-- [x] **AC4 (Gauntlet Layer Integration)**: Arkitektur-tjekket kan konfigureres og eksekveres som et verifikationslag i `xgauntlet verify`.
-- [x] **AC5 (Udrulning af 6 Suveræne Skills)**: De 11 eksterne skills i `.agents/plugins/xgauntlet/skills/` erstattes af de 6 suveræne skills: `discover`, `spec`, `tdd`, `review`, `diagnose`, `release`. `plugin.json` og `ALL_EMBEDDED_SKILLS` i `bundle.rs` opdateres tilsvarende.
-- [x] **AC6 (Regression & Verification Gauntlet)**: `architecture_gate_test.rs` og `plugin_distribution_test.rs` samt hele workspace passerer med 0 fejl og clippy clean.
+- [x] **AC1 (Session Handoff Model & Engine)**: `crates/xgauntlet-core/src/features/checkpoint/` beriges med en `SessionHandoff` model, der via git-inspektion udleder `branch`, `commit_oid`, `commits_ahead`, `is_clean`, `next_role` og genererer det færdige Markdown-kort.
+- [x] **AC2 (Automatisk Handoff ved Checkpoint Done)**: Når `xgauntlet checkpoint --phase done` eksekveres, indeholder resultatet automatisk `SessionHandoff`, og CLI'en printer det fulde `🏁 SESSION HANDOFF` kort i terminalen.
+- [x] **AC3 (Dedikeret CLI Subcommand `xgauntlet handoff`)**: `xgauntlet handoff` CLI-kommandoen kan til enhver tid kaldes for at generere og printe handoff-kortet for den aktive eller senest afsluttede opgave.
+- [x] **AC4 (Deterministisk SemVer & Manifest Bumping)**: `crates/xgauntlet-core/src/features/release/` beriges med funktioner til at beregne SemVer-bump (`bump_semver`), opdatere deklarerede versioner i manifester (`update_manifest_versions`) og opdatere `CHANGELOG.md` (`prepare_changelog_release`).
+- [x] **AC5 (CLI Subcommand `xgauntlet release`)**: `xgauntlet release prepare <version>` / `xgauntlet release bump --patch|--minor|--major` opdaterer manifester og changelog deterministisk, og printer de autoritative git commit & tag kommandoer til brugeren.
+- [x] **AC6 (Regression & Verification Gauntlet)**: `handoff_and_release_test.rs` og hele workspacet passerer uden fejl, og koden er 100% `cargo clippy` ren.
 
 ---
 
@@ -24,11 +24,11 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.070s` |
-| `lint` | `PASSED` | `0` | `0.153s` |
-| `types` | `PASSED` | `0` | `1.489s` |
-| `unit` | `PASSED` | `0` | `15.867s` |
-| `invariants` | `PASSED` | `0` | `0.349s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.009s` |
+| `architecture` | `PASSED` | `0` | `0.076s` |
+| `lint` | `PASSED` | `0` | `0.119s` |
+| `types` | `PASSED` | `0` | `0.101s` |
+| `unit` | `PASSED` | `0` | `15.717s` |
+| `invariants` | `PASSED` | `0` | `0.379s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---

@@ -40,9 +40,9 @@ Bekræft:
 - Marker opgaven som færdig i `tasks/<id>.md`:
   - Frontmatter: `status: done`
   - Body: `**Status**: DONE`
-- Commit det afsluttende phase checkpoint:
+- Kør det afsluttende phase checkpoint (genererer automatisk `🏁 SESSION HANDOFF` kortet):
 ```bash
-git commit -m "chore(<id>): seal evidence and mark task DONE"
+xgauntlet checkpoint --phase done -t <id>
 ```
 
 ### 4. Clean Worktree Guarantee & To-Niveau Session Handoff
@@ -53,29 +53,48 @@ git status
 
 #### Niveau A: Almindelig Task-Afslutning (Hverdags-synkronisering)
 Ved afslutning af et standard arbejds-slice eller en task, skal der **IKKE** oprettes Git tags.
-Vis det officielle `🏁 SESSION HANDOFF` kort med den rene push-kommando:
+`xgauntlet checkpoint --phase done` eller `xgauntlet handoff` genererer deterministisk det officielle Markdown-kort med den eksakte push-kommando:
+```bash
+xgauntlet handoff
+```
+Viser:
 ```text
 > ### 🏁 SESSION HANDOFF • <task_id>
-> **Status**: `TASK: DONE` | **Evidens**: `FORSEGLET`
-> 
-> 📋 Kopiér og kør for at synkronisere dine lokale commits:
+> **Status**: `TASK: DONE` | **Evidens**: `FORSEGLET (Two-Tier Model)` | **Næste Rolle**: `<role>`
+> **Git State**: `<branch>@<oid>` • `clean`
+> 💡 *Start venligst en frisk chat-session for at bevare et skarpt kontekstvindue uden context rot.*
+>
+> 📋 **Kopiér og indsæt følgende starter-prompt i en ny chat:**
+> ```text
+> Hej! Vi skal i denne session fortsætte arbejdet efter afslutning af task <short_task>.
+> Læs venligst CONTEXT.md og spec.md samt opgavelisten i tasks/ for at afklare næste opgave.
+> ```
+>
+> 🚀 **Synkroniser dine commits til remote:**
 > ```bash
 > git push origin <branch>
 > ```
-> 💡 Start en frisk chat-session for næste opgave.
 ```
 
 #### Niveau B: Eksplicit Release Session (Når en ny version skal frigives)
 KUN når brugeren specifikt anmoder om at udgive en version eller milepæl:
-1. **Evaluer Kontrakt-Kompatibilitet (SemVer 2.0.0):**
-   - **MAJOR:** Inkompatible API-ændringer, fjernede funktioner eller brydende schema/konfigurationsændringer.
-   - **MINOR:** Nye additive, bagudkompatible funktioner eller moduler.
-   - **PATCH:** Bagudkompatible fejlrettelser og interne refaktoriseringer.
-2. **Bekræft med Brugeren:** Fremlæg den foreslåede versionsstigning og afvent bekræftelse.
-3. **Opdater Manifests:** Bump version i `Cargo.toml`, `package.json`, osv.
-4. **Vis Udgivelses- og Tag-Kommandoer:**
-```bash
-git push origin <branch>
-git tag -a v<version> -m "Release v<version>: <kort titel>"
-git push origin --tags
-```
+1. **Deterministisk SemVer Bumping & Manifest Sync:**
+   Kør xGauntlets release manager (evaluerer SemVer 2.0.0, opdaterer manifester og roterer CHANGELOG.md):
+   ```bash
+   xgauntlet release bump patch   # for bagudkompatible fixes
+   xgauntlet release bump minor   # for additive, bagudkompatible features
+   xgauntlet release bump major   # for inkompatible API/kontrakt-brud
+   ```
+   (Eller med specifik version: `xgauntlet release prepare 1.0.0`)
+2. **Kør Verifikation af Release-Klarhed:**
+   ```bash
+   xgauntlet check-release
+   ```
+3. **Udfør De Autoritative Release Git-Kommandoer:**
+   Værktøjet udskriver de præcise kommandoer til brugeren:
+   ```bash
+   git add Cargo.toml Cargo.lock CHANGELOG.md
+   git commit -m "chore(release): prepare v<version>"
+   git tag -a v<version> -m "Release v<version>"
+   git push origin <branch> --tags
+   ```
