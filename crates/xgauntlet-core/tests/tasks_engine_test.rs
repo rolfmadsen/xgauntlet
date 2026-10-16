@@ -346,3 +346,106 @@ fn test_check_task_specification_catches_all_spec_defects() {
 
     let _ = fs::remove_dir_all(temp_dir);
 }
+
+#[test]
+fn test_task_scope_and_test_refs_frontmatter_parsing() {
+    let markdown = r#"---
+type: Task Package
+title: "Scoped Task"
+status: active
+scope:
+  - "crates/xgauntlet-core/src/features/tasks/**"
+test_refs:
+  - "tests/tasks_engine_test.rs"
+---
+# Scoped Task
+## 🎯 Formål
+Test scope parsing.
+## 📋 Acceptance Criteria
+- [ ] AC1
+## 🚫 Must NOT
+- Rule
+"#;
+
+    let (meta_opt, _) = parse_frontmatter(markdown).expect("frontmatter parse ok");
+    let meta = meta_opt.expect("meta present");
+    assert_eq!(meta.scope, vec!["crates/xgauntlet-core/src/features/tasks/**"]);
+    assert_eq!(meta.test_refs, vec!["tests/tasks_engine_test.rs"]);
+
+    let task_info = parse_task_content(markdown, "099-scoped-task").expect("task info parse ok");
+    assert_eq!(task_info.scope, vec!["crates/xgauntlet-core/src/features/tasks/**"]);
+    assert_eq!(task_info.test_refs, vec!["tests/tasks_engine_test.rs"]);
+}
+
+#[test]
+fn test_check_task_specification_enforces_active_scope_and_test_refs() {
+    let temp_dir = std::env::temp_dir().join(format!(
+        "xgauntlet_scope_test_{}",
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    fs::create_dir_all(&temp_dir).unwrap();
+
+    fs::write(
+        temp_dir.join("CONTEXT.md"),
+        "**Feature**:\nA functional capability.\n_Avoid_: Thing.\n",
+    )
+    .unwrap();
+
+    // Active task missing scope and test_refs
+    let task_path = temp_dir.join("tasks_no_scope.md");
+    fs::write(
+        &task_path,
+        "---\ntype: Task Package\nstatus: active\n---\n# Task\n**Status**: `ACTIVE`\n## 🎯 Formål\nTest\n## 📋 Acceptance Criteria\n- [ ] Crit\n## 🚫 Must NOT\n- Rule\n",
+    )
+    .unwrap();
+
+    let rep = check_task_specification(&task_path, &temp_dir);
+    assert!(!rep.is_valid);
+    assert!(rep.diagnostics.iter().any(|d| d.tool_name == "MISSING_TASK_SCOPE"));
+    assert!(rep.diagnostics.iter().any(|d| d.tool_name == "MISSING_TASK_TEST_REFS"));
+
+    let _ = fs::remove_dir_all(temp_dir);
+}
+
+#[test]
+fn test_check_task_specification_prohibits_monolithic_test_file() {
+    let temp_dir = std::env::temp_dir().join(format!(
+        "xgauntlet_monolith_test_{}",
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    fs::create_dir_all(&temp_dir).unwrap();
+
+    fs::write(
+        temp_dir.join("CONTEXT.md"),
+        "**Feature**:\nA functional capability.\n_Avoid_: Thing.\n",
+    )
+    .unwrap();
+
+    // Create a dummy test file with 1050 lines
+    let tests_dir = temp_dir.join("tests");
+    fs::create_dir_all(&tests_dir).unwrap();
+    let monolith_test = tests_dir.join("acceptance.rs");
+    let content = "// Line of test code\n".repeat(1050);
+    fs::write(&monolith_test, content).unwrap();
+
+    // Active task pointing to monolithic test file
+    let task_path = temp_dir.join("task_monolith.md");
+    fs::write(
+        &task_path,
+        "---\ntype: Task Package\nstatus: active\nscope:\n  - \"src/features/concepts/**\"\ntest_refs:\n  - \"tests/acceptance.rs\"\n---\n# Task\n**Status**: `ACTIVE`\n## 🎯 Formål\nTest\n## 📋 Acceptance Criteria\n- [ ] Crit\n## 🚫 Must NOT\n- Rule\n",
+    )
+    .unwrap();
+
+    let rep = check_task_specification(&task_path, &temp_dir);
+    assert!(!rep.is_valid);
+    assert!(rep.diagnostics.iter().any(|d| d.tool_name == "MONOLITHIC_TEST_FILE_PROHIBITED"));
+
+    let _ = fs::remove_dir_all(temp_dir);
+}
+

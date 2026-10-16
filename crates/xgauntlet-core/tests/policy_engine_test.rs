@@ -263,3 +263,73 @@ fn test_verification_and_inspection_commands_whitelisted() {
         assert_eq!(decision.reason_code, 2004);
     }
 }
+
+#[test]
+fn test_policy_engine_enforces_task_allowed_scopes_and_test_targets() {
+    let mut engine = WasmPolicyEngine::new().unwrap();
+
+    let scoped_ctx = EnforcementContext {
+        workspace_id: "ws".into(),
+        has_active_task: true,
+        active_task_id: "033-scoped-task".into(),
+        read_only: false,
+        allowed_scopes: vec!["crates/xgauntlet-core/src/features/tasks/**".into()],
+        allowed_test_targets: vec!["tests/tasks_engine_test.rs".into()],
+    };
+
+    // 1. Write within allowed scope -> ALLOW (2002)
+    let in_scope_req = CapabilityRequest {
+        action_type: ToolActionType::WriteFile,
+        raw_tool_name: "write_to_file".into(),
+        target_resource: "crates/xgauntlet-core/src/features/tasks/validator.rs".into(),
+        payload_json: "{}".into(),
+    };
+    let decision = engine.evaluate(&in_scope_req, &scoped_ctx).unwrap();
+    assert_eq!(decision.verdict, DecisionVerdict::Allow);
+    assert_eq!(decision.reason_code, 2002);
+
+    // 2. Write to declared test target -> ALLOW (2002)
+    let in_test_req = CapabilityRequest {
+        action_type: ToolActionType::WriteFile,
+        raw_tool_name: "write_to_file".into(),
+        target_resource: "tests/tasks_engine_test.rs".into(),
+        payload_json: "{}".into(),
+    };
+    let decision = engine.evaluate(&in_test_req, &scoped_ctx).unwrap();
+    assert_eq!(decision.verdict, DecisionVerdict::Allow);
+    assert_eq!(decision.reason_code, 2002);
+
+    // 3. Write outside allowed scope -> DENY (4037)
+    let out_of_scope_req = CapabilityRequest {
+        action_type: ToolActionType::WriteFile,
+        raw_tool_name: "write_to_file".into(),
+        target_resource: "crates/xgauntlet-core/src/features/topology/mod.rs".into(),
+        payload_json: "{}".into(),
+    };
+    let decision = engine.evaluate(&out_of_scope_req, &scoped_ctx).unwrap();
+    assert_eq!(decision.verdict, DecisionVerdict::Deny);
+    assert_eq!(decision.reason_code, 4037);
+
+    // 4. Write to undeclared test target -> DENY (4037)
+    let out_of_test_req = CapabilityRequest {
+        action_type: ToolActionType::WriteFile,
+        raw_tool_name: "write_to_file".into(),
+        target_resource: "tests/acceptance.rs".into(),
+        payload_json: "{}".into(),
+    };
+    let decision = engine.evaluate(&out_of_test_req, &scoped_ctx).unwrap();
+    assert_eq!(decision.verdict, DecisionVerdict::Deny);
+    assert_eq!(decision.reason_code, 4037);
+
+    // 5. Documentation paths (tasks/, spec.md, CONTEXT.md) remain writable even with scopes -> ALLOW (2001)
+    let doc_req = CapabilityRequest {
+        action_type: ToolActionType::WriteFile,
+        raw_tool_name: "write_to_file".into(),
+        target_resource: "tasks/033-scoped-task.md".into(),
+        payload_json: "{}".into(),
+    };
+    let decision = engine.evaluate(&doc_req, &scoped_ctx).unwrap();
+    assert_eq!(decision.verdict, DecisionVerdict::Allow);
+    assert_eq!(decision.reason_code, 2001);
+}
+

@@ -5,6 +5,13 @@ description: "Etablering af suveræne xGauntlet skills, maskinel task scoping og
 status: active
 generated: { by: process:xgauntlet-task-init, at: "2026-10-16T18:12:00Z" }
 tags: [task-lifecycle, task-scoping, policy-engine, adr-0008, okf, accessibility]
+scope:
+  - "crates/xgauntlet-core/src/features/tasks/**"
+  - "crates/gauntlet-policy-engine/**"
+  - "wit/gauntlet_policy.wit"
+test_refs:
+  - "crates/xgauntlet-core/tests/tasks_engine_test.rs"
+  - "crates/xgauntlet-core/tests/policy_engine_test.rs"
 ---
 
 # Task 033: Sovereign Agentic SDLC, Task Scoping & Accessible Design Tokens
