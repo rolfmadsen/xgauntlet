@@ -48,6 +48,9 @@ function getCacheDir() {
 }
 
 function findLocalBinary() {
+  if (process.env.XGAUNTLET_TEST_FORCE_NOT_FOUND === '1') {
+    return null;
+  }
   const { isWindows, binName } = getPlatformInfo();
 
   // 1. Check Cargo target directory in local workspace
@@ -90,6 +93,9 @@ function findLocalBinary() {
 }
 
 async function downloadAndCacheBinary() {
+  if (process.env.XGAUNTLET_TEST_FORCE_NOT_FOUND === '1') {
+    throw new Error('Forced missing binary for test');
+  }
   const { platform, arch, isWindows, binName, archiveName } = getPlatformInfo();
 
   if (!archiveName) {

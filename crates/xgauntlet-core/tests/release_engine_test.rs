@@ -1,8 +1,8 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 use xgauntlet_core::features::release::{
-    check_release_readiness, parse_changelog_versions, ReleaseFindingCategory,
-    ReleaseReadinessOptions,
+    check_release_readiness, parse_changelog_versions, update_manifest_versions,
+    ReleaseFindingCategory, ReleaseReadinessOptions,
 };
 
 static TEST_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
@@ -623,4 +623,182 @@ edition = "2021"
             && d.message
                 .contains("Embedded WebAssembly policy bytecode version")
     }));
+}
+
+#[test]
+fn test_format_gate_fails_closed_when_formatter_missing() {
+    let (_guard, ws) = create_temp_workspace();
+    fs::write(
+        ws.join("Cargo.toml"),
+        r#"
+[package]
+name = "dummy"
+version = "1.0.0"
+edition = "2021"
+"#,
+    )
+    .unwrap();
+    fs::write(
+        ws.join("CHANGELOG.md"),
+        "# Changelog\n\n## [1.0.0] - 2026-10-17\n- Initial release\n",
+    )
+    .unwrap();
+    fs::write(
+        ws.join("gauntlet.toml"),
+        r#"
+stack = "rust"
+[[layers]]
+name = "format"
+command = ["nonexistent-formatter-binary-xyz", "--check"]
+optional = false
+timeout_seconds = 5.0
+"#,
+    )
+    .unwrap();
+
+    let options = ReleaseReadinessOptions {
+        workspace: ws.clone(),
+        allow_unreleased: false,
+        strict: false,
+    };
+
+    let report = check_release_readiness(&options).expect("evaluation failed");
+    assert!(
+        !report.is_ready,
+        "Gatekeeper must fail closed when format binary is missing"
+    );
+    assert!(report.diagnostics.iter().any(|d| {
+        d.category == ReleaseFindingCategory::UnformattedCode
+            && (d.message.contains("failed")
+                || d.message.contains("error")
+                || d.message.contains("spawn")
+                || d.message.contains("not found"))
+    }));
+}
+
+#[test]
+fn test_wasm_policy_fails_closed_on_corrupt_bytecode() {
+    let (_guard, ws) = create_temp_workspace();
+    fs::write(
+        ws.join("Cargo.toml"),
+        r#"
+[package]
+name = "dummy"
+version = "1.0.0"
+edition = "2021"
+"#,
+    )
+    .unwrap();
+    fs::write(
+        ws.join("CHANGELOG.md"),
+        "# Changelog\n\n## [1.0.0] - 2026-10-17\n- Initial release\n",
+    )
+    .unwrap();
+    fs::create_dir_all(ws.join("crates/gauntlet-policy-engine")).unwrap();
+    let wasm_dir = ws.join("crates/xgauntlet-core/wasm");
+    fs::create_dir_all(&wasm_dir).unwrap();
+    fs::write(
+        wasm_dir.join("gauntlet_policy.wasm"),
+        b"CORRUPT_NON_WASM_BYTECODE",
+    )
+    .unwrap();
+
+    let options = ReleaseReadinessOptions {
+        workspace: ws.clone(),
+        allow_unreleased: false,
+        strict: false,
+    };
+
+    let report = check_release_readiness(&options).expect("evaluation failed");
+    assert!(
+        !report.is_ready,
+        "Gatekeeper must fail closed on corrupt wasm policy bytecode"
+    );
+    assert!(report
+        .diagnostics
+        .iter()
+        .any(|d| { d.file_path == "crates/xgauntlet-core/wasm/gauntlet_policy.wasm" }));
+}
+
+#[test]
+fn test_strict_release_gate_fails_closed_when_evidence_report_missing() {
+    let (_guard, ws) = create_temp_workspace();
+    fs::write(
+        ws.join("Cargo.toml"),
+        r#"
+[package]
+name = "dummy"
+version = "1.0.0"
+edition = "2021"
+"#,
+    )
+    .unwrap();
+    fs::write(
+        ws.join("CHANGELOG.md"),
+        "# Changelog\n\n## [1.0.0] - 2026-10-17\n- Initial release\n",
+    )
+    .unwrap();
+
+    let options = ReleaseReadinessOptions {
+        workspace: ws.clone(),
+        allow_unreleased: false,
+        strict: true,
+    };
+
+    let report = check_release_readiness(&options).expect("evaluation failed");
+    assert!(
+        !report.is_ready,
+        "Strict release gatekeeper must fail closed when verification-report.json is missing"
+    );
+    assert!(report
+        .diagnostics
+        .iter()
+        .any(|d| { d.file_path == "verification-report.json" }));
+}
+
+#[test]
+fn test_package_json_key_order_preservation_on_update() {
+    let (_guard, ws) = create_temp_workspace();
+    let pkg_json_content = r#"{
+  "name": "sample-pkg",
+  "description": "sample description",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "foo": "1.0.0"
+  },
+  "license": "MIT"
+}
+"#;
+    fs::write(ws.join("package.json"), pkg_json_content).unwrap();
+
+    let updated = update_manifest_versions(&ws, "1.0.1").unwrap();
+    assert_eq!(updated, vec!["package.json"]);
+
+    let new_content = fs::read_to_string(ws.join("package.json")).unwrap();
+    let keys: Vec<&str> = new_content
+        .lines()
+        .filter_map(|l| {
+            let t = l.trim();
+            if t.starts_with('"') && t.contains("\":") {
+                Some(t.split('"').nth(1).unwrap())
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    assert_eq!(
+        keys,
+        vec![
+            "name",
+            "description",
+            "version",
+            "scripts",
+            "dependencies",
+            "license"
+        ]
+    );
 }

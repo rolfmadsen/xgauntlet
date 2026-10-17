@@ -347,3 +347,30 @@ fn test_real_workspace_gauntlet_toml_passes_validation() {
         );
     }
 }
+
+#[test]
+fn test_stack_profiles_default_format_lint_types_optional() {
+    for stack in ["rust", "python", "node", "go"] {
+        let config = GauntletConfig::default_for_stack(stack);
+        for layer_name in ["format", "lint", "types"] {
+            let layer = config
+                .layers
+                .iter()
+                .find(|l| l.name == layer_name)
+                .unwrap_or_else(|| panic!("Stack '{stack}' missing '{layer_name}' layer"));
+            assert!(
+                layer.optional,
+                "Layer '{layer_name}' in stack '{stack}' must be optional: true for external zero-config projects"
+            );
+        }
+        let unit_layer = config
+            .layers
+            .iter()
+            .find(|l| l.name == "unit")
+            .unwrap_or_else(|| panic!("Stack '{stack}' missing 'unit' layer"));
+        assert!(
+            !unit_layer.optional,
+            "Layer 'unit' in stack '{stack}' must be required (optional: false)"
+        );
+    }
+}

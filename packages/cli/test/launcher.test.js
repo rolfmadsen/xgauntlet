@@ -71,3 +71,22 @@ test('xgauntlet.js launcher check-release output', () => {
   assert.match(output, /Release Readiness Gatekeeper/i);
   assert.match(output, /RELEASE READY/i);
 });
+
+test('xgauntlet.js launcher status exits with code 1 when native engine missing', () => {
+  assert.throws(
+    () => {
+      execFileSync(process.execPath, [binPath, 'status'], {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          XGAUNTLET_TEST_FORCE_NOT_FOUND: '1',
+        },
+      });
+    },
+    (err) => {
+      assert.equal(err.status, 1, 'Bootstrapper must exit with code 1 when engine is missing');
+      assert.match(err.stdout, /Engine:\s+NOT_FOUND/);
+      return true;
+    }
+  );
+});
