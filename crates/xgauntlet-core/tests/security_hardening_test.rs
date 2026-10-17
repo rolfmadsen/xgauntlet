@@ -12,6 +12,7 @@ use xgauntlet_core::features::evidence::{
     compute_workspace_manifest, verify_self_mutation, verify_workspace_state_match,
     VerificationReport,
 };
+use xgauntlet_core::features::policy::PolicyEvaluator;
 use xgauntlet_core::features::gauntlet::{execute_gauntlet_pipeline, GauntletOptions};
 use xgauntlet_core::features::tasks::resolve_task_contract;
 
@@ -317,3 +318,61 @@ fn test_unreadable_file_fails_digest_computation() {
         );
     }
 }
+
+#[test]
+fn test_corrupt_task_file_fails_closed_in_from_workspace() {
+    let dir = TempDir::new("xgauntlet_corrupt_task");
+    let ws = dir.path();
+
+    fs::create_dir_all(ws.join("tasks")).unwrap();
+    fs::create_dir_all(ws.join("src")).unwrap();
+
+    // Corrupt task file: unclosed YAML frontmatter with active markers
+    let corrupt_content = r#"---
+type: Task Package
+title: "Task 037: Corrupt Task"
+status: active
+scope:
+  - "src/**"
+
+# Task 037: Corrupt Task
+**Status**: `ACTIVE`
+## 🎯 Formål
+Testing corruption.
+## 📋 Acceptance Criteria
+- [ ] Criterion 1
+## 🚫 Must NOT
+- None
+"#;
+    fs::write(ws.join("tasks").join("037-corrupt-task.md"), corrupt_content).unwrap();
+
+    let ctx = xgauntlet_core::features::policy::EnforcementContext::from_workspace(ws, false);
+    assert!(
+        !ctx.has_active_task,
+        "Corrupt task file MUST set has_active_task = false"
+    );
+    assert!(
+        ctx.allowed_scopes.is_empty(),
+        "Corrupt task file MUST leave allowed_scopes empty"
+    );
+    assert!(
+        ctx.active_task_id.is_empty(),
+        "Corrupt task file MUST leave active_task_id empty"
+    );
+
+    // Evaluating write to code against this context MUST deny
+    let mut engine = xgauntlet_core::features::policy::WasmPolicyEngine::new().unwrap();
+    let req = xgauntlet_core::features::policy::CapabilityRequest {
+        action_type: xgauntlet_core::features::policy::ToolActionType::WriteFile,
+        raw_tool_name: "write_to_file".into(),
+        target_resource: "src/lib.rs".into(),
+        payload_json: "{}".into(),
+    };
+    let decision = engine.evaluate(&req, &ctx).unwrap();
+    assert_eq!(
+        decision.verdict,
+        xgauntlet_core::features::policy::DecisionVerdict::Deny,
+        "Writing to code with corrupt task context MUST be denied fail-closed"
+    );
+}
+
