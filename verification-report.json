@@ -4,45 +4,49 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "035-mechanical-session-handoff-and-release-engine",
-    "task_title": "Task 035: Mechanical Session Handoff and Deterministic Release Engine",
-    "task_digest": "475cd60abe82333925986dfdcd3a7920b5b05b542933361ededc09f12d32033c",
+    "task_id": "036-release-gatekeeper-fail-closed-hardening",
+    "task_title": "Task 036: Release Gatekeeper Fail-Closed Hardening and Evidence Integrity",
+    "task_digest": "e51ab4ca44f47002d20b0ec3f03ebbfe93d602da1f73ec40f22b5146dd4a9523",
     "acceptance_criteria": [
-      "**AC1 (Session Handoff Model & Engine)**: `crates/xgauntlet-core/src/features/checkpoint/` beriges med en `SessionHandoff` model, der via git-inspektion udleder `branch`, `commit_oid`, `commits_ahead`, `is_clean`, `next_role` og genererer det færdige Markdown-kort.",
-      "**AC2 (Automatisk Handoff ved Checkpoint Done)**: Når `xgauntlet checkpoint --phase done` eksekveres, indeholder resultatet automatisk `SessionHandoff`, og CLI'en printer det fulde `🏁 SESSION HANDOFF` kort i terminalen.",
-      "**AC3 (Dedikeret CLI Subcommand `xgauntlet handoff`)**: `xgauntlet handoff` CLI-kommandoen kan til enhver tid kaldes for at generere og printe handoff-kortet for den aktive eller senest afsluttede opgave.",
-      "**AC4 (Deterministisk SemVer & Manifest Bumping)**: `crates/xgauntlet-core/src/features/release/` beriges med funktioner til at beregne SemVer-bump (`bump_semver`), opdatere deklarerede versioner i manifester (`update_manifest_versions`) og opdatere `CHANGELOG.md` (`prepare_changelog_release`).",
-      "**AC5 (CLI Subcommand `xgauntlet release`)**: `xgauntlet release prepare <version>` / `xgauntlet release bump --patch|--minor|--major` opdaterer manifester og changelog deterministisk, og printer de autoritative git commit & tag kommandoer til brugeren.",
-      "**AC6 (Regression & Verification Gauntlet)**: `handoff_and_release_test.rs` og hele workspacet passerer uden fejl, og koden er 100% `cargo clippy` ren."
+      "**AC1 (Fail-Closed Format Gate i check-release)**: `check-release` evaluerer formatering via gauntlettens layer-runner med gældende `timeout_seconds` for alle konfigurerede, obligatoriske formatlag (herunder xGauntlets egen `optional = false` konfiguration). Manglende format-binary, spawn-fejl eller formateringsfejl registreres som blokerende `ReleaseFinding` og giver exit 1.",
+      "**AC2 (Fail-Closed WASM Policy Gate)**: `check-release` validerer `gauntlet_policy.wasm` deterministisk uden slugte fejl. Korrupt bytecode, I/O-fejl eller versionsmismatch registreres som blokerende `ReleaseFinding` og giver exit 1.",
+      "**AC3 (Portable `fail_on_output` & Go Format Fix)**: `LayerConfig` udvides med `fail_on_output: bool`. Hvis `true`, fejler laget hvis stdout/stderr er ikke-tom (bruges af `gofmt -l .` på tværs af Linux, macOS og Windows).",
+      "**AC4 (Genopretning af Stack Profiler for Eksterne Projekter)**: I `default_config_for_stack` sættes `format`, `lint` og `types` til `optional: true` for zero-config eksterne projekter, så udrullede projekter ikke knækker hvis et værktøj mangler under `verify` (giver `PARTIAL` i stedet for `FAILED`). Dækkes af unit tests pr. profil.",
+      "**AC5 (Strict Evidence & Drift Gate i check-release med defineret livscyklus)**:",
+      "**AC6 (Transaktionel WASM & Manifest Bump med Fuld Build og Disk-Staging Backup)**:",
+      "**AC7 (Gated Release Workflow med Adskilte CI- og Gate-jobs)**:",
+      "**AC8 (Bootstrapper Fail-Closed Exit-kode)**: `packages/cli/bin/xgauntlet.js` returnerer en ikke-nul exit-kode (exit 1), hvis den native engine ikke findes under `status` eller `doctor`. Dækkes af regressionstest i `packages/cli/test/launcher.test.js`, der verificerer både stdout og exit-kode.",
+      "**AC9 (CLI `--task-id` Alias & Konsistens)**: Clap `#[arg(short, long, alias = \"task-id\")]` tilføjes til `task`-argumentet i `Verify` (samt `CheckSpec` og `Handoff` for ensartethed), så README's dokumenterede kommando `xgauntlet verify --task-id <id>` virker direkte. Dækkes af regressionstest.",
+      "**AC10 (Dokumentation & Gauntlet Sanering)**: CHANGELOG.md rettes for forkerte nøgler under 0.8.0 (`max_file_lines`, `max_test_file_lines`, `[[architecture.exemptions]]`), 0.8.2-teksten korrigeres for evidens-påstande med en note om, at v0.8.3 hærder Tier 1 lokal evidens- og driftkontrol, `gauntlet.toml` clippy tilføjes `--all-targets`, og `invariants`-laget saneres."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "1b7e28fa3eadf68b55578bf95d08a09dc3a0ef7396f145f6aac84175d45aac06",
-    "source_manifest_digest_pre": "35daaf64eebac7dc3de4760f39be81f19536a5d4071ece31155cca1d4509bdbc",
-    "source_manifest_digest_post": "35daaf64eebac7dc3de4760f39be81f19536a5d4071ece31155cca1d4509bdbc",
-    "config_digest": "383d5d916b93ef4c99e5630f0b84c5510002bca50b55855441a990f616be4568",
-    "task_digest": "475cd60abe82333925986dfdcd3a7920b5b05b542933361ededc09f12d32033c",
-    "policy_digest": "64f8a6c6472b337b2e63605d0d1e254620f2445cebcbfcec7df75a7ec6d12a99",
-    "check_definitions_digest": "cf0a7f067cd04464f9383abca5a540459ce0c9271ad29b2bed58c0873b0dfb5b",
-    "included_files_count": 183,
+    "source_content_digest": "f0533b594b43baa58a7f10022fc26d2cf2ba265fb2ac3bf24438c075dd6ede6b",
+    "source_manifest_digest_pre": "c5aa515bbb37cc6480d8df5a8f70dfc3fd8587f5d05291411c0b8d7e45fc923e",
+    "source_manifest_digest_post": "c5aa515bbb37cc6480d8df5a8f70dfc3fd8587f5d05291411c0b8d7e45fc923e",
+    "config_digest": "b579acef8373897d9f15091dcdce0c301b3a59a29f173b29f022201ffcac8056",
+    "task_digest": "e51ab4ca44f47002d20b0ec3f03ebbfe93d602da1f73ec40f22b5146dd4a9523",
+    "policy_digest": "32040e885c036518fbf78cec8bd04a65b58680f301189b68ba06612ac3ffd105",
+    "check_definitions_digest": "138fd39199ca1ff02f1546e8f3128c38c38d368226e0aa141bacdcdbfe12d76b",
+    "included_files_count": 188,
     "vcs": {
       "type": "git",
-      "head": "adc5e1a",
-      "commit": "adc5e1a",
+      "head": "0e27384",
+      "commit": "0e27384",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-10-16T19:45:32Z",
-    "finished_at": "2026-10-16T19:45:49Z",
-    "total_duration_seconds": 16.57951669,
+    "started_at": "2026-10-17T13:18:11Z",
+    "finished_at": "2026-10-17T13:18:31Z",
+    "total_duration_seconds": 19.539726493,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
       "platform": "linux",
-      "version": "0.7.3"
+      "version": "0.8.2"
     }
   },
   "checks": [
@@ -50,52 +54,70 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.07553141,
+      "duration_seconds": 0.076058852,
       "optional": false,
       "passed": true,
-      "log_digest": "1f12d22681f6a709ced89772dc496b75322223ee46acff2dfcbe15279ce0e101"
+      "log_digest": "798ad210e21dde7221046adb06053d97f8f61c625eb00ba016a9e0378da75fde"
+    },
+    {
+      "name": "format",
+      "status": "PASSED",
+      "exit_code": 0,
+      "duration_seconds": 0.152244527,
+      "optional": false,
+      "passed": true,
+      "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.11939368,
-      "optional": true,
+      "duration_seconds": 0.095078222,
+      "optional": false,
       "passed": true,
-      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
+      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.101336511,
-      "optional": true,
+      "duration_seconds": 0.080735202,
+      "optional": false,
       "passed": true,
-      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
+      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 15.716867061,
+      "duration_seconds": 18.244929941,
       "optional": false,
       "passed": true,
-      "log_digest": "986d8f3a2f072b039bd00191a3cc998bd116cdf118a251ee3220db4c4e2a9436"
+      "log_digest": "576110beb528677fb3216c3d3874a02ef7746b86eeabbfc6e90a45710bc7831d"
+    },
+    {
+      "name": "npm",
+      "status": "PASSED",
+      "exit_code": 0,
+      "duration_seconds": 0.639512247,
+      "optional": false,
+      "passed": true,
+      "log_digest": "6dfa23a4ace8d7e609aa06665124b95d2dc76290f15029eddff05eba59de2d34"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.379256657,
-      "optional": true,
+      "duration_seconds": 0.055495984,
+      "optional": false,
       "passed": true,
-      "log_digest": "0bd868fc7a403069da20eca273b37e443e04af4f5ddfc083b65a2b4c70206313"
+      "log_digest": "7d184fd5d971b758c7402ea8e4bcc75c7d2f7e37c39855bc52b739778d2d8444"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.010400739,
+      "duration_seconds": 0.011595098,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"

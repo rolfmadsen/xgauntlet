@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 036: Release Gatekeeper Fail-Closed Hardening and Evidence Integrity"
 description: "Fail-closed hærdning af check-release gater, to-trins genbrugeligt CI release-workflow, transaktionel WASM bump med fuld build, fail_on_output til Go-format, genopretning af standardprofiler, bootstrapper exit-kode, CLI-alias og dokumentationsoprydning"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-10-17T12:45:00Z" }
 tags: [release, gatekeeper, fail-closed, wasm, evidence, drift, profiles, ci, bootstrapper, adr-0005]
 scope:
@@ -27,7 +27,7 @@ test_refs:
 
 # Task 036: Release Gatekeeper Fail-Closed Hardening and Evidence Integrity
 
-**Status**: `ACTIVE`  
+**Status**: `DONE`  
 **Intent**: `🐛 BUG FIX`  
 **Oprettet**: `2026-10-17`  
 
