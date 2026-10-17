@@ -148,13 +148,8 @@ impl AntigravityAdapter {
         });
 
         let pre_invocation_entry = serde_json::json!({
-            "matcher": ".*",
-            "hooks": [
-                {
-                    "type": "command",
-                    "command": pre_invocation_cmd
-                }
-            ]
+            "type": "command",
+            "command": pre_invocation_cmd
         });
 
         match existing_json {
@@ -170,8 +165,6 @@ impl AntigravityAdapter {
                     "agent-gauntlet-gatekeeper".to_string()
                 } else if root.contains_key("gauntlet-gatekeeper") {
                     "gauntlet-gatekeeper".to_string()
-                } else if let Some(first_key) = root.keys().next().cloned() {
-                    first_key
                 } else {
                     "xgauntlet".to_string()
                 };
@@ -223,25 +216,53 @@ impl AntigravityAdapter {
                     serde_json::Value::Array(pre_tool_vec),
                 );
 
-                // Update PreInvocation
-                let mut pre_inv_vec = group
+                // Update PreInvocation: flat list of handlers, normalizing legacy grouped format
+                let raw_pre_inv = group
                     .get("PreInvocation")
                     .and_then(|v| v.as_array())
                     .cloned()
                     .unwrap_or_default();
 
-                let pre_inv_exists = pre_inv_vec.iter().any(|item| {
-                    item.get("hooks")
-                        .and_then(|h| h.as_array())
-                        .map(|arr| {
-                            arr.iter().any(|h| {
-                                h.get("command").and_then(|c| c.as_str())
-                                    == Some(pre_invocation_cmd)
-                            })
-                        })
-                        .unwrap_or(false)
-                });
-                if !pre_inv_exists {
+                let mut pre_inv_vec = Vec::new();
+                let mut has_telemetry = false;
+
+                for item in raw_pre_inv {
+                    if let Some(hooks_arr) = item.get("hooks").and_then(|h| h.as_array()) {
+                        for h in hooks_arr {
+                            if let Some(cmd) = h.get("command").and_then(|c| c.as_str()) {
+                                if cmd.contains("xgauntlet telemetry")
+                                    || cmd.contains("agent_gauntlet telemetry")
+                                {
+                                    if !has_telemetry {
+                                        pre_inv_vec.push(pre_invocation_entry.clone());
+                                        has_telemetry = true;
+                                    }
+                                } else {
+                                    let mut flat_h = h.clone();
+                                    if let Some(obj) = flat_h.as_object_mut() {
+                                        obj.remove("matcher");
+                                    }
+                                    pre_inv_vec.push(flat_h);
+                                }
+                            }
+                        }
+                    } else if let Some(cmd) = item.get("command").and_then(|c| c.as_str()) {
+                        if cmd.contains("xgauntlet telemetry")
+                            || cmd.contains("agent_gauntlet telemetry")
+                        {
+                            if !has_telemetry {
+                                pre_inv_vec.push(pre_invocation_entry.clone());
+                                has_telemetry = true;
+                            }
+                        } else {
+                            pre_inv_vec.push(item);
+                        }
+                    } else {
+                        pre_inv_vec.push(item);
+                    }
+                }
+
+                if !has_telemetry {
                     pre_inv_vec.push(pre_invocation_entry);
                 }
                 group.insert(
@@ -279,7 +300,21 @@ impl AntigravityAdapter {
         let hooks_path = agents_dir.join("hooks.json");
         let existing = if hooks_path.is_file() {
             let content = std::fs::read_to_string(&hooks_path)?;
-            serde_json::from_str(&content).ok()
+            if content.trim().is_empty() {
+                None
+            } else {
+                let val: serde_json::Value = serde_json::from_str(&content).map_err(|e| {
+                    std::io::Error::new(
+                        std::io::ErrorKind::InvalidData,
+                        format!(
+                            "Existing hooks configuration '{}' contains invalid JSON ({}). Manual remediation required before scaffolding to avoid data loss.",
+                            hooks_path.display(),
+                            e
+                        ),
+                    )
+                })?;
+                Some(val)
+            }
         } else {
             None
         };

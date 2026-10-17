@@ -580,7 +580,7 @@ fn test_antigravity_hooks_json_generation_with_pre_invocation_and_pre_tool_use()
         .expect("PreInvocation array");
     assert!(!pre_invocation.is_empty());
     assert_eq!(
-        pre_invocation[0]["hooks"][0]["command"],
+        pre_invocation[0]["command"],
         "xgauntlet telemetry --format antigravity-hook"
     );
 }

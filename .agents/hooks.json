@@ -2,13 +2,8 @@
   "xgauntlet": {
     "PreInvocation": [
       {
-        "hooks": [
-          {
-            "command": "xgauntlet telemetry --format antigravity-hook",
-            "type": "command"
-          }
-        ],
-        "matcher": ".*"
+        "command": "xgauntlet telemetry --format antigravity-hook",
+        "type": "command"
       }
     ],
     "PreToolUse": [

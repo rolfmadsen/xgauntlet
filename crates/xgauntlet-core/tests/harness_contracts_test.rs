@@ -841,9 +841,9 @@ fn test_harness_scaffold_config_snapshots_all_four_adapters() {
         .get("PreInvocation")
         .and_then(|v| v.as_array())
         .expect("PreInvocation array");
-    assert_eq!(pre_inv[0]["matcher"], ".*");
+    assert!(pre_inv[0].get("matcher").is_none());
     assert_eq!(
-        pre_inv[0]["hooks"][0]["command"],
+        pre_inv[0]["command"],
         "xgauntlet telemetry --format antigravity-hook"
     );
 

@@ -36,7 +36,9 @@ impl Drop for TempDir {
 #[test]
 fn test_ac1_pre_invocation_schema_compliance_flat_format() {
     let generated = AntigravityAdapter::generate_hooks_json(None);
-    let xg = generated.get("xgauntlet").expect("xgauntlet key must exist");
+    let xg = generated
+        .get("xgauntlet")
+        .expect("xgauntlet key must exist");
 
     // PreInvocation must be a flat array of handler objects directly without matcher
     let pre_inv = xg
@@ -185,10 +187,7 @@ fn test_ac3_group_key_isolation_does_not_hijack_foreign_keys() {
         custom.get("PreInvocation").is_none(),
         "Foreign key must not be hijacked with PreInvocation"
     );
-    let foreign_ptu = custom
-        .get("PreToolUse")
-        .and_then(|v| v.as_array())
-        .unwrap();
+    let foreign_ptu = custom.get("PreToolUse").and_then(|v| v.as_array()).unwrap();
     assert_eq!(foreign_ptu.len(), 1);
     assert_eq!(
         foreign_ptu[0]["hooks"][0]["command"].as_str(),

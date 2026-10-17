@@ -7,6 +7,8 @@ generated: { by: process:xgauntlet-task-init, at: "2026-10-17T11:17:00Z" }
 tags: [antigravity, hooks, adapter, schema, non-destructive, scaffolding]
 scope:
   - "crates/xgauntlet-core/src/features/adapters/antigravity/**"
+  - "crates/xgauntlet-core/tests/harness_adapters_test.rs"
+  - "crates/xgauntlet-core/tests/harness_contracts_test.rs"
   - ".agents/hooks.json"
 test_refs:
   - "crates/xgauntlet-core/tests/antigravity_hooks_test.rs"
