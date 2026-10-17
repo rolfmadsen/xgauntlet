@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 040: Bootstrapper Attestation Fallback and Dual-Asset Release Parity"
 description: "Implementer transparent attestation bundle fallback (.bundle og .json) i bootstrapperen og dual-asset udgivelse i GitHub Actions for gnidningsfri npm installation"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-10-17T15:06:28Z" }
 tags: [task-lifecycle, intent, scaffolding, rust]
 scope:
@@ -17,7 +17,7 @@ test_refs:
 
 # Task 040: Bootstrapper Attestation Fallback and Dual-Asset Release Parity
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🐛 BUG FIX`
 **Oprettet**: `2026-10-17`
 

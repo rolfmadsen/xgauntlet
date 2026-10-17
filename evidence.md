@@ -1,21 +1,20 @@
 # Verification Report
 
-**Task ID**: `039-release-attestation-and-npm-bootstrapper-integrity-verification`  
-**Task Title**: Task 039: Native Release Attestation and Bootstrapper Integrity Verification  
+**Task ID**: `040-bootstrapper-attestation-fallback-and-release-parity`  
+**Task Title**: Task 040: Bootstrapper Attestation Fallback and Dual-Asset Release Parity  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `3431eb2bdbe7d865996992ea6e3447013ce85ded28e44b65e9c9cfd53238d17a`  
-**Timestamp**: `2026-10-17T14:41:50Z`  
-**Head**: `0a62776`  
-**Commit**: `0a62776`  
+**Source Manifest Digest**: `758c2dbcf8c9fe393bbf4b886765b2795d44bfb552fc93de634cdfdccb713a8f`  
+**Timestamp**: `2026-10-17T15:13:50Z`  
+**Head**: `72cd699`  
+**Commit**: `72cd699`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (CI Multi-Subject Archive Attestation & Workflow Artifact Transfer)**:
-- [x] **AC2 (Officiel `sigstore` Verifikator & Forud Forankret Repository-ID i Bootstrapper)**:
-- [x] **AC3 (Fail-Closed Ved Mismatch eller Ubetroet Identitet)**:
-- [x] **AC4 (CLI Subcommand `check-attestation` med Numerisk Repo-ID Trust Policy)**: CLI'en udvides med `xgauntlet check-attestation` i overensstemmelse med ADR 0005. Kommandoen kontrollerer ikke blot attestationens syntaks, men håndhæver en eksplicit tillidspolitik (validerer unikt numerisk repository-ID, repository-sti, workflow-sti, ref/tag, predicate-type og artefakt-digest mod Sigstore trusted roots).
-- [x] **AC5 (Eksplicit Adskillelse fra NPM Provenance)**: `npm publish --provenance` bevares for selve npm-pakken, men adskilles eksplicit fra attesteringen og integritetskontrollen af de distribuerede native arkiver.
+- [x] **AC1 (Dual-Candidate Attestation Fetching)**: `packages/cli/bin/xgauntlet.js` implementerer en dedikeret `fetchAttestationBundle`-hjælper (eller ækvivalent), der prøver `attestation.bundle` og transparent falder tilbage på `attestation.json` (og omvendt), så installationen lykkes uanset hvilket filnavn GitHub Release serverer.
+- [x] **AC2 (Ingen tomme cache-mapper ved downloadfejl)**: `downloadAndCacheBinary` fjerner eller rydder op i målmappen (`cacheDir`), hvis download eller verifikation fejler, så ufuldstændige downloads ikke forurener cache-træet.
+- [x] **AC3 (Dual-Asset Release i CI)**: `.github/workflows/release.yml` klargør og uploader det attesterede bundt som både `attestation.bundle` og `attestation.json` i `attest-binaries` og `create-github-release`.
+- [x] **AC4 (Regressions- og Paritetstests)**: `packages/cli/test/attestation.test.js` udvides med tests for fallback-håndteringen og workflow-filens dual-asset konfiguration.
 
 ---
 
@@ -23,13 +22,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.063s` |
-| `format` | `PASSED` | `0` | `0.169s` |
-| `lint` | `PASSED` | `0` | `2.162s` |
-| `types` | `PASSED` | `0` | `0.097s` |
-| `unit` | `PASSED` | `0` | `22.497s` |
-| `npm` | `PASSED` | `0` | `0.764s` |
-| `invariants` | `PASSED` | `0` | `0.057s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.013s` |
+| `architecture` | `PASSED` | `0` | `0.083s` |
+| `format` | `PASSED` | `0` | `0.171s` |
+| `lint` | `PASSED` | `0` | `0.111s` |
+| `types` | `PASSED` | `0` | `0.303s` |
+| `unit` | `PASSED` | `0` | `19.163s` |
+| `npm` | `PASSED` | `0` | `0.834s` |
+| `invariants` | `PASSED` | `0` | `0.059s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.009s` |
 
 ---

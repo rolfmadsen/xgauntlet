@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🐛 Fixed & Hardened
+- **Bootstrapper Attestation Fallback & Dual-Asset Release Parity (`Task 040`, `packages/cli`, `.github/workflows`, `crates/xgauntlet-cli`)**:
+  - Implementeret transparent fallback i `fetchAttestationBundle` (`packages/cli/bin/xgauntlet.js`), så den automatisk henter `attestation.bundle` eller `attestation.json` uden 404-fejl under første kørsel efter global npm-installation.
+  - Hærdet bootstrapperens cache-håndtering, så der ikke efterlades tomme cachemapper i `~/.cache/xgauntlet/vX.Y.Z/` ved afbrudte downloads.
+  - Tilføjet dual-asset staging i `.github/workflows/release.yml`, så fremtidige GitHub Releases publicerer både `attestation.bundle` og `attestation.json`.
+  - Tilføjet automatisk fallback til `attestation.json` i `xgauntlet check-attestation` CLI-kommandoen, når default bundt-sti mangler.
+
 ## [0.8.3] - 2026-10-17
 
 ### 🛡️ Security Hardening & Gatekeeper (v0.8.3 Release Package)

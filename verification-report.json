@@ -4,39 +4,38 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "039-release-attestation-and-npm-bootstrapper-integrity-verification",
-    "task_title": "Task 039: Native Release Attestation and Bootstrapper Integrity Verification",
-    "task_digest": "e229c031314112932aa291004e0897bb65f1ddbb6328d0ecd91edc6e4de7e95d",
+    "task_id": "040-bootstrapper-attestation-fallback-and-release-parity",
+    "task_title": "Task 040: Bootstrapper Attestation Fallback and Dual-Asset Release Parity",
+    "task_digest": "e454dda48a221b449f47d57d5b0568787fffb6fb33fb8a3a3ba1da7b2fd6db41",
     "acceptance_criteria": [
-      "**AC1 (CI Multi-Subject Archive Attestation & Workflow Artifact Transfer)**:",
-      "**AC2 (Officiel `sigstore` Verifikator & Forud Forankret Repository-ID i Bootstrapper)**:",
-      "**AC3 (Fail-Closed Ved Mismatch eller Ubetroet Identitet)**:",
-      "**AC4 (CLI Subcommand `check-attestation` med Numerisk Repo-ID Trust Policy)**: CLI'en udvides med `xgauntlet check-attestation` i overensstemmelse med ADR 0005. Kommandoen kontrollerer ikke blot attestationens syntaks, men håndhæver en eksplicit tillidspolitik (validerer unikt numerisk repository-ID, repository-sti, workflow-sti, ref/tag, predicate-type og artefakt-digest mod Sigstore trusted roots).",
-      "**AC5 (Eksplicit Adskillelse fra NPM Provenance)**: `npm publish --provenance` bevares for selve npm-pakken, men adskilles eksplicit fra attesteringen og integritetskontrollen af de distribuerede native arkiver."
+      "**AC1 (Dual-Candidate Attestation Fetching)**: `packages/cli/bin/xgauntlet.js` implementerer en dedikeret `fetchAttestationBundle`-hjælper (eller ækvivalent), der prøver `attestation.bundle` og transparent falder tilbage på `attestation.json` (og omvendt), så installationen lykkes uanset hvilket filnavn GitHub Release serverer.",
+      "**AC2 (Ingen tomme cache-mapper ved downloadfejl)**: `downloadAndCacheBinary` fjerner eller rydder op i målmappen (`cacheDir`), hvis download eller verifikation fejler, så ufuldstændige downloads ikke forurener cache-træet.",
+      "**AC3 (Dual-Asset Release i CI)**: `.github/workflows/release.yml` klargør og uploader det attesterede bundt som både `attestation.bundle` og `attestation.json` i `attest-binaries` og `create-github-release`.",
+      "**AC4 (Regressions- og Paritetstests)**: `packages/cli/test/attestation.test.js` udvides med tests for fallback-håndteringen og workflow-filens dual-asset konfiguration."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "5f5eb715a8727f6a7a7ddbacb83559893b4539e4f6aff1ee152c4fecc42577f7",
-    "source_manifest_digest_pre": "3431eb2bdbe7d865996992ea6e3447013ce85ded28e44b65e9c9cfd53238d17a",
-    "source_manifest_digest_post": "3431eb2bdbe7d865996992ea6e3447013ce85ded28e44b65e9c9cfd53238d17a",
+    "source_content_digest": "97553e5639ee543550c4a824c2ff034201ddc28e73455235dbe6293780469af0",
+    "source_manifest_digest_pre": "758c2dbcf8c9fe393bbf4b886765b2795d44bfb552fc93de634cdfdccb713a8f",
+    "source_manifest_digest_post": "758c2dbcf8c9fe393bbf4b886765b2795d44bfb552fc93de634cdfdccb713a8f",
     "config_digest": "df6e8853057574d3923059580ce332a3e6cc2d0d45309f0197c0db5b122fc442",
-    "task_digest": "e229c031314112932aa291004e0897bb65f1ddbb6328d0ecd91edc6e4de7e95d",
-    "policy_digest": "60d587d499ea90ed8c913547f64bfddf9d0912e6ab9ac8d70719ef97a201b1cb",
+    "task_digest": "e454dda48a221b449f47d57d5b0568787fffb6fb33fb8a3a3ba1da7b2fd6db41",
+    "policy_digest": "aa8e17590a00357917f47fbe9eebf7e0b277cf7e7acb37d7419fce7a508af29d",
     "check_definitions_digest": "138fd39199ca1ff02f1546e8f3128c38c38d368226e0aa141bacdcdbfe12d76b",
-    "included_files_count": 194,
+    "included_files_count": 195,
     "vcs": {
       "type": "git",
-      "head": "0a62776",
-      "commit": "0a62776",
-      "is_dirty": false
+      "head": "72cd699",
+      "commit": "72cd699",
+      "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-10-17T14:41:24Z",
-    "finished_at": "2026-10-17T14:41:50Z",
-    "total_duration_seconds": 26.023352205,
+    "started_at": "2026-10-17T15:13:29Z",
+    "finished_at": "2026-10-17T15:13:50Z",
+    "total_duration_seconds": 20.926772246,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -49,16 +48,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.062986929,
+      "duration_seconds": 0.08312043,
       "optional": false,
       "passed": true,
-      "log_digest": "d05df0b53827ae540fd3133ff4034abe5d209d0ffe833595a70aa456b137ea6e"
+      "log_digest": "1a48d7516ba4de212b7ff906be58901eb92def1f82921cf7a84fa869f061dd2c"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.168862884,
+      "duration_seconds": 0.171171298,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -67,43 +66,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 2.162239038,
-      "optional": false,
-      "passed": true,
-      "log_digest": "18f49f413960f37aae07b5682c278bcc60b8472b962345625c1d2464535e24de"
-    },
-    {
-      "name": "types",
-      "status": "PASSED",
-      "exit_code": 0,
-      "duration_seconds": 0.0973309,
+      "duration_seconds": 0.110768301,
       "optional": false,
       "passed": true,
       "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
     },
     {
+      "name": "types",
+      "status": "PASSED",
+      "exit_code": 0,
+      "duration_seconds": 0.303105344,
+      "optional": false,
+      "passed": true,
+      "log_digest": "5a1984ae008313f9ea909da372e533950e9d5db79fe4a9afb09f8a4d530d2faf"
+    },
+    {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 22.496785004,
+      "duration_seconds": 19.163157185,
       "optional": false,
       "passed": true,
-      "log_digest": "dd24f233fc39e902ba1a1a7a3e5d86eaf264230adf95e9af4886e5aeae5c5586"
+      "log_digest": "45508ae60750f89f5fb2d6d073b0adcf6185bf234d9bdf68a5e2e5411385cea4"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.763690164,
+      "duration_seconds": 0.834001006,
       "optional": false,
       "passed": true,
-      "log_digest": "08b43075197e9d300c5f02fbb3dc4401f083d6e4990686d7fa3711ecd58cc09c"
+      "log_digest": "182d005e6abd84c2b9e4e5c846c0b30a73237bf2b35d42a97a003f688eca5b5d"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.057377917,
+      "duration_seconds": 0.05868993,
       "optional": false,
       "passed": true,
       "log_digest": "7d184fd5d971b758c7402ea8e4bcc75c7d2f7e37c39855bc52b739778d2d8444"
@@ -112,7 +111,7 @@
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.012909697,
+      "duration_seconds": 0.008557908,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
