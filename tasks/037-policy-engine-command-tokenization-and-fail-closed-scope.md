@@ -2,12 +2,13 @@
 type: Task Package
 title: "Task 037: Policy Engine Command Tokenization and Fail-Closed Task Scope"
 description: "Erstat naiv delstrengsmatching med struktureret kommandotokenisering, afvisning af wrappers, og obligatorisk task-scope for alle filmodifikationer"
-status: todo
+status: active
 generated: { by: process:xgauntlet-task-init, at: "2026-10-17T11:21:00Z" }
 tags: [policy, wasm, security, tokenization, scope, fail-closed]
 scope:
   - "crates/gauntlet-policy-engine/src/**"
   - "crates/xgauntlet-core/src/features/policy/**"
+  - "crates/xgauntlet-core/src/features/tasks/**"
 test_refs:
   - "crates/xgauntlet-core/tests/policy_engine_test.rs"
   - "crates/xgauntlet-core/tests/security_hardening_test.rs"
@@ -15,7 +16,7 @@ test_refs:
 
 # Task 037: Policy Engine Command Tokenization and Fail-Closed Task Scope
 
-**Status**: `TODO`  
+**Status**: `ACTIVE`  
 **Intent**: `🐛 BUG FIX`  
 **Oprettet**: `2026-10-17`  
 
