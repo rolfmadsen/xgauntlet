@@ -3,7 +3,7 @@ type: Task Package
 title: "Task 036: Release Gatekeeper Fail-Closed Hardening and Evidence Integrity"
 description: "Fail-closed hærdning af check-release gater, to-trins genbrugeligt CI release-workflow, transaktionel WASM bump, fail_on_output til Go-format, genopretning af standardprofiler, bootstrapper exit-kode, CLI-alias og dokumentationsoprydning"
 status: active
-generated: { by: process:xgauntlet-task-init, at: "2026-10-17T11:20:00Z" }
+generated: { by: process:xgauntlet-task-init, at: "2026-10-17T11:30:00Z" }
 tags: [release, gatekeeper, fail-closed, wasm, evidence, drift, profiles, ci, bootstrapper, adr-0005]
 scope:
   - "crates/xgauntlet-core/src/features/release/**"
@@ -41,18 +41,19 @@ Eliminere alle "silent passes" og falske positiver i release-gatekeeperen (`chec
 - [ ] **AC4 (Genopretning af Stack Profiler for Eksterne Projekter)**: I `default_config_for_stack` sættes `format`, `lint` og `types` til `optional: true` for zero-config eksterne projekter, så udrullede projekter ikke knækker hvis et værktøj mangler under `verify` (giver `PARTIAL` i stedet for `FAILED`). Dækkes af unit tests pr. profil.
 - [ ] **AC5 (Strict Evidence & Drift Gate i check-release med defineret livscyklus)**:
   - `verification-report.json` er et forseglet evidensdokument i repository-roden, forpligtet i Git forud for release-tagget.
-  - `xgauntlet check-release --strict` kontrollerer, at rapporten findes, at dens JSON-skema er gyldigt, at dens registrerede digests (source, policy, config og task) matcher den aktuelle checkout med 0 drift, og at dens overordnede verdict er godkendt (`PASSED` eller `PARTIAL` uden obligatoriske fejl).
+  - Digest-inputs er eksplicit definerede og udelukker deterministisk `verification-report.json`, `evidence.md`, `evidence.json` og `attestation.bundle` fra manifestberegningen for at forhindre cirkulær drift.
+  - `xgauntlet check-release --strict` kontrollerer, at rapporten findes, at dens JSON-skema er gyldigt, at dens registrerede digests (source, policy, config og task) matcher den aktuelle checkout med 0 drift, og at dens overordnede verdict er godkendt (`PASSED`, eller `PARTIAL` hvor alle obligatoriske lag har bestået med exit 0 og udelukkende tilladte optionelle kontroller mangler).
   - En manglende, forældet eller drifted rapport blokerer release fatalt med exit 1.
 - [ ] **AC6 (Transaktionel WASM & Manifest Bump med Atomisk Staging)**:
   - `release bump` udfører preflight-validering af WASM-byggekæden (`cargo check -p gauntlet-policy-engine --target wasm32-unknown-unknown`) før nogen filer røres.
-  - Planlagte manifest- og changelog-ændringer beregnes in-memory. Oprindelige filindhold gemmes som transaktionsbackup, før skrivning påbegyndes.
-  - Fejler WASM-kompileringen, rulles eventuelle påbegyndte ændringer automatisk tilbage fra backup før afslutning, så arbejdstræet efterlades 100% uændret uden brug af `git checkout` eller destruktive git-handlinger. Processen afsluttes fatalt med exit 1 og klar diagnostik.
+  - Planlagte manifest- og changelog-ændringer beregnes in-memory og stages atomisk. Oprindelige filindhold gemmes som transaktionsbackup, før skrivning påbegyndes.
+  - Fejler WASM-kompileringen eller valideringen af den planlagte tilstand, rulles eventuelle påbegyndte ændringer automatisk tilbage fra backup før afslutning, så arbejdstræet efterlades 100% uændret uden brug af `git checkout` eller destruktive git-handlinger. Processen afsluttes fatalt med exit 1 og klar diagnostik.
   - `serde_json` konfigureres med `preserve_order` og regressionstest for nøglerækkefølge i `package.json`.
 - [ ] **AC7 (Gated Release Workflow med Adskilte CI- og Gate-jobs)**:
   - `.github/workflows/ci.yml` udvides med `workflow_call:` trigger.
   - `.github/workflows/release.yml` opdeles i en eksplicit job-DAG:
     1. Job `ci`: kalder det genbrugelige workflow via `uses: ./.github/workflows/ci.yml`.
-    2. Job `gate-check-release`: har `needs: ci`, tjekker koden ud på `ubuntu-latest`, bygger CLI-motoren (`cargo build -p xgauntlet-cli`) og eksekverer `cargo run -p xgauntlet-cli -- check-release --strict` (der validerer den committede evidensrapport og 0 drift).
+    2. Job `gate-check-release`: har `needs: ci`, tjekker koden ud på `ubuntu-latest`, installerer toolchain med target `wasm32-unknown-unknown`, bygger CLI-motoren (`cargo build -p xgauntlet-cli`), verificerer deterministisk at den committede `gauntlet_policy.wasm` er intakt for den aktuelle commit uden brug af fremmed cache, og eksekverer `cargo run -p xgauntlet-cli -- check-release --strict` (der validerer den committede evidensrapport og 0 drift).
     3. Job `build-binaries`: har `needs: gate-check-release`.
     4. Job `create-github-release`: har `needs: [gate-check-release, build-binaries]`.
     5. Job `publish-npm`: har `needs: [gate-check-release, create-github-release]`.
@@ -78,7 +79,7 @@ Eliminere alle "silent passes" og falske positiver i release-gatekeeperen (`chec
 - **ADR 0009**: Eventuel fremtidig obligatorisk hærdning af standardprofiler håndteres i en særskilt ADR-proces med overgangsordning.
 
 ## 📝 Revisions
-- 2026-10-17: Oprettet opgavepakke til v0.8.3 patch efter to-akset review, re-review og iterative præciseringer af GitHub Actions workflow-DAG, transaktionel recovery, evidens-livscyklus og profil-afgrænsning.
+- 2026-10-17: Oprettet opgavepakke til v0.8.3 patch efter to-akset review, re-review og iterative præciseringer af GitHub Actions workflow-DAG, transaktionel recovery, evidens-livscyklus, WASM-verifikation i gate og profil-afgrænsning.
 
 ## 🧪 Verifikation
 - `cargo test -p xgauntlet-core --test release_engine_test`
