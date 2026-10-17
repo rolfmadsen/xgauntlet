@@ -1,9 +1,9 @@
 ---
 type: Task Package
 title: "Task 037: Policy Engine Command Tokenization and Fail-Closed Task Scope"
-description: "Erstat naiv delstrengsmatching med struktureret kommandotokenisering og gør task-scope obligatorisk for alle filmodifikationer"
+description: "Erstat naiv delstrengsmatching med struktureret kommandotokenisering, afvisning af wrappers, og obligatorisk task-scope for alle filmodifikationer"
 status: todo
-generated: { by: process:xgauntlet-task-init, at: "2026-10-17T11:06:00Z" }
+generated: { by: process:xgauntlet-task-init, at: "2026-10-17T11:16:00Z" }
 tags: [policy, wasm, security, tokenization, scope, fail-closed]
 scope:
   - "crates/gauntlet-policy-engine/src/**"
@@ -20,22 +20,23 @@ test_refs:
 **Oprettet**: `2026-10-17`  
 
 ## 🎯 Formål
-Eliminere omgåelser af destruktive kommandoer ved at erstatte naiv strengmatching (`cmd.contains("git push")`) med struktureret tokenisering og argumentanalyse. Sikre at filmodifikationer (`WriteFile`, `EditFile`) altid kræver et eksplicit, validt opgavescope, således at tomme eller korrupte task-scopes fejler lukket (`Deny`).
+Eliminere omgåelser af destruktive kommandoer ved at erstatte naiv delstrengsmatching (`cmd.contains("git push")`) med struktureret tokenisering af executable og argumenter, samt afvisning af wrapper-eksekveringer (`env`, `bash -c`, `sh -c`, `sudo`). Sikre at alle filmodifikationer (`WriteFile`, `EditFile`) håndhæver fail-closed validering mod et eksplicit og gyldigt opgavescope, således at tomme eller korrupte task-scopes resulterer i en faktisk `Deny`-beslutning.
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Struktureret Shell-Tokenisering)**: Kommandostrenge i policy-motoren parses med ord- og argumenttokenisering (håndterer vilkårlige mellemrum, flagforskydninger som `git -C . push`, og aliases) frem for naive delstrenge.
-- [ ] **AC2 (Negative Tests for Kommando-omgåelse)**: Tests beviser afvisning af destruktive kommandoer uanset whitespace (`git   push`), globale flag (`git --no-pager push origin main`, `git -C repo push`) og reordering.
-- [ ] **AC3 (Fail-Closed Obligatorisk Task Scope)**: Hvis `allowed_scopes` og `allowed_test_targets` er tomme, afvises alle modifikationer af beskyttede filer med `Deny` (reason_code 4037).
-- [ ] **AC4 (Fail-Closed Context Loading)**: `EnforcementContext::from_workspace()` må ikke sluge parsefejl med `.ok()`. Hvis en task-fil er korrupt eller mangler gyldigt scope, sættes `has_active_task = false` eller markeres som ugyldig, så der ikke opstår fri skriveadgang.
+- [ ] **AC1 (Struktureret Kommandotokenisering & Wrapper-Afvisning)**: Kommandostrenge parses til executable og argument-tokens. Kommandoer der forsøger at omgå kontrol via eksekverings-wrappers (`env`, `sudo`, `eval`, `bash -c`, `sh -c`, `xargs`) eller subprocess-kæder afvises fail-closed med `Deny`.
+- [ ] **AC2 (Negative Tests for Destruktiv Kommando-omgåelse)**: Tests beviser afvisning af destruktive git-handlinger uanset whitespace (`git   push`), globale flag (`git --no-pager push origin main`, `git -C repo push`, `git -c foo=bar push`), aliaser eller flagreordering.
+- [ ] **AC3 (Fail-Closed Obligatorisk Task Scope)**: Hvis `allowed_scopes` og `allowed_test_targets` er tomme eller udefinerede, afvises alle modifikationer af filer med `Deny` (reason_code 4037). Testen skal bevise selve den resulterende `PolicyDecision::Deny`, ikke blot interne flag.
+- [ ] **AC4 (Fail-Closed Context Loading)**: `EnforcementContext::from_workspace()` må ikke sluge parsefejl med `.ok()`. Hvis en task-fil er korrupt eller ikke kan parses, sættes `has_active_task = false` og `allowed_scopes` efterlades tom, så enhver modificerende operation efterfølgende afvises med `Deny`.
 
 ## 🚫 Must NOT
-- Må IKKE tillade destruktive git-handlinger (`push`, `reset --hard`, `clean -f`) blot fordi kommandoen indeholder ekstra mellemrum eller globale flag.
-- Må IKKE tillade vilkårlige filmodifikationer hvis opgavescopet er tomt eller udefineret.
+- Må IKKE tillade destruktive git-handlinger (`push`, `reset --hard`, `clean -f`) blot fordi kommandoen indeholder ekstra mellemrum, globale flag eller wrapper-binærer.
+- Må IKKE tillade filmodifikationer hvis opgavescopet er tomt eller udefineret.
 
 ## 📝 Revisions
-- 2026-10-17: Oprettet som backlogopgave på baggrund af ChatGPT second opinion review (P1 fund).
+- 2026-10-17: Oprettet som backlogopgave på baggrund af ChatGPT second opinion review (P1 fund om kommandobypasses og tomt scope).
 
 ## 🧪 Verifikation
 - `cargo test -p gauntlet-policy-engine`
 - `cargo test -p xgauntlet-core --test policy_engine_test`
 - `cargo test -p xgauntlet-core --test security_hardening_test`
+- `cargo run -p xgauntlet-cli -- check-spec -t 037`
