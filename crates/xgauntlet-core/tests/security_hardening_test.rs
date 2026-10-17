@@ -124,6 +124,7 @@ fn test_task_binding_fail_closed_in_pipeline_when_task_missing() {
         requirement: LayerRequirement::Required,
         timeout_seconds: 5.0,
         optional: false,
+        fail_on_output: false,
     };
 
     let options = GauntletOptions {

@@ -10,8 +10,58 @@ permissions:
   id-token: write
 
 jobs:
+  ci:
+    name: Run Full CI Gauntlet
+    uses: ./.github/workflows/ci.yml
+
+  gate-check-release:
+    name: Gatekeeper Check Release
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate Tag Matches Manifest Version
+        run: |
+          TAG_VER="${GITHUB_REF_NAME#v}"
+          PKG_VER=$(node -p "require('./package.json').version")
+          if [ "$TAG_VER" != "$PKG_VER" ]; then
+            echo "::error::Release tag version ($TAG_VER) does not match package.json version ($PKG_VER)"
+            exit 1
+          fi
+
+      - name: Build CLI Engine
+        run: cargo build -p xgauntlet-cli
+
+      - name: Verify WASM Bytecode Intact
+        run: |
+          if [ ! -f "crates/xgauntlet-core/wasm/gauntlet_policy.wasm" ]; then
+            echo "::error::WASM bytecode artifact missing at crates/xgauntlet-core/wasm/gauntlet_policy.wasm"
+            exit 1
+          fi
+          HEADER=$(head -c 4 crates/xgauntlet-core/wasm/gauntlet_policy.wasm | od -An -tx1 | tr -d ' \n')
+          if [ "$HEADER" != "0061736d" ]; then
+            echo "::error::WASM bytecode header invalid: $HEADER"
+            exit 1
+          fi
+
+      - name: Run Strict Release Gatekeeper
+        run: cargo run -p xgauntlet-cli -- check-release --strict
+
   build-binaries:
     name: Build Native Engine (${{ matrix.target }})
+    needs: gate-check-release
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -66,7 +116,7 @@ jobs:
 
   create-github-release:
     name: Publish GitHub Release & Assets
-    needs: [build-binaries]
+    needs: [gate-check-release, build-binaries]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -88,7 +138,7 @@ jobs:
 
   publish-npm:
     name: Publish NPM Package (xgauntlet)
-    needs: [create-github-release]
+    needs: [gate-check-release, create-github-release]
     runs-on: ubuntu-latest
     permissions:
       contents: read

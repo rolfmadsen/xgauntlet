@@ -171,7 +171,7 @@ async function main() {
         console.log(`  Version:  v${VERSION}`);
         console.log(`  Engine:   NOT_FOUND (${err.message})`);
         console.log(`  Notice:   Run \`cargo build --release\` in xGauntlet repo or download v${VERSION} release.`);
-        process.exit(0);
+        process.exit(1);
       }
 
       console.error(`\x1b[31m[xgauntlet] Error: Could not resolve native engine binary for ${platform}-${arch}.\x1b[0m`);

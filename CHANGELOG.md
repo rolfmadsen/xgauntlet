@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Tilføjet registry-opslag (`npm view`) i GitHub Actions release pipeline før `npm publish`, hvilket forhindrer fatale `E403 Forbidden` fejl ved gentagne CI-kørsler over allerede udgivne versioner.
 - **Task Lifecycle Status Harmony (`tasks/`)**:
   - Synkroniseret OKF v0.2 frontmatter status for historiske opgaver (002–011 til `done`, 029–032 til `todo`), så `check-spec` og `verify` kører med 100% grøn overholdelse.
+- **Release Evidence & Integrity Note**:
+  - Evidens- og driftkontrol er yderligere hærdet i v0.8.3 med streng forsegling af Tier 1 lokal evidens (`verification-report.json`) og transaktionel validering ved release.
 
 ## [0.8.1] - 2026-10-16
 - Initial patch attempt (superseded by 0.8.2).
@@ -34,8 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🚀 Added
 - **Declarative Architecture Ratchet Gatekeeper (`Task 034`, `crates/xgauntlet-core`)**:
   - `gauntlet.toml` schema udvidet med `[architecture]` sektion for deterministisk håndhævelse af kodestruktur.
-  - Håndhæver filstørrelsesgrænser: kildekode (`max_source_lines = 800`) og tests (`max_test_lines = 1000`).
-  - Monitored ratchet exemptions (`[[architecture.ratchet_exemptions]]`) med spærrehage: filer på undtagelseslisten må kun falde i linjetal, aldrig stige.
+  - Håndhæver filstørrelsesgrænser: kildekode (`max_file_lines = 800`) og tests (`max_test_file_lines = 1000`).
+  - Monitored ratchet exemptions (`[[architecture.exemptions]]`) med spærrehage: filer på undtagelseslisten må kun falde i linjetal, aldrig stige.
   - Statisk forbudte tokens og imports (`forbidden_tokens`) til forebyggelse af utypede/forældede API-kald.
   - CLI subcommand: `xgauntlet check-architecture` samt integration i `xgauntlet verify`.
 - **Mechanical Session Handoff & Semantic Release Engine (`Task 035`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`)**:

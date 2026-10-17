@@ -147,6 +147,8 @@ pub struct LayerConfig {
     pub optional: bool,
     #[serde(default = "default_timeout")]
     pub timeout_seconds: f64,
+    #[serde(default)]
+    pub fail_on_output: bool,
 }
 
 fn default_timeout() -> f64 {
@@ -165,6 +167,7 @@ impl LayerConfig {
             command: self.command.clone(),
             optional: self.optional,
             timeout_seconds: self.timeout_seconds,
+            fail_on_output: self.fail_on_output,
             requirement: req,
         }
     }

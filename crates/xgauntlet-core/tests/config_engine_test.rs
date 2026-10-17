@@ -212,6 +212,7 @@ fn test_validation_engine_catches_schema_defects() {
         command: vec!["echo".to_string(), "duplicate".to_string()],
         optional: true,
         timeout_seconds: 30.0,
+        fail_on_output: false,
     });
     let report = validate_config(&dup_config, None);
     assert!(!report.is_valid);
@@ -230,6 +231,7 @@ fn test_validation_engine_catches_schema_defects() {
         command: vec![],
         optional: false,
         timeout_seconds: 30.0,
+        fail_on_output: false,
     });
     let report = validate_config(&empty_cmd_config, None);
     assert!(!report.is_valid);
@@ -245,6 +247,7 @@ fn test_validation_engine_catches_schema_defects() {
         command: vec!["cargo".to_string(), "test".to_string()],
         optional: false,
         timeout_seconds: -10.0,
+        fail_on_output: false,
     });
     let report = validate_config(&bad_timeout_config, None);
     assert!(!report.is_valid);

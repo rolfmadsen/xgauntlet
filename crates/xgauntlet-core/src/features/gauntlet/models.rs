@@ -42,6 +42,7 @@ pub struct LayerDefinition {
     pub command: Vec<String>,
     pub optional: bool,
     pub timeout_seconds: f64,
+    pub fail_on_output: bool,
     pub requirement: LayerRequirement,
 }
 
@@ -53,6 +54,7 @@ impl LayerDefinition {
             command,
             optional: false,
             timeout_seconds: 60.0,
+            fail_on_output: false,
             requirement: LayerRequirement::Required,
         }
     }
@@ -60,6 +62,12 @@ impl LayerDefinition {
     /// Sets the timeout in seconds for this layer.
     pub fn with_timeout(mut self, timeout_seconds: f64) -> Self {
         self.timeout_seconds = timeout_seconds;
+        self
+    }
+
+    /// Sets whether the layer should fail if stdout/stderr contains any output.
+    pub fn with_fail_on_output(mut self, fail_on_output: bool) -> Self {
+        self.fail_on_output = fail_on_output;
         self
     }
 

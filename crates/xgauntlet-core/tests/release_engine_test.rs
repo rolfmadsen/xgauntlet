@@ -778,16 +778,12 @@ fn test_package_json_key_order_preservation_on_update() {
     assert_eq!(updated, vec!["package.json"]);
 
     let new_content = fs::read_to_string(ws.join("package.json")).unwrap();
-    let keys: Vec<&str> = new_content
-        .lines()
-        .filter_map(|l| {
-            let t = l.trim();
-            if t.starts_with('"') && t.contains("\":") {
-                Some(t.split('"').nth(1).unwrap())
-            } else {
-                None
-            }
-        })
+    let val: serde_json::Value = serde_json::from_str(&new_content).unwrap();
+    let keys: Vec<&str> = val
+        .as_object()
+        .unwrap()
+        .keys()
+        .map(|s| s.as_str())
         .collect();
 
     assert_eq!(

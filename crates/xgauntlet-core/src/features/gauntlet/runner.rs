@@ -93,11 +93,17 @@ pub async fn execute_layer(layer: &LayerDefinition, cwd: &Path) -> LayerResult {
             let duration = start_time.elapsed().as_secs_f64();
             match res {
                 Ok(status) => {
-                    let exit_code = status.code().unwrap_or(if status.success() { 0 } else { 1 });
-                    let passed = status.success();
+                    let mut exit_code = status.code().unwrap_or(if status.success() { 0 } else { 1 });
+                    let mut passed = status.success();
                     let stdout_str = String::from_utf8_lossy(&stdout_buf);
                     let stderr_str = String::from_utf8_lossy(&stderr_buf);
                     let combined = format!("{stdout_str}{stderr_str}");
+                    if layer.fail_on_output && !combined.trim().is_empty() {
+                        passed = false;
+                        if exit_code == 0 {
+                            exit_code = 1;
+                        }
+                    }
                     LayerResult {
                         name: layer.name.clone(),
                         exit_code,

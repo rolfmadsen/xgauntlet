@@ -67,6 +67,7 @@ pub fn parse_toml(content: &str) -> Result<GauntletConfig, ConfigError> {
                 command: Vec::new(),
                 optional: false,
                 timeout_seconds: 60.0,
+                fail_on_output: false,
             });
             current_section = "layers";
             continue;
@@ -111,6 +112,7 @@ pub fn parse_toml(content: &str) -> Result<GauntletConfig, ConfigError> {
                         "command" => l.command = parse_str_list(val),
                         "optional" => l.optional = parse_bool_val(val),
                         "timeout_seconds" => l.timeout_seconds = parse_float_val(val, 60.0),
+                        "fail_on_output" => l.fail_on_output = parse_bool_val(val),
                         _ => {}
                     }
                 }
@@ -251,6 +253,9 @@ pub fn render_toml(config: &GauntletConfig) -> String {
             .collect();
         out.push_str(&format!("command = [{}]\n", cmd_formatted.join(", ")));
         out.push_str(&format!("optional = {}\n", layer.optional));
+        if layer.fail_on_output {
+            out.push_str("fail_on_output = true\n");
+        }
         out.push_str(&format!(
             "timeout_seconds = {:.1}\n\n",
             layer.timeout_seconds

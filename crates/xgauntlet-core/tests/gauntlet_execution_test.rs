@@ -5,7 +5,7 @@ use std::path::Path;
 use std::path::PathBuf;
 use xgauntlet_core::features::diagnostics::{DiagnosticParser, FindingType};
 use xgauntlet_core::features::gauntlet::{
-    execute_gauntlet_pipeline, run_gauntlet, GauntletOptions, LayerDefinition,
+    execute_gauntlet_pipeline, execute_layer, run_gauntlet, GauntletOptions, LayerDefinition,
     LayerExecutionStatus, LayerRequirement,
 };
 
@@ -255,4 +255,30 @@ async fn test_end_to_end_pipeline_and_evidence_generation() {
     // Evidence artifacts should be written
     assert!(ws.join("verification-report.json").is_file());
     assert!(ws.join("evidence.md").is_file());
+}
+
+#[tokio::test]
+async fn test_layer_fail_on_output_flag() {
+    let tmp = TempDir::new("gauntlet_fail_on_output");
+    let ws = tmp.path();
+
+    let layer_fail = LayerDefinition::new(
+        "check-output",
+        vec!["echo".to_string(), "unformatted code".to_string()],
+    )
+    .with_fail_on_output(true);
+    let res_fail = execute_layer(&layer_fail, ws).await;
+    assert!(!res_fail.passed);
+    assert_ne!(res_fail.exit_code, 0);
+    assert_eq!(res_fail.status, LayerExecutionStatus::Failed);
+
+    let layer_pass = LayerDefinition::new(
+        "check-output",
+        vec!["echo".to_string(), "unformatted code".to_string()],
+    )
+    .with_fail_on_output(false);
+    let res_pass = execute_layer(&layer_pass, ws).await;
+    assert!(res_pass.passed);
+    assert_eq!(res_pass.exit_code, 0);
+    assert_eq!(res_pass.status, LayerExecutionStatus::Passed);
 }

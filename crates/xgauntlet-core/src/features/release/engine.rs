@@ -93,41 +93,63 @@ impl ReleaseReadinessEngine {
         inspected_files.extend(adr_summary.inspected_adrs);
         diagnostics.extend(adr_summary.diagnostics);
 
-        // 4. Validate code formatting if gauntlet.toml is present and defines a format layer
+        // 4. Validate code formatting for all configured, mandatory format layers
         let gauntlet_toml = ws.join("gauntlet.toml");
-        if gauntlet_toml.is_file() {
-            if let Ok(config) = crate::features::config::GauntletConfig::load(ws) {
-                if let Some(format_layer) = config.layers.iter().find(|l| l.name == "format") {
-                    if !format_layer.command.is_empty() {
-                        let prog = &format_layer.command[0];
-                        let args = &format_layer.command[1..];
-                        if let Ok(output) = std::process::Command::new(prog)
-                            .args(args)
-                            .current_dir(ws)
-                            .output()
-                        {
-                            if !output.status.success() {
-                                let stderr = String::from_utf8_lossy(&output.stderr);
-                                let stdout = String::from_utf8_lossy(&output.stdout);
-                                let details = if !stderr.trim().is_empty() {
-                                    stderr.trim().to_string()
-                                } else {
-                                    stdout.lines().take(3).collect::<Vec<_>>().join(" ")
-                                };
-                                diagnostics.push(ReleaseFinding {
-                                    file_path: "gauntlet.toml".to_string(),
-                                    category: ReleaseFindingCategory::UnformattedCode,
-                                    message: format!(
-                                        "Code formatting check failed ({prog} {}): {details}",
-                                        args.join(" ")
-                                    ),
-                                    remediation_hint:
-                                        "Run code formatter before releasing (e.g. cargo fmt / ruff format / prettier)."
-                                            .to_string(),
-                                });
-                            }
+        let gauntlet_json = ws.join("gauntlet.json");
+        if gauntlet_toml.is_file() || gauntlet_json.is_file() {
+            match crate::features::config::GauntletConfig::load(ws) {
+                Ok(config) => {
+                    let format_layers: Vec<_> = config
+                        .layers
+                        .iter()
+                        .filter(|l| l.name == "format" && !l.optional)
+                        .collect();
+
+                    for fl in format_layers {
+                        let layer_def = fl.to_layer_definition();
+                        let result = block_on(crate::features::gauntlet::runner::execute_layer(
+                            &layer_def, ws,
+                        ));
+                        if !result.passed {
+                            let details = result.output.trim();
+                            let details_snippet = if details.is_empty() {
+                                format!("exit code {}", result.exit_code)
+                            } else {
+                                details.lines().take(3).collect::<Vec<_>>().join(" ")
+                            };
+                            let config_file = if gauntlet_toml.is_file() {
+                                "gauntlet.toml"
+                            } else {
+                                "gauntlet.json"
+                            };
+                            diagnostics.push(ReleaseFinding {
+                                file_path: config_file.to_string(),
+                                category: ReleaseFindingCategory::UnformattedCode,
+                                message: format!(
+                                    "Code formatting check failed ({}): {details_snippet}",
+                                    layer_def.command.join(" ")
+                                ),
+                                remediation_hint:
+                                    "Run code formatter before releasing (e.g. cargo fmt / ruff format / prettier)."
+                                        .to_string(),
+                            });
                         }
                     }
+                }
+                Err(err) => {
+                    let config_file = if gauntlet_toml.is_file() {
+                        "gauntlet.toml"
+                    } else {
+                        "gauntlet.json"
+                    };
+                    diagnostics.push(ReleaseFinding {
+                        file_path: config_file.to_string(),
+                        category: ReleaseFindingCategory::UnformattedCode,
+                        message: format!("Failed to load gauntlet configuration: {err}"),
+                        remediation_hint:
+                            "Fix configuration syntax in gauntlet.toml or gauntlet.json."
+                                .to_string(),
+                    });
                 }
             }
         }
@@ -138,23 +160,57 @@ impl ReleaseReadinessEngine {
             let wasm_path = ws.join("crates/xgauntlet-core/wasm/gauntlet_policy.wasm");
             if wasm_path.is_file() {
                 inspected_files.push("crates/xgauntlet-core/wasm/gauntlet_policy.wasm".to_string());
-                if let Ok(bytes) = std::fs::read(&wasm_path) {
-                    if let Ok(mut engine) =
-                        crate::features::policy::WasmPolicyEngine::from_wasm_bytes(&bytes)
-                    {
-                        if let Ok(wasm_ver) = engine.get_policy_version() {
-                            if wasm_ver != declared_version {
+                match std::fs::read(&wasm_path) {
+                    Ok(bytes) => {
+                        match crate::features::policy::WasmPolicyEngine::from_wasm_bytes(&bytes) {
+                            Ok(mut engine) => match engine.get_policy_version() {
+                                Ok(wasm_ver) => {
+                                    if wasm_ver != declared_version {
+                                        diagnostics.push(ReleaseFinding {
+                                            file_path: "crates/xgauntlet-core/wasm/gauntlet_policy.wasm"
+                                                .to_string(),
+                                            category: ReleaseFindingCategory::ConfigVersionMismatch,
+                                            message: format!(
+                                                "Embedded WebAssembly policy bytecode version ({wasm_ver}) does not match workspace declared release version ({declared_version})."
+                                            ),
+                                            remediation_hint: "Rebuild wasm policy engine and synchronize: cargo build -p gauntlet-policy-engine --target wasm32-unknown-unknown --release && cp target/wasm32-unknown-unknown/release/gauntlet_policy_engine.wasm crates/xgauntlet-core/wasm/gauntlet_policy.wasm".to_string(),
+                                        });
+                                    }
+                                }
+                                Err(err) => {
+                                    diagnostics.push(ReleaseFinding {
+                                        file_path: "crates/xgauntlet-core/wasm/gauntlet_policy.wasm"
+                                            .to_string(),
+                                        category: ReleaseFindingCategory::GeneralError,
+                                        message: format!(
+                                            "Failed to query get_policy_version from WebAssembly policy bytecode: {err}"
+                                        ),
+                                        remediation_hint: "Recompile gauntlet-policy-engine to wasm32-unknown-unknown and synchronize.".to_string(),
+                                    });
+                                }
+                            },
+                            Err(err) => {
                                 diagnostics.push(ReleaseFinding {
                                     file_path: "crates/xgauntlet-core/wasm/gauntlet_policy.wasm"
                                         .to_string(),
-                                    category: ReleaseFindingCategory::ConfigVersionMismatch,
+                                    category: ReleaseFindingCategory::GeneralError,
                                     message: format!(
-                                        "Embedded WebAssembly policy bytecode version ({wasm_ver}) does not match workspace declared release version ({declared_version})."
+                                        "Embedded WebAssembly policy bytecode is invalid or corrupt: {err}"
                                     ),
-                                    remediation_hint: "Rebuild wasm policy engine and synchronize: cargo build -p gauntlet-policy-engine --target wasm32-unknown-unknown --release && cp target/wasm32-unknown-unknown/release/gauntlet_policy_engine.wasm crates/xgauntlet-core/wasm/gauntlet_policy.wasm".to_string(),
+                                    remediation_hint: "Rebuild gauntlet-policy-engine: cargo build -p gauntlet-policy-engine --target wasm32-unknown-unknown --release && cp target/wasm32-unknown-unknown/release/gauntlet_policy_engine.wasm crates/xgauntlet-core/wasm/gauntlet_policy.wasm".to_string(),
                                 });
                             }
                         }
+                    }
+                    Err(err) => {
+                        diagnostics.push(ReleaseFinding {
+                            file_path: "crates/xgauntlet-core/wasm/gauntlet_policy.wasm".to_string(),
+                            category: ReleaseFindingCategory::GeneralError,
+                            message: format!(
+                                "Failed to read WebAssembly policy bytecode: {err}"
+                            ),
+                            remediation_hint: "Ensure crates/xgauntlet-core/wasm/gauntlet_policy.wasm is readable.".to_string(),
+                        });
                     }
                 }
             } else {
@@ -167,18 +223,110 @@ impl ReleaseReadinessEngine {
             }
         }
 
-        // 6. Clean worktree check under strict mode
-        if options.strict && ws.join(".git").exists() {
-            if let Ok(false) = crate::features::checkpoint::git::is_worktree_clean(ws) {
-                diagnostics.push(ReleaseFinding {
-                    file_path: ".git".to_string(),
-                    category: ReleaseFindingCategory::DirtyWorktree,
-                    message: "Working tree contains uncommitted changes or unstaged files."
-                        .to_string(),
-                    remediation_hint:
-                        "Commit or stash all changes before evaluating release readiness or tagging."
+        // 6. Strict mode validations: Clean worktree & sealed verification-report.json with 0 drift
+        if options.strict {
+            if ws.join(".git").exists() {
+                if let Ok(false) = crate::features::checkpoint::git::is_worktree_clean(ws) {
+                    diagnostics.push(ReleaseFinding {
+                        file_path: ".git".to_string(),
+                        category: ReleaseFindingCategory::DirtyWorktree,
+                        message: "Working tree contains uncommitted changes or unstaged files."
                             .to_string(),
+                        remediation_hint:
+                            "Commit or stash all changes before evaluating release readiness or tagging."
+                                .to_string(),
+                    });
+                }
+            }
+
+            let report_path = ws.join("verification-report.json");
+            if !report_path.is_file() {
+                diagnostics.push(ReleaseFinding {
+                    file_path: "verification-report.json".to_string(),
+                    category: ReleaseFindingCategory::MissingManifest,
+                    message: "Required verification report (verification-report.json) is missing from workspace root.".to_string(),
+                    remediation_hint: "Run 'xgauntlet verify --save' and commit verification-report.json before releasing.".to_string(),
                 });
+            } else {
+                inspected_files.push("verification-report.json".to_string());
+                match crate::features::evidence::load_verification_report(ws) {
+                    Err(err) => {
+                        diagnostics.push(ReleaseFinding {
+                            file_path: "verification-report.json".to_string(),
+                            category: ReleaseFindingCategory::GeneralError,
+                            message: format!("Failed to parse verification-report.json schema: {err}"),
+                            remediation_hint: "Re-generate verification-report.json via 'xgauntlet verify --save'.".to_string(),
+                        });
+                    }
+                    Ok(vr) => {
+                        let verdict = vr.verdict.to_uppercase();
+                        let verdict_approved = if verdict == "PASSED" {
+                            true
+                        } else if verdict == "PARTIAL" {
+                            vr.checks.iter().all(|c| {
+                                let is_required = !c.optional;
+                                if is_required {
+                                    c.passed && c.exit_code == 0
+                                } else {
+                                    true
+                                }
+                            })
+                        } else {
+                            false
+                        };
+
+                        if !verdict_approved {
+                            diagnostics.push(ReleaseFinding {
+                                file_path: "verification-report.json".to_string(),
+                                category: ReleaseFindingCategory::GeneralError,
+                                message: format!("Verification report verdict '{verdict}' is not approved for release."),
+                                remediation_hint: "Run 'xgauntlet verify --save' to ensure all required layers pass with exit 0.".to_string(),
+                            });
+                        }
+
+                        let canonical_manifest =
+                            match crate::features::evidence::manifest::compute_workspace_manifest(
+                                ws, None,
+                            ) {
+                                Ok(m) => m,
+                                Err(e) => {
+                                    diagnostics.push(ReleaseFinding {
+                                        file_path: "verification-report.json".to_string(),
+                                        category: ReleaseFindingCategory::GeneralError,
+                                        message: format!(
+                                            "Failed to build canonical workspace manifest: {e}"
+                                        ),
+                                        remediation_hint: "Ensure workspace files are readable."
+                                            .to_string(),
+                                    });
+                                    return Ok(ReleaseReadinessReport {
+                                        is_ready: false,
+                                        declared_version,
+                                        versions_by_source: manifest_summary.versions_by_source,
+                                        inspected_files,
+                                        changelog_versions,
+                                        unreferenced_adrs: adr_summary.unreferenced_adrs,
+                                        diagnostics,
+                                        duration_ms: start.elapsed().as_millis() as u64,
+                                    });
+                                }
+                            };
+
+                        if let Err(drift_violation) =
+                            crate::features::evidence::drift::verify_workspace_state_match(
+                                &vr,
+                                &canonical_manifest,
+                            )
+                        {
+                            diagnostics.push(ReleaseFinding {
+                                file_path: "verification-report.json".to_string(),
+                                category: ReleaseFindingCategory::GeneralError,
+                                message: format!("Workspace drift detected against committed verification-report.json: {drift_violation}"),
+                                remediation_hint: "Re-run 'xgauntlet verify --save' to seal fresh evidence without workspace drift.".to_string(),
+                            });
+                        }
+                    }
+                }
             }
         }
 
@@ -204,4 +352,14 @@ pub fn check_release_readiness(
     options: &ReleaseReadinessOptions,
 ) -> Result<ReleaseReadinessReport, ReleaseError> {
     ReleaseReadinessEngine::evaluate(options)
+}
+
+fn block_on<F: std::future::Future>(f: F) -> F::Output {
+    if let Ok(handle) = tokio::runtime::Handle::try_current() {
+        tokio::task::block_in_place(|| handle.block_on(f))
+    } else {
+        tokio::runtime::Runtime::new()
+            .expect("failed to create tokio runtime")
+            .block_on(f)
+    }
 }

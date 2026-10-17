@@ -48,7 +48,7 @@ enum Commands {
         workspace: std::path::PathBuf,
 
         /// Specific task identifier to validate (e.g. '003' or '003-task-and-spec-engine')
-        #[arg(short, long)]
+        #[arg(short, long, alias = "task-id")]
         task: Option<String>,
 
         /// Validate all tasks in tasks/ directory
@@ -76,7 +76,7 @@ enum Commands {
         workspace: std::path::PathBuf,
 
         /// Specific task identifier to verify (e.g. '005' or '005-gauntlet-execution-engine')
-        #[arg(short, long)]
+        #[arg(short, long, alias = "task-id")]
         task: Option<String>,
 
         /// Save verification-report.json and evidence.md to workspace root
@@ -247,7 +247,7 @@ enum Commands {
     /// Generate and display deterministic session handoff card for active or completed task
     Handoff {
         /// Explicit task identifier (e.g. '035' or '035-mechanical-session-handoff-and-release-engine')
-        #[arg(short, long)]
+        #[arg(short, long, alias = "task-id")]
         task: Option<String>,
 
         /// Inferred next engineering role (e.g. 'Architect', 'Software Engineer', 'QA')

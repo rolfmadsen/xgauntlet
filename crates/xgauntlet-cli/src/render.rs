@@ -329,6 +329,89 @@ pub fn render_checkpoint_summary(res: &xgauntlet_core::CheckpointResult) {
     }
 }
 
+fn validate_wasm_toolchain(workspace: &std::path::Path) -> anyhow::Result<()> {
+    let policy_crate = workspace.join("crates/gauntlet-policy-engine");
+    if !policy_crate.is_dir() {
+        return Ok(());
+    }
+
+    let cargo_check = std::process::Command::new("cargo")
+        .arg("--version")
+        .output();
+    if cargo_check.is_err() || !cargo_check.as_ref().unwrap().status.success() {
+        anyhow::bail!("Preflight failed: 'cargo' is not installed or available in PATH.");
+    }
+
+    let target_check = std::process::Command::new("rustc")
+        .args([
+            "--print",
+            "target-libdir",
+            "--target",
+            "wasm32-unknown-unknown",
+        ])
+        .output();
+    match target_check {
+        Ok(out) if out.status.success() => {
+            let path_str = String::from_utf8_lossy(&out.stdout).trim().to_string();
+            if !std::path::Path::new(&path_str).exists() {
+                anyhow::bail!("Preflight failed: 'wasm32-unknown-unknown' target libdir does not exist ({path_str}). Run: rustup target add wasm32-unknown-unknown");
+            }
+        }
+        _ => {
+            anyhow::bail!("Preflight failed: Rust target 'wasm32-unknown-unknown' is not installed. Run: rustup target add wasm32-unknown-unknown");
+        }
+    }
+
+    Ok(())
+}
+
+fn collect_candidate_files_for_backup(workspace: &std::path::Path) -> Vec<std::path::PathBuf> {
+    let mut files = Vec::new();
+    let root_cargo = workspace.join("Cargo.toml");
+    if root_cargo.is_file() {
+        files.push(root_cargo);
+    }
+    let changelog = workspace.join("CHANGELOG.md");
+    if changelog.is_file() {
+        files.push(changelog);
+    }
+    let root_pkg = workspace.join("package.json");
+    if root_pkg.is_file() {
+        files.push(root_pkg);
+    }
+
+    let crates_dir = workspace.join("crates");
+    if crates_dir.is_dir() {
+        if let Ok(entries) = std::fs::read_dir(crates_dir) {
+            for entry in entries.flatten() {
+                let sub_cargo = entry.path().join("Cargo.toml");
+                if sub_cargo.is_file() {
+                    files.push(sub_cargo);
+                }
+            }
+        }
+    }
+
+    let packages_dir = workspace.join("packages");
+    if packages_dir.is_dir() {
+        if let Ok(entries) = std::fs::read_dir(packages_dir) {
+            for entry in entries.flatten() {
+                let sub_pkg = entry.path().join("package.json");
+                if sub_pkg.is_file() {
+                    files.push(sub_pkg);
+                }
+            }
+        }
+    }
+
+    let wasm_file = workspace.join("crates/xgauntlet-core/wasm/gauntlet_policy.wasm");
+    if wasm_file.is_file() {
+        files.push(wasm_file);
+    }
+
+    files
+}
+
 pub fn execute_release_workflow(
     workspace: &std::path::Path,
     current_version: &str,
@@ -352,40 +435,143 @@ pub fn execute_release_workflow(
         }
         dry_files
     } else {
-        let mut modified = xgauntlet_core::update_manifest_versions(workspace, target_version)?;
-        if xgauntlet_core::prepare_changelog_release(workspace, target_version, today)? {
-            modified.push("CHANGELOG.md".to_string());
-        }
+        // 1. Preflight toolchain validation
+        validate_wasm_toolchain(workspace)?;
 
-        // Automatic WASM policy engine compilation & synchronization
-        let policy_crate = workspace.join("crates/gauntlet-policy-engine");
-        if policy_crate.is_dir() {
-            let status = std::process::Command::new("cargo")
-                .args([
-                    "build",
-                    "-p",
-                    "gauntlet-policy-engine",
-                    "--target",
-                    "wasm32-unknown-unknown",
-                    "--release",
-                ])
-                .current_dir(workspace)
-                .status();
-            if let Ok(st) = status {
-                if st.success() {
-                    let source_wasm = workspace
-                        .join("target/wasm32-unknown-unknown/release/gauntlet_policy_engine.wasm");
-                    let dest_wasm =
-                        workspace.join("crates/xgauntlet-core/wasm/gauntlet_policy.wasm");
-                    if source_wasm.is_file() && std::fs::copy(&source_wasm, &dest_wasm).is_ok() {
-                        modified
-                            .push("crates/xgauntlet-core/wasm/gauntlet_policy.wasm".to_string());
+        // 2. Disk-staging backup of all candidate manifest and artifact files
+        let candidates = collect_candidate_files_for_backup(workspace);
+        let backup_dir = workspace.join(format!(
+            "target/.staging-backup-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_millis()
+        ));
+        std::fs::create_dir_all(&backup_dir)?;
+
+        let mut backed_up = Vec::new();
+        for file in &candidates {
+            if file.is_file() {
+                if let Ok(rel) = file.strip_prefix(workspace) {
+                    let dest = backup_dir.join(rel);
+                    if let Some(parent) = dest.parent() {
+                        let _ = std::fs::create_dir_all(parent);
+                    }
+                    if std::fs::copy(file, &dest).is_ok() {
+                        backed_up.push((file.clone(), dest));
                     }
                 }
             }
         }
 
-        modified
+        // 3. Execution closure with automatic rollback on error
+        let result = (|| -> anyhow::Result<Vec<String>> {
+            let mut modified = xgauntlet_core::update_manifest_versions(workspace, target_version)?;
+            if xgauntlet_core::prepare_changelog_release(workspace, target_version, today)? {
+                modified.push("CHANGELOG.md".to_string());
+            }
+
+            // 4. Full WASM build against updated release workspace
+            let policy_crate = workspace.join("crates/gauntlet-policy-engine");
+            if policy_crate.is_dir() {
+                let status = std::process::Command::new("cargo")
+                    .args([
+                        "build",
+                        "-p",
+                        "gauntlet-policy-engine",
+                        "--target",
+                        "wasm32-unknown-unknown",
+                        "--release",
+                    ])
+                    .current_dir(workspace)
+                    .status()
+                    .map_err(|e| {
+                        anyhow::anyhow!("Failed to spawn cargo build for wasm policy engine: {e}")
+                    })?;
+
+                if !status.success() {
+                    anyhow::bail!(
+                        "cargo build for gauntlet-policy-engine failed with exit code: {:?}",
+                        status.code()
+                    );
+                }
+
+                // 5. Bytecode validation and synchronization
+                let source_wasm = workspace
+                    .join("target/wasm32-unknown-unknown/release/gauntlet_policy_engine.wasm");
+                if !source_wasm.is_file() {
+                    anyhow::bail!(
+                        "Compiled WASM binary does not exist at expected path: {}",
+                        source_wasm.display()
+                    );
+                }
+
+                let wasm_bytes = std::fs::read(&source_wasm)
+                    .map_err(|e| anyhow::anyhow!("Failed to read compiled wasm artifact: {e}"))?;
+
+                if wasm_bytes.len() < 8 || !wasm_bytes.starts_with(b"\0asm\x01\0\0\0") {
+                    anyhow::bail!(
+                        "Compiled artifact {} is not valid WebAssembly binary bytecode",
+                        source_wasm.display()
+                    );
+                }
+
+                let mut policy_engine =
+                    xgauntlet_core::features::policy::WasmPolicyEngine::from_wasm_bytes(
+                        &wasm_bytes,
+                    )
+                    .map_err(|e| {
+                        anyhow::anyhow!(
+                            "Compiled WebAssembly policy bytecode failed module validation: {e}"
+                        )
+                    })?;
+
+                let wasm_ver = policy_engine.get_policy_version().map_err(|e| {
+                    anyhow::anyhow!(
+                        "Failed to query get_policy_version from compiled wasm module: {e}"
+                    )
+                })?;
+
+                let clean_target = target_version.trim().trim_start_matches(['v', 'V']);
+                if wasm_ver != clean_target {
+                    anyhow::bail!("Compiled WebAssembly policy bytecode version ({wasm_ver}) does not match target release version ({clean_target})");
+                }
+
+                let dest_wasm = workspace.join("crates/xgauntlet-core/wasm/gauntlet_policy.wasm");
+                if let Some(parent) = dest_wasm.parent() {
+                    std::fs::create_dir_all(parent)?;
+                }
+                std::fs::copy(&source_wasm, &dest_wasm).map_err(|e| {
+                    anyhow::anyhow!("Failed to synchronize gauntlet_policy.wasm: {e}")
+                })?;
+
+                modified.push("crates/xgauntlet-core/wasm/gauntlet_policy.wasm".to_string());
+            }
+
+            Ok(modified)
+        })();
+
+        match result {
+            Ok(modified) => {
+                // Slet deterministisk disk-backup ved succes
+                let _ = std::fs::remove_dir_all(&backup_dir);
+                modified
+            }
+            Err(err) => {
+                // Transaktionel Rollback: Gendan alle filer til den uændrede tilstand
+                eprintln!("\n🛑 \x1b[31;1mRelease bump operation failed: {err}\x1b[0m");
+                eprintln!("🔄 \x1b[33mRolling back all modified manifests and artifacts from staging backup...\x1b[0m");
+                for (orig, backup) in &backed_up {
+                    if backup.is_file() {
+                        let _ = std::fs::copy(backup, orig);
+                    }
+                }
+                let _ = std::fs::remove_dir_all(&backup_dir);
+                eprintln!("✅ \x1b[32mWorking tree successfully restored to clean pre-bump state without git reset.\x1b[0m\n");
+                return Err(err);
+            }
+        }
     };
 
     if json {
