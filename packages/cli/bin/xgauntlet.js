@@ -236,6 +236,34 @@ function findLocalBinary() {
   return null;
 }
 
+export async function fetchAttestationBundle(repo = REPO, version = VERSION, customFetcher = null) {
+  const fetchFn = customFetcher || fetch;
+  const candidates = [
+    `https://github.com/${repo}/releases/download/v${version}/attestation.bundle`,
+    `https://github.com/${repo}/releases/download/v${version}/attestation.json`,
+  ];
+
+  let lastStatus = 404;
+  let lastStatusText = 'Not Found';
+
+  for (const url of candidates) {
+    try {
+      const res = await fetchFn(url, { redirect: 'follow' });
+      if (res && res.ok) {
+        return await res.json();
+      }
+      if (res) {
+        lastStatus = res.status;
+        lastStatusText = res.statusText || 'Not Found';
+      }
+    } catch (err) {
+      lastStatusText = err.message;
+    }
+  }
+
+  throw new Error(`HTTP ${lastStatus} fetching attestation bundle: ${lastStatusText}`);
+}
+
 async function downloadAndCacheBinary() {
   if (process.env.XGAUNTLET_TEST_FORCE_NOT_FOUND === '1') {
     throw new Error('Forced missing binary for test');
@@ -254,27 +282,22 @@ async function downloadAndCacheBinary() {
   }
 
   const downloadUrl = `https://github.com/${REPO}/releases/download/v${VERSION}/${archiveName}`;
-  const bundleUrl = `https://github.com/${REPO}/releases/download/v${VERSION}/attestation.bundle`;
   process.stderr.write(`[xgauntlet] Fetching native engine v${VERSION} for ${platform}-${arch}...\n`);
 
-  fs.mkdirSync(cacheDir, { recursive: true });
-  const tempArchive = path.join(cacheDir, `temp-${Date.now()}-${archiveName}`);
+  let tempArchive = null;
+  let createdCacheDir = false;
 
   try {
-    const [resArchive, resBundle] = await Promise.all([
+    const [resArchive, bundleJson] = await Promise.all([
       fetch(downloadUrl, { redirect: 'follow' }),
-      fetch(bundleUrl, { redirect: 'follow' }),
+      fetchAttestationBundle(REPO, VERSION),
     ]);
 
     if (!resArchive.ok) {
       throw new Error(`HTTP ${resArchive.status} fetching binary archive: ${resArchive.statusText}`);
     }
-    if (!resBundle.ok) {
-      throw new Error(`HTTP ${resBundle.status} fetching attestation bundle: ${resBundle.statusText}`);
-    }
 
     const archiveBuffer = Buffer.from(await resArchive.arrayBuffer());
-    const bundleJson = await resBundle.json();
 
     process.stderr.write(`[xgauntlet] Verifying cryptographic release attestation for ${archiveName}...\n`);
     await verifyReleaseArchive({
@@ -288,6 +311,11 @@ async function downloadAndCacheBinary() {
     });
     process.stderr.write(`[xgauntlet] Attestation verified successfully (Repo ID: ${EXPECTED_REPOSITORY_ID}).\n`);
 
+    if (!fs.existsSync(cacheDir)) {
+      fs.mkdirSync(cacheDir, { recursive: true });
+      createdCacheDir = true;
+    }
+    tempArchive = path.join(cacheDir, `temp-${Date.now()}-${archiveName}`);
     fs.writeFileSync(tempArchive, archiveBuffer);
 
     if (archiveName.endsWith('.tar.gz')) {
@@ -300,7 +328,7 @@ async function downloadAndCacheBinary() {
       }
     }
 
-    if (fs.existsSync(tempArchive)) {
+    if (tempArchive && fs.existsSync(tempArchive)) {
       fs.unlinkSync(tempArchive);
     }
 
@@ -315,8 +343,16 @@ async function downloadAndCacheBinary() {
       throw new Error(`Extracted archive did not contain expected binary: ${binName}`);
     }
   } catch (err) {
-    if (fs.existsSync(tempArchive)) {
+    if (tempArchive && fs.existsSync(tempArchive)) {
       try { fs.unlinkSync(tempArchive); } catch {}
+    }
+    if (createdCacheDir && fs.existsSync(cacheDir)) {
+      try {
+        const files = fs.readdirSync(cacheDir);
+        if (files.length === 0) {
+          fs.rmdirSync(cacheDir);
+        }
+      } catch {}
     }
     throw err;
   }

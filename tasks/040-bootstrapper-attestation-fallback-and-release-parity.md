@@ -28,10 +28,10 @@ Fuldstændig eliminering af 404-fejl under `npm install -g xgauntlet` og første
 3. Sikre at release-pipelinen (`.github/workflows/release.yml`) uploader både `attestation.bundle` og `attestation.json` som release-aktiver.
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Dual-Candidate Attestation Fetching)**: `packages/cli/bin/xgauntlet.js` implementerer en dedikeret `fetchAttestationBundle`-hjælper (eller ækvivalent), der prøver `attestation.bundle` og transparent falder tilbage på `attestation.json` (og omvendt), så installationen lykkes uanset hvilket filnavn GitHub Release serverer.
-- [ ] **AC2 (Ingen tomme cache-mapper ved downloadfejl)**: `downloadAndCacheBinary` fjerner eller rydder op i målmappen (`cacheDir`), hvis download eller verifikation fejler, så ufuldstændige downloads ikke forurener cache-træet.
-- [ ] **AC3 (Dual-Asset Release i CI)**: `.github/workflows/release.yml` klargør og uploader det attesterede bundt som både `attestation.bundle` og `attestation.json` i `attest-binaries` og `create-github-release`.
-- [ ] **AC4 (Regressions- og Paritetstests)**: `packages/cli/test/attestation.test.js` udvides med tests for fallback-håndteringen og workflow-filens dual-asset konfiguration.
+- [x] **AC1 (Dual-Candidate Attestation Fetching)**: `packages/cli/bin/xgauntlet.js` implementerer en dedikeret `fetchAttestationBundle`-hjælper (eller ækvivalent), der prøver `attestation.bundle` og transparent falder tilbage på `attestation.json` (og omvendt), så installationen lykkes uanset hvilket filnavn GitHub Release serverer.
+- [x] **AC2 (Ingen tomme cache-mapper ved downloadfejl)**: `downloadAndCacheBinary` fjerner eller rydder op i målmappen (`cacheDir`), hvis download eller verifikation fejler, så ufuldstændige downloads ikke forurener cache-træet.
+- [x] **AC3 (Dual-Asset Release i CI)**: `.github/workflows/release.yml` klargør og uploader det attesterede bundt som både `attestation.bundle` og `attestation.json` i `attest-binaries` og `create-github-release`.
+- [x] **AC4 (Regressions- og Paritetstests)**: `packages/cli/test/attestation.test.js` udvides med tests for fallback-håndteringen og workflow-filens dual-asset konfiguration.
 
 ## 🚫 Must NOT
 - Må IKKE fjerne eller svække Sigstore kryptografisk verifikation eller trust policy kravene (repo ID, workflow, ref).

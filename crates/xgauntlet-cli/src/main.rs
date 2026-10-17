@@ -575,13 +575,23 @@ async fn main() -> anyhow::Result<()> {
             expected_tag,
             json,
         }) => {
+            let resolved_bundle = if !bundle.exists() {
+                let json_candidate = bundle.with_file_name("attestation.json");
+                if json_candidate.exists() {
+                    json_candidate
+                } else {
+                    bundle.clone()
+                }
+            } else {
+                bundle.clone()
+            };
             let policy = xgauntlet_core::TrustPolicy {
                 expected_repo_id: expected_repo_id.clone(),
                 expected_repo: expected_repo.clone(),
                 expected_workflow: expected_workflow.clone(),
                 expected_tag: expected_tag.clone(),
             };
-            match xgauntlet_core::verify_attestation_file(bundle, artifact, &policy) {
+            match xgauntlet_core::verify_attestation_file(&resolved_bundle, artifact, &policy) {
                 Ok(report) => {
                     if *json {
                         println!("{}", serde_json::to_string_pretty(&report)?);

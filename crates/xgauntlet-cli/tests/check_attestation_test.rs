@@ -291,4 +291,3 @@ fn test_cli_check_attestation_resolves_attestation_json_fallback_when_bundle_mis
     assert_eq!(json["verdict"], "PASSED");
     assert_eq!(json["attestation_status"], "VALID");
 }
-
