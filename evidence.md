@@ -4,10 +4,10 @@
 **Task Title**: Task 040: Bootstrapper Attestation Fallback and Dual-Asset Release Parity  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `758c2dbcf8c9fe393bbf4b886765b2795d44bfb552fc93de634cdfdccb713a8f`  
-**Timestamp**: `2026-10-17T15:13:50Z`  
-**Head**: `72cd699`  
-**Commit**: `72cd699`  
+**Source Manifest Digest**: `b31dbe76b257389cfb6c9a7f8ca5795b8a67ab9d421793c85f446978c1ea73e5`  
+**Timestamp**: `2026-10-17T15:15:14Z`  
+**Head**: `1962894`  
+**Commit**: `1962894`  
 
 ## Acceptance Criteria
 
@@ -22,13 +22,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.083s` |
-| `format` | `PASSED` | `0` | `0.171s` |
-| `lint` | `PASSED` | `0` | `0.111s` |
-| `types` | `PASSED` | `0` | `0.303s` |
-| `unit` | `PASSED` | `0` | `19.163s` |
-| `npm` | `PASSED` | `0` | `0.834s` |
-| `invariants` | `PASSED` | `0` | `0.059s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.009s` |
+| `architecture` | `PASSED` | `0` | `0.109s` |
+| `format` | `PASSED` | `0` | `0.198s` |
+| `lint` | `PASSED` | `0` | `0.124s` |
+| `types` | `PASSED` | `0` | `0.123s` |
+| `unit` | `PASSED` | `0` | `19.042s` |
+| `npm` | `PASSED` | `0` | `0.756s` |
+| `invariants` | `PASSED` | `0` | `0.160s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.026s` |
 
 ---
