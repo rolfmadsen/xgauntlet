@@ -5,7 +5,8 @@
   <a href="#️-mappestruktur-package-by-feature"><b>🏗️ Mappestruktur</b></a> •
   <a href="#️-fuld-cli-reference"><b>🛠️ CLI Reference</b></a> •
   <a href="#-rust-api"><b>🦀 Rust API</b></a> •
-  <a href="#️-arkitektur-adrs"><b>🏛️ ADRs</b></a>
+  <a href="#️-arkitektur-adrs"><b>🏛️ ADRs</b></a> •
+  <a href="#-licens"><b>📄 Licens</b></a>
 </p>
 
 ---
@@ -111,7 +112,7 @@ xgauntlet init
 Når du eller agenten arbejder på en opgave i projektet, afvikles gauntlettet direkte:
 
 ```bash
-# Kør gauntlet og forseg evidens for en opgave:
+# Kør gauntlet og forsegl evidens for en opgave:
 xgauntlet verify --task-id 001-bootstrap
 
 # Valider kildetræets integritet mod rapporten (drift-kontrol):
@@ -469,8 +470,18 @@ Projektets invariante tekniske valg og designprincipper er dokumenteret i [`docs
 
 ## 🙏 Anerkendelse & Inspiration (Credits)
 
-`xGauntlet` bygger videre på idéer og pionerarbejde inden for stringent verifikation:
-- **[Robert C. Martin ("Uncle Bob")](https://x.com/unclebobmartin/status/2080257779395154409)**: For TDD, Clean Craftsmanship og idéen om at omgive koden med en uomgængelig *gauntlet*.
+`xGauntlet` bygger videre på idéer, filosofi og pionerarbejde inden for stringent software-verifikation, agent-craftsmanship og forsyningskædesikkerhed:
+- **[Robert C. Martin ("Uncle Bob")](https://x.com/unclebobmartin/status/2080257779395154409)**: For TDD, Clean Craftsmanship og princippet om at omgive koden med en uomgængelig, automatiseret *gauntlet*.
 - **[amazingang (old-coder)](https://github.com/amazingang/old-coder)**: For formuleringen af Evidence-First filosofien (*"Trust moves from inspection to constraints"*).
-- **[Matt Pocock](https://github.com/mattpocock)**: For sokratiske workflow-skills (`grill-me`, `grill-with-docs`, `code-review`).
+- **[Matt Pocock](https://github.com/mattpocock)**: For banebrydende arbejde med sokratiske agent-workflows og to-akset review-metodologi.
+- **[Addy Osmani](https://addyosmani.com/)**: For metodiske agent-skills inden for kildestyring under implementering, metodisk forsimpling (*Chesterton's Fence*) og adversarial kvalitets-ratchets.
+- **[Jesse Vincent (obra)](https://github.com/obra/superpowers)**: For Superpowers agent-metodikken, *The Iron Law of Debugging*, anti-goals og deterministisk branch-afslutning.
 - **[Bytecode Alliance](https://bytecodealliance.org/)**: For Wasmtime og WebAssembly Component Model med formel Zero Ambient Authority.
+- **[Sigstore & OpenSSF](https://sigstore.dev/)**: For keyless OIDC-attestation og in-toto standarder for uafviselig forsyningskædesikkerhed.
+
+---
+
+## 📄 Licens
+
+Dette projekt er licenseret under [MIT Licensen](LICENSE).
+
