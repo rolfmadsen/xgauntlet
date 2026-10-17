@@ -3,7 +3,7 @@ type: Task Package
 title: "Task 036: Release Gatekeeper Fail-Closed Hardening and Evidence Integrity"
 description: "Fail-closed hærdning af check-release gater, to-trins genbrugeligt CI release-workflow, transaktionel WASM bump med fuld build, fail_on_output til Go-format, genopretning af standardprofiler, bootstrapper exit-kode, CLI-alias og dokumentationsoprydning"
 status: active
-generated: { by: process:xgauntlet-task-init, at: "2026-10-17T11:35:00Z" }
+generated: { by: process:xgauntlet-task-init, at: "2026-10-17T12:45:00Z" }
 tags: [release, gatekeeper, fail-closed, wasm, evidence, drift, profiles, ci, bootstrapper, adr-0005]
 scope:
   - "crates/xgauntlet-core/src/features/release/**"
@@ -44,12 +44,15 @@ Eliminere alle "silent passes" og falske positiver i release-gatekeeperen (`chec
   - Digest-inputs er eksplicit definerede og udelukker deterministisk `verification-report.json`, `evidence.md`, `evidence.json` og `attestation.bundle` fra manifestberegningen for at forhindre cirkulær drift.
   - `xgauntlet check-release --strict` kontrollerer, at rapporten findes, at dens JSON-skema er gyldigt, at dens registrerede digests (source, policy, config og task) matcher den aktuelle checkout med 0 drift, og at dens overordnede verdict er godkendt (`PASSED`, eller `PARTIAL` hvor alle obligatoriske lag har bestået med exit 0 og udelukkende tilladte optionelle kontroller mangler).
   - En manglende, forældet eller drifted rapport blokerer release fatalt med exit 1.
-- [ ] **AC6 (Transaktionel WASM & Manifest Bump med Fuld Build og Atomisk Staging)**:
-  - `release bump` udfører to-trins validering:
-    1. Preflight: validerer at Rust-toolchain og `wasm32-unknown-unknown` target er installeret og tilgængeligt før nogen filer røres.
-    2. Validering af planlagt tilstand: manifests og changelog stages in-memory med transaktionsbackup af originalerne, hvorefter den fulde, dokumenterede WASM-buildprocedure eksekveres (`cargo build -p gauntlet-policy-engine --target wasm32-unknown-unknown --release`), og den genererede `gauntlet_policy.wasm` synkroniseres.
-  - Fejler den fulde WASM-kompilering eller valideringen af den planlagte tilstand på noget tidspunkt, rulles samtlige ændringer automatisk tilbage fra backup før afslutning, så arbejdstræet efterlades 100% uændret uden brug af `git checkout` eller destruktive git-handlinger. Processen afsluttes fatalt med exit 1 og klar diagnostik.
-  - `serde_json` konfigureres med `preserve_order` og regressionstest for nøglerækkefølge i `package.json`.
+- [ ] **AC6 (Transaktionel WASM & Manifest Bump med Fuld Build og Disk-Staging Backup)**:
+  - `release bump` udfører to-trins validering og transaktionel afvikling for at garantere arbejdstræets integritet:
+    1. Preflight: Validerer at Rust-toolchain og `wasm32-unknown-unknown` target er installeret og tilgængeligt før nogen filer røres.
+    2. Disk-Staging Backup: Før ændringer skrives til disk, tages en deterministisk sikkerhedskopi af samtlige berørte filer (`Cargo.toml`, alle crate-manifester, `package.json`, `packages/cli/package.json`, `CHANGELOG.md`) til en isoleret backup-sti.
+    3. Manifest-opdatering: De beregnede versionsændringer skrives til filerne på disk, så `cargo build` kan tilgå den planlagte release-tilstand og kompilere mod de opdaterede versioner.
+    4. Fuld WASM Build: Den fulde dokumenterede WASM-buildprocedure eksekveres mod arbejdstræet: `cargo build -p gauntlet-policy-engine --target wasm32-unknown-unknown --release`.
+    5. Bytecode-validering & Synkronisering: Det resulterende artefakt `target/wasm32-unknown-unknown/release/gauntlet_policy_engine.wasm` valideres deterministisk (filen eksisterer, er ikke-tom, har gyldig WASM-header `\0asm\1\0\0\0` og er et gyldigt WASM-modul) og synkroniseres til `crates/xgauntlet-core/wasm/gauntlet_policy.wasm`.
+  - Transaktionel Rollback: Fejler noget trin i processen (manifest-skrivning, WASM-kompilering, bytecode-validering eller synkronisering), rulles samtlige berørte filer automatisk og programmatisk tilbage fra backup-filerne, backup-filerne saneres, og processen afbrydes med exit-kode 1 og en klar fejlforklaring. Arbejdstræet efterlades 100% uændret uden brug af `git checkout` eller destruktive git-handlinger. Kun hvis samtlige trin lykkes, slettes backuppen og versionsløftet godkendes.
+  - JSON-nøglerækkefølge: `serde_json` konfigureres med `preserve_order` (via `indexmap`), og der tilføjes regressionstest for bevarelse af nøglerækkefølgen i `package.json`.
 - [ ] **AC7 (Gated Release Workflow med Adskilte CI- og Gate-jobs)**:
   - `.github/workflows/ci.yml` udvides med `workflow_call:` trigger.
   - `.github/workflows/release.yml` opdeles i en eksplicit job-DAG:

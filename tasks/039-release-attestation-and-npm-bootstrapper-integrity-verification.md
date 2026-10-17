@@ -32,22 +32,36 @@ Fuld implementering af ADR 0005's Tier 2 tillidskæde for udgivne release-artefa
 4. Etablere `check-attestation` i CLI'en med validering mod den definerede tillidspolitik (forventet numerisk repository-ID, repository-navn, workflow-sti, ref/commit, predicate-type og digest).
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (CI Multi-Subject Archive Attestation med SHA-pinned `actions/attest`)**:
+- [ ] **AC1 (CI Multi-Subject Archive Attestation & Workflow Artifact Transfer)**:
   - `.github/workflows/release.yml` beriges med et dedikeret attesterings-job (`attest-binaries`) med snævre rettigheder: `permissions: id-token: write, attestations: write, artifact-metadata: write, contents: read`.
   - Anvender `actions/attest` fastlåst til en verificeret fuld commit-SHA (ikke et mutable tag).
-  - Modtager alle fem distributionsarkiver fra `build-binaries` og attesterer dem samlet i ét `actions/attest`-kald via `subject-path`. Det resulterende Sigstore-bundt (`bundle-path`) overføres uændret som `attestation.bundle` til release-jobbet.
-  - `create-github-release` afhænger eksplicit af attesteringen (`needs: [gate-check-release, build-binaries, attest-binaries]`) og vedhæfter `attestation.bundle` som release-aktiv sammen med de uændrede arkiver.
-- [ ] **AC2 (Forud Forankret Repository-ID & Sigstore Verifikation i Bootstrapper)**:
+  - Eksplicit overførsel af distributionsfiler mellem GitHub Actions runners:
+    1. `build-binaries`: uploader de fem færdige distributionsarkiver (`.tar.gz` og `.zip`) som workflow-artefakter via SHA-pinned `actions/upload-artifact`.
+    2. `attest-binaries` (`needs: [gate-check-release, build-binaries]`): downloader netop disse arkiver via SHA-pinned `actions/download-artifact`, attesterer dem samlet i ét `actions/attest`-kald via `subject-path`, og uploader den uændrede bundle-fil fra `bundle-path`-outputtet som et workflow-artefakt via SHA-pinned `actions/upload-artifact`.
+    3. `create-github-release` (`needs: [gate-check-release, build-binaries, attest-binaries]`): downloader både arkiverne og bundle-filen via `actions/download-artifact` og publicerer dem som release-aktiver uden genbygning eller ompakning.
+- [ ] **AC2 (Officiel `sigstore` Verifikator & Forud Forankret Repository-ID i Bootstrapper)**:
+  - `packages/cli` anvender den officielle, vedligeholdte npm-pakke `sigstore` (der understøtter Sigstore-bundles og Node.js >= 18.17.0). Bootstrapperen må IKKE rulle sin egen kryptografiske bundle-verifikation fra bunden.
   - `packages/cli/bin/xgauntlet.js` downloader `attestation.bundle` sammen med platform-arkivet.
-  - Verificerer bundtets kryptografiske signatur mod Sigstores betroede rødder.
-  - Validerer trust claims mod et **forud betroet, statisk forankret numerisk repository-ID** (må ALDRIG udledes dynamisk fra release-endpointet), samt forventet repository-navn (`rolfmadsen/xgauntlet`), release-workflow og commit/tag.
-  - Matcher det downloadede arkivs SHA-256 digest mod bundtets attesterede subjects **før** udpakning.
-- [ ] **AC3 (Fail-Closed Ved Mismatch eller Kompromittering)**: Hvis arkivets digest ikke findes blandt de attesterede subjects i bundtet, eller hvis attesteringen stammer fra et forkert repository-ID/workflow, afbryder bootstrapperen omgående med en fatal sikkerhedsfejl og exit-kode 1 uden at udpakke eller eksekvere koden. Dækkes af negative tests med gyldig attestering fra et fremmed repository-ID.
+  - Verificerer bundtets kryptografiske signatur mod Sigstores betroede rødder via `sigstore.verify`.
+  - Validerer certifikatets claims mod en streng, forud fastlagt trust policy:
+    - Et **forud betroet, statisk forankret numerisk repository-ID** (`EXPECTED_REPOSITORY_ID` hårdkodet i koden; må ALDRIG udledes dynamisk fra download-URL eller release-endpoint).
+    - Forventet repository-navn (`rolfmadsen/xgauntlet`).
+    - Forventet release-workflow (`.github/workflows/release.yml`).
+    - Forventet ref/tag/commit.
+  - Matcher det downloadede arkivs beregnede SHA-256 digest mod det relevante subject i bundtet **før** udpakning.
+- [ ] **AC3 (Fail-Closed Ved Mismatch eller Ubetroet Identitet)**:
+  - Hvis arkivets digest ikke findes blandt de attesterede subjects i bundtet, eller hvis attesteringen stammer fra et forkert repository-ID/workflow/ref, afbryder bootstrapperen omgående med en fatal sikkerhedsfejl og exit-kode 1 uden at udpakke eller eksekvere koden.
+  - Dækkes af automatiserede negative tests:
+    - Manipuleret arkiv-payload (digest mismatch).
+    - Kryptografisk gyldigt Sigstore bundle udstedt til et andet repository-ID (afvises pga. repository-ID policy check, selvom signaturen er gyldig).
+    - Kryptografisk gyldigt bundle udstedt af et andet workflow (afvises pga. workflow policy check).
+    - Ugyldig eller udløbet signatur (afvises af `sigstore.verify`).
 - [ ] **AC4 (CLI Subcommand `check-attestation` med Numerisk Repo-ID Trust Policy)**: CLI'en udvides med `xgauntlet check-attestation` i overensstemmelse med ADR 0005. Kommandoen kontrollerer ikke blot attestationens syntaks, men håndhæver en eksplicit tillidspolitik (validerer unikt numerisk repository-ID, repository-sti, workflow-sti, ref/tag, predicate-type og artefakt-digest mod Sigstore trusted roots).
 - [ ] **AC5 (Eksplicit Adskillelse fra NPM Provenance)**: `npm publish --provenance` bevares for selve npm-pakken, men adskilles eksplicit fra attesteringen og integritetskontrollen af de distribuerede native arkiver.
 
 ## 🚫 Must NOT
 - Må IKKE opfinde et custom JSON-samlingsformat for attestationer; skal anvende det officielle Sigstore bundle-output uændret fra `actions/attest`.
+- Må IKKE implementere kryptografisk bundle-verifikation fra bunden i Node-bootstrapperen; skal anvende den officielle, vedligeholdte `sigstore` bibliotekspakke.
 - Må IKKE udlede eller stole på et numerisk repository-ID hentet dynamisk fra den downloadkilde, hvis autenticitet skal verificeres.
 - Må ALDRIG udpakke eller eksekvere en native binærfil hvis digest mismatch eller attesteringsfejl detekteres.
 - Må IKKE tillade `create-github-release` at køre før `attest-binaries` er fuldført med et gyldigt attesteringsbundt.
@@ -56,6 +70,7 @@ Fuld implementering af ADR 0005's Tier 2 tillidskæde for udgivne release-artefa
 
 ## 📝 Revisions
 - 2026-10-17: Oprettet som backlogopgave på baggrund af ChatGPT second opinion review (P1 fund om tillidskæde, SHA-pinning, multi-subject bundle, uforanderligt repo-ID og DAG-afhængigheder).
+- 2026-10-17: Præciseret eksplicit workflow-artefaktoverførsel (upload/download-artifact) og officiel `sigstore` verifikatorpakke med trust policy validering.
 
 ## 🧪 Verifikation
 - `npm test --workspaces`
