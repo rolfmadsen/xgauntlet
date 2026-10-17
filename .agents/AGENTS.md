@@ -16,19 +16,21 @@ Formatér altid toppen af samtlige synlige agent-svar med det transparente Cockp
 
 ---
 
-## 🛠️ Bundled Agent Skills (`.agents/skills/`)
-The agent has direct access to bundled skills located in [.agents/skills/](.agents/skills/) (and packaged under [plugins/xgauntlet/skills/](plugins/xgauntlet/skills/)). When a skill is invoked, the agent MUST view its `SKILL.md` before proceeding:
+## 🛠️ Bundled Sovereign Agent Skills (`.agents/plugins/xgauntlet/skills/`)
+The agent has direct access to bundled skills located in [.agents/plugins/xgauntlet/skills/](.agents/plugins/xgauntlet/skills/). When a skill is invoked, the agent MUST view its `SKILL.md` before proceeding:
 
-1. **[old-coder](.agents/skills/old-coder/SKILL.md)**:
-   * *Purpose*: Evidence-first development methodology (SPEC $	o$ RED $	o$ GREEN $	o$ REFACTOR $	o$ GAUNTLET $	o$ EVIDENCE).
-2. **[grill-me](.agents/skills/grill-me/SKILL.md)**:
-   * *Purpose*: Socratic interview to stress-test designs and resolve the decision tree before writing code.
-3. **[grill-with-docs](.agents/skills/grill-with-docs/SKILL.md)**:
-   * *Purpose*: Challenges plans against domain concepts in [CONTEXT.md](CONTEXT.md) and creates/updates ADRs in [docs/adr/](docs/adr/).
-4. **[diagnose](.agents/skills/diagnose/SKILL.md)**:
-   * *Purpose*: Disciplined root-cause diagnosis loop (Reproduce $	o$ Minimize $	o$ Hypothesize $	o$ Instrument $	o$ Fix $	o$ Regression-test).
-5. **[code-review](.agents/skills/code-review/SKILL.md)**:
-   * *Purpose*: Two-axis review (Standards vs Spec) running parallel sub-agents with Fowler code smells baseline.
+1. **[discover](.agents/plugins/xgauntlet/skills/discover/SKILL.md)**:
+   * *Purpose*: Socratic interview, challenging assumptions, scope bounding, and Aristotelian domain glossary in `CONTEXT.md` prior to coding.
+2. **[spec](.agents/plugins/xgauntlet/skills/spec/SKILL.md)**:
+   * *Purpose*: Socratic requirement specification and decomposition into OKF v0.2 task packages (`tasks/<id>-<slug>.md`) with strict scope and design tokens.
+3. **[tdd](.agents/plugins/xgauntlet/skills/tdd/SKILL.md)**:
+   * *Purpose*: Strict Evidence-First Red-Green-Refactor development with local Git phase checkpoints, isolated feature tests, and prohibition of monolithic test files.
+4. **[review](.agents/plugins/xgauntlet/skills/review/SKILL.md)**:
+   * *Purpose*: Two-axis review (Standards vs Spec) running independent parallel sub-agents with Fowler code smells baseline.
+5. **[diagnose](.agents/plugins/xgauntlet/skills/diagnose/SKILL.md)**:
+   * *Purpose*: Disciplined root-cause diagnosis loop (Reproduce $\to$ Minimize $\to$ Hypothesize $\to$ Instrument $\to$ Fix $\to$ Regression-test).
+6. **[release](.agents/plugins/xgauntlet/skills/release/SKILL.md)**:
+   * *Purpose*: Release readiness audit, changelog verification (`CHANGELOG.md`), ADR coverage, and multi-digest integrity sealing.
 
 ---
 
@@ -96,9 +98,9 @@ The agent has direct access to bundled skills located in [.agents/skills/](.agen
 ## 🎯 Intent Classification & Discovery
 Before writing code, classify intent and align with domain terminology:
 - 🔍 **QUERY / DIAGNOSIS:** Information request or root-cause discovery (read-only; use `diagnose`).
-- 🚀 **NEW FEATURE / REFACTOR:** Run `grill-me` or `grill-with-docs` to resolve decisions and update `CONTEXT.md` before coding.
+- 🚀 **NEW FEATURE / REFACTOR:** Run `discover` to resolve decisions and update `CONTEXT.md` before coding.
 - 🐛 **BUG FIX:** Reproduce failure in a red test before changing production code.
-- 🧐 **CODE REVIEW / AUDIT:** Independent two-axis evaluation of changes against repository standards and spec invariants (use `code-review`).
+- 🧐 **CODE REVIEW / AUDIT:** Independent two-axis evaluation of changes against repository standards and spec invariants (use `review`).
 
 ### 💡 Intent-to-Task Sparringsprocedure (Idéfase)
 Når en bruger henvender sig med et ustruktureret eller uformelt ønske, fungerer agenten som proaktiv sparringspartner gennem en 4-trins model før en formel opgavefil oprettes i `tasks/`:
@@ -111,10 +113,10 @@ Når en bruger henvender sig med et ustruktureret eller uformelt ønske, fungere
 
 ## 🔄 Core Development Loop
 ```text
-SPEC / GRILL → (Human Approval) → RED → GREEN → REFACTOR → GAUNTLET → EVIDENCE
+SPEC / DISCOVER → (Human Approval) → RED → GREEN → REFACTOR → GAUNTLET → EVIDENCE
 ```
 
-1. **SPEC / GRILL**: Konkrete eksekverbare kriterier i `tasks/<task>.md` og `spec.md`, afstemt med `CONTEXT.md`.
+1. **SPEC / DISCOVER**: Konkrete eksekverbare kriterier i `tasks/<task>.md` og `spec.md`, afstemt med `CONTEXT.md`.
 2. **RED**: Skriv fejlede accepttests først, og bevis at de fejler med den forventede årsag.
 3. **GREEN**: Minimal implementation for at få testene til at passere.
 4. **REFACTOR**: Oprydning i kode og modularitet, mens assertionerne forbliver frosne.

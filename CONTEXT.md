@@ -135,3 +135,27 @@ _Avoid_: Dependency tree, code map, syntax graph.
 A deterministic traversal query, that calculates the transitive downstream components affected by modifications to a specific module or symbol within bounded traversal depth.
 _Avoid_: Impact assessment, regression check, ripple effect.
 
+**Structured Command Tokenization**:
+An argument parsing model, that lexes shell command invocations into quote-delimited vectors and evaluates them against policy rules without substring matching.
+_Avoid_: String matching, regex parsing, naive filter.
+
+**Task Scope Enforcement**:
+A fail-closed authorization gate, that restricts file modifications strictly to filepaths declared within the active task's scope array.
+_Avoid_: Path filter, file restriction, folder guard.
+
+**Test Scope Isolation**:
+A boundary permission rule, that restricts modification authority exclusively to verified test suites when production task scope is undeclared.
+_Avoid_: Test only mode, dev flag, sandbox test.
+
+**Attestation Verification**:
+A detached validation contract, that verifies Sigstore OIDC cryptographic bundles and subject digests against trusted GitHub repository identity and release provenance before binary execution.
+_Avoid_: Checksum verification, hash match, signature check.
+
+**Transactional Release Staging**:
+A non-destructive workspace backup pattern, that stages modified assets in an isolated temporary directory during release bumps and rolls back on failure without invoking destructive Git operations.
+_Avoid_: Git rollback, hard reset, cleanup script.
+
+**Bootstrapper Integrity Verification**:
+A client-side verification gate, that authenticates pre-compiled distribution archives against Sigstore attestation ledgers and static repository identifiers prior to unarchiving into the local cache.
+_Avoid_: Tarball check, download validator, integrity test.
+

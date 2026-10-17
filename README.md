@@ -47,23 +47,23 @@ xGauntlet følger samme enkle model som `git`: Værktøjet installeres én gang 
 
 ### 1. Installer xGauntlet (én gang på din maskine)
 
-Kør følgende to trin for at installere CLI-motoren globalt og aktivere de 11 metodiske agent-skills i dine AI-agenter:
+Kør følgende to trin for at installere CLI-motoren globalt og aktivere de 6 suveræne agent-skills i dine AI-agenter:
 
 ```bash
 # Trin 1a: Installer CLI-motoren og gatekeeperen globalt i dit system ($PATH):
 npm install -g xgauntlet
 
-# Trin 1b: Fetch native engine latest version for your operating system in ~/.cache/xgauntlet/
+# Trin 1b: Fetch og verificer native engine via Sigstore i ~/.cache/xgauntlet/
 xgauntlet status
 
-# Trin 1c: Installer de 11 indbyggede agent-skills i dine AI-harnesses (Antigravity - Home/.gemini/config/plugins, Claude Code, Codex, Mistral):
+# Trin 1c: Installer de 6 suveræne agent-skills i dine AI-harnesses (Antigravity, Claude Code, Codex, Mistral):
 xgauntlet plugin install --global
 ```
 
 > [!NOTE]
 > **🤖 Hvorfor kræves `xgauntlet plugin install --global`?**  
 > `npm install -g` placerer udelukkende CLI-binæren i dit systems `$PATH`. Hvert AI-agentmiljø (Google Antigravity IDE, Claude Code, OpenAI Codex, Mistral Vibe) har sin egen konfigurationsmappe til skills (f.eks. `~/.gemini/config/plugins/xgauntlet/skills/` eller `~/.claude/skills/`).  
-> `xgauntlet plugin install --global` detekterer automatisk dine installerede agent-harnesses og udpakker de 11 metodiske skills som ægte, redigerbare Markdown-filer direkte i agenternes globale mapper.
+> `xgauntlet plugin install --global` detekterer automatisk dine installerede agent-harnesses og udpakker de 6 suveræne skills (`discover`, `spec`, `tdd`, `review`, `diagnose`, `release`) som ægte, redigerbare Markdown-filer direkte i agenternes globale mapper.
 
 > [!TIP]
 > **⚡ Hvorfor global installation frem for blot `npx`?**  
@@ -159,8 +159,8 @@ rm -rf ~/.gemini/config/plugins/xgauntlet ~/.claude/skills/xgauntlet ~/.codex/pl
 ## 🧭 Pipeline og Gates: Sådan virker det
 
 `xGauntlet` arbejder på to adskilte niveauer:
-1. **Metodiske retningslinjer (Agent Skills)**: Proceskrav (såsom sokratisk grilling, TDD-disciplin og arkitektur-review), som agenten instrueres i at følge (`grill-me`, `old-coder`, `code-review`).
-2. **Håndhævede software-gates (CLI & In-Memory WASM)**: Deterministiske kontrolpunkter i Rust-koden (`check-spec`, pre-invocation WASM hook, `verify`, `check-evidence` og `check-release`), der fysisk blokerer uautoriserede handlinger med exit-koder og multi-digest integritetskontrol.
+1. **Metodiske retningslinjer (Agent Skills)**: Proceskrav (såsom sokratisk behovsafklaring, TDD-disciplin og arkitektur-review), som agenten instrueres i at følge (`discover`, `spec`, `tdd`, `review`, `diagnose`, `release`).
+2. **Håndhævede software-gates (CLI & In-Memory WASM)**: Deterministiske kontrolpunkter i Rust-koden (`check-spec`, pre-invocation WASM hook, `verify`, `check-evidence`, `check-attestation`, `check-architecture` og `check-release`), der fysisk blokerer uautoriserede handlinger med exit-koder og multi-digest integritetskontrol.
 
 > [!NOTE]
 > **Bemærk om tilstande og Zero-Daemon:** Systemet styres ikke af en global database eller baggrundsdæmon, men af diskrete, uafhængige CLI-kald (`sub-3ms` koldstart). Opgavestatus (`DRAFT`, `ACTIVE`, `PASSED`, `DONE`) er forankret direkte i de enkelte task-filers OKF YAML-frontmatter (`tasks/*.md`), som evalueres on-demand af de respektive gates uden behov for en tilstandsmaskine-service.
@@ -168,33 +168,33 @@ rm -rf ~/.gemini/config/plugins/xgauntlet ~/.claude/skills/xgauntlet ~/.codex/pl
 ### Oversigt over udviklingsflowet
 
 ```text
-[ 1. IDÉAFKLARING ]             ──► Metodisk skill (grill-me / grill-with-docs)
+[ 1. IDÉAFKLARING ]             ──► Metodisk skill (discover)
          │                          (Opdaterer CONTEXT.md & docs/adr/)
          ▼
 [ 2. SPECIFIKATION ]            ──► HÅRD GATE: xgauntlet check-spec
          │                          (OKF metadata, formål, kriterier, Must NOT, Aristoteles-glossar)
          ▼
 [ 3. TDD & KODNING ]            ──► HÅRD GATE: Zero-Ambient-Authority WASM Policy Hook
-         │                          (Kræver aktiv task for beskyttede stier, forhindrer git push)
+         │                          (Quote-aware tokenization, task scope, forhindrer wrappers & git push)
          ▼
 [ 4. FLERLAGS VERIFIKATION ]    ──► HÅRD GATE: xgauntlet verify
          │                          (Kører linters, typer, tests; matematisk pre/post manifestkontrol)
          ▼
-[ 5. KODESTANDARD-REVIEW ]      ──► Hybrid skill: code-review & udvikleraccept
-         │                          (Audit mod CODING_STANDARDS.md)
+[ 5. KODESTANDARD-REVIEW ]      ──► Hybrid skill: review & udvikleraccept
+         │                          (Audit mod CODING_STANDARDS.md & Fowler smells)
          ▼
-[ 6. DRIFT-KONTROL ]            ──► HÅRD GATE: xgauntlet check-evidence
-         │                          (Verificerer at workspace matcher rapporten via Git OID hash)
+[ 6. DRIFT- & ATTESTATION ]     ──► HÅRD GATE: xgauntlet check-evidence & check-attestation
+         │                          (Git OID drift-kontrol og kryptografisk Sigstore OIDC verifikation)
          ▼
-[ 7. RELEASE READINESS ]        ──► HÅRD GATE: xgauntlet check-release
-                                    (Versionssynkronisering, CHANGELOG.md og ADR-krydsreferencer)
+[ 7. RELEASE READINESS ]        ──► HÅRD GATE: xgauntlet check-release (--strict) & release bump
+                                    (WASM-sync, manifest harmony, changelog og transaktionel staging)
 ```
 
 ### Pipelinen trin for trin
 
 #### 1. Idé- og kontekstafklaring
 * **Type**: Metodisk proces (Agent Skill)
-* **Hvad der sker**: Før der skrives specifikationer eller kode, aktiveres grilling-skills (`grill-me` eller `grill-with-docs`). Agenten udfordrer antagelser, identificerer risici og afstemmer planer mod eksisterende arkitektur og ADR'er.
+* **Hvad der sker**: Før der skrives specifikationer eller kode, aktiveres sparringsskillen `discover`. Agenten udfordrer antagelser, identificerer risici og afstemmer planer mod eksisterende arkitektur og ADR'er.
 * **Kontrolpunkt**:
   * *Hvem godkender*: Udvikleren i direkte dialog.
   * *Hvordan*: Dialogen udmønter sig i, at agenten opdaterer `CONTEXT.md` og eventuelt udarbejder en ny ADR i `docs/adr/`.
@@ -221,9 +221,10 @@ rm -rf ~/.gemini/config/plugins/xgauntlet ~/.claude/skills/xgauntlet ~/.codex/pl
   * *Hvordan*: Agentens værktøjskald (tool calls) overvåges deterministisk ved hvert kald via `xgauntlet hook <harness>`.
   * *Håndhævelse i koden*:
     * **Zero Ambient Authority**: WebAssembly-modulet har absolut nul adgang til værtsfilsystem, netværk, systemur eller tilfældighedskilder.
-    * Beskyttede produktions- og kildestier (`src/`, `tests/`, `crates/`, `packages/`, `.agents/`) kan **ikke** modificeres, medmindre der findes en aktiv task (`tasks/*.md`) med status `ACTIVE`.
-    * Destruktive kommandoer som `git push`, `git reset --hard`, `git clean -f`, `git branch -D` og `rm -rf /` blokeres hårdt (`reason_code: 4039`).
-    * Linux Bubblewrap (`bwrap`) er erstattet til fordel for WebAssembly + matematisk invariantkontrol (pre/post manifest-digests i verifikationspipelinen), hvilket sikrer fuld 100% krydsplatform understøttelse på tværs af Linux, macOS og Windows 11 uden kerne-afhængigheder eller root-rettigheder.
+    * **Struktureret Command Tokenization**: Shell-kommandoer evalueres via en quote-aware argument-lexer. Eksekverings-wrappers (`env`, `sudo`, `eval`, `bash -c`, `sh -c`, `xargs`, `doas`, `su`, `exec`) afvises fail-closed med `reason_code: 4039`.
+    * **Fail-Closed Task Scope**: Filmodifikationer (`WriteFile`) uden for den aktive opgaves erklærede `scope` blokeres hårdt (`reason_code: 4037`). Hvis task scope er udefineret, tillader test-scope isolation udelukkende skrivning til verificerede testfiler.
+    * **Destruktiv Beskyttelse**: Destruktive kommandoer som `git push`, `git reset --hard`, `git clean -f`, `git branch -D` og `rm -rf /` blokeres uanset globale flag (`-C`, `-c`, `--no-pager`).
+    * **Harness Compliance**: Understøtter officielt fladt `PreInvocation` skema for Google Antigravity og sikker, ikke-destruktiv hook-scaffolding mod JSON-korruption.
   * *Bemærk om TDD*: Selve rækkefølgen (Red før Green) registreres ikke historisk af test-runneren; det er en metodisk adfærd instrueret via agent-skills.
 
 #### 4. Flerlags Verifikation
@@ -240,7 +241,7 @@ rm -rf ~/.gemini/config/plugins/xgauntlet ~/.claude/skills/xgauntlet ~/.codex/pl
 #### 5. Review mod Kodestandarder
 * **Type**: Hybrid gate (Agent Skill + Udvikleraccept)
 * **Hvad der sker**: Den implementerede løsning auditeres mod arkitekturretningslinjer og regler i `CODING_STANDARDS.md`.
-* **Kontrolpunkt**: Standards Review (`code-review` skill)
+* **Kontrolpunkt**: Standards Review (`review` skill)
   * *Hvem godkender*: Udvikleren assisteret af agentens review-skill.
   * *Hvordan*: Agenten gennemgår diff'en op mod kodestandarderne og fremhæver eventuelle arkitekturbrud, manglende fejlhåndtering eller navngivningsfejl.
   * *Håndhævelse i koden*: Gaten er procesmæssig og beror på agentens review-rapport kombineret med udviklerens godkendelse.
@@ -248,24 +249,25 @@ rm -rf ~/.gemini/config/plugins/xgauntlet ~/.claude/skills/xgauntlet ~/.codex/pl
 #### 6. Drift- og Integritetskontrol (Two-Tier Model)
 * **Type**: Hård software-gate
 * **Hvad der sker**: Verificering af, at kildekoden og arbejdstræet ikke er blevet manipuleret eller er driftet efter testkørslen.
-* **Kontrolpunkt**: Drift Verification (`xgauntlet check-evidence`)
-  * *Hvem godkender*: Drift-detektionsmotoren (`crates/xgauntlet-core/src/features/evidence/drift.rs`).
+* **Kontrolpunkt**: Drift Verification (`xgauntlet check-evidence`) & Attestation Gate (`xgauntlet check-attestation`)
+  * *Hvem godkender*: Drift-detektionsmotoren (`crates/xgauntlet-core/src/features/evidence/drift.rs`) og attestation-verifikatoren (`attestation.rs`).
   * *Hvordan*: Værktøjet genberegner det aktuelle kildetræs workspace-manifest og sammenligner det direkte med værdierne i `verification-report.json`.
   * *Håndhævelse i koden*:
     * **Tier 1 (Lokal drift-kontrol)**: Er blot én byte ændret i kildetræ, opgave, config eller politik efter `verify`, afvises tjekket med en specifik `DriftViolation`. Beregningen benytter Git-tree/blob OID-hashes, hvilket gør driftkontrollen fuldstændig immun over for linjeskift-forskelle (LF vs. CRLF) på tværs af styresystemer.
-    * **Tier 2 (Attestation i CI)**: Jf. [ADR 0005](docs/adr/0005-two-tier-verification-and-attestation-model.md) adskilles lokal verifikation fra uafviselig CI-attestering. I beskyttede CI-miljøer genereres en kryptografisk in-toto/DSSE-attest (Sigstore/OIDC), som forsegler kildens herkomst forud for release.
+    * **Tier 2 (Kryptografisk Attestation i CI)**: Jf. [ADR 0005](docs/adr/0005-two-tier-verification-and-attestation-model.md) udstedes der i beskyttede CI-miljøer en kryptografisk in-toto/DSSE-attest (Sigstore/OIDC), som forsegler kildens og binærens herkomst (`attestation.bundle` og `attestation.json`). Denne kan efterprøves lokalt eller remote via `xgauntlet check-attestation`.
 
 #### 7. Release Readiness
 * **Type**: Hård software-gate
-* **Hvad der sker**: Koden klargøres til release og merge ved at kontrollere synkronisering mellem versioner, ændringslog og dokumentation.
-* **Kontrolpunkt**: Release Gate (`xgauntlet check-release`)
+* **Hvad der sker**: Koden klargøres til release og merge ved at kontrollere synkronisering mellem versioner, ændringslog, WASM-bytecode og dokumentation.
+* **Kontrolpunkt**: Release Gate (`xgauntlet check-release`) & Transaktionel Bump (`xgauntlet release bump`)
   * *Hvem godkender*: Release-orkestratoren (`crates/xgauntlet-core/src/features/release/engine.rs`).
-  * *Hvordan*: Værktøjet udfører tre specifikke tjek:
-    1. **Versionskonsistens**: Versionsnumre skal matche på tværs af projektets manifests (`Cargo.toml`, `package.json`, `pyproject.toml`).
-    2. **Changelog-synkronisering**: `CHANGELOG.md` skal indeholde en sektion for den pågældende version.
-    3. **ADR-referencer**: Samtlige ADR-dokumenter i `docs/adr/` skal være eksplicit refereret eller linket i enten `README.md` eller `spec.md`.
-  * *Håndhævelse i koden*: Returnerer exit-kode 1, hvis der er uoverensstemmelse i versionsnumre, manglende changelog-sektion eller forældreløse ADR-dokumenter.
-  * *Praktisk udviklerflag*: Med flaget `--allow-unreleased` tillader værktøjet sektionen `[Unreleased]` i `CHANGELOG.md` under løbende udvikling forud for den endelige versions-tagging.
+  * *Hvordan*: Værktøjet udfører dybdegående kontroller:
+    1. **Versionskonsistens**: Versionsnumre skal matche på tværs af projektets manifests (`Cargo.toml`, `package.json`, `packages/cli/package.json`).
+    2. **WASM Bytecode Paritet**: Det indlejrede WebAssembly-bytecode valideres mod workspace-versionen (`CONFIG_VERSION_MISMATCH`).
+    3. **Changelog-synkronisering**: `CHANGELOG.md` skal indeholde en sektion for den pågældende version.
+    4. **ADR-referencer**: Samtlige ADR-dokumenter i `docs/adr/` skal være eksplicit refereret eller linket i enten `README.md` eller `spec.md`.
+    5. **Strict Release Mode (`--strict`)**: Validerer rent git-arbejdstræ (med automatisk udelukkelse af cirkulære artefakter) og eksekverer kodeformatering fail-closed.
+    6. **Transaktionel Release Bump**: `xgauntlet release bump [patch|minor|major]` udfører atomisk disk-staging backup (`.xgauntlet_staging_<nonce>`), opdaterer manifests, kompilerer WASM og ruller sikkert tilbage ved fejl uden destruktive git-handlinger.
 
 ### 👥 De 4 AI-roller & Session Handoff
 
@@ -323,21 +325,22 @@ xGauntlet/
 │   ├── xgauntlet-core/           # Portabel domænemotor (Package-by-Feature)
 │   │   └── src/features/
 │   │       ├── wasm/             # Embedded Wasmtime host integration
-│   │       ├── policy/           # Capability requests & trusted context
-│   │       ├── evidence/         # Git OID SHA-256 manifest & verification-report
+│   │       ├── policy/           # Capability requests & trusted context (structured tokenization)
+│   │       ├── evidence/         # Git OID SHA-256 manifest, verification-report og Sigstore attestation
 │   │       ├── gauntlet/         # Multi-layer runner, processtyring, timeouts
 │   │       ├── diagnostics/      # Actionable diagnostics parser
 │   │       ├── tasks/            # OKF v0.2 parser & check-spec
 │   │       ├── adapters/         # Vertikale harness-slices (Antigravity, Claude, Codex)
 │   │       ├── config/           # gauntlet.toml loader & schema
 │   │       ├── scaffold/         # Ikke-destruktiv init-motor
-│   │       └── doctor/           # Miljø- og toolchain-diagnostik
+│   │       ├── doctor/           # Miljø- og toolchain-diagnostik
+│   │       └── release/          # Release gatekeeper, WASM-sync og transaktionel bump
 │   │
 │   └── xgauntlet-cli/            # Native CLI executable (xgauntlet)
 │
 └── packages/
     └── cli/                      # NPM distributionspakke (xgauntlet)
-        └── bin/xgauntlet.js      # Zero-dependency platform bootstrapper
+        └── bin/xgauntlet.js      # Zero-dependency bootstrapper med Sigstore integritetskontrol
 ```
 
 ---
@@ -375,20 +378,53 @@ Mekanisk validering af at opgavespecifikationer indeholder forretningsinvariante
 xgauntlet check-spec
 ```
 
-### 5. Release Readiness (`check-release`)
-Validerer at versioner matcher på tværs af manifests (`Cargo.toml`, `package.json`), `CHANGELOG.md` og ADR-krydsreferencer:
+### 5. Release Readiness Gatekeeper (`check-release`)
+Validerer versionskonsistens, WASM-bytecode synkronisering, `CHANGELOG.md` og ADR-krydsreferencer:
 ```bash
-xgauntlet check-release
+# Standard kørsel under udvikling
+xgauntlet check-release --allow-unreleased
+
+# Streng release mode (fail-closed ved uncommitted filer eller formateringsfejl)
+xgauntlet check-release --strict
 ```
 
-### 6. Workspace Diagnostik (`doctor`)
+### 6. Kryptografisk Attesteringskontrol (`check-attestation`)
+Verificerer Sigstore in-toto/DSSE attesteringsbundter (`attestation.bundle` / `attestation.json`) lokalt eller direkte mod GitHub Releases:
+```bash
+# Valider lokalt bundt mod release-artefakt
+xgauntlet check-attestation --bundle attestation.bundle --artifact target/release/xgauntlet
+
+# Valider remote mod GitHub release med statisk forankret repo-ID (1359184794)
+xgauntlet check-attestation --remote-tag v0.8.4
+```
+
+### 7. Deklarativ Arkitekturkontrol (`check-architecture`)
+Håndhæver kodestruktur, filstørrelsesgrænser (kildekode max 800 linjer, tests max 1.000 linjer) og forbudte API-tokens:
+```bash
+xgauntlet check-architecture
+```
+
+### 8. Transaktionel Versionsstyring (`release bump`)
+Udfører atomisk SemVer opgradering på tværs af manifests, kompilerer og synkroniserer WASM bytecode, roterer CHANGELOG.md og ruller automatisk tilbage ved fejl via disk-staging:
+```bash
+# Bump patch, minor eller major
+xgauntlet release bump patch
+```
+
+### 9. Sessions-Overdragelseskort (`handoff`)
+Genererer et standardiseret `🏁 SESSION HANDOFF` telemetrikort til ren kontekstoverdragelse i AI-sessioner:
+```bash
+xgauntlet handoff --task-id 001-bootstrap
+```
+
+### 10. Workspace Diagnostik (`doctor`)
 Undersøg workspace-konfiguration, stakke og miljøforudsætninger på tværs af Linux, macOS og Windows:
 ```bash
 xgauntlet doctor
 ```
 
-### 7. Global Plugin & Agent Skills Distribution (`plugin install`)
-Installer eller opdater de 11 indlejrede agent-skills (`old-coder`, `grill-me`, `diagnose`, `code-review` mv.) på tværs af opdagede AI agent harnesses:
+### 11. Global Plugin & Agent Skills Distribution (`plugin install`)
+Installer eller opdater de 6 suveræne agent-skills (`discover`, `spec`, `tdd`, `review`, `diagnose`, `release`) på tværs af opdagede AI agent harnesses:
 ```bash
 # Installer automatisk til alle detekterede agent-harnesses
 xgauntlet plugin install --global

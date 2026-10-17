@@ -11,6 +11,9 @@ All code across all languages in this repository adheres to these core craftsman
 - **Uncle Bob Clean Architecture & TDD:** Follow the strict Red $\to$ Green $\to$ Refactor cycle. Write black-box acceptance tests first, prove they fail with expected behavior, write the minimal implementation, and refactor while assertions remain frozen.
 - **Package-by-Feature (Screaming Architecture):** Colocate related domain models, business logic, schemas, services, and tests within cohesive feature directories. Architecture must be strictly acyclic.
 - **Fail-Closed Security & Verification:** In security, authorization, and verification boundaries, unexpected or undefined states MUST fail closed (deny/abort) rather than swallow exceptions or fall through.
+- **Non-Destructive Transactions over Git Rollbacks:** Operations mutating file assets or repository state (e.g. `release bump`, `scaffold`, `init`) MUST NOT invoke destructive Git commands (`git reset --hard`, `git checkout .`, `git clean -f`) to handle errors or aborts. Instead, isolate modifications using an atomic disk-staging directory (`.staging_<nonce>`) and perform transactional rollback upon failure.
+- **Structured Command Tokenization over String Matching:** Security policy evaluation, process execution, and subprocess argument handling MUST NEVER rely on naive substring searching or raw string concatenation. Commands MUST be tokenized into quote-aware argument vectors, and command execution wrappers (`env`, `sudo`, `eval`, `bash -c`, `sh -c`, `xargs`, `doas`, `su`, `exec`) MUST be rejected fail-closed.
+- **Safe Scaffolding & Zero Data Hijacking:** When scaffolding or updating existing configuration files (such as `.agents/hooks.json`), parsers MUST parse the file with strict validation (`ErrorKind::InvalidData`), preserve foreign user-defined keys, and reject corrupted or malformed files rather than blindly overwriting them.
 - **Invariant Property Testing:** Verify mathematical and business invariants (round-trip serialization, idempotence, monotonicity) using property-based testing (`hypothesis`, `fast-check`, `proptest`).
 - **Evidence-First Development:** Line-by-line review is backed by executable evidence. Verification reports and test suites must be 100% green with zero mutation survivors.
 - **Clean Documentation:** Document *Why* (invariants, architectural boundaries, failure modes) rather than restating *What* code lines do. Avoid noisy comments.
@@ -31,6 +34,7 @@ Subsystems written in Rust follow the **Official Rust API Guidelines**:
 - **Error Handling:**
   - `unwrap()` and `expect()` are strictly forbidden in production code. Use `?` operator for clean error propagation.
   - Libraries must define structured, strongly-typed errors implementing `std::error::Error` (via `thiserror`). Application binaries may use `anyhow` for top-level context.
+  - Fail-Closed Context Loading: In authorization boundaries (e.g. `EnforcementContext`), parsing errors must never be swallowed or ignored. Corrupted or invalid specification/configuration files must force an unauthorized/inactive state (`has_active_task = false`, empty scopes) rather than falling back to permissive defaults.
   - Panics are acceptable only in test assertions and invariant property tests.
 
 ### Ergonomics & Ownership (C-CONV, C-GENERIC)
@@ -203,3 +207,4 @@ In polyglot repositories where multiple languages communicate (e.g. TypeScript f
 - **Zero Untyped JSON Bridges:** Untyped dictionary/object mappings across boundaries are prohibited. Payloads must be validated with runtime validators (`zod` in TypeScript, Pydantic in Python, `serde` with strong types in Rust).
 - **Uniform Error Envelope:** All boundary endpoints must emit a standardized error envelope (`{ "error": { "code": string, "message": string, "details": object } }`).
 - **Deterministic Serialization:** Invariant round-trip tests must guarantee that data serialized in one stack deserializes identically in other stacks without precision or field loss.
+- **Cryptographic Provenance in Distribution:** Client-side distribution scripts, wrappers, and download bootstrappers fetching pre-compiled binaries MUST verify cryptographic provenance (e.g. Sigstore OIDC bundles verified against a statically pinned repository identifier) before unpacking or executing cached binaries.
