@@ -9,7 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### 🛡️ Security Hardening (P1 Remediation)
+## [0.8.3] - 2026-10-17
+
+### 🛡️ Security Hardening & Gatekeeper (v0.8.3 Release Package)
+- **Release Gatekeeper Fail-Closed Hardening & Evidence Integrity (`Task 036`, `crates/xgauntlet-core`, `.github/workflows`)**:
+  - Hærdet `xgauntlet check-release` mod tavse fejl; formatering og WASM-policy valideres nu obligatorisk fail-closed.
+  - Tilføjet portabel `fail_on_output` til `LayerConfig` for platformsuafhængig `gofmt`-validering.
+  - Genoprettet standardprofiler for eksterne projekter (`optional: true` for format, lint og types) for at undgå fejlagtige afbrydelser i udrullede miljøer.
+  - Etableret strict evidens- og driftgate i `check-release --strict` med deterministisk udelukkelse af cirkulære artefakter (`verification-report.json`, `evidence.md`, `attestation.bundle`).
+  - Implementeret transaktionel `release bump` med fuld `wasm32-unknown-unknown` build, isoleret disk-staging backup og automatisk rollback ved fejl uden brug af destruktive git-handlinger.
+  - Opdelt GitHub Actions release-workflowet i en formaliseret DAG (`ci` -> `gate-check-release` -> `build-binaries` -> `create-github-release` -> `publish-npm`).
+  - Hærdet Node-bootstrapperen til at returnere exit-kode 1 ved manglende native engine under `status` og `doctor`.
+  - Tilføjet CLI-alias `--task-id` på `verify`, `check-spec` og `handoff`.
 - **Structured Command Tokenization & Wrapper Rejection (`Task 037`, `crates/gauntlet-policy-engine`)**:
   - Erstattet naiv delstrengsmatching med fuld kommandotokenisering, quote-parsing og flag-håndtering.
   - Afvist eksekverings-wrappers (`env`, `sudo`, `eval`, `bash -c`, `sh -c`, `xargs`, `doas`, `su`, `exec`) fail-closed med grundkode `4039`.
@@ -19,6 +30,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Hvis `allowed_scopes` er tom, giver `allowed_test_targets` udelukkende skriveadgang til verificerede testfiler; modifikation af kildekode afvises altid strengt med `4037: Deny`.
 - **Fail-Closed Context Loading (`Task 037`, `crates/xgauntlet-core`)**:
   - `EnforcementContext::from_workspace()` sluger ikke længere parsefejl; korrupte eller ugyldige task-filer sætter `has_active_task = false` og efterlader scopes tomme, så enhver modificerende operation efterfølgende afvises med `Deny`.
+- **Google Antigravity Hook Schema Compliance & Scaffolding Resilience (`Task 038`, `crates/xgauntlet-core`)**:
+  - Tilpasset `PreInvocation` konfiguration til det officielle Antigravity schema (fladt array af handlers uden `matcher`).
+  - Hærdet `scaffold_hooks` mod korrupt JSON med struktureret afvisning (`ErrorKind::InvalidData`) uden dataoverskrivning.
+  - Forhindret group-key hijacking i roden af `.agents/hooks.json`.
+- **Cryptographic Release Attestation & Bootstrapper Integrity Verification (`Task 039`, `packages/cli`, `.github/workflows`, `crates/xgauntlet-cli`)**:
+  - Implementeret ADR 0005 Tier 2 Sigstore attestation for native distributionsarkiver i CI via SHA-pinned `actions/attest`.
+  - Forankret Node-bootstrapperens (`packages/cli/bin/xgauntlet.js`) integritetskontrol i en streng trust policy med forud forankret numerisk repository-ID (`1359184794`), repository og workflow validering via officiel `sigstore` npm-pakke før udpakning.
+  - Udvidet CLI med `xgauntlet check-attestation` subcommand til lokal og ekstern verifikation af attesteringsbundter mod release-artefakter.
 
 ## [0.8.2] - 2026-10-16
 
