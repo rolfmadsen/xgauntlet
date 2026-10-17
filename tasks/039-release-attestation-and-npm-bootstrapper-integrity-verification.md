@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 039: Native Release Attestation and Bootstrapper Integrity Verification"
 description: "Implementer ADR 0005 Sigstore attestation med SHA-pinned actions/attest for distributionsarkiver i CI og kryptografisk forankret verifikation i npm bootstrapperen"
-status: todo
+status: active
 generated: { by: process:xgauntlet-task-init, at: "2026-10-17T11:36:00Z" }
 tags: [attestation, security, sigstore, in-toto, npm, bootstrapper, adr-0005]
 scope:
@@ -13,14 +13,17 @@ scope:
   - "packages/cli/test/**"
   - "crates/xgauntlet-core/src/features/evidence/**"
   - "crates/xgauntlet-cli/src/**"
+  - "crates/xgauntlet-cli/tests/**"
 test_refs:
+  - "packages/cli/test/attestation.test.js"
   - "packages/cli/test/launcher.test.js"
   - "crates/xgauntlet-core/tests/evidence_manifest_test.rs"
+  - "crates/xgauntlet-cli/tests/check_attestation_test.rs"
 ---
 
 # Task 039: Native Release Attestation and Bootstrapper Integrity Verification
 
-**Status**: `TODO`  
+**Status**: `ACTIVE`  
 **Intent**: `🚀 NEW FEATURE` & `🛡️ SECURITY`  
 **Oprettet**: `2026-10-17`  
 
