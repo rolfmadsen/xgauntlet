@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🛡️ Security Hardening (P1 Remediation)
+- **Structured Command Tokenization & Wrapper Rejection (`Task 037`, `crates/gauntlet-policy-engine`)**:
+  - Erstattet naiv delstrengsmatching med fuld kommandotokenisering, quote-parsing og flag-håndtering.
+  - Afvist eksekverings-wrappers (`env`, `sudo`, `eval`, `bash -c`, `sh -c`, `xargs`, `doas`, `su`, `exec`) fail-closed med grundkode `4039`.
+  - Forhindret omgåelser af destruktive git-operationer (`push`, `reset --hard`, `clean -f`, `branch -D`) uanset whitespace-variationer og globale flag (`-C`, `-c`, `--no-pager`, osv.).
+- **Fail-Closed Task Scope & Test Scope Isolering (`Task 037`, `crates/gauntlet-policy-engine`, `crates/xgauntlet-core`)**:
+  - Obligatorisk opgavescope for alle filmodifikationer (`WriteFile`): tomme scopes afvises altid med `4037: Deny`.
+  - Hvis `allowed_scopes` er tom, giver `allowed_test_targets` udelukkende skriveadgang til verificerede testfiler; modifikation af kildekode afvises altid strengt med `4037: Deny`.
+- **Fail-Closed Context Loading (`Task 037`, `crates/xgauntlet-core`)**:
+  - `EnforcementContext::from_workspace()` sluger ikke længere parsefejl; korrupte eller ugyldige task-filer sætter `has_active_task = false` og efterlader scopes tomme, så enhver modificerende operation efterfølgende afvises med `Deny`.
+
 ## [0.8.2] - 2026-10-16
 
 ### 🛡️ Hardened & Fixed

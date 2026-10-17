@@ -118,7 +118,7 @@ pub fn normalize_executable(exe: &str) -> String {
     lower.strip_suffix(".exe").unwrap_or(&lower).to_string()
 }
 
-pub fn resolve_git_subcommand<'a>(args: &'a [String]) -> Option<(&'a str, &'a [String])> {
+pub fn resolve_git_subcommand(args: &[String]) -> Option<(&str, &[String])> {
     let mut i = 0;
     while i < args.len() {
         let arg = &args[i];
@@ -132,15 +132,6 @@ pub fn resolve_git_subcommand<'a>(args: &'a [String]) -> Option<(&'a str, &'a [S
             || arg == "--super-prefix"
         {
             i += 2;
-        } else if arg.starts_with("--git-dir=")
-            || arg.starts_with("--work-tree=")
-            || arg.starts_with("--namespace=")
-            || arg.starts_with("--exec-path=")
-            || arg.starts_with("--config-env=")
-            || (arg.starts_with("-c") && arg.len() > 2)
-            || (arg.starts_with("-C") && arg.len() > 2)
-        {
-            i += 1;
         } else if arg.starts_with('-') {
             i += 1;
         } else {
@@ -217,15 +208,11 @@ pub fn is_safe_command_segment(tokens: &[String]) -> bool {
                 false
             }
         }
-        "npx" => {
-            if tokens.len() > 2 && tokens[1] == "xgauntlet" {
-                matches!(
-                    tokens[2].as_str(),
-                    "verify" | "doctor" | "check-evidence" | "check-spec"
-                )
-            } else {
-                false
-            }
+        "npx" if tokens.len() > 2 && tokens[1] == "xgauntlet" => {
+            matches!(
+                tokens[2].as_str(),
+                "verify" | "doctor" | "check-evidence" | "check-spec"
+            )
         }
         _ => false,
     }
