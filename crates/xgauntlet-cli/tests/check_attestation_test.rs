@@ -253,3 +253,42 @@ fn test_cli_check_attestation_fails_closed_on_repo_id_mismatch() {
         "Output should report REPOSITORY_ID_MISMATCH"
     );
 }
+
+#[test]
+fn test_cli_check_attestation_resolves_attestation_json_fallback_when_bundle_missing() {
+    let temp = TempDir::new("attest_json_fallback");
+    let artifact_path = temp.path.join("xgauntlet-linux-x64.tar.gz");
+    let dummy_archive = b"dummy tarball archive content for fallback test";
+    fs::write(&artifact_path, dummy_archive).unwrap();
+    let digest = xgauntlet_core::compute_file_raw_hash(dummy_archive);
+
+    let bundle_content = create_mock_bundle("xgauntlet-linux-x64.tar.gz", &digest, "1359184794");
+    // Write ONLY attestation.json (no attestation.bundle)
+    let json_bundle_path = temp.path.join("attestation.json");
+    fs::write(&json_bundle_path, bundle_content).unwrap();
+
+    let missing_bundle_path = temp.path.join("attestation.bundle");
+
+    let bin = env!("CARGO_BIN_EXE_xgauntlet");
+    let output = Command::new(bin)
+        .args([
+            "check-attestation",
+            "--bundle",
+            missing_bundle_path.to_str().unwrap(),
+            "--artifact",
+            artifact_path.to_str().unwrap(),
+            "--json",
+        ])
+        .output()
+        .expect("failed to execute check-attestation");
+
+    assert!(
+        output.status.success(),
+        "check-attestation must transparently fallback to attestation.json when attestation.bundle is missing"
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let json: serde_json::Value = serde_json::from_str(&stdout).expect("output must be valid JSON");
+    assert_eq!(json["verdict"], "PASSED");
+    assert_eq!(json["attestation_status"], "VALID");
+}
+

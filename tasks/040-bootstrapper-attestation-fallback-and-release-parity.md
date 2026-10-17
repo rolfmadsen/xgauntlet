@@ -6,10 +6,12 @@ status: active
 generated: { by: process:xgauntlet-task-init, at: "2026-10-17T15:06:28Z" }
 tags: [task-lifecycle, intent, scaffolding, rust]
 scope:
+  - "crates/xgauntlet-cli/src/**"
   - "packages/cli/bin/xgauntlet.js"
   - "packages/cli/test/**"
   - ".github/workflows/release.yml"
 test_refs:
+  - "crates/xgauntlet-cli/tests/check_attestation_test.rs"
   - "packages/cli/test/attestation.test.js"
 ---
 

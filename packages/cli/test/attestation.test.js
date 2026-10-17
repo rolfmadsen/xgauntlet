@@ -281,3 +281,42 @@ test('AC3: verifyReleaseArchive fails closed when cryptographic signature verifi
     /Signature verification failed/i
   );
 });
+
+test('AC1 & AC4: fetchAttestationBundle falls back to attestation.json when attestation.bundle returns 404', async () => {
+  const launcher = await import('../bin/xgauntlet.js');
+  assert.equal(
+    typeof launcher.fetchAttestationBundle,
+    'function',
+    'xgauntlet.js must export fetchAttestationBundle'
+  );
+
+  const mockFetcher = async (url) => {
+    if (url.endsWith('attestation.bundle')) {
+      return { ok: false, status: 404, statusText: 'Not Found' };
+    }
+    if (url.endsWith('attestation.json')) {
+      return {
+        ok: true,
+        status: 200,
+        statusText: 'OK',
+        json: async () => ({ mediaType: 'mock-bundle', fallbackSuccess: true }),
+      };
+    }
+    return { ok: false, status: 500, statusText: 'Server Error' };
+  };
+
+  const bundle = await launcher.fetchAttestationBundle('rolfmadsen/xgauntlet', '0.8.3', mockFetcher);
+  assert.equal(bundle.fallbackSuccess, true, 'Must fallback to attestation.json');
+});
+
+test('AC3 & AC4: release.yml stages both attestation.bundle and attestation.json for dual-asset parity', () => {
+  const content = fs.readFileSync(releaseYamlPath, 'utf8');
+
+  // Must stage both filenames in attest-binaries
+  assert.match(
+    content,
+    /attestation\.bundle[\s\S]*?attestation\.json|attestation\.json[\s\S]*?attestation\.bundle/,
+    'release.yml must ensure both attestation.bundle and attestation.json are uploaded'
+  );
+});
+
