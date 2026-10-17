@@ -12,8 +12,8 @@ use xgauntlet_core::features::evidence::{
     compute_workspace_manifest, verify_self_mutation, verify_workspace_state_match,
     VerificationReport,
 };
-use xgauntlet_core::features::policy::PolicyEvaluator;
 use xgauntlet_core::features::gauntlet::{execute_gauntlet_pipeline, GauntletOptions};
+use xgauntlet_core::features::policy::PolicyEvaluator;
 use xgauntlet_core::features::tasks::resolve_task_contract;
 
 static TEST_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
@@ -344,7 +344,11 @@ Testing corruption.
 ## 🚫 Must NOT
 - None
 "#;
-    fs::write(ws.join("tasks").join("037-corrupt-task.md"), corrupt_content).unwrap();
+    fs::write(
+        ws.join("tasks").join("037-corrupt-task.md"),
+        corrupt_content,
+    )
+    .unwrap();
 
     let ctx = xgauntlet_core::features::policy::EnforcementContext::from_workspace(ws, false);
     assert!(
@@ -375,4 +379,3 @@ Testing corruption.
         "Writing to code with corrupt task context MUST be denied fail-closed"
     );
 }
-

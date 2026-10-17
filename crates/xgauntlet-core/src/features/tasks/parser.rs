@@ -160,10 +160,7 @@ pub fn resolve_latest_done_task_id(workspace: &Path) -> Option<String> {
 
 /// Parses complete `TaskPackageInfo` from raw markdown content and a designated task identifier.
 pub fn parse_task_content(content: &str, task_id: &str) -> Result<TaskPackageInfo, TaskError> {
-    let (metadata, body) = match parse_frontmatter(content) {
-        Ok((meta, body)) => (meta, body),
-        Err(_) => (None, content),
-    };
+    let (metadata, body) = parse_frontmatter(content)?;
 
     let status = parse_task_status(content);
     let mut title = String::new();

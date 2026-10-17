@@ -72,29 +72,42 @@ impl EnforcementContext {
     /// Creates an enforcement context directly resolved from a workspace directory.
     pub fn from_workspace(workspace: &std::path::Path, read_only: bool) -> Self {
         let active_task_id = crate::features::tasks::resolve_active_task_id(workspace);
-        let has_active_task = active_task_id.is_some();
+        let mut has_active_task = false;
+        let mut active_task_id_str = String::new();
+        let mut allowed_scopes = Vec::new();
+        let mut allowed_test_targets = Vec::new();
+
+        if let Some(ref tid) = active_task_id {
+            let task_file = workspace.join("tasks").join(format!("{tid}.md"));
+            if task_file.is_file() {
+                match crate::features::tasks::parse_task_file(&task_file) {
+                    Ok(info) => {
+                        has_active_task = true;
+                        active_task_id_str = tid.clone();
+                        allowed_scopes = info.scope;
+                        allowed_test_targets = info.test_refs;
+                    }
+                    Err(_) => {
+                        // Fail-closed: corrupt or invalid task files leave scopes empty and has_active_task = false
+                        has_active_task = false;
+                        active_task_id_str.clear();
+                        allowed_scopes.clear();
+                        allowed_test_targets.clear();
+                    }
+                }
+            }
+        }
+
         let workspace_id = workspace
             .file_name()
             .and_then(|s| s.to_str())
             .unwrap_or("workspace")
             .to_string();
 
-        let mut allowed_scopes = Vec::new();
-        let mut allowed_test_targets = Vec::new();
-        if let Some(ref tid) = active_task_id {
-            let task_file = workspace.join("tasks").join(format!("{tid}.md"));
-            if task_file.is_file() {
-                if let Ok(info) = crate::features::tasks::parse_task_file(&task_file) {
-                    allowed_scopes = info.scope;
-                    allowed_test_targets = info.test_refs;
-                }
-            }
-        }
-
         Self {
             workspace_id,
             has_active_task,
-            active_task_id: active_task_id.unwrap_or_default(),
+            active_task_id: active_task_id_str,
             read_only,
             allowed_scopes,
             allowed_test_targets,

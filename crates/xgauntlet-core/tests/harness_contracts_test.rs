@@ -699,6 +699,7 @@ fn test_wasm_policy_determinism_windows_backslashes_parity() {
         has_active_task: true,
         active_task_id: "027".into(),
         read_only: false,
+        allowed_scopes: vec!["crates/**".into(), "src/**".into()],
         ..Default::default()
     };
 
@@ -739,6 +740,7 @@ fn test_wasm_policy_determinism_crlf_newlines() {
         has_active_task: true,
         active_task_id: "027".into(),
         read_only: false,
+        allowed_scopes: vec!["crates/**".into()],
         ..Default::default()
     };
 

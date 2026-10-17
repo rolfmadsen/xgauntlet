@@ -479,7 +479,9 @@ fn test_empty_scope_with_test_targets_strictly_isolates_test_files() {
         target_resource: "crates/xgauntlet-core/tests/security_hardening_test.rs".into(),
         payload_json: "{}".into(),
     };
-    let decision = engine.evaluate(&undeclared_test_req, &test_only_ctx).unwrap();
+    let decision = engine
+        .evaluate(&undeclared_test_req, &test_only_ctx)
+        .unwrap();
     assert_eq!(decision.verdict, DecisionVerdict::Deny);
     assert_eq!(decision.reason_code, 4037);
 

@@ -102,6 +102,251 @@ fn matches_any(path: &str, patterns: &[String]) -> bool {
     patterns.iter().any(|pat| matches_pattern(path, pat))
 }
 
+fn is_test_file(path: &str) -> bool {
+    let p = path.replace('\\', "/");
+    p.starts_with("tests/")
+        || p.contains("/tests/")
+        || p.contains("__tests__")
+        || p.ends_with("_test.rs")
+        || p.ends_with(".test.ts")
+        || p.ends_with(".spec.ts")
+        || p.ends_with(".test.js")
+        || p.ends_with(".spec.js")
+        || p.ends_with("_test.py")
+        || p.ends_with("_test.go")
+}
+
+#[derive(Debug, PartialEq, Eq)]
+enum TokenizerError {
+    UnclosedQuote,
+}
+
+fn tokenize_command_line(cmd: &str) -> Result<Vec<Vec<String>>, TokenizerError> {
+    let mut segments: Vec<Vec<String>> = Vec::new();
+    let mut current_segment: Vec<String> = Vec::new();
+    let mut current_token = String::new();
+
+    let mut in_single_quote = false;
+    let mut in_double_quote = false;
+    let mut escaped = false;
+
+    let chars: Vec<char> = cmd.chars().collect();
+    let len = chars.len();
+    let mut i = 0;
+
+    while i < len {
+        let ch = chars[i];
+
+        if escaped {
+            current_token.push(ch);
+            escaped = false;
+            i += 1;
+            continue;
+        }
+
+        if ch == '\\' && !in_single_quote {
+            escaped = true;
+            i += 1;
+            continue;
+        }
+
+        if ch == '\'' && !in_double_quote {
+            in_single_quote = !in_single_quote;
+            i += 1;
+            continue;
+        }
+
+        if ch == '"' && !in_single_quote {
+            in_double_quote = !in_double_quote;
+            i += 1;
+            continue;
+        }
+
+        if in_single_quote || in_double_quote {
+            current_token.push(ch);
+            i += 1;
+            continue;
+        }
+
+        // Outside quotes: check for operators: &&, ||, ;, |
+        if ch == '&' && i + 1 < len && chars[i + 1] == '&' {
+            if !current_token.is_empty() {
+                current_segment.push(std::mem::take(&mut current_token));
+            }
+            if !current_segment.is_empty() {
+                segments.push(std::mem::take(&mut current_segment));
+            }
+            i += 2;
+            continue;
+        }
+
+        if ch == '|' && i + 1 < len && chars[i + 1] == '|' {
+            if !current_token.is_empty() {
+                current_segment.push(std::mem::take(&mut current_token));
+            }
+            if !current_segment.is_empty() {
+                segments.push(std::mem::take(&mut current_segment));
+            }
+            i += 2;
+            continue;
+        }
+
+        if ch == ';' || ch == '|' {
+            if !current_token.is_empty() {
+                current_segment.push(std::mem::take(&mut current_token));
+            }
+            if !current_segment.is_empty() {
+                segments.push(std::mem::take(&mut current_segment));
+            }
+            i += 1;
+            continue;
+        }
+
+        if ch.is_whitespace() {
+            if !current_token.is_empty() {
+                current_segment.push(std::mem::take(&mut current_token));
+            }
+            i += 1;
+            continue;
+        }
+
+        current_token.push(ch);
+        i += 1;
+    }
+
+    if in_single_quote || in_double_quote {
+        return Err(TokenizerError::UnclosedQuote);
+    }
+
+    if !current_token.is_empty() {
+        current_segment.push(current_token);
+    }
+    if !current_segment.is_empty() {
+        segments.push(current_segment);
+    }
+
+    Ok(segments)
+}
+
+fn normalize_executable(exe: &str) -> String {
+    let name = exe.rsplit(['/', '\\']).next().unwrap_or(exe);
+    let lower = name.to_ascii_lowercase();
+    lower.strip_suffix(".exe").unwrap_or(&lower).to_string()
+}
+
+fn resolve_git_subcommand<'a>(args: &'a [String]) -> Option<(&'a str, &'a [String])> {
+    let mut i = 0;
+    while i < args.len() {
+        let arg = &args[i];
+        if arg == "-C"
+            || arg == "-c"
+            || arg == "--config-env"
+            || arg == "--exec-path"
+            || arg == "--git-dir"
+            || arg == "--work-tree"
+            || arg == "--namespace"
+            || arg == "--super-prefix"
+        {
+            i += 2;
+        } else if arg.starts_with("--git-dir=")
+            || arg.starts_with("--work-tree=")
+            || arg.starts_with("--namespace=")
+            || arg.starts_with("--exec-path=")
+            || arg.starts_with("--config-env=")
+            || (arg.starts_with("-c") && arg.len() > 2)
+            || (arg.starts_with("-C") && arg.len() > 2)
+        {
+            i += 1;
+        } else if arg.starts_with('-') {
+            i += 1;
+        } else {
+            return Some((arg.as_str(), &args[i + 1..]));
+        }
+    }
+    None
+}
+
+fn is_forbidden_wrapper(norm_exe: &str) -> bool {
+    matches!(
+        norm_exe,
+        "env"
+            | "sudo"
+            | "doas"
+            | "su"
+            | "eval"
+            | "xargs"
+            | "exec"
+            | "command"
+            | "builtin"
+            | "nohup"
+            | "timeout"
+            | "nice"
+            | "stdbuf"
+            | "strace"
+            | "ltrace"
+    )
+}
+
+fn is_shell_executable(norm_exe: &str) -> bool {
+    matches!(
+        norm_exe,
+        "bash" | "sh" | "zsh" | "dash" | "ksh" | "fish" | "csh" | "tcsh"
+    )
+}
+
+fn is_safe_command_segment(tokens: &[String]) -> bool {
+    if tokens.is_empty() {
+        return false;
+    }
+    let norm_exe = normalize_executable(&tokens[0]);
+    match norm_exe.as_str() {
+        "git" => {
+            if let Some((sub, _)) = resolve_git_subcommand(&tokens[1..]) {
+                matches!(sub, "status" | "diff" | "log")
+            } else {
+                false
+            }
+        }
+        "ls" | "pwd" | "echo" | "which" | "pytest" => true,
+        "cargo" => {
+            if tokens.len() > 1 {
+                matches!(tokens[1].as_str(), "check" | "test" | "clippy" | "fmt")
+            } else {
+                false
+            }
+        }
+        "npm" => {
+            if tokens.len() > 1 {
+                tokens[1] == "test"
+                    || (tokens[1] == "run" && tokens.len() > 2 && tokens[2] == "test")
+            } else {
+                false
+            }
+        }
+        "xgauntlet" => {
+            if tokens.len() > 1 {
+                matches!(
+                    tokens[1].as_str(),
+                    "verify" | "doctor" | "check-evidence" | "check-spec"
+                )
+            } else {
+                false
+            }
+        }
+        "npx" => {
+            if tokens.len() > 2 && tokens[1] == "xgauntlet" {
+                matches!(
+                    tokens[2].as_str(),
+                    "verify" | "doctor" | "check-evidence" | "check-spec"
+                )
+            } else {
+                false
+            }
+        }
+        _ => false,
+    }
+}
+
 /// Deterministically evaluates a capability request against trusted context.
 pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDecision {
     if ctx.read_only
@@ -158,79 +403,93 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
                 };
             }
 
-            // Protected source code paths require an active task
-            if target_str.starts_with("src/")
+            let is_code = target_str.starts_with("src/")
                 || target_str.starts_with("tests/")
                 || target_str.starts_with("crates/")
                 || target_str.starts_with("packages/")
-                || target_str.starts_with(".agents/")
-            {
-                if !ctx.has_active_task {
+                || target_str.starts_with(".agents/");
+
+            if !ctx.has_active_task {
+                return PolicyDecision {
+                    verdict: DecisionVerdict::Deny,
+                    reason: if is_code {
+                        "Writing to production code without active task is prohibited.".into()
+                    } else {
+                        "Mutating repository files without an active task is prohibited.".into()
+                    },
+                    reason_code: if is_code { 4031 } else { 4032 },
+                };
+            }
+
+            // AC3: Fail-closed task scope enforcement
+            // 1. If both allowed_scopes and allowed_test_targets are empty -> Deny (4037)
+            if ctx.allowed_scopes.is_empty() && ctx.allowed_test_targets.is_empty() {
+                return PolicyDecision {
+                    verdict: DecisionVerdict::Deny,
+                    reason: format!(
+                        "Writing to '{}' prohibited: active task '{}' has no declared scopes or test targets (fail-closed).",
+                        target_str, ctx.active_task_id
+                    ),
+                    reason_code: 4037,
+                };
+            }
+
+            // 2. If allowed_scopes is empty, only specific test targets can be written; source code is strictly Denied (4037)
+            if ctx.allowed_scopes.is_empty() {
+                if is_test_file(target_str) && matches_any(target_str, &ctx.allowed_test_targets) {
                     return PolicyDecision {
-                        verdict: DecisionVerdict::Deny,
-                        reason: "Writing to production code without active task is prohibited."
-                            .into(),
-                        reason_code: 4031,
+                        verdict: DecisionVerdict::Allow,
+                        reason: format!(
+                            "Writing to test target permitted under active task '{}'.",
+                            ctx.active_task_id
+                        ),
+                        reason_code: 2002,
                     };
                 }
+                return PolicyDecision {
+                    verdict: DecisionVerdict::Deny,
+                    reason: format!(
+                        "Writing to '{}' prohibited: active task '{}' has empty allowed_scopes and target is not an allowed test file.",
+                        target_str, ctx.active_task_id
+                    ),
+                    reason_code: 4037,
+                };
+            }
 
-                let has_scope_restriction =
-                    !ctx.allowed_scopes.is_empty() || !ctx.allowed_test_targets.is_empty();
-                if has_scope_restriction {
-                    let is_in_scope = matches_any(target_str, &ctx.allowed_scopes)
-                        || matches_any(target_str, &ctx.allowed_test_targets);
-                    if !is_in_scope {
-                        return PolicyDecision {
-                            verdict: DecisionVerdict::Deny,
-                            reason: format!(
-                                "Writing to '{}' prohibited: target is outside active task '{}' declared scope or test targets.",
-                                target_str, ctx.active_task_id
-                            ),
-                            reason_code: 4037,
-                        };
-                    }
-                }
+            // 3. When allowed_scopes is defined, check allowed_scopes, then test_targets for test files
+            if matches_any(target_str, &ctx.allowed_scopes) {
+                return PolicyDecision {
+                    verdict: DecisionVerdict::Allow,
+                    reason: if is_code {
+                        format!(
+                            "Writing to code permitted under active task '{}'.",
+                            ctx.active_task_id
+                        )
+                    } else {
+                        "Write operation permitted under active task.".into()
+                    },
+                    reason_code: if is_code { 2002 } else { 2003 },
+                };
+            }
 
+            if is_test_file(target_str) && matches_any(target_str, &ctx.allowed_test_targets) {
                 return PolicyDecision {
                     verdict: DecisionVerdict::Allow,
                     reason: format!(
-                        "Writing to code permitted under active task '{}'.",
+                        "Writing to test target permitted under active task '{}'.",
                         ctx.active_task_id
                     ),
                     reason_code: 2002,
                 };
             }
 
-            if !ctx.has_active_task {
-                PolicyDecision {
-                    verdict: DecisionVerdict::Deny,
-                    reason: "Mutating repository files without an active task is prohibited."
-                        .into(),
-                    reason_code: 4032,
-                }
-            } else {
-                let has_scope_restriction =
-                    !ctx.allowed_scopes.is_empty() || !ctx.allowed_test_targets.is_empty();
-                if has_scope_restriction {
-                    let is_in_scope = matches_any(target_str, &ctx.allowed_scopes)
-                        || matches_any(target_str, &ctx.allowed_test_targets);
-                    if !is_in_scope {
-                        return PolicyDecision {
-                            verdict: DecisionVerdict::Deny,
-                            reason: format!(
-                                "Writing to '{}' prohibited: target is outside active task '{}' declared scope or test targets.",
-                                target_str, ctx.active_task_id
-                            ),
-                            reason_code: 4037,
-                        };
-                    }
-                }
-
-                PolicyDecision {
-                    verdict: DecisionVerdict::Allow,
-                    reason: "Write operation permitted under active task.".into(),
-                    reason_code: 2003,
-                }
+            PolicyDecision {
+                verdict: DecisionVerdict::Deny,
+                reason: format!(
+                    "Writing to '{}' prohibited: target is outside active task '{}' declared scope or test targets.",
+                    target_str, ctx.active_task_id
+                ),
+                reason_code: 4037,
             }
         }
         ToolActionType::ExecuteCommand => {
@@ -244,8 +503,138 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
             }
 
             let cmd = req.target_resource.trim();
+            if cmd.is_empty() {
+                return PolicyDecision {
+                    verdict: DecisionVerdict::Deny,
+                    reason: "Empty command execution is prohibited.".into(),
+                    reason_code: 4039,
+                };
+            }
 
-            // Explicitly block dangerous destructive commands
+            // Structured tokenization into command segments
+            let segments = match tokenize_command_line(cmd) {
+                Ok(segs) => segs,
+                Err(TokenizerError::UnclosedQuote) => {
+                    return PolicyDecision {
+                        verdict: DecisionVerdict::Deny,
+                        reason: "Unclosed quotes in command execution (fail-closed).".into(),
+                        reason_code: 4039,
+                    };
+                }
+            };
+
+            if segments.is_empty() {
+                return PolicyDecision {
+                    verdict: DecisionVerdict::Deny,
+                    reason: "No valid command tokens found (fail-closed).".into(),
+                    reason_code: 4039,
+                };
+            }
+
+            let has_chaining = segments.len() > 1
+                || cmd.contains("&&")
+                || cmd.contains(';')
+                || cmd.contains("||")
+                || cmd.contains('|');
+
+            // Evaluate every command segment in the chain/pipeline
+            for seg in &segments {
+                if seg.is_empty() {
+                    continue;
+                }
+
+                let norm_exe = normalize_executable(&seg[0]);
+
+                // 1. Prohibit wrappers (env, sudo, eval, xargs, etc.)
+                if is_forbidden_wrapper(&norm_exe) {
+                    return PolicyDecision {
+                        verdict: DecisionVerdict::Deny,
+                        reason: format!(
+                            "Execution wrapper '{}' is strictly prohibited (fail-closed).",
+                            norm_exe
+                        ),
+                        reason_code: 4039,
+                    };
+                }
+
+                // 2. Prohibit shell execution wrappers and shell invocations
+                if is_shell_executable(&norm_exe) {
+                    return PolicyDecision {
+                        verdict: DecisionVerdict::Deny,
+                        reason: format!(
+                            "Shell execution wrapper '{}' is strictly prohibited (fail-closed).",
+                            norm_exe
+                        ),
+                        reason_code: 4039,
+                    };
+                }
+
+                // 3. Prohibit destructive git commands with robust subcommand resolution
+                if norm_exe == "git" {
+                    if let Some((subcmd, sub_args)) = resolve_git_subcommand(&seg[1..]) {
+                        if subcmd == "push" {
+                            return PolicyDecision {
+                                verdict: DecisionVerdict::Deny,
+                                reason: "Remote publication actions ('git push') are strictly prohibited.".into(),
+                                reason_code: 4039,
+                            };
+                        }
+                        if subcmd == "reset"
+                            && sub_args.iter().any(|a| a == "--hard" || a == "--merge")
+                        {
+                            return PolicyDecision {
+                                verdict: DecisionVerdict::Deny,
+                                reason: "Destructive git reset operations ('--hard') are strictly prohibited.".into(),
+                                reason_code: 4039,
+                            };
+                        }
+                        if subcmd == "clean"
+                            && sub_args.iter().any(|a| {
+                                a == "-f"
+                                    || a == "-fd"
+                                    || a == "-fx"
+                                    || a == "-df"
+                                    || a == "-xf"
+                                    || a == "--force"
+                            })
+                        {
+                            return PolicyDecision {
+                                verdict: DecisionVerdict::Deny,
+                                reason: "Destructive git clean operations ('-f' / '--force') are strictly prohibited.".into(),
+                                reason_code: 4039,
+                            };
+                        }
+                        if subcmd == "branch"
+                            && sub_args.iter().any(|a| a == "-D" || a == "--force")
+                        {
+                            return PolicyDecision {
+                                verdict: DecisionVerdict::Deny,
+                                reason: "Destructive git branch deletions ('-D') are strictly prohibited.".into(),
+                                reason_code: 4039,
+                            };
+                        }
+                    }
+                }
+
+                // 4. Prohibit destructive rm commands
+                if norm_exe == "rm" {
+                    let has_rf = seg.iter().any(|a| {
+                        a == "-rf" || a == "-fr" || a == "-r" || a == "-f" || a == "--force"
+                    });
+                    let targets_root_or_home = seg
+                        .iter()
+                        .any(|a| a == "/" || a == "/*" || a == "~" || a == "~/*" || a == "$HOME");
+                    if has_rf && targets_root_or_home {
+                        return PolicyDecision {
+                            verdict: DecisionVerdict::Deny,
+                            reason: "Destructive rm operations on root or home directory are strictly prohibited.".into(),
+                            reason_code: 4039,
+                        };
+                    }
+                }
+            }
+
+            // Explicitly block destructive literal patterns as defense-in-depth
             let dangerous_patterns = [
                 "git push",
                 "git reset --hard",
@@ -270,9 +659,7 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
                 }
             }
 
-            // Command chaining with &&, ;, ||, | is prohibited from inheriting safe prefix allowances
-            let has_chaining =
-                cmd.contains("&&") || cmd.contains(';') || cmd.contains("||") || cmd.contains('|');
+            // Command chaining with unsafe primitives
             if has_chaining
                 && (cmd.contains("curl ")
                     || cmd.contains("wget ")
@@ -289,6 +676,16 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
                 };
             }
 
+            // Safe verification and inspection commands (only when not chained)
+            if !has_chaining && segments.len() == 1 && is_safe_command_segment(&segments[0]) {
+                return PolicyDecision {
+                    verdict: DecisionVerdict::Allow,
+                    reason: "Read-only or verification command is permitted.".into(),
+                    reason_code: 2004,
+                };
+            }
+
+            // Backward compatibility with safe_prefixes strings
             let safe_prefixes = [
                 "git status",
                 "git diff",
@@ -516,10 +913,64 @@ mod tests {
             has_active_task: true,
             active_task_id: "001-bootstrap".into(),
             read_only: false,
+            allowed_scopes: vec!["crates/**".into()],
             ..Default::default()
         };
         let dec = evaluate(&req, &ctx);
         assert_eq!(dec.verdict, DecisionVerdict::Allow);
+        assert_eq!(dec.reason_code, 2002);
+    }
+
+    #[test]
+    fn test_empty_task_scope_fails_closed() {
+        let req = CapabilityRequest {
+            action_type: ToolActionType::WriteFile,
+            raw_tool_name: "write_to_file".into(),
+            target_resource: "crates/xgauntlet-core/src/lib.rs".into(),
+            payload_json: "{}".into(),
+        };
+        let ctx = EnforcementContext {
+            workspace_id: "ws-1".into(),
+            has_active_task: true,
+            active_task_id: "001-bootstrap".into(),
+            read_only: false,
+            allowed_scopes: vec![],
+            allowed_test_targets: vec![],
+        };
+        let dec = evaluate(&req, &ctx);
+        assert_eq!(dec.verdict, DecisionVerdict::Deny);
+        assert_eq!(dec.reason_code, 4037);
+    }
+
+    #[test]
+    fn test_test_scope_isolation_blocks_source_code() {
+        let req = CapabilityRequest {
+            action_type: ToolActionType::WriteFile,
+            raw_tool_name: "write_to_file".into(),
+            target_resource: "crates/xgauntlet-core/src/lib.rs".into(),
+            payload_json: "{}".into(),
+        };
+        let ctx = EnforcementContext {
+            workspace_id: "ws-1".into(),
+            has_active_task: true,
+            active_task_id: "001-bootstrap".into(),
+            read_only: false,
+            allowed_scopes: vec![],
+            allowed_test_targets: vec!["crates/**".into()],
+        };
+        let dec = evaluate(&req, &ctx);
+        assert_eq!(dec.verdict, DecisionVerdict::Deny);
+        assert_eq!(dec.reason_code, 4037);
+
+        let test_req = CapabilityRequest {
+            action_type: ToolActionType::WriteFile,
+            raw_tool_name: "write_to_file".into(),
+            target_resource: "crates/xgauntlet-core/tests/policy_engine_test.rs".into(),
+            payload_json: "{}".into(),
+        };
+        let test_dec = evaluate(&test_req, &ctx);
+        assert_eq!(test_dec.verdict, DecisionVerdict::Allow);
+        assert_eq!(test_dec.reason_code, 2002);
     }
 
     #[test]
@@ -540,6 +991,45 @@ mod tests {
         let dec = evaluate(&req, &ctx);
         assert_eq!(dec.verdict, DecisionVerdict::Deny);
         assert_eq!(dec.reason_code, 4039);
+    }
+
+    #[test]
+    fn test_destructive_command_evasions_denied() {
+        let evasions = [
+            "git   push",
+            "git --no-pager push origin main",
+            "git -C repo push",
+            "git -c foo=bar push",
+            "env git push",
+            "sudo git push",
+            "eval \"git push\"",
+            "bash -c \"git push\"",
+            "sh -c \"git push\"",
+            "xargs git push",
+        ];
+        let ctx = EnforcementContext {
+            workspace_id: "ws-1".into(),
+            has_active_task: true,
+            active_task_id: "001".into(),
+            read_only: false,
+            ..Default::default()
+        };
+        for cmd in evasions {
+            let req = CapabilityRequest {
+                action_type: ToolActionType::ExecuteCommand,
+                raw_tool_name: "run_command".into(),
+                target_resource: cmd.into(),
+                payload_json: "{}".into(),
+            };
+            let dec = evaluate(&req, &ctx);
+            assert_eq!(
+                dec.verdict,
+                DecisionVerdict::Deny,
+                "Command '{}' must be denied",
+                cmd
+            );
+            assert_eq!(dec.reason_code, 4039);
+        }
     }
 
     #[test]
