@@ -108,15 +108,45 @@ jobs:
         run: ${{ matrix.archive_cmd }}
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ matrix.artifact_name }}
           path: ${{ matrix.artifact_name }}
           retention-days: 2
 
+  attest-binaries:
+    name: Attest Multi-Subject Release Archives
+    needs: [gate-check-release, build-binaries]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+      contents: read
+
+    steps:
+      - name: Download all binary artifacts
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          path: dist-binaries
+          merge-multiple: true
+
+      - name: Attest Multi-Subject Archives via Sigstore
+        id: attest
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: 'dist-binaries/*'
+
+      - name: Upload Attestation Bundle Artifact
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: attestation.bundle
+          path: ${{ steps.attest.outputs.bundle-path }}
+          retention-days: 2
+
   create-github-release:
     name: Publish GitHub Release & Assets
-    needs: [gate-check-release, build-binaries]
+    needs: [gate-check-release, build-binaries, attest-binaries]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -124,8 +154,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download all binary artifacts
-        uses: actions/download-artifact@v4
+      - name: Download all binary artifacts and attestation
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
         with:
           path: dist-release
           merge-multiple: true

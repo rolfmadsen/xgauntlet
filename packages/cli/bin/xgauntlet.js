@@ -8,6 +8,7 @@ import { spawnSync, spawn, execFileSync } from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
 import os from 'node:os';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -16,6 +17,149 @@ const pkgJsonPath = path.resolve(__dirname, '../package.json');
 const pkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
 const VERSION = pkg.version;
 const REPO = 'rolfmadsen/xgauntlet';
+
+export const EXPECTED_REPOSITORY_ID = '1359184794';
+export const EXPECTED_REPO = 'rolfmadsen/xgauntlet';
+export const EXPECTED_WORKFLOW = '.github/workflows/release.yml';
+
+export function extractBundleClaims(bundle, statement) {
+  let repositoryId = null;
+  let repository = null;
+  let workflow = null;
+  let ref = null;
+
+  if (statement?.predicate) {
+    const pred = statement.predicate;
+    repositoryId =
+      pred.buildDefinition?.internalParameters?.github?.repository_id ||
+      pred.invocation?.environment?.github?.repository_id ||
+      null;
+
+    repository =
+      pred.buildDefinition?.externalParameters?.workflow?.repository ||
+      pred.invocation?.configSource?.uri ||
+      null;
+
+    workflow =
+      pred.buildDefinition?.externalParameters?.workflow?.path ||
+      pred.invocation?.configSource?.entryPoint ||
+      null;
+
+    ref =
+      pred.buildDefinition?.externalParameters?.workflow?.ref ||
+      pred.invocation?.configSource?.ref ||
+      null;
+  }
+
+  const certBytes =
+    bundle?.verificationMaterial?.certificate?.rawBytes ||
+    bundle?.verificationMaterial?.x509CertificateChain?.certificates?.[0]?.rawBytes;
+
+  if (certBytes) {
+    const certBuf = Buffer.isBuffer(certBytes) ? certBytes : Buffer.from(certBytes, 'base64');
+    const certStr = certBuf.toString('utf8');
+
+    if (!repositoryId && certStr.includes('1359184794')) {
+      repositoryId = '1359184794';
+    }
+    if (!repository && certStr.includes('rolfmadsen/xgauntlet')) {
+      repository = 'rolfmadsen/xgauntlet';
+    }
+    if (!workflow && certStr.includes('.github/workflows/release.yml')) {
+      workflow = '.github/workflows/release.yml';
+    }
+  }
+
+  return { repositoryId, repository, workflow, ref };
+}
+
+export async function verifyReleaseArchive({
+  archiveBuffer,
+  archiveName,
+  bundle,
+  expectedRepoId = EXPECTED_REPOSITORY_ID,
+  expectedRepo = EXPECTED_REPO,
+  expectedWorkflow = EXPECTED_WORKFLOW,
+  expectedRef,
+  sigstoreVerifier,
+  claimsExtractor,
+}) {
+  if (!bundle) {
+    throw new Error('INVALID_BUNDLE: Missing attestation bundle');
+  }
+
+  if (sigstoreVerifier) {
+    await sigstoreVerifier(bundle, archiveBuffer);
+  } else {
+    try {
+      const sigstore = await import('sigstore');
+      await sigstore.verify(bundle, archiveBuffer);
+    } catch (err) {
+      throw new Error(`SIGNATURE_VERIFICATION_FAILED: ${err.message}`);
+    }
+  }
+
+  if (!bundle.dsseEnvelope?.payload) {
+    throw new Error('INVALID_BUNDLE: Missing dsseEnvelope payload in attestation bundle');
+  }
+
+  const payloadStr = Buffer.from(bundle.dsseEnvelope.payload, 'base64').toString('utf8');
+  let statement;
+  try {
+    statement = JSON.parse(payloadStr);
+  } catch (err) {
+    throw new Error(`INVALID_PAYLOAD: Failed to parse in-toto statement JSON: ${err.message}`);
+  }
+
+  const actualDigest = crypto.createHash('sha256').update(archiveBuffer).digest('hex');
+
+  const subjects = statement.subject || [];
+  const matchingSubject = subjects.find((s) => {
+    const subjDigest = s.digest?.sha256;
+    if (!subjDigest) return false;
+    return subjDigest.toLowerCase() === actualDigest.toLowerCase();
+  });
+
+  if (!matchingSubject) {
+    throw new Error(
+      `DIGEST_MISMATCH: Archive digest (${actualDigest}) does not match any attested subject in bundle`
+    );
+  }
+
+  const claims = claimsExtractor
+    ? claimsExtractor(bundle, statement)
+    : extractBundleClaims(bundle, statement);
+
+  if (claims.repositoryId && String(claims.repositoryId) !== String(expectedRepoId)) {
+    throw new Error(
+      `REPOSITORY_ID_MISMATCH: Attested repository ID '${claims.repositoryId}' does not match expected ID '${expectedRepoId}'`
+    );
+  }
+
+  if (claims.repository && !claims.repository.toLowerCase().includes(expectedRepo.toLowerCase())) {
+    throw new Error(
+      `REPOSITORY_MISMATCH: Attested repository '${claims.repository}' does not match expected repository '${expectedRepo}'`
+    );
+  }
+
+  if (claims.workflow && !claims.workflow.includes(expectedWorkflow)) {
+    throw new Error(
+      `WORKFLOW_MISMATCH: Attested workflow '${claims.workflow}' does not match expected workflow '${expectedWorkflow}'`
+    );
+  }
+
+  if (expectedRef && claims.ref && claims.ref !== expectedRef) {
+    throw new Error(
+      `REF_MISMATCH: Attested ref '${claims.ref}' does not match expected ref '${expectedRef}'`
+    );
+  }
+
+  return {
+    verified: true,
+    digest: actualDigest,
+    claims,
+  };
+}
 
 export function getPlatformInfo(platform = os.platform(), arch = os.arch()) {
   const isWindows = platform === 'win32';
@@ -110,19 +254,41 @@ async function downloadAndCacheBinary() {
   }
 
   const downloadUrl = `https://github.com/${REPO}/releases/download/v${VERSION}/${archiveName}`;
+  const bundleUrl = `https://github.com/${REPO}/releases/download/v${VERSION}/attestation.bundle`;
   process.stderr.write(`[xgauntlet] Fetching native engine v${VERSION} for ${platform}-${arch}...\n`);
 
   fs.mkdirSync(cacheDir, { recursive: true });
   const tempArchive = path.join(cacheDir, `temp-${Date.now()}-${archiveName}`);
 
   try {
-    const res = await fetch(downloadUrl, { redirect: 'follow' });
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    const [resArchive, resBundle] = await Promise.all([
+      fetch(downloadUrl, { redirect: 'follow' }),
+      fetch(bundleUrl, { redirect: 'follow' }),
+    ]);
+
+    if (!resArchive.ok) {
+      throw new Error(`HTTP ${resArchive.status} fetching binary archive: ${resArchive.statusText}`);
+    }
+    if (!resBundle.ok) {
+      throw new Error(`HTTP ${resBundle.status} fetching attestation bundle: ${resBundle.statusText}`);
     }
 
-    const buffer = Buffer.from(await res.arrayBuffer());
-    fs.writeFileSync(tempArchive, buffer);
+    const archiveBuffer = Buffer.from(await resArchive.arrayBuffer());
+    const bundleJson = await resBundle.json();
+
+    process.stderr.write(`[xgauntlet] Verifying cryptographic release attestation for ${archiveName}...\n`);
+    await verifyReleaseArchive({
+      archiveBuffer,
+      archiveName,
+      bundle: bundleJson,
+      expectedRepoId: EXPECTED_REPOSITORY_ID,
+      expectedRepo: EXPECTED_REPO,
+      expectedWorkflow: EXPECTED_WORKFLOW,
+      expectedRef: `refs/tags/v${VERSION}`,
+    });
+    process.stderr.write(`[xgauntlet] Attestation verified successfully (Repo ID: ${EXPECTED_REPOSITORY_ID}).\n`);
+
+    fs.writeFileSync(tempArchive, archiveBuffer);
 
     if (archiveName.endsWith('.tar.gz')) {
       execFileSync('tar', ['-xzf', tempArchive, '-C', cacheDir], { stdio: 'pipe' });

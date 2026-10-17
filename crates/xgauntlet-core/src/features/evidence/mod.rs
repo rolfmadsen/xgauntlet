@@ -1,5 +1,6 @@
 //! Evidence authority, canonical workspace manifest, and Tier 1 verification report engine.
 
+pub mod attestation;
 pub mod drift;
 pub mod invariant;
 pub mod manifest;
@@ -7,6 +8,9 @@ pub mod models;
 pub mod report;
 pub mod time;
 
+pub use attestation::{
+    decode_base64, verify_attestation_file, AttestationError, AttestationReport, TrustPolicy,
+};
 pub use drift::{verify_workspace_state_match, DriftViolation};
 pub use invariant::{verify_self_mutation, SelfMutationViolation};
 pub use manifest::{

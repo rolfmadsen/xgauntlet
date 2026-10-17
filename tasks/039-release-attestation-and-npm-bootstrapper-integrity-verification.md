@@ -7,6 +7,7 @@ generated: { by: process:xgauntlet-task-init, at: "2026-10-17T11:36:00Z" }
 tags: [attestation, security, sigstore, in-toto, npm, bootstrapper, adr-0005]
 scope:
   - ".github/workflows/release.yml"
+  - "package-lock.json"
   - "packages/cli/bin/xgauntlet.js"
   - "packages/cli/package.json"
   - "packages/cli/package-lock.json"

@@ -69,6 +69,36 @@ enum Commands {
         #[arg(long)]
         json: bool,
     },
+    /// Cryptographically verify release artifact integrity and Sigstore attestation bundle against trust policy
+    CheckAttestation {
+        /// Path to Sigstore attestation bundle file (e.g. 'attestation.bundle')
+        #[arg(short, long, default_value = "attestation.bundle")]
+        bundle: std::path::PathBuf,
+
+        /// Path to artifact archive or binary to verify
+        #[arg(short, long)]
+        artifact: std::path::PathBuf,
+
+        /// Expected GitHub numeric repository ID
+        #[arg(long, default_value = "1359184794")]
+        expected_repo_id: String,
+
+        /// Expected repository name (owner/repo)
+        #[arg(long, default_value = "rolfmadsen/xgauntlet")]
+        expected_repo: String,
+
+        /// Expected release workflow file path
+        #[arg(long, default_value = ".github/workflows/release.yml")]
+        expected_workflow: String,
+
+        /// Expected git ref/tag
+        #[arg(long)]
+        expected_tag: Option<String>,
+
+        /// Output verification report in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
     /// Execute multi-layer verification gauntlet with timeouts, self-mutation checks, and evidence generation
     Verify {
         /// Path to repository workspace root
@@ -534,6 +564,46 @@ async fn main() -> anyhow::Result<()> {
 
             if !res.passed {
                 std::process::exit(1);
+            }
+        }
+        Some(Commands::CheckAttestation {
+            bundle,
+            artifact,
+            expected_repo_id,
+            expected_repo,
+            expected_workflow,
+            expected_tag,
+            json,
+        }) => {
+            let policy = xgauntlet_core::TrustPolicy {
+                expected_repo_id: expected_repo_id.clone(),
+                expected_repo: expected_repo.clone(),
+                expected_workflow: expected_workflow.clone(),
+                expected_tag: expected_tag.clone(),
+            };
+            match xgauntlet_core::verify_attestation_file(bundle, artifact, &policy) {
+                Ok(report) => {
+                    if *json {
+                        println!("{}", serde_json::to_string_pretty(&report)?);
+                    } else {
+                        render_attestation_report(&report);
+                    }
+                    if report.verdict != xgauntlet_core::VerificationVerdict::Passed {
+                        std::process::exit(1);
+                    }
+                }
+                Err(err) => {
+                    if *json {
+                        let err_obj = serde_json::json!({
+                            "verdict": "ERROR",
+                            "error": err.to_string(),
+                        });
+                        eprintln!("{}", serde_json::to_string_pretty(&err_obj)?);
+                    } else {
+                        eprintln!("\x1b[31mError: {}\x1b[0m", err);
+                    }
+                    std::process::exit(1);
+                }
             }
         }
         Some(Commands::Verify {
@@ -1629,6 +1699,38 @@ fn render_check_evidence_summary(res: &CheckEvidenceOutput) {
         println!(
             "  - Status: Workspace source tree and policies are 100% in sync with verified report."
         );
+    }
+    println!();
+}
+
+fn render_attestation_report(report: &xgauntlet_core::AttestationReport) {
+    println!("\n=== xGauntlet Attestation & Trust Gatekeeper ===\n");
+    let status_badge = if report.verdict == xgauntlet_core::VerificationVerdict::Passed {
+        "\x1b[32m[VERIFIED]\x1b[0m"
+    } else {
+        "\x1b[31m[FAILED / REJECTED]\x1b[0m"
+    };
+
+    println!("Artifact:    {} {}", report.artifact_path, status_badge);
+    println!("SHA-256:     {}", report.artifact_digest);
+    println!("Bundle:      {}", report.bundle_path);
+    if let Some(ref subj) = report.matched_subject {
+        println!("Subject:     {}", subj);
+    }
+    println!("Trust State: {:?}", report.trust_decision);
+
+    if !report.claims.is_empty() {
+        println!("Claims:");
+        for (k, v) in &report.claims {
+            println!("  - {}: {}", k, v);
+        }
+    }
+
+    if !report.reasons.is_empty() {
+        println!("\nViolations ({}):", report.reasons.len());
+        for r in &report.reasons {
+            println!("  \x1b[31m✖ {}\x1b[0m", r);
+        }
     }
     println!();
 }
