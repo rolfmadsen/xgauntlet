@@ -1,9 +1,9 @@
 ---
 type: Task Package
 title: "Task 036: Release Gatekeeper Fail-Closed Hardening and Evidence Integrity"
-description: "Fail-closed hærdning af check-release gater, to-trins genbrugeligt CI release-workflow, transaktionel WASM bump, fail_on_output til Go-format, genopretning af standardprofiler, bootstrapper exit-kode, CLI-alias og dokumentationsoprydning"
+description: "Fail-closed hærdning af check-release gater, to-trins genbrugeligt CI release-workflow, transaktionel WASM bump med fuld build, fail_on_output til Go-format, genopretning af standardprofiler, bootstrapper exit-kode, CLI-alias og dokumentationsoprydning"
 status: active
-generated: { by: process:xgauntlet-task-init, at: "2026-10-17T11:30:00Z" }
+generated: { by: process:xgauntlet-task-init, at: "2026-10-17T11:35:00Z" }
 tags: [release, gatekeeper, fail-closed, wasm, evidence, drift, profiles, ci, bootstrapper, adr-0005]
 scope:
   - "crates/xgauntlet-core/src/features/release/**"
@@ -32,7 +32,7 @@ test_refs:
 **Oprettet**: `2026-10-17`  
 
 ## 🎯 Formål
-Eliminere alle "silent passes" og falske positiver i release-gatekeeperen (`check-release`), sikre at obligatoriske kontroller der ikke kan gennemføres altid fejler lukket (exit 1), etablere en reel forudgående release-gate i GitHub Actions via adskilte jobs (`ci` via `workflow_call` og `gate-check-release`), fastlægge rapportens livscyklus så release-gaten validerer det committede evidensdokument mod den aktuelle checkout, gøre versions- og WASM-opdatering transaktionel med atomisk staging og automatisk rollback ved fejl, implementere platformsuafhængig `fail_on_output` til `gofmt`, rulle breaking stack-profiler tilbage til sikre defaults, sikre ikke-nul exit-kode i bootstrapperen ved manglende engine, tilføje `--task-id` som officielt CLI-alias, og rette uoverensstemmelser i CHANGELOG.md.
+Eliminere alle "silent passes" og falske positiver i release-gatekeeperen (`check-release`), sikre at obligatoriske kontroller der ikke kan gennemføres altid fejler lukket (exit 1), etablere en reel forudgående release-gate i GitHub Actions via adskilte jobs (`ci` via `workflow_call` og `gate-check-release`), fastlægge rapportens livscyklus så release-gaten validerer det committede evidensdokument mod den aktuelle checkout, gøre versions- og WASM-opdatering transaktionel med fuld WASM-build og automatisk rollback ved fejl, implementere platformsuafhængig `fail_on_output` til `gofmt`, rulle breaking stack-profiler tilbage til sikre defaults, sikre ikke-nul exit-kode i bootstrapperen ved manglende engine, tilføje `--task-id` som officielt CLI-alias, og rette uoverensstemmelser i CHANGELOG.md.
 
 ## 📋 Acceptance Criteria
 - [ ] **AC1 (Fail-Closed Format Gate i check-release)**: `check-release` evaluerer formatering via gauntlettens layer-runner med gældende `timeout_seconds` for alle konfigurerede, obligatoriske formatlag (herunder xGauntlets egen `optional = false` konfiguration). Manglende format-binary, spawn-fejl eller formateringsfejl registreres som blokerende `ReleaseFinding` og giver exit 1.
@@ -44,10 +44,11 @@ Eliminere alle "silent passes" og falske positiver i release-gatekeeperen (`chec
   - Digest-inputs er eksplicit definerede og udelukker deterministisk `verification-report.json`, `evidence.md`, `evidence.json` og `attestation.bundle` fra manifestberegningen for at forhindre cirkulær drift.
   - `xgauntlet check-release --strict` kontrollerer, at rapporten findes, at dens JSON-skema er gyldigt, at dens registrerede digests (source, policy, config og task) matcher den aktuelle checkout med 0 drift, og at dens overordnede verdict er godkendt (`PASSED`, eller `PARTIAL` hvor alle obligatoriske lag har bestået med exit 0 og udelukkende tilladte optionelle kontroller mangler).
   - En manglende, forældet eller drifted rapport blokerer release fatalt med exit 1.
-- [ ] **AC6 (Transaktionel WASM & Manifest Bump med Atomisk Staging)**:
-  - `release bump` udfører preflight-validering af WASM-byggekæden (`cargo check -p gauntlet-policy-engine --target wasm32-unknown-unknown`) før nogen filer røres.
-  - Planlagte manifest- og changelog-ændringer beregnes in-memory og stages atomisk. Oprindelige filindhold gemmes som transaktionsbackup, før skrivning påbegyndes.
-  - Fejler WASM-kompileringen eller valideringen af den planlagte tilstand, rulles eventuelle påbegyndte ændringer automatisk tilbage fra backup før afslutning, så arbejdstræet efterlades 100% uændret uden brug af `git checkout` eller destruktive git-handlinger. Processen afsluttes fatalt med exit 1 og klar diagnostik.
+- [ ] **AC6 (Transaktionel WASM & Manifest Bump med Fuld Build og Atomisk Staging)**:
+  - `release bump` udfører to-trins validering:
+    1. Preflight: validerer at Rust-toolchain og `wasm32-unknown-unknown` target er installeret og tilgængeligt før nogen filer røres.
+    2. Validering af planlagt tilstand: manifests og changelog stages in-memory med transaktionsbackup af originalerne, hvorefter den fulde, dokumenterede WASM-buildprocedure eksekveres (`cargo build -p gauntlet-policy-engine --target wasm32-unknown-unknown --release`), og den genererede `gauntlet_policy.wasm` synkroniseres.
+  - Fejler den fulde WASM-kompilering eller valideringen af den planlagte tilstand på noget tidspunkt, rulles samtlige ændringer automatisk tilbage fra backup før afslutning, så arbejdstræet efterlades 100% uændret uden brug af `git checkout` eller destruktive git-handlinger. Processen afsluttes fatalt med exit 1 og klar diagnostik.
   - `serde_json` konfigureres med `preserve_order` og regressionstest for nøglerækkefølge i `package.json`.
 - [ ] **AC7 (Gated Release Workflow med Adskilte CI- og Gate-jobs)**:
   - `.github/workflows/ci.yml` udvides med `workflow_call:` trigger.
@@ -79,7 +80,7 @@ Eliminere alle "silent passes" og falske positiver i release-gatekeeperen (`chec
 - **ADR 0009**: Eventuel fremtidig obligatorisk hærdning af standardprofiler håndteres i en særskilt ADR-proces med overgangsordning.
 
 ## 📝 Revisions
-- 2026-10-17: Oprettet opgavepakke til v0.8.3 patch efter to-akset review, re-review og iterative præciseringer af GitHub Actions workflow-DAG, transaktionel recovery, evidens-livscyklus, WASM-verifikation i gate og profil-afgrænsning.
+- 2026-10-17: Oprettet opgavepakke til v0.8.3 patch efter to-akset review, re-review og iterative præciseringer af GitHub Actions workflow-DAG, transaktionel recovery med fuld WASM build, evidens-livscyklus, WASM-verifikation i gate og profil-afgrænsning.
 
 ## 🧪 Verifikation
 - `cargo test -p xgauntlet-core --test release_engine_test`
