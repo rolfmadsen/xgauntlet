@@ -6,7 +6,7 @@
   "task_contract": {
     "task_id": "039-release-attestation-and-npm-bootstrapper-integrity-verification",
     "task_title": "Task 039: Native Release Attestation and Bootstrapper Integrity Verification",
-    "task_digest": "94dd022a4d577b62bbbe21825563de1b65d9a26802cbee839e54534f271f018f",
+    "task_digest": "e229c031314112932aa291004e0897bb65f1ddbb6328d0ecd91edc6e4de7e95d",
     "acceptance_criteria": [
       "**AC1 (CI Multi-Subject Archive Attestation & Workflow Artifact Transfer)**:",
       "**AC2 (Officiel `sigstore` Verifikator & Forud Forankret Repository-ID i Bootstrapper)**:",
@@ -18,30 +18,30 @@
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "082085bb5cb1fe97d1ea69f3d8a0a7c1a77fd2fdebf830390aeeb578a46408d7",
-    "source_manifest_digest_pre": "de9af42c21bb0713edbdab5d256fe20b9be8eabfea5a07293f15fa65b5df0054",
-    "source_manifest_digest_post": "de9af42c21bb0713edbdab5d256fe20b9be8eabfea5a07293f15fa65b5df0054",
-    "config_digest": "b579acef8373897d9f15091dcdce0c301b3a59a29f173b29f022201ffcac8056",
-    "task_digest": "94dd022a4d577b62bbbe21825563de1b65d9a26802cbee839e54534f271f018f",
+    "source_content_digest": "5f5eb715a8727f6a7a7ddbacb83559893b4539e4f6aff1ee152c4fecc42577f7",
+    "source_manifest_digest_pre": "3431eb2bdbe7d865996992ea6e3447013ce85ded28e44b65e9c9cfd53238d17a",
+    "source_manifest_digest_post": "3431eb2bdbe7d865996992ea6e3447013ce85ded28e44b65e9c9cfd53238d17a",
+    "config_digest": "df6e8853057574d3923059580ce332a3e6cc2d0d45309f0197c0db5b122fc442",
+    "task_digest": "e229c031314112932aa291004e0897bb65f1ddbb6328d0ecd91edc6e4de7e95d",
     "policy_digest": "60d587d499ea90ed8c913547f64bfddf9d0912e6ab9ac8d70719ef97a201b1cb",
     "check_definitions_digest": "138fd39199ca1ff02f1546e8f3128c38c38d368226e0aa141bacdcdbfe12d76b",
     "included_files_count": 194,
     "vcs": {
       "type": "git",
-      "head": "0094ce1",
-      "commit": "0094ce1",
+      "head": "0a62776",
+      "commit": "0a62776",
       "is_dirty": false
     }
   },
   "execution_metadata": {
-    "started_at": "2026-10-17T14:28:04Z",
-    "finished_at": "2026-10-17T14:28:25Z",
-    "total_duration_seconds": 21.844512221,
+    "started_at": "2026-10-17T14:41:24Z",
+    "finished_at": "2026-10-17T14:41:50Z",
+    "total_duration_seconds": 26.023352205,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
       "platform": "linux",
-      "version": "0.8.2"
+      "version": "0.8.3"
     }
   },
   "checks": [
@@ -49,16 +49,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.07270275,
+      "duration_seconds": 0.062986929,
       "optional": false,
       "passed": true,
-      "log_digest": "1a3be16441b20ad768330311d2a9e471dcb74154a304e1797fc4e3b72aa68fca"
+      "log_digest": "d05df0b53827ae540fd3133ff4034abe5d209d0ffe833595a70aa456b137ea6e"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.194104631,
+      "duration_seconds": 0.168862884,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -67,52 +67,52 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.103718923,
+      "duration_seconds": 2.162239038,
       "optional": false,
       "passed": true,
-      "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
+      "log_digest": "18f49f413960f37aae07b5682c278bcc60b8472b962345625c1d2464535e24de"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.454501185,
+      "duration_seconds": 0.0973309,
       "optional": false,
       "passed": true,
-      "log_digest": "2d3682afc37c1326725db05feeb5ea692c21ccde11c55cf3d76f39615a2dd2a2"
+      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 18.962232359,
+      "duration_seconds": 22.496785004,
       "optional": false,
       "passed": true,
-      "log_digest": "4336619fe0b86557a27317db32de9d8e27e7af0b401c7dce61e1ecca39130213"
+      "log_digest": "dd24f233fc39e902ba1a1a7a3e5d86eaf264230adf95e9af4886e5aeae5c5586"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.778122755,
+      "duration_seconds": 0.763690164,
       "optional": false,
       "passed": true,
-      "log_digest": "be28d7432cce3458d8ba64b42d5647790864d5467f66f90695b9e3d31a3b339a"
+      "log_digest": "08b43075197e9d300c5f02fbb3dc4401f083d6e4990686d7fa3711ecd58cc09c"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.06396438,
+      "duration_seconds": 0.057377917,
       "optional": false,
       "passed": true,
-      "log_digest": "c9a9d71b6d6de54c99dc6ff6ff461b93b45c4340b47c8e3e76e85d7392109d18"
+      "log_digest": "7d184fd5d971b758c7402ea8e4bcc75c7d2f7e37c39855bc52b739778d2d8444"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.014997077,
+      "duration_seconds": 0.012909697,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"

@@ -4,10 +4,10 @@
 **Task Title**: Task 039: Native Release Attestation and Bootstrapper Integrity Verification  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `de9af42c21bb0713edbdab5d256fe20b9be8eabfea5a07293f15fa65b5df0054`  
-**Timestamp**: `2026-10-17T14:28:25Z`  
-**Head**: `0094ce1`  
-**Commit**: `0094ce1`  
+**Source Manifest Digest**: `3431eb2bdbe7d865996992ea6e3447013ce85ded28e44b65e9c9cfd53238d17a`  
+**Timestamp**: `2026-10-17T14:41:50Z`  
+**Head**: `0a62776`  
+**Commit**: `0a62776`  
 
 ## Acceptance Criteria
 
@@ -23,13 +23,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.073s` |
-| `format` | `PASSED` | `0` | `0.194s` |
-| `lint` | `PASSED` | `0` | `0.104s` |
-| `types` | `PASSED` | `0` | `1.455s` |
-| `unit` | `PASSED` | `0` | `18.962s` |
-| `npm` | `PASSED` | `0` | `0.778s` |
-| `invariants` | `PASSED` | `0` | `0.064s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.015s` |
+| `architecture` | `PASSED` | `0` | `0.063s` |
+| `format` | `PASSED` | `0` | `0.169s` |
+| `lint` | `PASSED` | `0` | `2.162s` |
+| `types` | `PASSED` | `0` | `0.097s` |
+| `unit` | `PASSED` | `0` | `22.497s` |
+| `npm` | `PASSED` | `0` | `0.764s` |
+| `invariants` | `PASSED` | `0` | `0.057s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.013s` |
 
 ---
