@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.5] - 2026-10-18
+
+### 🚀 Added & Hardened
+- **Workspace Agnosticism & Generic Root Manifest Scanning (`Task 041`, `crates/xgauntlet-core`)**:
+  - Generaliseret `compute_workspace_manifest` så den, når `scopes` er `None`, scanner samtlige filer i workspace-roden rekursivt (udelukker git og build-artefakter) i stedet for at være bundet til hårdkodede xGauntlet-specifikke stier (`DEFAULT_SCOPES`). Gør det muligt for eksterne projekter (som fx Kant) at anvende xGauntlets manifest-, evidens- og driftkontrol.
+- **Fail-Closed Git Checkpoint Scoping (`Task 041`, `crates/xgauntlet-core`)**:
+  - Tilføjet `validate_staged_files_scope` i `CheckpointEngine::run_checkpoint` der håndhæver, at stagede filer matcher opgavens erklærede scopes (`allowed_scopes`), og fail-closer med `CheckpointError::ScopeViolation` for at forhindre utilsigtede stagede filer i lokale commits.
+- **Harness Adapter PreToolUse Parity (`Task 041`, `crates/xgauntlet-core`)**:
+  - Udvidet `merge_lifecycle_hook` for `ClaudeCodeAdapter` og `CodexAdapter` til også at konfigurere `PreToolUse` gatekeeper-hooks parallelt med `PostToolUse` telemetri, hvilket giver ensartet gatekeeper-beskyttelse på tværs af alle 4 understøttede harnesses (Antigravity, Claude Code, Codex, Mistral Vibe).
+- **Sovereign Review Skill Definition of Enough (`Task 041`, `.agents/plugins/xgauntlet/skills/review/SKILL.md`)**:
+  - Indført explicit trusselsmodel (hjælpsom, stokastisk AI-assistent vs. ekstern angriber), faste alvorsgrad-tærskler (kun reelle nedbrud og kontraktbrud) og obligatorisk `STATUS: SHIP IT` konklusion for at forhindre endeløs LLM fejlfinder-bias.
+
 ## [0.8.4] - 2026-10-17
 
 ### 🐛 Fixed & Hardened
