@@ -48,11 +48,31 @@ xGauntlet følger samme enkle model som `git`: Værktøjet installeres én gang 
 
 ### 1. Installer xGauntlet (én gang på din maskine)
 
-Kør én enkelt kommando for at installere værktøjet globalt på tværs af alle programmeringssprog og platforme:
+Kør følgende tre trin for at installere CLI-motoren globalt, hente den verificerede native engine og aktivere de 6 suveræne agent-skills:
 
 ```bash
+# Trin 1a: Installer CLI-motoren og gatekeeperen globalt i dit system ($PATH):
 npm install -g xgauntlet
+
+# Trin 1b: Fetch og verificer native engine via Sigstore i ~/.cache/xgauntlet/
+xgauntlet status
+
+# Trin 1c: Installer de 6 suveræne agent-skills i dine AI-harnesses (Antigravity, Claude Code, Codex, Mistral):
+xgauntlet plugin install --global
 ```
+
+> [!NOTE]
+> **⚡ Hvordan fungerer den automatiske bootstrapper & cache?**  
+> NPM-pakken indeholder en lynhurtig JavaScript-bootstrapper. Første gang du kører en `xgauntlet`-kommando (f.eks. `xgauntlet status` eller `xgauntlet init`), downloader den automatisk den prækompilerede native Rust-binærfil til din platform fra GitHub Releases, verificerer dens kryptografiske Sigstore-attestation og cacher den i:
+> - **Linux / macOS**: `~/.cache/xgauntlet/v<version>/xgauntlet`
+> - **Windows**: `%LOCALAPPDATA%\xgauntlet\v<version>\xgauntlet.exe`  
+>
+> *(Hvis du arbejder inde i xGauntlets eget kildekode-repository, bruger bootstrapperen automatisk din lokale `target/debug/xgauntlet` direkte).*
+
+> [!NOTE]
+> **🤖 Hvorfor kræves `xgauntlet plugin install --global`?**  
+> `npm install -g` placerer udelukkende CLI-binæren i dit systems `$PATH`. Hvert AI-agentmiljø (Google Antigravity IDE, Claude Code, OpenAI Codex, Mistral Vibe) har sin egen konfigurationsmappe til skills (f.eks. `~/.gemini/config/plugins/xgauntlet/skills/` eller `~/.claude/skills/`).  
+> `xgauntlet plugin install --global` detekterer automatisk dine installerede agent-harnesses og udpakker de 6 suveræne skills (`discover`, `spec`, `tdd`, `review`, `diagnose`, `release`) som ægte, redigerbare Markdown-filer direkte i agenternes globale mapper.
 
 > [!TIP]
 > **⚡ Hvorfor global installation frem for blot `npx`?**  

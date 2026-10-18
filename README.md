@@ -48,7 +48,7 @@ xGauntlet følger samme enkle model som `git`: Værktøjet installeres én gang 
 
 ### 1. Installer xGauntlet (én gang på din maskine)
 
-Kør følgende to trin for at installere CLI-motoren globalt og aktivere de 6 suveræne agent-skills i dine AI-agenter:
+Kør følgende tre trin for at installere CLI-motoren globalt, hente den verificerede native engine og aktivere de 6 suveræne agent-skills:
 
 ```bash
 # Trin 1a: Installer CLI-motoren og gatekeeperen globalt i dit system ($PATH):
@@ -60,6 +60,14 @@ xgauntlet status
 # Trin 1c: Installer de 6 suveræne agent-skills i dine AI-harnesses (Antigravity, Claude Code, Codex, Mistral):
 xgauntlet plugin install --global
 ```
+
+> [!NOTE]
+> **⚡ Hvordan fungerer den automatiske bootstrapper & cache?**  
+> NPM-pakken indeholder en lynhurtig JavaScript-bootstrapper. Første gang du kører en `xgauntlet`-kommando (f.eks. `xgauntlet status` eller `xgauntlet init`), downloader den automatisk den prækompilerede native Rust-binærfil til din platform fra GitHub Releases, verificerer dens kryptografiske Sigstore-attestation og cacher den i:
+> - **Linux / macOS**: `~/.cache/xgauntlet/v<version>/xgauntlet`
+> - **Windows**: `%LOCALAPPDATA%\xgauntlet\v<version>\xgauntlet.exe`  
+>
+> *(Hvis du arbejder inde i xGauntlets eget kildekode-repository, bruger bootstrapperen automatisk din lokale `target/debug/xgauntlet` direkte).*
 
 > [!NOTE]
 > **🤖 Hvorfor kræves `xgauntlet plugin install --global`?**  
