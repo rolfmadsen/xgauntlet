@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 041: Workspace Agnosticism & Production Readiness Triage"
 description: "Sikre universel workspace-understøttelse i manifest-scanneren, fail-closed git checkpoint scoping, Claude Code og Codex gatekeeper-paritet samt integration af Definition of Enough i sovereign review skill"
-status: active
+status: done
 generated: { by: process:antigravity-task-init, at: "2026-10-18T14:42:00Z" }
 tags: [manifest, checkpoint, scoping, claude_code, codex, adapters, review, skills, production-readiness]
 scope:
@@ -17,7 +17,7 @@ test_refs:
 
 # Task 041: Workspace Agnosticism & Production Readiness Triage
 
-**Status**: `ACTIVE`  
+**Status**: `DONE`  
 **Intent**: `🚀 NEW FEATURE`  
 **Oprettet**: `2026-10-18`  
 
@@ -33,11 +33,11 @@ Etablere de nødvendige pragmatiske forudsætninger for at xGauntlet kan afvikle
 ---
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Generisk Workspace Manifest-Scanning)**: `compute_workspace_manifest` scanner automatisk hele workspace-roden rekursivt for filer og mapper (respekterer `EXCLUDED_DIRS` og `EXCLUDED_FILES`), således at ikke-standard mapper som `apps/` eller `libs/` altid registreres i manifestets `items` og `files`.
-- [ ] **AC2 (Fail-Closed Checkpoint Scoping)**: `run_checkpoint` validerer `staged_files` fra `git diff --cached --name-only` mod den aktive opgaves `scope`. Hvis filer uden for det tilladte scope er blevet staget, afvises checkpointet øjeblikkeligt med `CheckpointError::ScopeViolation` (eller tilsvarende fail-closed fejl) og ingen commit udføres.
-- [ ] **AC3 (Scaffolding Gatekeeper Paritet)**: `ClaudeCodeAdapter::generate_settings_json` og `CodexAdapter::generate_hooks_json` genererer konfigurationer med både `PreToolUse` (`xgauntlet hook claude_code` / `xgauntlet hook codex`) og `PostToolUse` (`xgauntlet telemetry --format ...`).
-- [ ] **AC4 (Sovereign Review Skill Hardening)**: `.agents/plugins/xgauntlet/skills/review/SKILL.md` indeholder en dedikeret sektion med "Definition of Enough", trusselsmodel (stokastisk AI-assistent vs. ondsindet hacker), afvisningskriterier for teoretiske edge-cases og instruks om lukket verifikation med `STATUS: SHIP IT`.
-- [ ] **AC5 (Repo Rengøring & Paritet)**: `docs/rust_iced/iced — A Cross-Platform GUI Library for Rust.pdf` er fjernet fra repoet, og versionsangivelser i `.agents/plugins/xgauntlet/plugin.json` og `policy.json` er opdateret.
+- [x] **AC1 (Generisk Workspace Manifest-Scanning)**: `compute_workspace_manifest` scanner automatisk hele workspace-roden rekursivt for filer og mapper (respekterer `EXCLUDED_DIRS` og `EXCLUDED_FILES`), således at ikke-standard mapper som `apps/` eller `libs/` altid registreres i manifestets `items` og `files`.
+- [x] **AC2 (Fail-Closed Checkpoint Scoping)**: `run_checkpoint` validerer `staged_files` fra `git diff --cached --name-only` mod den aktive opgaves `scope`. Hvis filer uden for det tilladte scope er blevet staget, afvises checkpointet øjeblikkeligt med `CheckpointError::ScopeViolation` (eller tilsvarende fail-closed fejl) og ingen commit udføres.
+- [x] **AC3 (Scaffolding Gatekeeper Paritet)**: `ClaudeCodeAdapter::generate_settings_json` og `CodexAdapter::generate_hooks_json` genererer konfigurationer med både `PreToolUse` (`xgauntlet hook claude_code` / `xgauntlet hook codex`) og `PostToolUse` (`xgauntlet telemetry --format ...`).
+- [x] **AC4 (Sovereign Review Skill Hardening)**: `.agents/plugins/xgauntlet/skills/review/SKILL.md` indeholder en dedikeret sektion med "Definition of Enough", trusselsmodel (stokastisk AI-assistent vs. ondsindet hacker), afvisningskriterier for teoretiske edge-cases og instruks om lukket verifikation med `STATUS: SHIP IT`.
+- [x] **AC5 (Repo Rengøring & Paritet)**: `docs/rust_iced/iced — A Cross-Platform GUI Library for Rust.pdf` er fjernet fra repoet, og versionsangivelser i `.agents/plugins/xgauntlet/plugin.json` og `policy.json` er opdateret.
 
 ---
 
