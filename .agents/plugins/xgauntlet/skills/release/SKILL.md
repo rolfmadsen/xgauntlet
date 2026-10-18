@@ -14,14 +14,15 @@ Sikrer, at opgaven eller versionen er 100% klar til udgivelse eller integration,
 ## 🏁 Trin i Release-Processen
 
 ### 1. Release Readiness Audit
-Kør xGauntlets indbyggede release-tjek:
+Kør xGauntlets indbyggede release-tjek med strict gatekeeper:
 ```bash
-xgauntlet check-release
+xgauntlet check-release --strict
 ```
 Validerer:
 - **CHANGELOG.md:** Er de udførte ændringer dokumenteret under den korrekte sektion jf. Keep a Changelog standarden?
 - **ADR Reference Dækning:** Er samtlige ADRs i `docs/adr/` refereret i `README.md` eller `spec.md`?
 - **Manifest Integritet:** Stemmer `Cargo.toml` / `package.json` versioner overens på tværs af biblioteker?
+- **Drift- og Evidensvalidering:** Sikrer rent worktree og 0 drift mod committed `verification-report.json`.
 
 ### 2. Multi-Layer Gauntlet & Evidensforsegling
 Kør fuld verifikation med evidenslagring:
@@ -79,22 +80,27 @@ Viser:
 #### Niveau B: Eksplicit Release Session (Når en ny version skal frigives)
 KUN når brugeren specifikt anmoder om at udgive en version eller milepæl:
 1. **Deterministisk SemVer Bumping & Manifest Sync:**
-   Kør xGauntlets release manager (evaluerer SemVer 2.0.0, opdaterer manifester og roterer CHANGELOG.md):
+   Kør xGauntlets release manager (evaluerer SemVer 2.0.0, opdaterer manifester, roterer CHANGELOG.md og genkompilerer WASM):
    ```bash
    xgauntlet release bump patch   # for bagudkompatible fixes
    xgauntlet release bump minor   # for additive, bagudkompatible features
    xgauntlet release bump major   # for inkompatible API/kontrakt-brud
    ```
    (Eller med specifik version: `xgauntlet release prepare 1.0.0`)
-2. **Kør Verifikation af Release-Klarhed:**
+2. **Forsegl Frisk Evidens for den Bumpede Version:**
+   Fordi manifest- og WASM-ændringerne har opdateret workspace-tilstanden, genforsegles evidensrapporten:
    ```bash
-   xgauntlet check-release
+   xgauntlet verify --save
    ```
-3. **Udfør De Autoritative Release Git-Kommandoer:**
+3. **Kør Verifikation af Release-Klarhed med Strict Gatekeeper:**
+   ```bash
+   xgauntlet check-release --strict
+   ```
+4. **Udfør De Autoritative Release Git-Kommandoer:**
    Værktøjet udskriver de præcise kommandoer til brugeren:
    ```bash
-   git add Cargo.toml Cargo.lock CHANGELOG.md
+   git add Cargo.toml Cargo.lock package.json packages/cli/package.json CHANGELOG.md crates/xgauntlet-core/wasm/gauntlet_policy.wasm verification-report.json evidence.md
    git commit -m "chore(release): prepare v<version>"
    git tag -a v<version> -m "Release v<version>"
-   git push origin <branch> --tags
+   git push origin <branch> v<version>
    ```

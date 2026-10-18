@@ -180,9 +180,9 @@ pub fn bump_semver(current: &str, bump: SemverBump) -> Result<String, ReleaseErr
 pub fn generate_release_git_instructions(new_version: &str, branch: &str) -> String {
     let ver = new_version.trim().trim_start_matches(['v', 'V']);
     format!(
-        "git add Cargo.toml Cargo.lock CHANGELOG.md\n\
+        "git add Cargo.toml Cargo.lock package.json packages/cli/package.json CHANGELOG.md crates/xgauntlet-core/wasm/gauntlet_policy.wasm verification-report.json evidence.md\n\
          git commit -m \"chore(release): prepare v{ver}\"\n\
          git tag -a v{ver} -m \"Release v{ver}\"\n\
-         git push origin {branch} --tags"
+         git push origin {branch} v{ver}"
     )
 }

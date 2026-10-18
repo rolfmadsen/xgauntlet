@@ -28,10 +28,10 @@ Eliminere release-friktion og forebygge regressionsfejl under udgivelser af xGau
 ---
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Komplet Staging i Git-Instruktioner)**: `generate_release_git_instructions` inkluderer samtlige release-aktiver i `git add` (`Cargo.toml Cargo.lock package.json packages/cli/package.json CHANGELOG.md crates/xgauntlet-core/wasm/gauntlet_policy.wasm verification-report.json evidence.md`) eller `git add -u`.
-- [ ] **AC2 (Isoleret Tag-Push Instruks)**: `generate_release_git_instructions` udsteder `git push origin <branch> v<version>` i stedet for `--tags`.
-- [ ] **AC3 (Sovereign Skill Strict Audit)**: `.agents/plugins/xgauntlet/skills/release/SKILL.md` instruerer eksplicit i at anvende `xgauntlet check-release --strict` i både release-audit og final verification.
-- [ ] **AC4 (Testparitet)**: Enhedstesten `test_generate_release_git_instructions` i `crates/xgauntlet-core/tests/handoff_and_release_test.rs` opdateres til at verificere den isolerede tag-push og komplette staging.
+- [x] **AC1 (Komplet Staging i Git-Instruktioner)**: `generate_release_git_instructions` inkluderer samtlige release-aktiver i `git add` (`Cargo.toml Cargo.lock package.json packages/cli/package.json CHANGELOG.md crates/xgauntlet-core/wasm/gauntlet_policy.wasm verification-report.json evidence.md`) eller `git add -u`.
+- [x] **AC2 (Isoleret Tag-Push Instruks)**: `generate_release_git_instructions` udsteder `git push origin <branch> v<version>` i stedet for `--tags`.
+- [x] **AC3 (Sovereign Skill Strict Audit)**: `.agents/plugins/xgauntlet/skills/release/SKILL.md` instruerer eksplicit i at anvende `xgauntlet check-release --strict` i både release-audit og final verification.
+- [x] **AC4 (Testparitet)**: Enhedstesten `test_generate_release_git_instructions` i `crates/xgauntlet-core/tests/handoff_and_release_test.rs` opdateres til at verificere den isolerede tag-push og komplette staging.
 
 ---
 
