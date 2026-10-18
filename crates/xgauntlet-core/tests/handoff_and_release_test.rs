@@ -98,10 +98,18 @@ All notable changes to this project will be documented in this file.
 #[test]
 fn test_generate_release_git_instructions() {
     let instructions = generate_release_git_instructions("0.4.0", "main");
-    assert!(instructions.contains("git add Cargo.toml Cargo.lock CHANGELOG.md"));
+    assert!(instructions.contains("Cargo.toml"));
+    assert!(instructions.contains("Cargo.lock"));
+    assert!(instructions.contains("package.json"));
+    assert!(instructions.contains("packages/cli/package.json"));
+    assert!(instructions.contains("CHANGELOG.md"));
+    assert!(instructions.contains("crates/xgauntlet-core/wasm/gauntlet_policy.wasm"));
+    assert!(instructions.contains("verification-report.json"));
+    assert!(instructions.contains("evidence.md"));
     assert!(instructions.contains("git commit -m \"chore(release): prepare v0.4.0\""));
     assert!(instructions.contains("git tag -a v0.4.0 -m \"Release v0.4.0\""));
-    assert!(instructions.contains("git push origin main --tags"));
+    assert!(instructions.contains("git push origin main v0.4.0"));
+    assert!(!instructions.contains("--tags"));
 }
 
 #[test]
