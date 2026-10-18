@@ -409,6 +409,15 @@ fn collect_candidate_files_for_backup(workspace: &std::path::Path) -> Vec<std::p
         files.push(wasm_file);
     }
 
+    let vr = workspace.join("verification-report.json");
+    if vr.is_file() {
+        files.push(vr);
+    }
+    let ev = workspace.join("evidence.md");
+    if ev.is_file() {
+        files.push(ev);
+    }
+
     files
 }
 
@@ -422,8 +431,6 @@ pub fn execute_release_workflow(
     let today = &xgauntlet_core::current_iso_utc()[..10];
     let branch = xgauntlet_core::features::checkpoint::git::get_current_branch(workspace)
         .unwrap_or_else(|_| "main".to_string());
-    let git_instructions =
-        xgauntlet_core::generate_release_git_instructions(target_version, &branch);
 
     let updated_files = if dry_run {
         let mut dry_files = vec![
@@ -549,6 +556,51 @@ pub fn execute_release_workflow(
                 modified.push("crates/xgauntlet-core/wasm/gauntlet_policy.wasm".to_string());
             }
 
+            // 6. Automatic verification and evidence sealing for the bumped release state
+            let has_config = workspace.join("gauntlet.toml").is_file()
+                || workspace.join("gauntlet.json").is_file();
+            if has_config {
+                let verify_options = xgauntlet_core::GauntletOptions {
+                    task_id: xgauntlet_core::resolve_active_task_id(workspace),
+                    save_evidence: true,
+                    layers: None,
+                };
+                let runtime = tokio::runtime::Runtime::new()
+                    .map_err(|e| anyhow::anyhow!("Failed to initialize tokio runtime: {e}"))?;
+                let outcome = runtime.block_on(xgauntlet_core::execute_gauntlet_pipeline(
+                    workspace,
+                    &verify_options,
+                ))?;
+
+                if outcome.report.verdict.eq_ignore_ascii_case("FAILED") {
+                    anyhow::bail!("Gauntlet verification failed during release bump auto-sealing");
+                }
+
+                if workspace.join("verification-report.json").is_file() {
+                    modified.push("verification-report.json".to_string());
+                }
+                if workspace.join("evidence.md").is_file() {
+                    modified.push("evidence.md".to_string());
+                }
+            }
+
+            // 7. Strict release gatekeeper validation
+            let release_options = xgauntlet_core::ReleaseReadinessOptions {
+                workspace: workspace.to_path_buf(),
+                allow_unreleased: false,
+                strict: true,
+            };
+            let report = xgauntlet_core::check_release_readiness(&release_options)?;
+            if !report.is_ready {
+                let errs = report
+                    .diagnostics
+                    .iter()
+                    .map(|d| format!("{}: {}", d.file_path, d.message))
+                    .collect::<Vec<_>>()
+                    .join("; ");
+                anyhow::bail!("Strict release readiness gatekeeper failed: {errs}");
+            }
+
             Ok(modified)
         })();
 
@@ -572,6 +624,16 @@ pub fn execute_release_workflow(
                 return Err(err);
             }
         }
+    };
+
+    let git_instructions = if dry_run {
+        xgauntlet_core::generate_release_git_instructions(target_version, &branch)
+    } else {
+        xgauntlet_core::generate_release_git_instructions_with_files(
+            target_version,
+            &branch,
+            &updated_files,
+        )
     };
 
     if json {

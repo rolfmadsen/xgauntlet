@@ -14,6 +14,7 @@ pub use changelog::{parse_changelog_versions, prepare_changelog_release, validat
 pub use engine::{check_release_readiness, ReleaseReadinessEngine};
 pub use manifests::{extract_declared_versions, update_manifest_versions, ManifestVersionSummary};
 pub use models::{
-    bump_semver, generate_release_git_instructions, ReleaseError, ReleaseFinding,
-    ReleaseFindingCategory, ReleaseReadinessOptions, ReleaseReadinessReport, SemverBump,
+    bump_semver, generate_release_git_instructions, generate_release_git_instructions_with_files,
+    ReleaseError, ReleaseFinding, ReleaseFindingCategory, ReleaseReadinessOptions,
+    ReleaseReadinessReport, SemverBump,
 };

@@ -51,7 +51,7 @@ Reviewet udføres altid mod opgavens specifikke **Git diff** (`git diff HEAD~1..
   - *Feature Envy:* Er logik placeret i de rigtige vertikale slices?
   - *Shotgun Surgery:* Er ændringer lokaliseret frem for spredt over mange moduler?
 - [ ] **Mekanisk Først-Princip:** Hvis et fund kan tjekkes deterministisk (f.eks. linjelængder, ubrugte imports, versioner), skal det overdrages til `xgauntlet verify` / `check-architecture`, så LLM'en ikke spilder tid på det.
-- [ ] **Linter & Typesikkerhed:** Passerer koden `cargo clippy --workspace --all-targets -- -D warnings` (eller stack-ækvivalent) med 0 advarsler?
+- [ ] **Linter & Typesikkerhed:** Passerer koden projektets primære linter og typecheck (fx `cargo clippy`, `eslint`, `mypy`, `go vet`) med 0 advarsler?
 
 ---
 

@@ -176,13 +176,33 @@ pub fn bump_semver(current: &str, bump: SemverBump) -> Result<String, ReleaseErr
     }
 }
 
-/// Generates standard conventional Git publication commands for a release version and branch.
-pub fn generate_release_git_instructions(new_version: &str, branch: &str) -> String {
+/// Generates standard conventional Git publication commands for a release version, branch, and explicit files.
+pub fn generate_release_git_instructions_with_files(
+    new_version: &str,
+    branch: &str,
+    files: &[String],
+) -> String {
     let ver = new_version.trim().trim_start_matches(['v', 'V']);
+    let add_cmd = if files.is_empty() {
+        "git add -u verification-report.json evidence.md".to_string()
+    } else {
+        let mut clean_files = Vec::new();
+        for f in files {
+            if !clean_files.contains(f) {
+                clean_files.push(f.clone());
+            }
+        }
+        format!("git add {}", clean_files.join(" "))
+    };
     format!(
-        "git add Cargo.toml Cargo.lock package.json packages/cli/package.json CHANGELOG.md crates/xgauntlet-core/wasm/gauntlet_policy.wasm verification-report.json evidence.md\n\
+        "{add_cmd}\n\
          git commit -m \"chore(release): prepare v{ver}\"\n\
          git tag -a v{ver} -m \"Release v{ver}\"\n\
          git push origin {branch} v{ver}"
     )
+}
+
+/// Generates standard conventional Git publication commands for a release version and branch.
+pub fn generate_release_git_instructions(new_version: &str, branch: &str) -> String {
+    generate_release_git_instructions_with_files(new_version, branch, &[])
 }

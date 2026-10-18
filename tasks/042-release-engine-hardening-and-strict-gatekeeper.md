@@ -7,8 +7,8 @@ generated: { by: process:antigravity-task-init, at: "2026-10-18T15:13:00Z" }
 tags: [release, gatekeeper, strict, tagging, evidens, manifests, git]
 scope:
   - "crates/xgauntlet-core/src/features/release/**"
-  - "crates/xgauntlet-cli/src/render.rs"
-  - ".agents/plugins/xgauntlet/skills/release/**"
+  - "crates/xgauntlet-cli/src/**"
+  - ".agents/plugins/xgauntlet/skills/**"
 test_refs:
   - "crates/xgauntlet-core/tests/handoff_and_release_test.rs"
 ---
@@ -20,18 +20,21 @@ test_refs:
 **Oprettet**: `2026-10-18`  
 
 ## 🎯 Formål
-Eliminere release-friktion og forebygge regressionsfejl under udgivelser af xGauntlet:
-1. **Komplet Manifest- og Evidens-Staging i Release Git-Instruktioner**: Sikre at `generate_release_git_instructions` genererer en autoritativ `git add`-kommando, som omfatter alle modificerede filer under et release-bump: `Cargo.toml`, `Cargo.lock`, `package.json`, `packages/cli/package.json`, `CHANGELOG.md`, `crates/xgauntlet-core/wasm/gauntlet_policy.wasm`, `verification-report.json` og `evidence.md`.
-2. **Isoleret Tag-Push**: Erstatte det risikable `git push origin <branch> --tags` med præcis tag-adressering: `git push origin <branch> v<version>`, så utilsigtede eller historisk divergerende tags i et lokalt Git-lager aldrig blokerer for udgivelsen.
-3. **Sovereign Skill Strict Governance**: Opdatere `.agents/plugins/xgauntlet/skills/release/SKILL.md` så `check-release --strict` anvendes obligatorisk, og sekvensen mellem versions-bump og evidensforsegling (`verify --save`) er krystalklar.
+Eliminere release-friktion, automatisere evidensforsegling og rense sovereign skills for stack-lækager:
+1. **Workspace-Agnostisk Release Git-Instruktion**: Gøre `generate_release_git_instructions` og `generate_release_git_instructions_with_files` universelt polyglotte, så instruktionerne udelukkende stager de faktiske modificerede manifester for det aktuelle workspace uden hardcodet xGauntlet-coupling.
+2. **Isoleret Tag-Push**: Permanent udfasning af `--tags` til fordel for `git push origin <branch> v<version>`.
+3. **Automatisk Evidensforsegling & Strict Gatekeeper under Release Bump**: `xgauntlet release bump` kører automatisk `verify --save` for den nye bumped version og validerer 0 drift med strict gatekeeper (`strict: true`) før instruktionerne udskrives.
+4. **Isoleret Strict Gatekeeper**: `xgauntlet check-release --strict` fanger workspace-drift i CI og lokale audits, og enforced automatisk under release bump.
+5. **Polyglot Sovereign Skills**: Rense `release/SKILL.md` og `review/SKILL.md` for xGauntlet-interne stier, så de fungerer transparent på tværs af Rust (Kant), TypeScript, Python og Go.
 
 ---
 
 ## 📋 Acceptance Criteria
-- [x] **AC1 (Komplet Staging i Git-Instruktioner)**: `generate_release_git_instructions` inkluderer samtlige release-aktiver i `git add` (`Cargo.toml Cargo.lock package.json packages/cli/package.json CHANGELOG.md crates/xgauntlet-core/wasm/gauntlet_policy.wasm verification-report.json evidence.md`) eller `git add -u`.
-- [x] **AC2 (Isoleret Tag-Push Instruks)**: `generate_release_git_instructions` udsteder `git push origin <branch> v<version>` i stedet for `--tags`.
-- [x] **AC3 (Sovereign Skill Strict Audit)**: `.agents/plugins/xgauntlet/skills/release/SKILL.md` instruerer eksplicit i at anvende `xgauntlet check-release --strict` i både release-audit og final verification.
-- [x] **AC4 (Testparitet)**: Enhedstesten `test_generate_release_git_instructions` i `crates/xgauntlet-core/tests/handoff_and_release_test.rs` opdateres til at verificere den isolerede tag-push og komplette staging.
+- [x] **AC1 (Workspace-Agnostiske Git-Instruktioner)**: `generate_release_git_instructions` og `generate_release_git_instructions_with_files` genererer rene instruktioner baseret på faktiske workspace-filer og `git add -u` uden hardcodede xGauntlet-stier (`crates/.../wasm`, `packages/cli/...`).
+- [x] **AC2 (Isoleret Tag-Push)**: Instruktionen udsteder `git push origin <branch> v<version>` i stedet for det risikable `--tags`.
+- [x] **AC3 (Automatisk Evidensforsegling & Strict Gatekeeper)**: `xgauntlet release bump` forsegler automatisk frisk evidens og kører strict release-audit transaktionelt.
+- [x] **AC4 (Polyglot Sovereign Skills)**: `.agents/plugins/xgauntlet/skills/release/SKILL.md` og `review/SKILL.md` er fri for interne xGauntlet-stier og understøtter alle stacks.
+- [x] **AC5 (Testparitet)**: `handoff_and_release_test.rs` verificerer både universel fallback og dynamiske workspace-filer.
 
 ---
 

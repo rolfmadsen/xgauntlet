@@ -1,8 +1,8 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 use xgauntlet_core::{
-    bump_semver, generate_release_git_instructions, prepare_changelog_release,
-    update_manifest_versions, SemverBump, SessionHandoff,
+    bump_semver, generate_release_git_instructions, generate_release_git_instructions_with_files,
+    prepare_changelog_release, update_manifest_versions, SemverBump, SessionHandoff,
 };
 
 static TEST_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
@@ -97,19 +97,28 @@ All notable changes to this project will be documented in this file.
 
 #[test]
 fn test_generate_release_git_instructions() {
+    // 1. Default universal fallback
     let instructions = generate_release_git_instructions("0.4.0", "main");
-    assert!(instructions.contains("Cargo.toml"));
-    assert!(instructions.contains("Cargo.lock"));
-    assert!(instructions.contains("package.json"));
-    assert!(instructions.contains("packages/cli/package.json"));
-    assert!(instructions.contains("CHANGELOG.md"));
-    assert!(instructions.contains("crates/xgauntlet-core/wasm/gauntlet_policy.wasm"));
-    assert!(instructions.contains("verification-report.json"));
-    assert!(instructions.contains("evidence.md"));
+    assert!(instructions.contains("git add -u verification-report.json evidence.md"));
     assert!(instructions.contains("git commit -m \"chore(release): prepare v0.4.0\""));
     assert!(instructions.contains("git tag -a v0.4.0 -m \"Release v0.4.0\""));
     assert!(instructions.contains("git push origin main v0.4.0"));
     assert!(!instructions.contains("--tags"));
+
+    // 2. Explicit workspace files (e.g. for Kant, Python, or xGauntlet without hardcoded cross-stack leakage)
+    let kant_files = vec![
+        "Cargo.toml".to_string(),
+        "CHANGELOG.md".to_string(),
+        "verification-report.json".to_string(),
+        "evidence.md".to_string(),
+    ];
+    let kant_instructions =
+        generate_release_git_instructions_with_files("0.4.0", "main", &kant_files);
+    assert!(kant_instructions
+        .contains("git add Cargo.toml CHANGELOG.md verification-report.json evidence.md"));
+    assert!(kant_instructions.contains("git push origin main v0.4.0"));
+    assert!(!kant_instructions.contains("wasm"));
+    assert!(!kant_instructions.contains("packages/cli"));
 }
 
 #[test]

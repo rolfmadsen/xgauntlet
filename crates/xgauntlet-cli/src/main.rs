@@ -213,7 +213,7 @@ enum Commands {
         #[arg(long)]
         allow_unreleased: bool,
 
-        /// Strict mode: fail if any warnings exist
+        /// Strict mode: fail on warnings, uncommitted files, or workspace drift
         #[arg(long)]
         strict: bool,
 
