@@ -215,14 +215,23 @@ async fn test_checkpoint_fails_closed_when_staged_file_is_outside_task_scope() {
 fn test_claude_code_adapter_scaffolds_pre_tool_use_gatekeeper() {
     let settings = ClaudeCodeAdapter::generate_settings_json(None);
 
-    let pre_tool = settings.get("PreToolUse").expect("Settings must include PreToolUse hook");
+    let hooks = settings
+        .get("hooks")
+        .or(Some(&settings))
+        .expect("Settings must include hooks object");
+
+    let pre_tool = hooks
+        .get("PreToolUse")
+        .expect("Settings must include PreToolUse hook");
     let pre_tool_str = serde_json::to_string(pre_tool).unwrap();
     assert!(
         pre_tool_str.contains("xgauntlet hook"),
         "PreToolUse hook in Claude Code settings must execute 'xgauntlet hook claude_code'"
     );
 
-    let post_tool = settings.get("PostToolUse").expect("Settings must include PostToolUse hook");
+    let post_tool = hooks
+        .get("PostToolUse")
+        .expect("Settings must include PostToolUse hook");
     let post_tool_str = serde_json::to_string(post_tool).unwrap();
     assert!(
         post_tool_str.contains("xgauntlet telemetry"),
@@ -232,16 +241,25 @@ fn test_claude_code_adapter_scaffolds_pre_tool_use_gatekeeper() {
 
 #[test]
 fn test_codex_adapter_scaffolds_pre_tool_use_gatekeeper() {
-    let hooks = CodexAdapter::generate_hooks_json(None);
+    let hooks_doc = CodexAdapter::generate_hooks_json(None);
 
-    let pre_tool = hooks.get("PreToolUse").expect("Hooks must include PreToolUse hook");
+    let hooks = hooks_doc
+        .get("hooks")
+        .or(Some(&hooks_doc))
+        .expect("Hooks must include hooks object");
+
+    let pre_tool = hooks
+        .get("PreToolUse")
+        .expect("Hooks must include PreToolUse hook");
     let pre_tool_str = serde_json::to_string(pre_tool).unwrap();
     assert!(
         pre_tool_str.contains("xgauntlet hook"),
         "PreToolUse hook in Codex hooks must execute 'xgauntlet hook codex'"
     );
 
-    let post_tool = hooks.get("PostToolUse").expect("Hooks must include PostToolUse hook");
+    let post_tool = hooks
+        .get("PostToolUse")
+        .expect("Hooks must include PostToolUse hook");
     let post_tool_str = serde_json::to_string(post_tool).unwrap();
     assert!(
         post_tool_str.contains("xgauntlet telemetry"),

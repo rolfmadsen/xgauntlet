@@ -85,9 +85,10 @@ pub fn format_post_tool_use_payload_with_directive(
     })
 }
 
-/// Merges a PostToolUse hook into a settings or hooks JSON object.
-pub fn merge_post_tool_use_hook(
+/// Merges an arbitrary lifecycle hook into a settings or hooks JSON object under "hooks.<event_name>".
+pub fn merge_lifecycle_hook(
     existing_json: Option<&serde_json::Value>,
+    event_name: &str,
     matcher: &str,
     hook_command: &str,
 ) -> serde_json::Value {
@@ -111,12 +112,12 @@ pub fn merge_post_tool_use_hook(
         None => serde_json::Map::new(),
     };
 
-    let mut post_tool_vec = match hooks.get("PostToolUse").and_then(|p| p.as_array()) {
+    let mut event_vec = match hooks.get(event_name).and_then(|p| p.as_array()) {
         Some(arr) => arr.clone(),
         None => Vec::new(),
     };
 
-    let already_exists = post_tool_vec.iter().any(|item| {
+    let already_exists = event_vec.iter().any(|item| {
         item.get("hooks")
             .and_then(|h| h.as_array())
             .map(|arr| {
@@ -127,15 +128,21 @@ pub fn merge_post_tool_use_hook(
     });
 
     if !already_exists {
-        post_tool_vec.push(hook_entry);
+        event_vec.push(hook_entry);
     }
 
-    hooks.insert(
-        "PostToolUse".to_string(),
-        serde_json::Value::Array(post_tool_vec),
-    );
+    hooks.insert(event_name.to_string(), serde_json::Value::Array(event_vec));
     root.insert("hooks".to_string(), serde_json::Value::Object(hooks));
     serde_json::Value::Object(root)
+}
+
+/// Merges a PostToolUse hook into a settings or hooks JSON object.
+pub fn merge_post_tool_use_hook(
+    existing_json: Option<&serde_json::Value>,
+    matcher: &str,
+    hook_command: &str,
+) -> serde_json::Value {
+    merge_lifecycle_hook(existing_json, "PostToolUse", matcher, hook_command)
 }
 
 /// Wraps response output with telemetry card or HUD blockquote.

@@ -25,10 +25,23 @@ impl ClaudeCodeAdapter {
         crate::features::adapters::format_post_tool_use_payload(box_card)
     }
 
-    /// Generates or merges the PostToolUse hook configuration for .claude/settings.json.
+    /// Generates or merges the PreToolUse and PostToolUse hook configuration for .claude/settings.json.
     pub fn generate_settings_json(existing_json: Option<&serde_json::Value>) -> serde_json::Value {
-        let hook_cmd = "xgauntlet telemetry --format claude-hook";
-        crate::features::adapters::merge_post_tool_use_hook(existing_json, "Edit|Write", hook_cmd)
+        let pre_tool_cmd = "xgauntlet hook claude_code";
+        let post_tool_cmd = "xgauntlet telemetry --format claude-hook";
+
+        let with_pre = crate::features::adapters::merge_lifecycle_hook(
+            existing_json,
+            "PreToolUse",
+            "Bash|Edit|Write",
+            pre_tool_cmd,
+        );
+        crate::features::adapters::merge_lifecycle_hook(
+            Some(&with_pre),
+            "PostToolUse",
+            "Edit|Write",
+            post_tool_cmd,
+        )
     }
 
     /// Wraps response output with the Variant B Box-Drawing Telemetry Card.

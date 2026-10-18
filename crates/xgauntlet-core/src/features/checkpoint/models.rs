@@ -261,6 +261,12 @@ pub enum CheckpointError {
     #[error("DONE phase unmet: gauntlet verification pipeline failed: {0}")]
     DonePhaseUnmet(String),
 
+    #[error("Scope violation during checkpoint: staged files outside active task '{task_id}' scope: {violations:?}")]
+    ScopeViolation {
+        task_id: String,
+        violations: Vec<String>,
+    },
+
     #[error("Git error: {0}")]
     GitError(String),
 

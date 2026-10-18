@@ -249,20 +249,26 @@ pub fn compute_workspace_manifest(
         ManifestError::CanonicalizationError(root.display().to_string(), e.to_string())
     })?;
 
-    let target_scopes = scopes.unwrap_or(DEFAULT_SCOPES);
     let mut items_map = BTreeMap::new();
 
-    for scope in target_scopes {
-        let candidate = canonical_root.join(scope);
-        let Ok(meta) = fs::symlink_metadata(&candidate) else {
-            continue;
-        };
+    if let Some(target_scopes) = scopes {
+        for scope in target_scopes {
+            let candidate = canonical_root.join(scope);
+            let Ok(meta) = fs::symlink_metadata(&candidate) else {
+                continue;
+            };
 
-        if meta.file_type().is_symlink() || meta.is_file() {
-            collect_file(&canonical_root, &candidate, &mut items_map)?;
-        } else if meta.is_dir() {
-            collect_dir_recursive(&canonical_root, &candidate, &mut items_map)?;
+            if meta.file_type().is_symlink() || meta.is_file() {
+                collect_file(&canonical_root, &candidate, &mut items_map)?;
+            } else if meta.is_dir() {
+                collect_dir_recursive(&canonical_root, &candidate, &mut items_map)?;
+            }
         }
+    } else {
+        // When no explicit scopes are provided, scan the entire workspace root recursively.
+        // This ensures arbitrary repository layouts (apps/, libs/, services/, internal/, etc.)
+        // are reliably included and hashed in canonical workspace multi-digests.
+        collect_dir_recursive(&canonical_root, &canonical_root, &mut items_map)?;
     }
 
     let mut file_list = Vec::new();

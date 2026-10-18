@@ -25,13 +25,22 @@ impl CodexAdapter {
         crate::features::adapters::format_post_tool_use_payload(box_card)
     }
 
-    /// Generates or merges the PostToolUse hook configuration for .codex/hooks.json.
+    /// Generates or merges the PreToolUse and PostToolUse hook configuration for .codex/hooks.json.
     pub fn generate_hooks_json(existing_json: Option<&serde_json::Value>) -> serde_json::Value {
-        let hook_cmd = "xgauntlet telemetry --format codex-hook";
-        crate::features::adapters::merge_post_tool_use_hook(
+        let pre_tool_cmd = "xgauntlet hook codex";
+        let post_tool_cmd = "xgauntlet telemetry --format codex-hook";
+
+        let with_pre = crate::features::adapters::merge_lifecycle_hook(
             existing_json,
+            "PreToolUse",
             "apply_patch|Edit|Write|Bash",
-            hook_cmd,
+            pre_tool_cmd,
+        );
+        crate::features::adapters::merge_lifecycle_hook(
+            Some(&with_pre),
+            "PostToolUse",
+            "apply_patch|Edit|Write|Bash",
+            post_tool_cmd,
         )
     }
 

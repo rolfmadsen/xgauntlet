@@ -19,6 +19,106 @@ pub fn resolve_checkpoint_task_id(options: &CheckpointOptions) -> Option<String>
     None
 }
 
+fn matches_glob_pattern(path: &str, pattern: &str) -> bool {
+    let p = pattern.trim().replace('\\', "/");
+    let path = path.trim().replace('\\', "/");
+    if p == "*" || p == "**" || p == path {
+        return true;
+    }
+    if let Some(prefix) = p.strip_suffix("/**") {
+        return path == prefix || path.starts_with(&format!("{prefix}/"));
+    }
+    if let Some(prefix) = p.strip_suffix("/*") {
+        if path.starts_with(&format!("{prefix}/")) {
+            let rest = &path[prefix.len() + 1..];
+            return !rest.contains('/');
+        }
+        return false;
+    }
+    if let Some(suffix) = p.strip_prefix('*') {
+        return path.ends_with(suffix);
+    }
+    path == p
+}
+
+pub fn validate_staged_files_scope(
+    workspace: &std::path::Path,
+    task_id: &str,
+    staged_files: &[String],
+) -> Result<(), CheckpointError> {
+    let tasks_dir = workspace.join("tasks");
+    let mut task_path = tasks_dir.join(format!("{task_id}.md"));
+    if !task_path.is_file() {
+        if let Ok(entries) = std::fs::read_dir(&tasks_dir) {
+            for entry in entries.flatten() {
+                let p = entry.path();
+                if p.extension().is_some_and(|e| e == "md") {
+                    let stem = p.file_stem().and_then(|s| s.to_str()).unwrap_or("");
+                    if stem == task_id || stem.starts_with(&format!("{task_id}-")) {
+                        task_path = p;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    if !task_path.is_file() {
+        return Ok(());
+    }
+
+    let task_info = match crate::features::tasks::parse_task_file(&task_path) {
+        Ok(info) => info,
+        Err(_) => return Ok(()),
+    };
+
+    if task_info.scope.is_empty() && task_info.test_refs.is_empty() {
+        return Ok(());
+    }
+
+    let mut violations = Vec::new();
+    for file in staged_files {
+        let norm_file = file.replace('\\', "/");
+
+        if norm_file.starts_with("tasks/")
+            || norm_file == "spec.md"
+            || norm_file == "CONTEXT.md"
+            || norm_file == "CODING_STANDARDS.md"
+            || norm_file == "README.md"
+            || norm_file == "evidence.md"
+            || norm_file == "evidence.json"
+            || norm_file == "verification-report.json"
+            || norm_file == "gauntlet.toml"
+            || norm_file.starts_with(".agents/")
+            || norm_file.starts_with(".github/")
+        {
+            continue;
+        }
+
+        let in_scope = task_info
+            .scope
+            .iter()
+            .any(|pat| matches_glob_pattern(&norm_file, pat));
+        let in_test = task_info
+            .test_refs
+            .iter()
+            .any(|pat| matches_glob_pattern(&norm_file, pat));
+
+        if !in_scope && !in_test {
+            violations.push(file.clone());
+        }
+    }
+
+    if !violations.is_empty() {
+        return Err(CheckpointError::ScopeViolation {
+            task_id: task_id.to_string(),
+            violations,
+        });
+    }
+
+    Ok(())
+}
+
 /// Orchestrates pre-flight validation, staging, and atomic local Git commits.
 pub async fn run_checkpoint(
     options: &CheckpointOptions,
@@ -33,6 +133,8 @@ pub async fn run_checkpoint(
     if staged_files.is_empty() && !options.allow_empty {
         return Err(CheckpointError::NothingToCommit);
     }
+
+    validate_staged_files_scope(&options.workspace, &task_id, &staged_files)?;
 
     let commit_message =
         compose_commit_message(options.phase, &task_id, options.message.as_deref());
