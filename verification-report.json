@@ -4,39 +4,38 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "041-workspace-agnosticism-and-production-triage",
-    "task_title": "Task 041: Workspace Agnosticism & Production Readiness Triage",
-    "task_digest": "33d3e1f69d7756343c86a617f805f2d036c40f70249e272d7089040697507ef1",
+    "task_id": "042-release-engine-hardening-and-strict-gatekeeper",
+    "task_title": "Task 042: Release Engine Hardening, Strict Gatekeeper Default & Tag Isolation",
+    "task_digest": "6749d8e8dd744d9cb80bab4704ed96fa5270dcef4837f2cee848db74c391a13f",
     "acceptance_criteria": [
-      "**AC1 (Generisk Workspace Manifest-Scanning)**: `compute_workspace_manifest` scanner automatisk hele workspace-roden rekursivt for filer og mapper (respekterer `EXCLUDED_DIRS` og `EXCLUDED_FILES`), således at ikke-standard mapper som `apps/` eller `libs/` altid registreres i manifestets `items` og `files`.",
-      "**AC2 (Fail-Closed Checkpoint Scoping)**: `run_checkpoint` validerer `staged_files` fra `git diff --cached --name-only` mod den aktive opgaves `scope`. Hvis filer uden for det tilladte scope er blevet staget, afvises checkpointet øjeblikkeligt med `CheckpointError::ScopeViolation` (eller tilsvarende fail-closed fejl) og ingen commit udføres.",
-      "**AC3 (Scaffolding Gatekeeper Paritet)**: `ClaudeCodeAdapter::generate_settings_json` og `CodexAdapter::generate_hooks_json` genererer konfigurationer med både `PreToolUse` (`xgauntlet hook claude_code` / `xgauntlet hook codex`) og `PostToolUse` (`xgauntlet telemetry --format ...`).",
-      "**AC4 (Sovereign Review Skill Hardening)**: `.agents/plugins/xgauntlet/skills/review/SKILL.md` indeholder en dedikeret sektion med \"Definition of Enough\", trusselsmodel (stokastisk AI-assistent vs. ondsindet hacker), afvisningskriterier for teoretiske edge-cases og instruks om lukket verifikation med `STATUS: SHIP IT`.",
-      "**AC5 (Repo Rengøring & Paritet)**: `docs/rust_iced/iced — A Cross-Platform GUI Library for Rust.pdf` er fjernet fra repoet, og versionsangivelser i `.agents/plugins/xgauntlet/plugin.json` og `policy.json` er opdateret."
+      "**AC1 (Komplet Staging i Git-Instruktioner)**: `generate_release_git_instructions` inkluderer samtlige release-aktiver i `git add` (`Cargo.toml Cargo.lock package.json packages/cli/package.json CHANGELOG.md crates/xgauntlet-core/wasm/gauntlet_policy.wasm verification-report.json evidence.md`) eller `git add -u`.",
+      "**AC2 (Isoleret Tag-Push Instruks)**: `generate_release_git_instructions` udsteder `git push origin <branch> v<version>` i stedet for `--tags`.",
+      "**AC3 (Sovereign Skill Strict Audit)**: `.agents/plugins/xgauntlet/skills/release/SKILL.md` instruerer eksplicit i at anvende `xgauntlet check-release --strict` i både release-audit og final verification.",
+      "**AC4 (Testparitet)**: Enhedstesten `test_generate_release_git_instructions` i `crates/xgauntlet-core/tests/handoff_and_release_test.rs` opdateres til at verificere den isolerede tag-push og komplette staging."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "633ad303fbeeb368a2c0be82db33bc23f5716a6d59b56d7d8926a62452d0930e",
-    "source_manifest_digest_pre": "9afbafb7d48b83e3e5b226264d49f26c0d460e9253452324378da928342c4b77",
-    "source_manifest_digest_post": "9afbafb7d48b83e3e5b226264d49f26c0d460e9253452324378da928342c4b77",
+    "source_content_digest": "e27bc2be6c135bf4fb8462e724f55f08e136a084a25e0074a02c10fd00d6a7f4",
+    "source_manifest_digest_pre": "d2860bc30eaf6791bebe47115de902c7734594189a29790f1d752d40f5f85db1",
+    "source_manifest_digest_post": "d2860bc30eaf6791bebe47115de902c7734594189a29790f1d752d40f5f85db1",
     "config_digest": "3dadefc33d5cbb74aefe95edbf94c618be136c0434a9b2d02bb908c505bda8b9",
-    "task_digest": "33d3e1f69d7756343c86a617f805f2d036c40f70249e272d7089040697507ef1",
+    "task_digest": "6749d8e8dd744d9cb80bab4704ed96fa5270dcef4837f2cee848db74c391a13f",
     "policy_digest": "7a13e70ab921a43624972646d93877a902f025a894d841c1803bcf3857c47be2",
     "check_definitions_digest": "138fd39199ca1ff02f1546e8f3128c38c38d368226e0aa141bacdcdbfe12d76b",
-    "included_files_count": 204,
+    "included_files_count": 205,
     "vcs": {
       "type": "git",
-      "head": "20de876",
-      "commit": "20de876",
+      "head": "7cfa968",
+      "commit": "7cfa968",
       "is_dirty": false
     }
   },
   "execution_metadata": {
-    "started_at": "2026-10-18T13:01:43Z",
-    "finished_at": "2026-10-18T13:02:05Z",
-    "total_duration_seconds": 22.471430104,
+    "started_at": "2026-10-18T13:16:24Z",
+    "finished_at": "2026-10-18T13:16:45Z",
+    "total_duration_seconds": 21.060353064,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -49,7 +48,7 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.063867169,
+      "duration_seconds": 0.068376212,
       "optional": false,
       "passed": true,
       "log_digest": "81e71c8863b76b70b443b8e3365dec76bdff33024118ca67096e8c809ea8a939"
@@ -58,7 +57,7 @@
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.21109884,
+      "duration_seconds": 0.211343108,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -67,52 +66,52 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.115248825,
+      "duration_seconds": 0.140707811,
       "optional": false,
       "passed": true,
-      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
+      "log_digest": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.81072846,
+      "duration_seconds": 0.140191172,
       "optional": false,
       "passed": true,
-      "log_digest": "3dc319ad80412de3b59b1198054d17de6ec17f906f85522e26a5654070ba93a7"
+      "log_digest": "22e0df986057b9ba5be07526ac5fb348862a3dedef42108383cc3e088acbb889"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 19.171516019,
+      "duration_seconds": 19.428282176,
       "optional": false,
       "passed": true,
-      "log_digest": "cb2a0b18ca95c30208897d24437ea310de3b26e9bedfac45251400caa913f2a0"
+      "log_digest": "dc85a3c020baa8fb8e20852b992bddb7e0b74ebf04a8aa91af8c86072e0126f7"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.832297192,
+      "duration_seconds": 0.797482178,
       "optional": false,
       "passed": true,
-      "log_digest": "a3e7cb68514c0ce33ab45b23a2fdbbf7a606c9f81fe2d14c04fcfb945b341a73"
+      "log_digest": "1923a7325c78e1502c09af799083084ec20d1042050906e91bbfc129e90d0c42"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.097553373,
+      "duration_seconds": 0.083238697,
       "optional": false,
       "passed": true,
-      "log_digest": "77f52eac840127e212780a305a2489c9c81b30157e399a6148a9be562f3388dc"
+      "log_digest": "48d0e0b4908afcf279995a417e5e753cfc285447384d77a33d06ad83001f2dc8"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.008660581,
+      "duration_seconds": 0.018590115,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"

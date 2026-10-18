@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 042: Release Engine Hardening, Strict Gatekeeper Default & Tag Isolation"
 description: "Hærdning af xGauntlets release-motor med komplet manifest- og evidens-staging, isoleret tag-push instruks og obligatorisk strict gatekeeper validering"
-status: active
+status: done
 generated: { by: process:antigravity-task-init, at: "2026-10-18T15:13:00Z" }
 tags: [release, gatekeeper, strict, tagging, evidens, manifests, git]
 scope:
@@ -15,7 +15,7 @@ test_refs:
 
 # Task 042: Release Engine Hardening, Strict Gatekeeper Default & Tag Isolation
 
-**Status**: `ACTIVE`  
+**Status**: `DONE`  
 **Intent**: `🔄 ENHANCEMENT`  
 **Oprettet**: `2026-10-18`  
 
