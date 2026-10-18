@@ -4,43 +4,44 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "040-bootstrapper-attestation-fallback-and-release-parity",
-    "task_title": "Task 040: Bootstrapper Attestation Fallback and Dual-Asset Release Parity",
-    "task_digest": "e454dda48a221b449f47d57d5b0568787fffb6fb33fb8a3a3ba1da7b2fd6db41",
+    "task_id": "041-workspace-agnosticism-and-production-triage",
+    "task_title": "Task 041: Workspace Agnosticism & Production Readiness Triage",
+    "task_digest": "33d3e1f69d7756343c86a617f805f2d036c40f70249e272d7089040697507ef1",
     "acceptance_criteria": [
-      "**AC1 (Dual-Candidate Attestation Fetching)**: `packages/cli/bin/xgauntlet.js` implementerer en dedikeret `fetchAttestationBundle`-hjælper (eller ækvivalent), der prøver `attestation.bundle` og transparent falder tilbage på `attestation.json` (og omvendt), så installationen lykkes uanset hvilket filnavn GitHub Release serverer.",
-      "**AC2 (Ingen tomme cache-mapper ved downloadfejl)**: `downloadAndCacheBinary` fjerner eller rydder op i målmappen (`cacheDir`), hvis download eller verifikation fejler, så ufuldstændige downloads ikke forurener cache-træet.",
-      "**AC3 (Dual-Asset Release i CI)**: `.github/workflows/release.yml` klargør og uploader det attesterede bundt som både `attestation.bundle` og `attestation.json` i `attest-binaries` og `create-github-release`.",
-      "**AC4 (Regressions- og Paritetstests)**: `packages/cli/test/attestation.test.js` udvides med tests for fallback-håndteringen og workflow-filens dual-asset konfiguration."
+      "**AC1 (Generisk Workspace Manifest-Scanning)**: `compute_workspace_manifest` scanner automatisk hele workspace-roden rekursivt for filer og mapper (respekterer `EXCLUDED_DIRS` og `EXCLUDED_FILES`), således at ikke-standard mapper som `apps/` eller `libs/` altid registreres i manifestets `items` og `files`.",
+      "**AC2 (Fail-Closed Checkpoint Scoping)**: `run_checkpoint` validerer `staged_files` fra `git diff --cached --name-only` mod den aktive opgaves `scope`. Hvis filer uden for det tilladte scope er blevet staget, afvises checkpointet øjeblikkeligt med `CheckpointError::ScopeViolation` (eller tilsvarende fail-closed fejl) og ingen commit udføres.",
+      "**AC3 (Scaffolding Gatekeeper Paritet)**: `ClaudeCodeAdapter::generate_settings_json` og `CodexAdapter::generate_hooks_json` genererer konfigurationer med både `PreToolUse` (`xgauntlet hook claude_code` / `xgauntlet hook codex`) og `PostToolUse` (`xgauntlet telemetry --format ...`).",
+      "**AC4 (Sovereign Review Skill Hardening)**: `.agents/plugins/xgauntlet/skills/review/SKILL.md` indeholder en dedikeret sektion med \"Definition of Enough\", trusselsmodel (stokastisk AI-assistent vs. ondsindet hacker), afvisningskriterier for teoretiske edge-cases og instruks om lukket verifikation med `STATUS: SHIP IT`.",
+      "**AC5 (Repo Rengøring & Paritet)**: `docs/rust_iced/iced — A Cross-Platform GUI Library for Rust.pdf` er fjernet fra repoet, og versionsangivelser i `.agents/plugins/xgauntlet/plugin.json` og `policy.json` er opdateret."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "a2a52146be16d2caa9b7a8fa3c90a50d2fa36ebc3ef71a9bff87c6fc29e37963",
-    "source_manifest_digest_pre": "b31dbe76b257389cfb6c9a7f8ca5795b8a67ab9d421793c85f446978c1ea73e5",
-    "source_manifest_digest_post": "b31dbe76b257389cfb6c9a7f8ca5795b8a67ab9d421793c85f446978c1ea73e5",
-    "config_digest": "3e5e5854f5f8d2d283b2b56646da2911404d886a0ef9500a5e8fd3480f6cfa61",
-    "task_digest": "e454dda48a221b449f47d57d5b0568787fffb6fb33fb8a3a3ba1da7b2fd6db41",
-    "policy_digest": "aa8e17590a00357917f47fbe9eebf7e0b277cf7e7acb37d7419fce7a508af29d",
+    "source_content_digest": "633ad303fbeeb368a2c0be82db33bc23f5716a6d59b56d7d8926a62452d0930e",
+    "source_manifest_digest_pre": "9afbafb7d48b83e3e5b226264d49f26c0d460e9253452324378da928342c4b77",
+    "source_manifest_digest_post": "9afbafb7d48b83e3e5b226264d49f26c0d460e9253452324378da928342c4b77",
+    "config_digest": "3dadefc33d5cbb74aefe95edbf94c618be136c0434a9b2d02bb908c505bda8b9",
+    "task_digest": "33d3e1f69d7756343c86a617f805f2d036c40f70249e272d7089040697507ef1",
+    "policy_digest": "7a13e70ab921a43624972646d93877a902f025a894d841c1803bcf3857c47be2",
     "check_definitions_digest": "138fd39199ca1ff02f1546e8f3128c38c38d368226e0aa141bacdcdbfe12d76b",
-    "included_files_count": 195,
+    "included_files_count": 204,
     "vcs": {
       "type": "git",
-      "head": "1962894",
-      "commit": "1962894",
-      "is_dirty": true
+      "head": "20de876",
+      "commit": "20de876",
+      "is_dirty": false
     }
   },
   "execution_metadata": {
-    "started_at": "2026-10-17T15:14:53Z",
-    "finished_at": "2026-10-17T15:15:14Z",
-    "total_duration_seconds": 20.770344795,
+    "started_at": "2026-10-18T13:01:43Z",
+    "finished_at": "2026-10-18T13:02:05Z",
+    "total_duration_seconds": 22.471430104,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
       "platform": "linux",
-      "version": "0.8.4"
+      "version": "0.8.5"
     }
   },
   "checks": [
@@ -48,16 +49,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.109445893,
+      "duration_seconds": 0.063867169,
       "optional": false,
       "passed": true,
-      "log_digest": "8a1cee1699c373b803657556ca9193ece11eecb58fb0ef370c44d2c8f30d3835"
+      "log_digest": "81e71c8863b76b70b443b8e3365dec76bdff33024118ca67096e8c809ea8a939"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.197603401,
+      "duration_seconds": 0.21109884,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -66,52 +67,52 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.123777877,
+      "duration_seconds": 0.115248825,
       "optional": false,
       "passed": true,
-      "log_digest": "a5f4c585ee974ca44916ac30a98bbc189e067a7e0a6bc6d2e8d6bc525be724af"
+      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.122896496,
+      "duration_seconds": 1.81072846,
       "optional": false,
       "passed": true,
-      "log_digest": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
+      "log_digest": "3dc319ad80412de3b59b1198054d17de6ec17f906f85522e26a5654070ba93a7"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 19.041864999,
+      "duration_seconds": 19.171516019,
       "optional": false,
       "passed": true,
-      "log_digest": "2978baef25d591d464e28b8e4e86ea28313c37f128f27ca32cb4d8cb096c1076"
+      "log_digest": "cb2a0b18ca95c30208897d24437ea310de3b26e9bedfac45251400caa913f2a0"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.756226954,
+      "duration_seconds": 0.832297192,
       "optional": false,
       "passed": true,
-      "log_digest": "2db8954b3231857115360a3363f6cac8ea179ae24aed8e66baa597c5d1e82caf"
+      "log_digest": "a3e7cb68514c0ce33ab45b23a2fdbbf7a606c9f81fe2d14c04fcfb945b341a73"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.160013522,
+      "duration_seconds": 0.097553373,
       "optional": false,
       "passed": true,
-      "log_digest": "c28dd26544f4acf5f482337c3eef387aa86cabe3d56906370e4e36520d61821a"
+      "log_digest": "77f52eac840127e212780a305a2489c9c81b30157e399a6148a9be562f3388dc"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.026060942,
+      "duration_seconds": 0.008660581,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
