@@ -299,7 +299,11 @@ async fn test_autonomous_red_to_green_transition_checkpoint() {
     let temp = TempDir::new("auto_red_to_green_ws");
     init_git_repo(temp.path());
     setup_mock_glossary(temp.path());
-    setup_mock_task(temp.path(), "030-autonomous-red-to-green-tdd-transition", "active");
+    setup_mock_task(
+        temp.path(),
+        "030-autonomous-red-to-green-tdd-transition",
+        "active",
+    );
 
     let config_content = r#"
 stack = "rust"
@@ -317,16 +321,16 @@ optional = false
         .expect("RED phase checkpoint must succeed when test assertions fail");
 
     assert_eq!(res.phase, CheckpointPhase::Red);
-    assert_eq!(res.autonomous_transition, true);
+    assert!(res.autonomous_transition);
     assert_eq!(res.next_phase.as_deref(), Some("green"));
 
     // Also verify non-RED phase does not trigger autonomous transition
-    let green_opts = CheckpointOptions::new(CheckpointPhase::Green, temp.path())
-        .with_skip_verify(true);
+    let green_opts =
+        CheckpointOptions::new(CheckpointPhase::Green, temp.path()).with_skip_verify(true);
     let green_res = run_checkpoint(&green_opts)
         .await
         .expect("Green checkpoint with skip_verify must succeed");
-    assert_eq!(green_res.autonomous_transition, false);
+    assert!(!green_res.autonomous_transition);
     assert_ne!(green_res.next_phase.as_deref(), Some("green"));
 }
 

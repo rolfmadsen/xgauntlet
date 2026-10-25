@@ -200,6 +200,11 @@ pub async fn run_checkpoint(
 
     let _ = crate::features::evidence::save_verification_report(&options.workspace, &report);
 
+    let (next_phase, autonomous_transition) = match options.phase {
+        super::models::CheckpointPhase::Red => (Some("green".to_string()), true),
+        _ => (None, false),
+    };
+
     Ok(CheckpointResult {
         phase: options.phase,
         task_id,
@@ -209,7 +214,7 @@ pub async fn run_checkpoint(
         preflight_passed: !options.skip_verify,
         details: None,
         handoff,
-        next_phase: None,
-        autonomous_transition: false,
+        next_phase,
+        autonomous_transition,
     })
 }

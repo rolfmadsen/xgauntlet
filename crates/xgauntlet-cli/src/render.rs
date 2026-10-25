@@ -327,6 +327,32 @@ pub fn render_checkpoint_summary(res: &xgauntlet_core::CheckpointResult) {
     if let Some(ref handoff) = res.handoff {
         println!("{}", handoff.formatted_card);
     }
+    if res.autonomous_transition || res.phase == xgauntlet_core::CheckpointPhase::Red {
+        println!("⚡ [AUTONOMOUS TDD] RED checkpoint established. Preflight confirmed test failure. Do NOT pause for user approval. Proceed immediately to GREEN phase.\n");
+    }
+}
+
+pub fn format_checkpoint_body(res: &xgauntlet_core::CheckpointResult) -> String {
+    let oid_short = res
+        .commit_oid
+        .as_deref()
+        .map(|oid| if oid.len() >= 7 { &oid[..7] } else { oid })
+        .unwrap_or("unknown");
+    let mut body = format!(
+        "Phase Checkpoint [{}] committed: {} (commit: {})\nStaged files: {}",
+        res.phase.as_str().to_uppercase(),
+        res.commit_message,
+        oid_short,
+        res.staged_files.join(", ")
+    );
+    if let Some(ref handoff) = res.handoff {
+        body.push_str("\n\n");
+        body.push_str(&handoff.formatted_card);
+    }
+    if res.autonomous_transition || res.phase == xgauntlet_core::CheckpointPhase::Red {
+        body.push_str("\n\n⚡ [AUTONOMOUS TDD] RED checkpoint established. Preflight confirmed test failure. Do NOT pause for user approval. Proceed immediately to GREEN phase.");
+    }
+    body
 }
 
 fn validate_wasm_toolchain(workspace: &std::path::Path) -> anyhow::Result<()> {

@@ -52,6 +52,7 @@
 | `sess-58ba84b2` | `TDD Craftsman` | `REFACTOR` | `58ba84b` | `2026-10-25T15:08:57Z` | `VALID` |
 | `sess-cfddffd7` | `Software Engineer` | `DONE` | `cfddffd` | `2026-10-25T15:12:16Z` | `VALID` |
 | `sess-59e83396` | `System Architect` | `SPEC` | `59e8339` | `2026-10-25T15:21:43Z` | `VALID` |
+| `sess-e36bbb3c` | `TDD Craftsman` | `RED` | `e36bbb3` | `2026-10-25T15:22:47Z` | `VALID` |
 
 ---
 
@@ -70,5 +71,18 @@
 | `test_inverse_preflight_verifies_legitimate_test` | `RedCheckpointVerified` | `b02ab9f2e3aea63d...` | `2026-10-25T15:50:03+01:00` |
 | `test_checkpoint_green_fails_closed_on_born_green_with_strict_provenance` | `RedCheckpointVerified` | `b02ab9f2e3aea63d...` | `2026-10-25T15:50:03+01:00` |
 | `test_collect_task_test_provenance_and_verification_report` | `InversePreflightVerified` | `c46f890b2d9b738e...` | `2026-10-25T15:07:56Z` |
+| `test_models_and_conventions` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
+| `test_compose_commit_message_variations` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
+| `test_checkpoint_fails_without_active_task` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
+| `test_spec_phase_checkpoint` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
+| `test_red_phase_fails_when_test_passes` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
+| `test_red_phase_succeeds_when_test_fails` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
+| `test_autonomous_red_to_green_transition_checkpoint` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
+| `test_green_phase_fails_when_test_fails` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
+| `test_green_phase_succeeds_when_test_passes` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
+| `test_refactor_phase_succeeds_when_green` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
+| `test_skip_verify_override_bypasses_preflight` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
+| `test_done_phase_succeeds_and_creates_chore_commit` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
+| `test_cli_checkpoint_red_and_green_invariants` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
 
 ---

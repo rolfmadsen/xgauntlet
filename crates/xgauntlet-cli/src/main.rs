@@ -1140,22 +1140,7 @@ async fn main() -> anyhow::Result<()> {
                         let telemetry =
                             xgauntlet_core::inspect_task_telemetry(&canonical_ws, task.as_deref())
                                 .ok();
-                        let oid_short = res
-                            .commit_oid
-                            .as_deref()
-                            .map(|oid| if oid.len() >= 7 { &oid[..7] } else { oid })
-                            .unwrap_or("unknown");
-                        let mut body = format!(
-                            "Phase Checkpoint [{}] committed: {} (commit: {})\nStaged files: {}",
-                            res.phase.as_str().to_uppercase(),
-                            res.commit_message,
-                            oid_short,
-                            res.staged_files.join(", ")
-                        );
-                        if let Some(ref handoff) = res.handoff {
-                            body.push_str("\n\n");
-                            body.push_str(&handoff.formatted_card);
-                        }
+                        let body = render::format_checkpoint_body(&res);
                         match xgauntlet_core::HarnessKind::parse_alias(h) {
                             Some(xgauntlet_core::HarnessKind::Antigravity) => {
                                 let hud = telemetry

@@ -130,9 +130,9 @@ pub fn get_phase_directive(phase: PipelinePhase) -> Option<JitPhaseDirective> {
         PipelinePhase::ImplementationTdd => Some(JitPhaseDirective {
             phase,
             active_role: "Active Role: TDD Craftsman (Red-Green-Refactor)",
-            target: "Execute tight TDD: failing test (RED) ➔ fix (GREEN) ➔ refactor",
-            gate: "All acceptance assertions pass with atomic git checkpoints",
-            pointer: "TDD loop: invoke tdd or diagnose for disciplined Red-Green-Refactor",
+            target: "Execute autonomous TDD: failing RED ➔ fix GREEN ➔ refactor. Auto-transition immediately on verified RED",
+            gate: "All assertions pass with atomic checkpoints",
+            pointer: "TDD loop: invoke tdd or diagnose",
         }),
         PipelinePhase::MultiLayerVerification => Some(JitPhaseDirective {
             phase,
