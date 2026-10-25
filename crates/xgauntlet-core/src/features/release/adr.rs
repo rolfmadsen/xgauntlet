@@ -62,7 +62,10 @@ pub fn check_adr_coverage(workspace: &Path) -> Result<AdrCoverageSummary, Releas
         };
 
         let file_name_lower = file_name.to_ascii_lowercase();
-        if file_name_lower == "readme.md" || file_name_lower == "index.md" {
+        if file_name_lower == "readme.md"
+            || file_name_lower == "index.md"
+            || file_name_lower == "template.md"
+        {
             continue;
         }
 

@@ -9,9 +9,11 @@ scope:
   - "crates/xgauntlet-core/src/features/doctor/**"
   - "crates/xgauntlet-core/src/features/migration/**"
   - "crates/xgauntlet-core/src/features/adapters/**"
+  - "crates/xgauntlet-core/src/features/release/**"
   - "crates/xgauntlet-core/src/features/mod.rs"
   - "crates/xgauntlet-core/src/lib.rs"
   - "crates/xgauntlet-cli/**"
+  - "docs/adr/**"
   - "tasks/026-in-repo-migration-engine-and-doctor-auto-remediation.md"
 test_refs:
   - "crates/xgauntlet-core/tests/migration_engine_test.rs"
@@ -31,24 +33,24 @@ test_refs:
 Etablere en robust Developer Experience (DX) opgraderingsmotor (`xgauntlet migrate` og `xgauntlet doctor --fix`), der identificerer forældede schema-strukturer og udfører kirurgiske, in-place migreringer i eksisterende projekter uden risiko for at overskrive custom forretningslogik, egne opgaver eller tilpassede verifikationslag.
 
 ## 📋 Acceptance Criteria
-- [ ] **Dybde-inspektion i `xgauntlet doctor`**:
-  - [ ] Udvid `governance_agent_harness` i doctor-motoren til at parse og inspicere indholdet af `.agents/hooks.json`.
-  - [ ] Flag `[WARN]` hvis `.agents/hooks.json` mangler `PreInvocation` telemetri-hook eller benytter det forældede `"agent-gauntlet-gatekeeper"` namespace.
-  - [ ] Flag `[WARN]` hvis `gauntlet.toml` refererer forældet `evidence_file = "evidence.json"` i stedet for `"verification-report.json"`.
-  - [ ] Give actionable remediation-meddelelse: `Action: Run 'xgauntlet migrate' (or 'xgauntlet doctor --fix')`.
-- [ ] **Kirurgisk Migrations-motor (`xgauntlet migrate`)**:
-  - [ ] Etablere CLI subcommand `xgauntlet migrate` i `crates/xgauntlet-cli` og kerne-logik i `crates/xgauntlet-core/src/features/migration/`.
-  - [ ] Kirurgisk opdatering af `.agents/hooks.json`: Omdøb `"agent-gauntlet-gatekeeper"` til `"xgauntlet"` og injicer `"PreInvocation"` hook uden at overskrive brugerens egne `PreToolUse` matcher-regler.
-  - [ ] Kirurgisk opdatering af `gauntlet.toml`: Modernisér `evidence_file` til `"verification-report.json"` uden at berøre eksisterende bruger-definerede `[[layers]]`.
-  - [ ] Automatisk scaffolding af manglende template-filer (f.eks. `docs/adr/template.md`).
-  - [ ] Flag-understøttelse: `--dry-run` (viser planlagte ændringer uden diskskrivning), `--workspace <path>` og `--json`.
-- [ ] **Auto-remediation i `xgauntlet doctor --fix`**:
-  - [ ] Tilføje `--fix` flag til `xgauntlet doctor`, som automatisk kalder migrationsmotoren for identificerede governance-advarsler.
-- [ ] **Runtime Bagudkompatibilitet**:
-  - [ ] `xgauntlet hook` accepterer fortsat legacy namespace `"agent-gauntlet-gatekeeper"` i `.agents/hooks.json` med en opgraderings-anbefaling i stderr.
-- [ ] **Multi-layer Verifikation**:
-  - [ ] Tilføje omfattende integrationstests i `crates/xgauntlet-core/tests/migration_engine_test.rs` der beviser in-place migrering mod ældre projektopsætninger.
-  - [ ] Verificere at samtlige tests og invariant-tjek passerer (`cargo test --workspace`, `cargo clippy`, `xgauntlet check-spec`).
+- [x] **Dybde-inspektion i `xgauntlet doctor`**:
+  - [x] Udvid `governance_agent_harness` i doctor-motoren til at parse og inspicere indholdet af `.agents/hooks.json`.
+  - [x] Flag `[WARN]` hvis `.agents/hooks.json` mangler `PreInvocation` telemetri-hook eller benytter det forældede `"agent-gauntlet-gatekeeper"` namespace.
+  - [x] Flag `[WARN]` hvis `gauntlet.toml` refererer forældet `evidence_file = "evidence.json"` i stedet for `"verification-report.json"`.
+  - [x] Give actionable remediation-meddelelse: `Action: Run 'xgauntlet migrate' (or 'xgauntlet doctor --fix')`.
+- [x] **Kirurgisk Migrations-motor (`xgauntlet migrate`)**:
+  - [x] Etablere CLI subcommand `xgauntlet migrate` i `crates/xgauntlet-cli` og kerne-logik i `crates/xgauntlet-core/src/features/migration/`.
+  - [x] Kirurgisk opdatering af `.agents/hooks.json`: Omdøb `"agent-gauntlet-gatekeeper"` til `"xgauntlet"` og injicer `"PreInvocation"` hook uden at overskrive brugerens egne `PreToolUse` matcher-regler.
+  - [x] Kirurgisk opdatering af `gauntlet.toml`: Modernisér `evidence_file` til `"verification-report.json"` uden at berøre eksisterende bruger-definerede `[[layers]]`.
+  - [x] Automatisk scaffolding af manglende template-filer (f.eks. `docs/adr/template.md`).
+  - [x] Flag-understøttelse: `--dry-run` (viser planlagte ændringer uden diskskrivning), `--workspace <path>` og `--json`.
+- [x] **Auto-remediation i `xgauntlet doctor --fix`**:
+  - [x] Tilføje `--fix` flag til `xgauntlet doctor`, som automatisk kalder migrationsmotoren for identificerede governance-advarsler.
+- [x] **Runtime Bagudkompatibilitet**:
+  - [x] `xgauntlet hook` accepterer fortsat legacy namespace `"agent-gauntlet-gatekeeper"` i `.agents/hooks.json` med en opgraderings-anbefaling i stderr.
+- [x] **Multi-layer Verifikation**:
+  - [x] Tilføje omfattende integrationstests i `crates/xgauntlet-core/tests/migration_engine_test.rs` der beviser in-place migrering mod ældre projektopsætninger.
+  - [x] Verificere at samtlige tests og invariant-tjek passerer (`cargo test --workspace`, `cargo clippy`, `xgauntlet check-spec`).
 
 ## 🚫 Must NOT
 - Må IKKE overskrive brugerens egne `CONTEXT.md`, `spec.md`, `tasks/` eller custom `[[layers]]` i `gauntlet.toml`.
