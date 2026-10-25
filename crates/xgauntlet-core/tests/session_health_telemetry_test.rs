@@ -5,9 +5,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use xgauntlet_core::features::adapters::antigravity::AntigravityAdapter;
 use xgauntlet_core::features::tasks::models::TaskStatus;
-use xgauntlet_core::features::tasks::telemetry::{
-    CriteriaProgress, GitTelemetry, TaskTelemetry,
-};
+use xgauntlet_core::features::tasks::telemetry::{CriteriaProgress, GitTelemetry, TaskTelemetry};
 use xgauntlet_core::features::telemetry::{
     estimate_tokens_from_chars, estimate_tokens_from_str, record_session_turn,
     reset_session_health, SessionHealth, SessionHealthStatus, SessionTracker,
@@ -50,13 +48,34 @@ impl Drop for TempDir {
 
 #[test]
 fn test_session_health_status_transitions() {
-    assert_eq!(SessionHealthStatus::from_turns(0), SessionHealthStatus::Optimal);
-    assert_eq!(SessionHealthStatus::from_turns(1), SessionHealthStatus::Optimal);
-    assert_eq!(SessionHealthStatus::from_turns(10), SessionHealthStatus::Optimal);
-    assert_eq!(SessionHealthStatus::from_turns(11), SessionHealthStatus::Aging);
-    assert_eq!(SessionHealthStatus::from_turns(18), SessionHealthStatus::Aging);
-    assert_eq!(SessionHealthStatus::from_turns(19), SessionHealthStatus::Saturated);
-    assert_eq!(SessionHealthStatus::from_turns(100), SessionHealthStatus::Saturated);
+    assert_eq!(
+        SessionHealthStatus::from_turns(0),
+        SessionHealthStatus::Optimal
+    );
+    assert_eq!(
+        SessionHealthStatus::from_turns(1),
+        SessionHealthStatus::Optimal
+    );
+    assert_eq!(
+        SessionHealthStatus::from_turns(10),
+        SessionHealthStatus::Optimal
+    );
+    assert_eq!(
+        SessionHealthStatus::from_turns(11),
+        SessionHealthStatus::Aging
+    );
+    assert_eq!(
+        SessionHealthStatus::from_turns(18),
+        SessionHealthStatus::Aging
+    );
+    assert_eq!(
+        SessionHealthStatus::from_turns(19),
+        SessionHealthStatus::Saturated
+    );
+    assert_eq!(
+        SessionHealthStatus::from_turns(100),
+        SessionHealthStatus::Saturated
+    );
 
     assert_eq!(SessionHealthStatus::Optimal.as_str(), "Optimal");
     assert_eq!(SessionHealthStatus::Aging.as_str(), "Aging");
@@ -98,7 +117,9 @@ fn test_session_health_summary_formatting() {
     assert_eq!(aging.status, SessionHealthStatus::Aging);
     let summary_aging = aging.format_hud_summary();
     assert!(
-        summary_aging.contains("🟡 Aging") && summary_aging.contains("14 turns") && summary_aging.contains("Handoff"),
+        summary_aging.contains("🟡 Aging")
+            && summary_aging.contains("14 turns")
+            && summary_aging.contains("Handoff"),
         "expected aging summary with handoff notice, got: {}",
         summary_aging
     );
@@ -107,7 +128,9 @@ fn test_session_health_summary_formatting() {
     assert_eq!(saturated.status, SessionHealthStatus::Saturated);
     let summary_saturated = saturated.format_hud_summary();
     assert!(
-        summary_saturated.contains("🔴 Saturated") && summary_saturated.contains("21 turns") && summary_saturated.contains("Handoff"),
+        summary_saturated.contains("🔴 Saturated")
+            && summary_saturated.contains("21 turns")
+            && summary_saturated.contains("Handoff"),
         "expected saturated summary, got: {}",
         summary_saturated
     );
@@ -195,8 +218,5 @@ fn test_task_telemetry_integration_and_rendering() {
     // Verify JSON serialization includes session_health field
     let json_val = serde_json::to_value(&telemetry).unwrap();
     assert!(json_val.get("session_health").is_some());
-    assert_eq!(
-        json_val["session_health"]["status"],
-        "Aging"
-    );
+    assert_eq!(json_val["session_health"]["status"], "Aging");
 }

@@ -463,6 +463,7 @@ fn test_antigravity_ephemeral_telemetry_format() {
         invariants: Some("14/14 PASS".to_string()),
         evidence: Some("pending".to_string()),
         phase: Some("RED".to_string()),
+        session_health: None,
     };
 
     let ephemeral = AntigravityAdapter::format_ephemeral_telemetry(&telemetry);
@@ -508,6 +509,7 @@ fn test_antigravity_blockquote_hud_rendering() {
         invariants: Some("14/14 PASS".to_string()),
         evidence: Some("pending".to_string()),
         phase: Some("RED".to_string()),
+        session_health: None,
     };
 
     let hud = AntigravityAdapter::render_blockquote_hud(&telemetry, Some("Skriv fejlede tests"));

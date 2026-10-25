@@ -73,12 +73,22 @@ impl AntigravityAdapter {
             telemetry.git.branch, telemetry.git.head_oid
         );
 
+        if let Some(ref sh) = telemetry.session_health {
+            msg.push_str(&format!("\nSession: {}", sh.format_hud_summary()));
+        }
+
         if let Some(pipe_phase) = crate::features::telemetry::PipelinePhase::parse_phase(phase) {
             let jit_rendered =
                 crate::features::telemetry::render_jit_directive(pipe_phase, Some(task_id_str));
             if !jit_rendered.is_empty() {
                 msg.push_str("\n\n");
                 msg.push_str(&jit_rendered);
+            }
+        }
+
+        if let Some(ref sh) = telemetry.session_health {
+            if sh.status == crate::features::telemetry::SessionHealthStatus::Saturated {
+                msg.push_str("\n\n💡 Anbefaling: Opgaven trækker ud (>18 turns). Forsegl checkpoints og start en frisk session via 'xgauntlet handoff'.");
             }
         }
 
@@ -117,9 +127,15 @@ impl AntigravityAdapter {
         let scope = telemetry.scope.as_deref().unwrap_or("crates/*");
         let action = next_action.unwrap_or("Fortsæt med næste handling jf. TDD-fasen.");
 
+        let session_segment = if let Some(ref sh) = telemetry.session_health {
+            format!(" | `Session: {}`", sh.format_hud_summary())
+        } else {
+            String::new()
+        };
+
         format!(
             "> ### 🛡️ [Task: {task_label}] `[{intent}: {phase}]`\n\
-             > **Status**: `Phase: {phase}` | `Gauntlet: {verdict}` | `Git: {}@{} • {git_state}`\n\
+             > **Status**: `Phase: {phase}` | `Gauntlet: {verdict}`{session_segment} | `Git: {}@{} • {git_state}`\n\
              > **Progress**: `Criteria: {}/{} {}` | `Scope: {scope}`\n\
              > **Links**: 📋 [Task](tasks/) • 📄 [Spec](spec.md) • 📖 [Glossary](CONTEXT.md) • 🏛️ [ADR](docs/adr/README.md) • 🧪 [Evidence](evidence.md)\n\
              > 💡 **Next Action:** {action}",
@@ -691,6 +707,7 @@ impl HarnessAdapter for AntigravityAdapter {
                     invariants: Some("14/14 PASS".to_string()),
                     evidence: Some("pending".to_string()),
                     phase: Some("SPEC".to_string()),
+                    session_health: None,
                 },
             };
             let ephemeral = Self::format_ephemeral_telemetry(&telemetry);

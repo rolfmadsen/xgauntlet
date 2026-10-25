@@ -1294,6 +1294,7 @@ fn test_render_box_card_multibyte_utf8_exact_64_columns_and_no_panic() {
         invariants: Some("14/14 PASS (æøå)".to_string()),
         evidence: Some("forseglet".to_string()),
         phase: Some("GREEN".to_string()),
+        session_health: None,
     };
 
     // Rendering must NEVER panic on multi-byte UTF-8
@@ -1337,6 +1338,7 @@ fn test_render_blockquote_hud_multibyte_and_redirected_resilience() {
         invariants: Some("14/14 PASS".to_string()),
         evidence: Some("pending".to_string()),
         phase: Some("GREEN".to_string()),
+        session_health: None,
     };
 
     // Very long next action with multi-byte characters

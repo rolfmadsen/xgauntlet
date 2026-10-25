@@ -45,6 +45,8 @@ pub struct TaskTelemetry {
     pub evidence: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub phase: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub session_health: Option<crate::features::telemetry::SessionHealth>,
 }
 
 /// Truncates string to at most max_len characters, appending ellipsis if truncated.
@@ -89,7 +91,11 @@ impl TaskTelemetry {
             .phase
             .as_deref()
             .unwrap_or_else(|| self.status.as_str());
-        let mut status_str = format!("Status: {status_val}");
+        let mut status_str = if let Some(ref sh) = self.session_health {
+            format!("Status: {status_val} • {}", sh.status.badge())
+        } else {
+            format!("Status: {status_val}")
+        };
         let scope_val = self.scope.as_deref().unwrap_or("crates/*");
         let mut scope_str = format!("Scope: {scope_val}");
         if status_str.chars().count() + scope_str.chars().count() > 59 {
@@ -185,10 +191,16 @@ impl TaskTelemetry {
             .as_deref()
             .unwrap_or_else(|| self.status.as_str());
         let git_state = if self.git.is_clean { "clean" } else { "dirty" };
+        let session_part = if let Some(ref sh) = self.session_health {
+            format!(" | Session: {}", sh.status.badge())
+        } else {
+            String::new()
+        };
         format!(
-            "[xgauntlet: {}] Status: {} | Progress: {}% | Git: {}@{} ({})",
+            "[xgauntlet: {}] Status: {}{} | Progress: {}% | Git: {}@{} ({})",
             self.task_id,
             status_val,
+            session_part,
             self.criteria.percentage,
             self.git.branch,
             self.git.head_oid,
@@ -213,6 +225,14 @@ impl TaskTelemetry {
 
     pub fn with_phase(mut self, phase: impl Into<String>) -> Self {
         self.phase = Some(phase.into());
+        self
+    }
+
+    pub fn with_session_health(
+        mut self,
+        session_health: crate::features::telemetry::SessionHealth,
+    ) -> Self {
+        self.session_health = Some(session_health);
         self
     }
 }
@@ -410,6 +430,10 @@ pub fn inspect_task_telemetry(
         Err(_) => task_path.display().to_string().replace('\\', "/"),
     };
 
+    let session_health = crate::features::telemetry::SessionTracker::load(workspace, &info.task_id)
+        .ok()
+        .flatten();
+
     Ok(TaskTelemetry {
         task_id: info.task_id,
         title: info.title,
@@ -422,6 +446,7 @@ pub fn inspect_task_telemetry(
         invariants: None,
         evidence: None,
         phase: None,
+        session_health,
     })
 }
 
