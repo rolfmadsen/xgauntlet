@@ -1,6 +1,6 @@
-//! Standard templates for in-repo governance, stack profiles, and agent harness configurations.
+use std::path::Path;
 
-use crate::features::config::default_config_for_stack;
+use crate::features::config::default_config_for_stack_and_workspace;
 
 /// Pair of relative file path and rendered text content for a scaffolded governance file.
 pub struct ScaffoldTemplate {
@@ -10,13 +10,23 @@ pub struct ScaffoldTemplate {
 
 /// Generates all 9 canonical in-repo governance files for the target stack and project name.
 pub fn generate_templates(stack: &str, project_name: &str) -> Vec<ScaffoldTemplate> {
+    generate_templates_for_workspace(None, stack, project_name)
+}
+
+/// Generates all 9 canonical in-repo governance files for the target stack, project name,
+/// and optional workspace context (detecting composite project references, etc.).
+pub fn generate_templates_for_workspace(
+    workspace: Option<&Path>,
+    stack: &str,
+    project_name: &str,
+) -> Vec<ScaffoldTemplate> {
     let now = "2026-09-06T18:00:00Z";
     let today = "2026-09-06";
 
     vec![
         ScaffoldTemplate {
             relative_path: "gauntlet.toml",
-            content: render_gauntlet_toml(stack),
+            content: render_gauntlet_toml(stack, workspace),
         },
         ScaffoldTemplate {
             relative_path: "CONTEXT.md",
@@ -53,8 +63,8 @@ pub fn generate_templates(stack: &str, project_name: &str) -> Vec<ScaffoldTempla
     ]
 }
 
-fn render_gauntlet_toml(stack: &str) -> String {
-    let config = default_config_for_stack(stack);
+fn render_gauntlet_toml(stack: &str, workspace: Option<&Path>) -> String {
+    let config = default_config_for_stack_and_workspace(stack, workspace);
     config.render_toml()
 }
 

@@ -302,6 +302,14 @@
         "commit_oid": "8050b79d401b231bcc069d79990db6060f3dd0a8",
         "timestamp": "2026-10-25T16:19:49Z",
         "digest": "e07fbee44333f4dd6de87aed17616c3912bf8be2802ef3e67be1fb404f4bb992"
+      },
+      {
+        "session_nonce": "sess-67315fa5",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "67315fa5a36fcf777fc4b6d13f8bf56bfd0a61ef",
+        "timestamp": "2026-10-25T16:21:56Z",
+        "digest": "0e90b3cb1d25fa10d3107afee17f1067fc7f3d2a700295f356007242b91cadec"
       }
     ]
   },
@@ -564,6 +572,48 @@
       "failure_digest": "c46f890b2d9b738e1dd1748557166cf54f55ea9b0ef9c0d7177ea0a78f96365f",
       "verified_at": "2026-10-25T15:07:56Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_doctor_warns_on_tsc_no_emit_in_composite_typescript_repo",
+      "failure_output": "Verified in RED checkpoint commit 67315fa",
+      "failure_digest": "ccdb618c81ed206d536e3a773cce4dfe89c9fe28fb345b18dd09775778e14a8b",
+      "verified_at": "2026-10-25T17:21:56+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_doctor_passes_when_composite_typescript_uses_tsc_b",
+      "failure_output": "Verified in RED checkpoint commit 67315fa",
+      "failure_digest": "ccdb618c81ed206d536e3a773cce4dfe89c9fe28fb345b18dd09775778e14a8b",
+      "verified_at": "2026-10-25T17:21:56+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_detect_composite_typescript_tsconfig_content",
+      "failure_output": "Verified in RED checkpoint commit 67315fa",
+      "failure_digest": "ccdb618c81ed206d536e3a773cce4dfe89c9fe28fb345b18dd09775778e14a8b",
+      "verified_at": "2026-10-25T17:21:56+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_detect_composite_typescript_in_workspace",
+      "failure_output": "Verified in RED checkpoint commit 67315fa",
+      "failure_digest": "ccdb618c81ed206d536e3a773cce4dfe89c9fe28fb345b18dd09775778e14a8b",
+      "verified_at": "2026-10-25T17:21:56+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_scaffold_init_composite_typescript_generates_tsc_b",
+      "failure_output": "Verified in RED checkpoint commit 67315fa",
+      "failure_digest": "ccdb618c81ed206d536e3a773cce4dfe89c9fe28fb345b18dd09775778e14a8b",
+      "verified_at": "2026-10-25T17:21:56+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_scaffold_init_standard_typescript_generates_tsc_no_emit",
+      "failure_output": "Verified in RED checkpoint commit 67315fa",
+      "failure_digest": "ccdb618c81ed206d536e3a773cce4dfe89c9fe28fb345b18dd09775778e14a8b",
+      "verified_at": "2026-10-25T17:21:56+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }

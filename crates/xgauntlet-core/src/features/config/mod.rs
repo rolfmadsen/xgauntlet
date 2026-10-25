@@ -15,7 +15,8 @@ pub use models::{
     ValidationSeverity,
 };
 pub use profiles::{
-    default_config_for_stack, detect_composite_typescript, detect_stack, get_stack_profile,
-    is_composite_typescript_tsconfig, list_supported_stacks, SUPPORTED_STACKS,
+    default_config_for_stack, default_config_for_stack_and_workspace, detect_composite_typescript,
+    detect_stack, get_stack_profile, is_composite_typescript_tsconfig, list_supported_stacks,
+    SUPPORTED_STACKS,
 };
 pub use validation::validate_config;

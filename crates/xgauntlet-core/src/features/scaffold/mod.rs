@@ -11,4 +11,4 @@ pub use engine::run_scaffold;
 pub use models::{
     ScaffoldAction, ScaffoldError, ScaffoldFileReport, ScaffoldOptions, ScaffoldResult,
 };
-pub use templates::{generate_templates, ScaffoldTemplate};
+pub use templates::{generate_templates, generate_templates_for_workspace, ScaffoldTemplate};

@@ -6,7 +6,7 @@ use crate::features::config::{detect_stack, get_stack_profile};
 use crate::features::scaffold::models::{
     ScaffoldAction, ScaffoldError, ScaffoldFileReport, ScaffoldOptions, ScaffoldResult,
 };
-use crate::features::scaffold::templates::generate_templates;
+use crate::features::scaffold::templates::generate_templates_for_workspace;
 
 /// Executes the scaffolding process according to provided options.
 ///
@@ -50,7 +50,7 @@ pub fn run_scaffold(options: &ScaffoldOptions) -> Result<ScaffoldResult, Scaffol
     });
 
     // 4. Generate candidate governance templates
-    let templates = generate_templates(&stack, &project_name);
+    let templates = generate_templates_for_workspace(Some(workspace), &stack, &project_name);
 
     let mut file_reports = Vec::new();
     let mut created_count = 0;

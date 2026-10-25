@@ -16,9 +16,10 @@ pub use features::checkpoint::{
     CheckpointPhase, CheckpointResult, SessionHandoff,
 };
 pub use features::config::{
-    default_config_for_stack, detect_composite_typescript, detect_stack, get_stack_profile,
-    is_composite_typescript_tsconfig, list_supported_stacks, load_config, validate_config,
-    ConfigValidationIssue, ConfigValidationReport, PathsConfig, StackProfile,
+    default_config_for_stack, default_config_for_stack_and_workspace, detect_composite_typescript,
+    detect_stack, get_stack_profile, is_composite_typescript_tsconfig, list_supported_stacks,
+    load_config, validate_config, ConfigValidationIssue, ConfigValidationReport, PathsConfig,
+    StackProfile,
 };
 pub use features::diagnostics::{
     extract_cargo_check_findings, extract_cargo_mutants_findings, extract_cargo_test_findings,
@@ -67,8 +68,8 @@ pub use features::release::{
     ReleaseReadinessReport, SemverBump,
 };
 pub use features::scaffold::{
-    generate_templates, run_scaffold, ScaffoldAction, ScaffoldError, ScaffoldFileReport,
-    ScaffoldOptions, ScaffoldResult, ScaffoldTemplate,
+    generate_templates, generate_templates_for_workspace, run_scaffold, ScaffoldAction,
+    ScaffoldError, ScaffoldFileReport, ScaffoldOptions, ScaffoldResult, ScaffoldTemplate,
 };
 pub use features::tasks::{
     check_adr_frontmatter, check_all_adrs, check_all_tasks, check_task_specification,

@@ -177,7 +177,10 @@ fn test_scaffold_init_composite_typescript_generates_tsc_b() {
     assert!(result.is_success);
 
     let gauntlet_toml_path = ws.join("gauntlet.toml");
-    assert!(gauntlet_toml_path.is_file(), "gauntlet.toml must be created");
+    assert!(
+        gauntlet_toml_path.is_file(),
+        "gauntlet.toml must be created"
+    );
 
     let content = fs::read_to_string(&gauntlet_toml_path).unwrap();
     let config = parse_toml(&content).expect("gauntlet.toml must be valid TOML");
@@ -229,11 +232,7 @@ fn test_scaffold_init_standard_typescript_generates_tsc_no_emit() {
 
     assert_eq!(
         types_layer.command,
-        vec![
-            "npx".to_string(),
-            "tsc".to_string(),
-            "--noEmit".to_string()
-        ],
+        vec!["npx".to_string(), "tsc".to_string(), "--noEmit".to_string()],
         "Standard flat TypeScript setups must retain 'tsc --noEmit'"
     );
 }

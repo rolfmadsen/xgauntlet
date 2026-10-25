@@ -4,7 +4,7 @@ use std::collections::HashSet;
 use std::path::Path;
 
 use super::models::{ConfigValidationIssue, ConfigValidationReport, GauntletConfig};
-use super::profiles::SUPPORTED_STACKS;
+use super::profiles::{detect_composite_typescript, SUPPORTED_STACKS};
 
 /// Validates a GauntletConfig against schema, naming, timeouts, and path safety invariants.
 pub fn validate_config(
@@ -85,6 +85,27 @@ pub fn validate_config(
                     config.paths.context_file
                 )),
             ));
+        }
+
+        // Composite TypeScript Project References check (AC3)
+        if detect_composite_typescript(ws) {
+            for (idx, layer) in config.layers.iter().enumerate() {
+                let runs_tsc = layer.command.iter().any(|arg| arg == "tsc");
+                let has_no_emit = layer.command.iter().any(|arg| arg == "--noEmit");
+                let has_b = layer.command.iter().any(|arg| arg == "-b");
+
+                if runs_tsc && has_no_emit && !has_b {
+                    report.add_issue(ConfigValidationIssue::warning(
+                        "COMPOSITE_TSC_NO_EMIT",
+                        format!(
+                            "Layer '{}' runs 'tsc --noEmit' in a repository with composite TypeScript project references. Typechecking will silently skip project references; configure 'tsc -b' instead.",
+                            layer.name
+                        ),
+                        Some(format!("layers[{}].command", idx)),
+                        Some("Change command in gauntlet.toml to ['npx', 'tsc', '-b'] to typecheck all composite references.".to_string()),
+                    ));
+                }
+            }
         }
     }
 

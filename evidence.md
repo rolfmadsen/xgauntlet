@@ -62,6 +62,7 @@
 | `sess-2c9ed01a` | `TDD Craftsman` | `REFACTOR` | `2c9ed01` | `2026-10-25T16:07:41Z` | `VALID` |
 | `sess-fc17224e` | `Software Engineer` | `DONE` | `fc17224` | `2026-10-25T16:10:58Z` | `VALID` |
 | `sess-8050b79d` | `System Architect` | `SPEC` | `8050b79` | `2026-10-25T16:19:49Z` | `VALID` |
+| `sess-67315fa5` | `TDD Craftsman` | `RED` | `67315fa` | `2026-10-25T16:21:56Z` | `VALID` |
 
 ---
 
@@ -106,5 +107,11 @@
 | `test_inverse_preflight_verifies_legitimate_test` | `RedCheckpointVerified` | `b02ab9f2e3aea63d...` | `2026-10-25T15:50:03+01:00` |
 | `test_checkpoint_green_fails_closed_on_born_green_with_strict_provenance` | `RedCheckpointVerified` | `b02ab9f2e3aea63d...` | `2026-10-25T15:50:03+01:00` |
 | `test_collect_task_test_provenance_and_verification_report` | `InversePreflightVerified` | `c46f890b2d9b738e...` | `2026-10-25T15:07:56Z` |
+| `test_doctor_warns_on_tsc_no_emit_in_composite_typescript_repo` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
+| `test_doctor_passes_when_composite_typescript_uses_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
+| `test_detect_composite_typescript_tsconfig_content` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
+| `test_detect_composite_typescript_in_workspace` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
+| `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
+| `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 
 ---

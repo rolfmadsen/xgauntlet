@@ -1,6 +1,6 @@
-//! In-repo governance, specification, and configuration diagnostic checks.
-
-use crate::features::config::{load_config, validate_config, ValidationSeverity};
+use crate::features::config::{
+    detect_composite_typescript, load_config, validate_config, ValidationSeverity,
+};
 use crate::features::doctor::models::{DoctorCategory, DoctorCheckItem, DoctorCheckStatus};
 use crate::features::tasks::{resolve_active_task_id, validate_context_glossary};
 use std::fs;
@@ -23,7 +23,7 @@ pub fn check_governance(workspace: &Path) -> Vec<DoctorCheckItem> {
                 let report = validate_config(&cfg, Some(workspace));
                 let duration = start.elapsed().as_millis() as u64;
 
-                if report.is_valid {
+                if report.issues.is_empty() {
                     let layer_count = cfg.layers.len();
                     checks.push(DoctorCheckItem {
                         name: "governance_gauntlet_toml".to_string(),
@@ -103,6 +103,44 @@ pub fn check_governance(workspace: &Path) -> Vec<DoctorCheckItem> {
             ),
             duration_ms: duration,
         });
+    }
+
+    // Dedicated check for composite TypeScript project references (AC3)
+    if detect_composite_typescript(workspace) {
+        let start = Instant::now();
+        let uses_no_emit = match load_config(workspace) {
+            Ok(cfg) => cfg.layers.iter().any(|l| {
+                l.command.iter().any(|c| c == "tsc")
+                    && l.command.iter().any(|c| c == "--noEmit")
+                    && !l.command.iter().any(|c| c == "-b")
+            }),
+            Err(_) => false,
+        };
+        let duration = start.elapsed().as_millis() as u64;
+
+        if uses_no_emit {
+            checks.push(DoctorCheckItem {
+                name: "governance_composite_typescript".to_string(),
+                category: DoctorCategory::Governance,
+                status: DoctorCheckStatus::Warn,
+                message: "Composite TypeScript project detected, but gauntlet.toml uses 'tsc --noEmit'".to_string(),
+                detail: Some("Root tsconfig.json uses project references; 'tsc --noEmit' does not validate sub-projects and silently passes without checking source files.".to_string()),
+                remediation: Some("Configure [layers.types] in gauntlet.toml to: command = [\"npx\", \"tsc\", \"-b\"]".to_string()),
+                duration_ms: duration,
+            });
+        } else {
+            checks.push(DoctorCheckItem {
+                name: "governance_composite_typescript".to_string(),
+                category: DoctorCategory::Governance,
+                status: DoctorCheckStatus::Pass,
+                message:
+                    "Composite TypeScript project correctly configured with build mode ('tsc -b')"
+                        .to_string(),
+                detail: None,
+                remediation: None,
+                duration_ms: duration,
+            });
+        }
     }
 
     // 2. Macro Specification (spec.md)

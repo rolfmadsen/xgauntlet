@@ -4,7 +4,7 @@ use std::fs;
 use std::path::Path;
 
 use super::models::{ArchitectureExemption, ConfigError, GauntletConfig, LayerConfig};
-use super::profiles::{default_config_for_stack, detect_stack};
+use super::profiles::{default_config_for_stack_and_workspace, detect_stack};
 
 /// Loads configuration from workspace root looking for gauntlet.toml, gauntlet.json, or fallback to stack detection.
 pub fn load_config(workspace: &Path) -> Result<GauntletConfig, ConfigError> {
@@ -21,7 +21,10 @@ pub fn load_config(workspace: &Path) -> Result<GauntletConfig, ConfigError> {
     }
 
     let detected_stack = detect_stack(workspace);
-    Ok(default_config_for_stack(detected_stack))
+    Ok(default_config_for_stack_and_workspace(
+        detected_stack,
+        Some(workspace),
+    ))
 }
 
 /// Loads configuration from string content given a filename or path hint.
