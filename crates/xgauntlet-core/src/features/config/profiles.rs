@@ -275,3 +275,13 @@ fn go_layers() -> Vec<LayerConfig> {
         },
     ]
 }
+
+/// Inspects workspace root for composite TypeScript project references (AC1).
+pub fn detect_composite_typescript(_workspace: &Path) -> bool {
+    false
+}
+
+/// Analyzes tsconfig.json content for composite project references structure (AC1).
+pub fn is_composite_typescript_tsconfig(_content: &str) -> bool {
+    false
+}

@@ -16,8 +16,9 @@ pub use features::checkpoint::{
     CheckpointPhase, CheckpointResult, SessionHandoff,
 };
 pub use features::config::{
-    default_config_for_stack, detect_stack, get_stack_profile, list_supported_stacks, load_config,
-    validate_config, ConfigValidationIssue, ConfigValidationReport, PathsConfig, StackProfile,
+    default_config_for_stack, detect_composite_typescript, detect_stack, get_stack_profile,
+    is_composite_typescript_tsconfig, list_supported_stacks, load_config, validate_config,
+    ConfigValidationIssue, ConfigValidationReport, PathsConfig, StackProfile,
 };
 pub use features::diagnostics::{
     extract_cargo_check_findings, extract_cargo_mutants_findings, extract_cargo_test_findings,
