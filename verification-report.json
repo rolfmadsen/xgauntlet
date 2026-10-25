@@ -180,6 +180,14 @@
         "commit_oid": "4a8a256695426de7bc5f0ab66b273c0d19a8fbd1",
         "timestamp": "2026-10-25T14:43:26Z",
         "digest": "7a93d87ff0a1c322d11f01b07b5b20898d2bdad206dffe87585f5d8eead4b7e0"
+      },
+      {
+        "session_nonce": "sess-4a8a2566",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "c1b2b2db04676cee7da0edef5593aa9b2a614223",
+        "timestamp": "2026-10-25T14:50:03Z",
+        "digest": "53791b293ec1cec17c0c996379453492c7faf9d3de60fea369b9436e55d111a4"
       }
     ]
   }
