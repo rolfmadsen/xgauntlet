@@ -15,6 +15,12 @@ pub enum ArchitectureFindingCategory {
     ForbiddenTokenDetected,
     /// A forbidden cross-boundary module import was detected.
     ForbiddenImportDetected,
+    /// An architectural exemption is missing the mandatory `adr` attribution.
+    ExemptionMissingAdr,
+    /// An architectural exemption references an ADR file that does not exist.
+    ExemptionAdrNotFound,
+    /// An architectural exemption references an ADR that is not in `accepted` or `stable` status.
+    ExemptionAdrNotAccepted,
 }
 
 /// An individual finding produced during architectural analysis.

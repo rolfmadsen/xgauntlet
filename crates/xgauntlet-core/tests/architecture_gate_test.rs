@@ -179,6 +179,15 @@ fn test_architecture_check_honors_explicit_exemption() {
     }
     fs::write(src_dir.join("parser.rs"), content).unwrap();
 
+    // Create accepted ADR in test workspace
+    let adr_dir = ws.join("docs/adr");
+    fs::create_dir_all(&adr_dir).unwrap();
+    fs::write(
+        adr_dir.join("0009-parser.md"),
+        "---\ntype: Architectural Decision Record\nstatus: accepted\n---\n# 9. Parser\n",
+    )
+    .unwrap();
+
     let cfg = ArchitectureConfig {
         max_file_lines: Some(800),
         max_test_file_lines: Some(1000),
@@ -187,6 +196,7 @@ fn test_architecture_check_honors_explicit_exemption() {
         exemptions: vec![ArchitectureExemption {
             path: "src/parser.rs".into(),
             reason: "Complex grammar table jf. ADR 0009".into(),
+            adr: "docs/adr/0009-parser.md".into(),
             max_lines: Some(1200),
         }],
     };
@@ -206,6 +216,15 @@ fn test_architecture_check_fails_if_exemption_ceiling_exceeded() {
     let src_dir = ws.join("src");
     fs::create_dir_all(&src_dir).unwrap();
 
+    // Create accepted ADR in test workspace
+    let adr_dir = ws.join("docs/adr");
+    fs::create_dir_all(&adr_dir).unwrap();
+    fs::write(
+        adr_dir.join("0009-parser.md"),
+        "---\ntype: Architectural Decision Record\nstatus: accepted\n---\n# 9. Parser\n",
+    )
+    .unwrap();
+
     // Generate 1300 lines (exceeds exemption ceiling of 1200)
     let mut content = String::new();
     for i in 0..1300 {
@@ -221,6 +240,7 @@ fn test_architecture_check_fails_if_exemption_ceiling_exceeded() {
         exemptions: vec![ArchitectureExemption {
             path: "src/parser.rs".into(),
             reason: "Complex grammar table jf. ADR 0009".into(),
+            adr: "docs/adr/0009-parser.md".into(),
             max_lines: Some(1200),
         }],
     };
@@ -293,4 +313,140 @@ pub fn render() {}
         f.category == ArchitectureFindingCategory::ForbiddenImportDetected
             && f.message.contains("crate::ui::app")
     }));
+}
+
+#[test]
+fn test_architecture_check_fails_when_exemption_lacks_adr() {
+    let temp = TempDir::new("arch_no_adr");
+    let ws = temp.path();
+
+    let src_dir = ws.join("src");
+    fs::create_dir_all(&src_dir).unwrap();
+    fs::write(src_dir.join("legacy.rs"), "// Line\n").unwrap();
+
+    let cfg = ArchitectureConfig {
+        max_file_lines: Some(800),
+        max_test_file_lines: Some(1000),
+        forbidden_tokens: vec![],
+        forbidden_imports: vec![],
+        exemptions: vec![ArchitectureExemption {
+            path: "src/legacy.rs".into(),
+            reason: "Legacy parser without ADR".into(),
+            adr: "".into(),
+            max_lines: Some(1200),
+        }],
+    };
+
+    let report = run_architecture_check(ws, &cfg).expect("run architecture check");
+    assert!(!report.is_valid, "Exemption lacking ADR must fail validation");
+    assert!(
+        report
+            .findings
+            .iter()
+            .any(|f| f.category == ArchitectureFindingCategory::ExemptionMissingAdr),
+        "Expected ExemptionMissingAdr finding, got: {:?}",
+        report.findings
+    );
+}
+
+#[test]
+fn test_architecture_check_fails_when_exemption_adr_not_found() {
+    let temp = TempDir::new("arch_adr_not_found");
+    let ws = temp.path();
+
+    let src_dir = ws.join("src");
+    fs::create_dir_all(&src_dir).unwrap();
+    fs::write(src_dir.join("legacy.rs"), "// Line\n").unwrap();
+
+    let cfg = ArchitectureConfig {
+        max_file_lines: Some(800),
+        max_test_file_lines: Some(1000),
+        forbidden_tokens: vec![],
+        forbidden_imports: vec![],
+        exemptions: vec![ArchitectureExemption {
+            path: "src/legacy.rs".into(),
+            reason: "Non-existent ADR".into(),
+            adr: "docs/adr/0999-does-not-exist.md".into(),
+            max_lines: Some(1200),
+        }],
+    };
+
+    let report = run_architecture_check(ws, &cfg).expect("run architecture check");
+    assert!(!report.is_valid, "Exemption referencing missing ADR must fail validation");
+    assert!(
+        report
+            .findings
+            .iter()
+            .any(|f| f.category == ArchitectureFindingCategory::ExemptionAdrNotFound),
+        "Expected ExemptionAdrNotFound finding, got: {:?}",
+        report.findings
+    );
+}
+
+#[test]
+fn test_architecture_check_fails_when_exemption_adr_is_not_accepted() {
+    let temp = TempDir::new("arch_adr_draft");
+    let ws = temp.path();
+
+    let src_dir = ws.join("src");
+    fs::create_dir_all(&src_dir).unwrap();
+    fs::write(src_dir.join("legacy.rs"), "// Line\n").unwrap();
+
+    let adr_dir = ws.join("docs/adr");
+    fs::create_dir_all(&adr_dir).unwrap();
+    fs::write(
+        adr_dir.join("0099-draft-decision.md"),
+        "---\ntype: Architectural Decision Record\nstatus: draft\n---\n# 99. Draft Decision\n",
+    )
+    .unwrap();
+
+    let cfg = ArchitectureConfig {
+        max_file_lines: Some(800),
+        max_test_file_lines: Some(1000),
+        forbidden_tokens: vec![],
+        forbidden_imports: vec![],
+        exemptions: vec![ArchitectureExemption {
+            path: "src/legacy.rs".into(),
+            reason: "Draft ADR not accepted yet".into(),
+            adr: "docs/adr/0099-draft-decision.md".into(),
+            max_lines: Some(1200),
+        }],
+    };
+
+    let report = run_architecture_check(ws, &cfg).expect("run architecture check");
+    assert!(!report.is_valid, "Exemption referencing draft ADR must fail validation");
+    assert!(
+        report
+            .findings
+            .iter()
+            .any(|f| f.category == ArchitectureFindingCategory::ExemptionAdrNotAccepted),
+        "Expected ExemptionAdrNotAccepted finding, got: {:?}",
+        report.findings
+    );
+}
+
+#[test]
+fn test_architecture_config_parsing_from_toml_with_adr() {
+    let toml = r#"
+stack = "rust"
+
+[architecture]
+max_file_lines = 800
+max_test_file_lines = 1000
+
+[[architecture.exemptions]]
+path = "crates/xgauntlet-cli/src/main.rs"
+reason = "CLI root dispatcher containing multi-subcommand handlers; ratchet limit"
+adr = "docs/adr/0010-adr-bound-architectural-exemptions-and-monotonic-ratchets.md"
+max_lines = 2190
+"#;
+
+    let cfg = load_config_from_str(toml, Path::new("gauntlet.toml")).expect("parse toml config");
+    assert_eq!(cfg.architecture.exemptions.len(), 1);
+    assert_eq!(cfg.architecture.exemptions[0].path, "crates/xgauntlet-cli/src/main.rs");
+    assert_eq!(
+        cfg.architecture.exemptions[0].adr,
+        "docs/adr/0010-adr-bound-architectural-exemptions-and-monotonic-ratchets.md"
+    );
+    assert_eq!(cfg.architecture.exemptions[0].max_lines, Some(2190));
 }

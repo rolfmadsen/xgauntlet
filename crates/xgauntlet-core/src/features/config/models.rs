@@ -189,6 +189,8 @@ pub struct ArchitectureExemption {
     #[serde(default)]
     pub reason: String,
     #[serde(default)]
+    pub adr: String,
+    #[serde(default)]
     pub max_lines: Option<usize>,
 }
 
