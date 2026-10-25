@@ -338,7 +338,10 @@ fn test_architecture_check_fails_when_exemption_lacks_adr() {
     };
 
     let report = run_architecture_check(ws, &cfg).expect("run architecture check");
-    assert!(!report.is_valid, "Exemption lacking ADR must fail validation");
+    assert!(
+        !report.is_valid,
+        "Exemption lacking ADR must fail validation"
+    );
     assert!(
         report
             .findings
@@ -372,7 +375,10 @@ fn test_architecture_check_fails_when_exemption_adr_not_found() {
     };
 
     let report = run_architecture_check(ws, &cfg).expect("run architecture check");
-    assert!(!report.is_valid, "Exemption referencing missing ADR must fail validation");
+    assert!(
+        !report.is_valid,
+        "Exemption referencing missing ADR must fail validation"
+    );
     assert!(
         report
             .findings
@@ -414,7 +420,10 @@ fn test_architecture_check_fails_when_exemption_adr_is_not_accepted() {
     };
 
     let report = run_architecture_check(ws, &cfg).expect("run architecture check");
-    assert!(!report.is_valid, "Exemption referencing draft ADR must fail validation");
+    assert!(
+        !report.is_valid,
+        "Exemption referencing draft ADR must fail validation"
+    );
     assert!(
         report
             .findings
@@ -443,7 +452,10 @@ max_lines = 2190
 
     let cfg = load_config_from_str(toml, Path::new("gauntlet.toml")).expect("parse toml config");
     assert_eq!(cfg.architecture.exemptions.len(), 1);
-    assert_eq!(cfg.architecture.exemptions[0].path, "crates/xgauntlet-cli/src/main.rs");
+    assert_eq!(
+        cfg.architecture.exemptions[0].path,
+        "crates/xgauntlet-cli/src/main.rs"
+    );
     assert_eq!(
         cfg.architecture.exemptions[0].adr,
         "docs/adr/0010-adr-bound-architectural-exemptions-and-monotonic-ratchets.md"

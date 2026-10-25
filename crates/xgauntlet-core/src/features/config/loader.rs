@@ -124,6 +124,7 @@ pub fn parse_toml(content: &str) -> Result<GauntletConfig, ConfigError> {
                     match key {
                         "path" => ex.path = parse_str_val(val),
                         "reason" => ex.reason = parse_str_val(val),
+                        "adr" => ex.adr = parse_str_val(val),
                         "max_lines" => ex.max_lines = Some(parse_usize_val(val)),
                         _ => {}
                     }
@@ -240,6 +241,9 @@ pub fn render_toml(config: &GauntletConfig) -> String {
         out.push_str("[[architecture.exemptions]]\n");
         out.push_str(&format!("path = \"{}\"\n", ex.path));
         out.push_str(&format!("reason = \"{}\"\n", ex.reason));
+        if !ex.adr.is_empty() {
+            out.push_str(&format!("adr = \"{}\"\n", ex.adr));
+        }
         if let Some(ml) = ex.max_lines {
             out.push_str(&format!("max_lines = {}\n", ml));
         }

@@ -384,6 +384,14 @@
         "commit_oid": "aa21fa7fd8eb29e4c9d49c50879c43db88a10a3a",
         "timestamp": "2026-10-25T17:01:29Z",
         "digest": "c2a19f4119ec0a9bb0149c083456d1a476fd047a4ad237e9f4ff7ab3731d41b3"
+      },
+      {
+        "session_nonce": "sess-88b26411",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "88b26411a319e0fb3b2298bc581ecdf53c1296d6",
+        "timestamp": "2026-10-25T17:19:44Z",
+        "digest": "a86c0cc6bec434ffb934a5e41846c102cc5be2feb4d7bd4db2a0458d39b032fb"
       }
     ]
   },
@@ -750,6 +758,90 @@
       "failure_output": "Verified in RED checkpoint commit 67315fa",
       "failure_digest": "ccdb618c81ed206d536e3a773cce4dfe89c9fe28fb345b18dd09775778e14a8b",
       "verified_at": "2026-10-25T17:21:56+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_architecture_config_parsing_from_toml",
+      "failure_output": "Verified in RED checkpoint commit 88b2641",
+      "failure_digest": "c436f3579eb4e5b68da64fd936b271243af3a3080a2c8c2fbd9f94bc81068953",
+      "verified_at": "2026-10-25T18:19:44+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_architecture_check_passes_on_compliant_workspace",
+      "failure_output": "Verified in RED checkpoint commit 88b2641",
+      "failure_digest": "c436f3579eb4e5b68da64fd936b271243af3a3080a2c8c2fbd9f94bc81068953",
+      "verified_at": "2026-10-25T18:19:44+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_architecture_check_fails_on_monolithic_production_file",
+      "failure_output": "Verified in RED checkpoint commit 88b2641",
+      "failure_digest": "c436f3579eb4e5b68da64fd936b271243af3a3080a2c8c2fbd9f94bc81068953",
+      "verified_at": "2026-10-25T18:19:44+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_architecture_check_fails_on_monolithic_test_file",
+      "failure_output": "Verified in RED checkpoint commit 88b2641",
+      "failure_digest": "c436f3579eb4e5b68da64fd936b271243af3a3080a2c8c2fbd9f94bc81068953",
+      "verified_at": "2026-10-25T18:19:44+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_architecture_check_honors_explicit_exemption",
+      "failure_output": "Verified in RED checkpoint commit 88b2641",
+      "failure_digest": "c436f3579eb4e5b68da64fd936b271243af3a3080a2c8c2fbd9f94bc81068953",
+      "verified_at": "2026-10-25T18:19:44+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_architecture_check_fails_if_exemption_ceiling_exceeded",
+      "failure_output": "Verified in RED checkpoint commit 88b2641",
+      "failure_digest": "c436f3579eb4e5b68da64fd936b271243af3a3080a2c8c2fbd9f94bc81068953",
+      "verified_at": "2026-10-25T18:19:44+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_architecture_check_catches_forbidden_tokens",
+      "failure_output": "Verified in RED checkpoint commit 88b2641",
+      "failure_digest": "c436f3579eb4e5b68da64fd936b271243af3a3080a2c8c2fbd9f94bc81068953",
+      "verified_at": "2026-10-25T18:19:44+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_architecture_check_catches_forbidden_imports",
+      "failure_output": "Verified in RED checkpoint commit 88b2641",
+      "failure_digest": "c436f3579eb4e5b68da64fd936b271243af3a3080a2c8c2fbd9f94bc81068953",
+      "verified_at": "2026-10-25T18:19:44+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_architecture_check_fails_when_exemption_lacks_adr",
+      "failure_output": "Verified in RED checkpoint commit 88b2641",
+      "failure_digest": "c436f3579eb4e5b68da64fd936b271243af3a3080a2c8c2fbd9f94bc81068953",
+      "verified_at": "2026-10-25T18:19:44+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_architecture_check_fails_when_exemption_adr_not_found",
+      "failure_output": "Verified in RED checkpoint commit 88b2641",
+      "failure_digest": "c436f3579eb4e5b68da64fd936b271243af3a3080a2c8c2fbd9f94bc81068953",
+      "verified_at": "2026-10-25T18:19:44+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_architecture_check_fails_when_exemption_adr_is_not_accepted",
+      "failure_output": "Verified in RED checkpoint commit 88b2641",
+      "failure_digest": "c436f3579eb4e5b68da64fd936b271243af3a3080a2c8c2fbd9f94bc81068953",
+      "verified_at": "2026-10-25T18:19:44+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_architecture_config_parsing_from_toml_with_adr",
+      "failure_output": "Verified in RED checkpoint commit 88b2641",
+      "failure_digest": "c436f3579eb4e5b68da64fd936b271243af3a3080a2c8c2fbd9f94bc81068953",
+      "verified_at": "2026-10-25T18:19:44+01:00",
       "status": "red_checkpoint_verified"
     }
   ]

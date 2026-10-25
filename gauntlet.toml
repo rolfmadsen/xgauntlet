@@ -17,17 +17,20 @@ forbidden_tokens = ["Color::from_rgb", "Color::from_rgba"]
 
 [[architecture.exemptions]]
 path = "crates/xgauntlet-cli/src/main.rs"
-reason = "CLI root dispatcher containing multi-subcommand handlers; ratchet limit"
+reason = "CLI root dispatcher containing multi-subcommand handlers; ratchet limit jf. ADR 0010"
+adr = "docs/adr/0010-adr-bound-architectural-exemptions-and-monotonic-ratchets.md"
 max_lines = 2190
 
 [[architecture.exemptions]]
 path = "crates/xgauntlet-core/tests/harness_contracts_test.rs"
-reason = "Multi-adapter subprocess contract tests; ratchet limit"
+reason = "Multi-adapter subprocess contract tests; ratchet limit jf. ADR 0004"
+adr = "docs/adr/0004-harness-adapter-slices.md"
 max_lines = 1600
 
 [[architecture.exemptions]]
 path = "crates/xgauntlet-core/tests/harness_adapters_test.rs"
-reason = "Multi-adapter payload roundtrip and conformance suite; ratchet limit"
+reason = "Multi-adapter payload roundtrip and conformance suite; ratchet limit jf. ADR 0004"
+adr = "docs/adr/0004-harness-adapter-slices.md"
 max_lines = 1700
 
 [[layers]]

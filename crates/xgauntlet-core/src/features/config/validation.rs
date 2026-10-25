@@ -52,6 +52,15 @@ pub fn validate_config(
         &config.evidence_markdown_file,
         &mut report,
     );
+    for (idx, ex) in config.architecture.exemptions.iter().enumerate() {
+        if !ex.adr.trim().is_empty() {
+            validate_path_safety(
+                &format!("architecture.exemptions[{}].adr", idx),
+                &ex.adr,
+                &mut report,
+            );
+        }
+    }
 
     // If workspace root is supplied, check existence of required docs
     if let Some(ws) = workspace {
