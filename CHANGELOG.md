@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-25
+
 ### 🚀 Added & Hardened
 - **Multi-Session Lineage & Evidence Traceability (`Task 045`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`)**:
   - Implementeret kryptografisk, append-only `SessionLineageTrail` i Two-Tier evidensmodellen (ADR 0005) med deterministisk sporing af session nonce, ingeniørrolle, fase og commit OID i `verification-report.json` og `evidence.md`.

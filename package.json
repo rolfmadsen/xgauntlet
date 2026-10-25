@@ -28,7 +28,7 @@
     "test": "npm run test --workspaces --if-present && cargo test"
   },
   "type": "module",
-  "version": "0.8.5",
+  "version": "0.9.0",
   "workspaces": [
     "packages/*"
   ]

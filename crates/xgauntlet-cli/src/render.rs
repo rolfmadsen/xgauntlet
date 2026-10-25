@@ -591,12 +591,21 @@ pub fn execute_release_workflow(
                     save_evidence: true,
                     layers: None,
                 };
-                let runtime = tokio::runtime::Runtime::new()
-                    .map_err(|e| anyhow::anyhow!("Failed to initialize tokio runtime: {e}"))?;
-                let outcome = runtime.block_on(xgauntlet_core::execute_gauntlet_pipeline(
-                    workspace,
-                    &verify_options,
-                ))?;
+                let outcome = if let Ok(handle) = tokio::runtime::Handle::try_current() {
+                    tokio::task::block_in_place(|| {
+                        handle.block_on(xgauntlet_core::execute_gauntlet_pipeline(
+                            workspace,
+                            &verify_options,
+                        ))
+                    })
+                } else {
+                    tokio::runtime::Runtime::new()
+                        .map_err(|e| anyhow::anyhow!("Failed to initialize tokio runtime: {e}"))?
+                        .block_on(xgauntlet_core::execute_gauntlet_pipeline(
+                            workspace,
+                            &verify_options,
+                        ))
+                }?;
 
                 if outcome.report.verdict.eq_ignore_ascii_case("FAILED") {
                     anyhow::bail!("Gauntlet verification failed during release bump auto-sealing");

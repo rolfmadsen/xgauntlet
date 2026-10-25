@@ -4,10 +4,10 @@
 **Task Title**: Task 049: Mechanical Monotonic Ratchet Enforcement  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `278f4cb2115d499c0380cd89d3efcb1c6f08138c2418c2fc9206ddc3363b551d`  
-**Timestamp**: `2026-10-25T20:29:20Z`  
-**Head**: `94ccfce`  
-**Commit**: `94ccfce`  
+**Source Manifest Digest**: `6dd16100dc9844a892d8ecc005b8bb23e944774ad0a2a7ce2ffce5f97793e267`  
+**Timestamp**: `2026-10-25T21:17:03Z`  
+**Head**: `e56fc8f`  
+**Commit**: `e56fc8f`  
 
 ## Acceptance Criteria
 
@@ -24,14 +24,14 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.114s` |
-| `format` | `PASSED` | `0` | `0.213s` |
-| `lint` | `PASSED` | `0` | `0.147s` |
-| `types` | `PASSED` | `0` | `0.074s` |
-| `unit` | `PASSED` | `0` | `21.419s` |
-| `npm` | `PASSED` | `0` | `0.898s` |
-| `invariants` | `PASSED` | `0` | `0.075s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.020s` |
+| `architecture` | `PASSED` | `0` | `0.098s` |
+| `format` | `PASSED` | `0` | `0.231s` |
+| `lint` | `PASSED` | `0` | `0.346s` |
+| `types` | `PASSED` | `0` | `0.291s` |
+| `unit` | `PASSED` | `0` | `21.480s` |
+| `npm` | `PASSED` | `0` | `0.816s` |
+| `invariants` | `PASSED` | `0` | `0.066s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.015s` |
 
 ---
 
