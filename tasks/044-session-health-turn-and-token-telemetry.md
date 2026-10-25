@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 044: Session Health, Turn & Token Telemetry"
 description: "Implementere letvægts Session Health telemetri med turn-tælling, payload-størrelse og deterministisk token-estimering i Cockpit HUD og JIT-direktiver"
-status: active
+status: done
 generated: { by: process:antigravity-task-init, at: "2026-10-25T11:25:00Z" }
 tags: [telemetry, session-health, token-budget, cockpit-hud, jit-governance, anti-context-rot]
 scope: ["crates/xgauntlet-core/src/features/telemetry/**", "crates/xgauntlet-core/src/features/tasks/telemetry.rs", "crates/xgauntlet-core/src/features/adapters/**", "crates/xgauntlet-cli/**"]
@@ -11,7 +11,7 @@ test_refs: ["crates/xgauntlet-core/tests/session_health_telemetry_test.rs"]
 
 # Task 044: Session Health, Turn & Token Telemetry
 
-**Status**: `ACTIVE`  
+**Status**: `DONE`  
 **Intent**: `🚀 NEW FEATURE`  
 **Oprettet**: `2026-10-25`  
 

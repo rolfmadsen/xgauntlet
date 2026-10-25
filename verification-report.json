@@ -4,39 +4,40 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "043-documentation-alignment-and-single-agent-governance",
-    "task_title": "Task 043: Documentation Alignment & Single-Agent Governance",
-    "task_digest": "39e6fe1dbbd0549820555b86a77eac70918266e8fb204c8125890797b4f3e2eb",
+    "task_id": "044-session-health-turn-and-token-telemetry",
+    "task_title": "Task 044: Session Health, Turn & Token Telemetry",
+    "task_digest": "19ae55a5d27c5139c451ca37a1227345ba357832af598eedde4eb2f06a3b95ca",
     "acceptance_criteria": [
-      "**AC1 (Opdatering af `ROADMAP.md`)**:",
-      "**AC2 (Opdatering af `.agents/AGENTS.md`)**:",
-      "**AC3 (Verifikation af `review/SKILL.md`)**:",
-      "**AC4 (Dokumentation af Single-Agent & HITL Princippet)**:",
-      "**AC5 (Spec & Invariant Verifikation)**:"
+      "**AC1 (Session Health Datamodel)**:",
+      "**AC2 (Turn & Payload Tracking Engine)**:",
+      "**AC3 (Deterministisk Token & Payload Beregning)**:",
+      "**AC4 (Cockpit HUD & JIT Telemetri Integration)**:",
+      "**AC5 (CLI & Formateringsstøtte)**:",
+      "**AC6 (Testsuite & Verifikation)**:"
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "0c7e4e517cd442b482eadd6b0f20116fbfa2fbb4bb5517b8d20c46d44f4fae65",
-    "source_manifest_digest_pre": "076b91a334d926d24207258ddcb02ae94712b06aeca6be54dd7a4e1fc8a6b108",
-    "source_manifest_digest_post": "076b91a334d926d24207258ddcb02ae94712b06aeca6be54dd7a4e1fc8a6b108",
+    "source_content_digest": "22e9e2a2d65c8de4676266d162949840a319b4d09e571f96ad3ab686f7c14c06",
+    "source_manifest_digest_pre": "59d43c030ddf30541b8258edda6ba6b51ccca1a353bcd3d47f2a52d803bb5636",
+    "source_manifest_digest_post": "59d43c030ddf30541b8258edda6ba6b51ccca1a353bcd3d47f2a52d803bb5636",
     "config_digest": "3dadefc33d5cbb74aefe95edbf94c618be136c0434a9b2d02bb908c505bda8b9",
-    "task_digest": "39e6fe1dbbd0549820555b86a77eac70918266e8fb204c8125890797b4f3e2eb",
-    "policy_digest": "ddf205e09c8e914f271e5b405a559ee4cb5db7a5eeffe6fe169ce7071e1e71fa",
+    "task_digest": "19ae55a5d27c5139c451ca37a1227345ba357832af598eedde4eb2f06a3b95ca",
+    "policy_digest": "d66a98f7fb844a38e9d515a0f89aeab6bf85dfd9956ab525cd2c8fd1f462bf51",
     "check_definitions_digest": "138fd39199ca1ff02f1546e8f3128c38c38d368226e0aa141bacdcdbfe12d76b",
-    "included_files_count": 209,
+    "included_files_count": 211,
     "vcs": {
       "type": "git",
-      "head": "eea2c64",
-      "commit": "eea2c64",
+      "head": "f620878",
+      "commit": "f620878",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-10-25T11:10:02Z",
-    "finished_at": "2026-10-25T11:10:23Z",
-    "total_duration_seconds": 20.600306281,
+    "started_at": "2026-10-25T11:42:25Z",
+    "finished_at": "2026-10-25T11:42:46Z",
+    "total_duration_seconds": 20.730641729,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -49,16 +50,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.064283935,
+      "duration_seconds": 0.080742083,
       "optional": false,
       "passed": true,
-      "log_digest": "473efdb62fe76293de5b9d90993d6d372ba1672cb151351678971af24e7da615"
+      "log_digest": "7dc5fbb595dd081ae5dbc9b69bc3daba0622845d64adac0faa641603eabff139"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.167601055,
+      "duration_seconds": 0.207289237,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -67,52 +68,52 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.10853545,
+      "duration_seconds": 0.133376609,
       "optional": false,
       "passed": true,
-      "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
+      "log_digest": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.091251283,
+      "duration_seconds": 0.155223481,
       "optional": false,
       "passed": true,
-      "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
+      "log_digest": "a41051563a4cb5fc1b1bcdd9aa0ba28ca80f7736d629d90cc138218756e8e3a9"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 19.090600269,
+      "duration_seconds": 19.136495011,
       "optional": false,
       "passed": true,
-      "log_digest": "80c5ebd7edcf64a268aefc2a369d4b4afe78311f3e1dbae059fb91e77beb54b3"
+      "log_digest": "7aa25e8b0fff19b50edd89552c6a93d1c740311363eb14730041ac3617f8d0a4"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.830206972,
+      "duration_seconds": 0.771849845,
       "optional": false,
       "passed": true,
-      "log_digest": "b17cf8cd8e89f5cad3eef05f6447e7f4f415e25cc48426c3012a75c1713dc57b"
+      "log_digest": "b9e920c483108af445cfccb017966b13fdda56cc0bf24e65b1d2d5ac214fac35"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.067303049,
+      "duration_seconds": 0.066804638,
       "optional": false,
       "passed": true,
-      "log_digest": "7d184fd5d971b758c7402ea8e4bcc75c7d2f7e37c39855bc52b739778d2d8444"
+      "log_digest": "5b9cecd519a482ded1b197e8e04414b1dd6f99ca555bac896d8d3d22c242bd43"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.009019247,
+      "duration_seconds": 0.011928632,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
