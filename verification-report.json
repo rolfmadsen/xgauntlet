@@ -404,6 +404,14 @@
         "commit_oid": "4ead69e2cf10d390e242e5943115ea42359d5936",
         "timestamp": "2026-10-25T17:26:10Z",
         "digest": "0cd724508e1037b5bd088aa3f71962ac20eeda3e8632146c605cb6d4d88d7b25"
+      },
+      {
+        "session_nonce": "sess-94e8a286",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "94e8a2869df3e1fd6c0a425072e2c7b8a2c04b28",
+        "timestamp": "2026-10-25T19:19:28Z",
+        "digest": "7efaeff02019d6eb646eb9764807b70fc1051c4316e1643ac7a4b26c2029c2d4"
       }
     ]
   },
@@ -854,6 +862,41 @@
       "failure_output": "Verified in RED checkpoint commit 67315fa",
       "failure_digest": "ccdb618c81ed206d536e3a773cce4dfe89c9fe28fb345b18dd09775778e14a8b",
       "verified_at": "2026-10-25T17:21:56+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_preflight_leaves_working_tree_untouched_during_test_run",
+      "failure_output": "Verified in RED checkpoint commit 94e8a28",
+      "failure_digest": "f0c1287911ae91dd6df215f6f3f00a0188b1a909c0433ad783a9a31e1d1fad7a",
+      "verified_at": "2026-10-25T20:19:28+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_preflight_runs_in_isolated_worktree_and_cleans_up",
+      "failure_output": "Verified in RED checkpoint commit 94e8a28",
+      "failure_digest": "f0c1287911ae91dd6df215f6f3f00a0188b1a909c0433ad783a9a31e1d1fad7a",
+      "verified_at": "2026-10-25T20:19:28+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_preflight_does_not_resurrect_deleted_production_file",
+      "failure_output": "Verified in RED checkpoint commit 94e8a28",
+      "failure_digest": "f0c1287911ae91dd6df215f6f3f00a0188b1a909c0433ad783a9a31e1d1fad7a",
+      "verified_at": "2026-10-25T20:19:28+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_preflight_baseline_excludes_untracked_production_files",
+      "failure_output": "Verified in RED checkpoint commit 94e8a28",
+      "failure_digest": "f0c1287911ae91dd6df215f6f3f00a0188b1a909c0433ad783a9a31e1d1fad7a",
+      "verified_at": "2026-10-25T20:19:28+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_preflight_fails_closed_without_head",
+      "failure_output": "Verified in RED checkpoint commit 94e8a28",
+      "failure_digest": "f0c1287911ae91dd6df215f6f3f00a0188b1a909c0433ad783a9a31e1d1fad7a",
+      "verified_at": "2026-10-25T20:19:28+01:00",
       "status": "red_checkpoint_verified"
     }
   ]

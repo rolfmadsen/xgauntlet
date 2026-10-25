@@ -73,6 +73,7 @@
 | `sess-e40eb6c5` | `TDD Craftsman` | `GREEN` | `e40eb6c` | `2026-10-25T17:23:59Z` | `VALID` |
 | `sess-2604f95e` | `TDD Craftsman` | `REFACTOR` | `2604f95` | `2026-10-25T17:24:43Z` | `VALID` |
 | `sess-4ead69e2` | `Software Engineer` | `DONE` | `4ead69e` | `2026-10-25T17:26:10Z` | `VALID` |
+| `sess-94e8a286` | `TDD Craftsman` | `RED` | `94e8a28` | `2026-10-25T19:19:28Z` | `VALID` |
 
 ---
 
@@ -144,5 +145,10 @@
 | `test_detect_composite_typescript_in_workspace` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
+| `test_preflight_leaves_working_tree_untouched_during_test_run` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
+| `test_preflight_runs_in_isolated_worktree_and_cleans_up` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
+| `test_preflight_does_not_resurrect_deleted_production_file` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
+| `test_preflight_baseline_excludes_untracked_production_files` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
+| `test_preflight_fails_closed_without_head` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
 
 ---

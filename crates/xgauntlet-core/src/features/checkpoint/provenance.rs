@@ -273,25 +273,106 @@ pub fn detect_born_green_tests(
     Ok(new_tests)
 }
 
-struct ProductionRestorer<'a> {
-    workspace: &'a Path,
-    backup: Vec<(PathBuf, Option<Vec<u8>>)>,
+/// Runs a git command and returns stdout, failing closed on spawn errors or non-zero exit.
+fn git_stdout(cwd: &Path, args: &[&str]) -> Result<String, CheckpointError> {
+    let out = Command::new("git")
+        .args(args)
+        .current_dir(cwd)
+        .output()
+        .map_err(|e| CheckpointError::GitError(format!("Failed to run git {args:?}: {e}")))?;
+    if !out.status.success() {
+        return Err(CheckpointError::GitError(format!(
+            "git {args:?} failed during inverse preflight: {}",
+            String::from_utf8_lossy(&out.stderr).trim()
+        )));
+    }
+    Ok(String::from_utf8_lossy(&out.stdout).to_string())
 }
 
-impl<'a> Drop for ProductionRestorer<'a> {
-    fn drop(&mut self) {
-        for (rel_path, content_opt) in &self.backup {
-            let full_path = self.workspace.join(rel_path);
-            if let Some(bytes) = content_opt {
-                let _ = fs::write(&full_path, bytes);
-            } else {
-                let _ = fs::remove_file(&full_path);
+/// Temporary detached worktree checked out at `HEAD` (Task 047).
+///
+/// The user's working tree is never written to. If the process is interrupted,
+/// only a stale temp directory remains; its registration is pruned on the next run.
+struct IsolatedWorktree {
+    repo: PathBuf,
+    path: PathBuf,
+}
+
+impl IsolatedWorktree {
+    fn create(workspace: &Path) -> Result<Self, CheckpointError> {
+        let repo = PathBuf::from(git_stdout(workspace, &["rev-parse", "--show-toplevel"])?.trim());
+        git_stdout(&repo, &["rev-parse", "--verify", "HEAD^{commit}"])?;
+        // Best-effort removal of registrations left behind by interrupted runs.
+        let _ = git_stdout(&repo, &["worktree", "prune"]);
+
+        let nanos = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_nanos())
+            .unwrap_or_default();
+        let path = std::env::temp_dir().join(format!(
+            "xgauntlet-preflight-{}-{nanos}",
+            std::process::id()
+        ));
+        let path_str = path.to_string_lossy().to_string();
+        git_stdout(
+            &repo,
+            &["worktree", "add", "--detach", "--quiet", &path_str, "HEAD"],
+        )?;
+        Ok(Self { repo, path })
+    }
+
+    /// Mirrors added, modified and deleted test files from the user's tree into the worktree.
+    fn sync_changed_test_files(&self) -> Result<(), CheckpointError> {
+        let tracked = git_stdout(&self.repo, &["diff", "--name-only", "-z", "HEAD"])?;
+        let untracked = git_stdout(
+            &self.repo,
+            &[
+                "ls-files",
+                "--others",
+                "--exclude-standard",
+                "--full-name",
+                "-z",
+            ],
+        )?;
+        let io_err = |e: std::io::Error| {
+            CheckpointError::GitError(format!(
+                "Failed to stage test files in preflight worktree: {e}"
+            ))
+        };
+        for rel in tracked.split('\0').chain(untracked.split('\0')) {
+            if rel.is_empty() || !is_test_file(Path::new(rel)) {
+                continue;
+            }
+            let src = self.repo.join(rel);
+            let dst = self.path.join(rel);
+            if src.is_file() {
+                if let Some(parent) = dst.parent() {
+                    fs::create_dir_all(parent).map_err(io_err)?;
+                }
+                fs::copy(&src, &dst).map_err(io_err)?;
+            } else if dst.exists() {
+                fs::remove_file(&dst).map_err(io_err)?;
             }
         }
+        Ok(())
+    }
+}
+
+impl Drop for IsolatedWorktree {
+    fn drop(&mut self) {
+        let path_str = self.path.to_string_lossy().to_string();
+        let _ = git_stdout(&self.repo, &["worktree", "remove", "--force", &path_str]);
+        if self.path.exists() {
+            let _ = fs::remove_dir_all(&self.path);
+        }
+        let _ = git_stdout(&self.repo, &["worktree", "prune"]);
     }
 }
 
 /// Executes non-destructive inverse preflight against baseline production code.
+///
+/// The test layer runs inside an isolated `HEAD` worktree containing only the
+/// in-flight test files, so the user's working tree is never modified.
 pub fn verify_inverse_test_failure(
     workspace: &Path,
     test_identifiers: &[String],
@@ -300,62 +381,24 @@ pub fn verify_inverse_test_failure(
         return Ok(Vec::new());
     }
 
-    // Identify changed production files (non-test files) compared to HEAD
-    let diff_output = Command::new("git")
-        .args(["diff", "--name-only", "HEAD"])
-        .current_dir(workspace)
-        .output()
-        .map_err(|e| {
-            CheckpointError::GitError(format!("Failed to inspect diff for inverse preflight: {e}"))
-        })?;
-
-    let mut changed_prod_files = Vec::new();
-    if diff_output.status.success() {
-        for line in String::from_utf8_lossy(&diff_output.stdout).lines() {
-            let rel = line.trim();
-            if !rel.is_empty() && !is_test_file(Path::new(rel)) {
-                changed_prod_files.push(PathBuf::from(rel));
-            }
-        }
-    }
-
-    // Backup current working tree content of modified production files
-    let mut backup = Vec::new();
-    for rel in &changed_prod_files {
-        let full_path = workspace.join(rel);
-        if full_path.is_file() {
-            let current_bytes = fs::read(&full_path).ok();
-            backup.push((rel.clone(), current_bytes));
-        }
-    }
-
-    // RAII Restorer to guarantee 100% restoration upon drop
-    let _restorer = ProductionRestorer {
-        workspace,
-        backup: backup.clone(),
-    };
-
-    // Temporarily write baseline HEAD content to production files
-    for rel in &changed_prod_files {
-        let rel_str = rel.to_string_lossy();
-        let show_out = Command::new("git")
-            .args(["show", &format!("HEAD:{rel_str}")])
-            .current_dir(workspace)
-            .output();
-
-        if let Ok(out) = show_out {
-            if out.status.success() {
-                let full = workspace.join(rel);
-                let _ = fs::write(full, out.stdout);
-            }
-        }
-    }
+    let worktree = IsolatedWorktree::create(workspace)?;
+    worktree.sync_changed_test_files()?;
+    let prefix = git_stdout(workspace, &["rev-parse", "--show-prefix"])?;
+    let exec_dir = worktree.path.join(prefix.trim());
 
     // Execute test layer against baseline code
     let layer = resolve_test_layer(workspace);
     let mut test_cmd = Command::new(&layer.command[0]);
     test_cmd.args(&layer.command[1..]);
-    test_cmd.current_dir(workspace);
+    test_cmd.current_dir(&exec_dir);
+    // Keep Cargo dependency builds cached across ephemeral worktrees (ignored build artefacts).
+    if std::env::var_os("CARGO_TARGET_DIR").is_none() && worktree.repo.join("Cargo.toml").is_file()
+    {
+        test_cmd.env(
+            "CARGO_TARGET_DIR",
+            worktree.repo.join("target").join("xgauntlet-preflight"),
+        );
+    }
 
     let test_output = test_cmd.output().map_err(|e| {
         CheckpointError::GitError(format!(

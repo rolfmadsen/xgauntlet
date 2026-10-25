@@ -119,10 +119,18 @@ fn test_preflight_leaves_working_tree_untouched_during_test_run() {
         observer.path().display()
     );
     write_test_layer(ws, &["sh", "-c", &script]);
-    write(ws, "src/lib.rs", "pub fn greet() -> &'static str { \"hello\" }\n");
+    write(
+        ws,
+        "src/lib.rs",
+        "pub fn greet() -> &'static str { \"hello\" }\n",
+    );
     commit_all(ws, "chore: baseline");
 
-    write(ws, "src/lib.rs", "pub fn greet() -> &'static str { \"worldmarker\" }\n");
+    write(
+        ws,
+        "src/lib.rs",
+        "pub fn greet() -> &'static str { \"worldmarker\" }\n",
+    );
     add_new_test(ws, "test_greet_world");
 
     let evidences = verify_inverse_test_failure(ws, &["test_greet_world".to_string()])
@@ -166,7 +174,10 @@ fn test_preflight_runs_in_isolated_worktree_and_cleans_up() {
 
     let cwd = fs::read_to_string(observer.path().join("cwd.txt")).unwrap();
     let cwd = PathBuf::from(cwd.trim());
-    assert_ne!(cwd, ws, "test layer must not execute inside the user's workspace");
+    assert_ne!(
+        cwd, ws,
+        "test layer must not execute inside the user's workspace"
+    );
     assert!(
         !cwd.exists(),
         "temporary worktree {} was not removed",
