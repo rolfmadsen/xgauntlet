@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 030: Autonomous RED to GREEN TDD Phase Transition"
 description: "Eliminere overflødig human-in-the-loop gate mellem RED og GREEN faserne ved verificeret fejlet test og etablere en autonom indre TDD-løkke"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-19T13:45:00Z" }
 tags: [task-lifecycle, tdd, checkpoint, autonomy, preflight, jit, human-in-the-loop, adr-0003]
 scope: ["crates/xgauntlet-core/src/features/**", "crates/xgauntlet-cli/**", ".agents/**", "docs/adr/**", "evidence.md", "verification-report.json"]
@@ -11,7 +11,7 @@ test_refs: ["crates/xgauntlet-core/tests/checkpoint_engine_test.rs"]
 
 # Task 030: Autonomous RED to GREEN TDD Phase Transition
 
-**Status**: `ACTIVE`  
+**Status**: `DONE`  
 **Intent**: `🚀 NEW FEATURE`  
 **Oprettet**: `2026-09-19`  
 
@@ -35,15 +35,15 @@ Vi etablerer en skarp sondring mellem to typer faser:
 ---
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Core Development Loop i Retningslinjer & Skabeloner)**:
+- [x] **AC1 (Core Development Loop i Retningslinjer & Skabeloner)**:
   - Opdatere `features/scaffold/templates.rs` (`render_agents_md`) og roden `.agents/AGENTS.md` så procesdiagrammet opdateres:
     `SPEC / GRILL → (Human Approval) → [RED → GREEN → REFACTOR (Autonomous)] → GAUNTLET → (Human Audit) → EVIDENCE / DONE`
   - Tilføje eksplicit regel: Når en rød accepttest fejler som forventet og `checkpoint --phase red` er udført, må agenten IKKE standse eller afvente brugerbekræftelse; agenten skal umiddelbart overgå til GREEN fasen.
-- [ ] **AC2 (JIT Telemetry Directive Opdatering i `jit.rs`)**:
+- [x] **AC2 (JIT Telemetry Directive Opdatering i `jit.rs`)**:
   - Opdatere `PipelinePhase::ImplementationTdd` i `crates/xgauntlet-core/src/features/telemetry/jit.rs`.
   - Mål (`target`) og port (`gate`) opdateres til eksplicit at instruere AI-harnesses i autonom fremdrift mellem RED og GREEN uden pauser:
     - *Target*: `Execute autonomous TDD cycle: failing test (RED) ➔ minimal fix (GREEN) ➔ refactor. Auto-transition immediately from RED to GREEN once failure is preflight-verified.`
-- [ ] **AC3 (Checkpoint Engine & CLI Next-Action Prompting)**:
+- [x] **AC3 (Checkpoint Engine & CLI Next-Action Prompting)**:
   - I `crates/xgauntlet-core/src/features/checkpoint/models.rs`:
     - Udvide `CheckpointResult` med feltet `next_phase: Option<String>` og `autonomous_transition: bool`.
   - I `crates/xgauntlet-core/src/features/checkpoint/engine.rs`:
@@ -52,12 +52,12 @@ Vi etablerer en skarp sondring mellem to typer faser:
     - Ved fuldført `--phase red` udskriver terminalen et klart direktiv:
       `⚡ [AUTONOMOUS TDD] RED checkpoint established. Preflight confirmed test failure. Do NOT pause for user approval. Proceed immediately to GREEN phase.`
     - I `--json` output medtages `next_phase` og `autonomous_transition`.
-- [ ] **AC4 (Skill Refactoring i `tdd`)**:
+- [x] **AC4 (Skill Refactoring i `tdd`)**:
   - Opdatere `.agents/plugins/xgauntlet/skills/tdd/SKILL.md`:
     - Dokumentere "Autonomous TDD Inner Loop" princippet: Hvorfor overgang fra RED til GREEN sker i én sammenhængende eksekvering uden turn-pauser.
-- [ ] **AC5 (ADR 0009 Formulering)**:
+- [x] **AC5 (ADR 0009 Formulering)**:
   - Oprette `docs/adr/0009-autonomous-tdd-inner-loop-and-boundary-human-gates.md` og registrere den i `docs/adr/README.md`.
-- [ ] **AC6 (Testsuite & Verifikation)**:
+- [x] **AC6 (Testsuite & Verifikation)**:
   - Tilføje tests i `crates/xgauntlet-core/tests/checkpoint_engine_test.rs`, der verificerer at `CheckpointResult` for `--phase red` returnerer `autonomous_transition: true` og `next_phase: Some("green")`.
   - Verificere at `xgauntlet check-spec -t 030-autonomous-red-to-green-tdd-transition` validerer med 0 fejl.
   - 100% grøn testsuite på tværs af hele workspacet (`cargo test --workspace`).

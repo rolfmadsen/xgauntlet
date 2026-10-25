@@ -4,42 +4,40 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "032-enforce-red-first-test-provenance-and-born-green-detection",
-    "task_title": "Task 032: Enforce RED-First Test Provenance & Born-Green Detection",
-    "task_digest": "9d1bb571983606a935c92fc52e68d404a3e44a520cd167845da6787e3d372649",
+    "task_id": "045-multi-session-lineage-and-evidence-traceability",
+    "task_title": "Task 045: Multi-Session Lineage & Evidence Traceability",
+    "task_digest": "4d57fd1ff068a4b948a6952a15f805d2a425ee1f9039feb18163ca02de8d75fe",
     "acceptance_criteria": [
-      "**AC1 (Test Identifier Extraction Engine)**:",
-      "**AC2 (Git Diff Provenance Inspector)**:",
-      "**AC3 (Inverse Preflight Engine)**:",
-      "**AC4 (Checkpoint Preflight Integration i `preflight.rs`)**:",
-      "**AC5 (Deklarativ Konfiguration & CLI Styring)**:",
-      "**AC6 (Evidens & Manifest Attestation)**:",
-      "**AC7 (Retningslinjer & AI Harness Vejledning)**:",
-      "**AC8 (Testsuite & Verifikation)**:"
+      "**AC1 (Session Lineage Datamodel)**:",
+      "**AC2 (Integration i Checkpoint Engine)**:",
+      "**AC3 (Tamper-Evident Hash Chaining)**:",
+      "**AC4 (Evidence Markdown Visualisering)**:",
+      "**AC5 (CLI Undersøgelse & Formatering)**:",
+      "**AC6 (Testsuite & Verifikation)**:"
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "59a8eb742a04db634e0e89ceab25e0b5e350292078b567d93804822ea8d89e26",
-    "source_manifest_digest_pre": "c2134c38ecaebd4f46cd577df948dda6ea5aa7b948edacb8b8b717641173cb8c",
-    "source_manifest_digest_post": "c2134c38ecaebd4f46cd577df948dda6ea5aa7b948edacb8b8b717641173cb8c",
+    "source_content_digest": "6d5d98ff642647b28eef8371677dc1b307dfa26ea2cf30a795c0ebd2bedc34c3",
+    "source_manifest_digest_pre": "ab271da18fb423e456914914d61901fb9f3f82c6185546383af8e7b08d32a123",
+    "source_manifest_digest_post": "ab271da18fb423e456914914d61901fb9f3f82c6185546383af8e7b08d32a123",
     "config_digest": "3dadefc33d5cbb74aefe95edbf94c618be136c0434a9b2d02bb908c505bda8b9",
-    "task_digest": "9d1bb571983606a935c92fc52e68d404a3e44a520cd167845da6787e3d372649",
-    "policy_digest": "c06847ec9fabc3240297a90850c1c29c680d5124c26661410ccfd1252f003b8b",
+    "task_digest": "4d57fd1ff068a4b948a6952a15f805d2a425ee1f9039feb18163ca02de8d75fe",
+    "policy_digest": "14a410ec382457ba18e1be1fe6b5358b2eb1041255f8f4ffb5d08cc1d146ba2e",
     "check_definitions_digest": "138fd39199ca1ff02f1546e8f3128c38c38d368226e0aa141bacdcdbfe12d76b",
-    "included_files_count": 215,
+    "included_files_count": 216,
     "vcs": {
       "type": "git",
-      "head": "58ba84b",
-      "commit": "58ba84b",
+      "head": "2158255",
+      "commit": "2158255",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-10-25T15:11:55Z",
-    "finished_at": "2026-10-25T15:12:16Z",
-    "total_duration_seconds": 20.697224836,
+    "started_at": "2026-10-25T15:33:34Z",
+    "finished_at": "2026-10-25T15:33:55Z",
+    "total_duration_seconds": 21.030095696,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -52,7 +50,7 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.074432962,
+      "duration_seconds": 0.077726694,
       "optional": false,
       "passed": true,
       "log_digest": "62c71afdf436478840617c4467f1b12952d97a3144eab305cfe87e9f0a49deb3"
@@ -61,7 +59,7 @@
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.189825348,
+      "duration_seconds": 0.194897498,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -70,16 +68,16 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.154805551,
+      "duration_seconds": 0.107875039,
       "optional": false,
       "passed": true,
-      "log_digest": "22e0df986057b9ba5be07526ac5fb348862a3dedef42108383cc3e088acbb889"
+      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.100643926,
+      "duration_seconds": 0.096476341,
       "optional": false,
       "passed": true,
       "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
@@ -88,34 +86,34 @@
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 19.15033942,
+      "duration_seconds": 19.545229396,
       "optional": false,
       "passed": true,
-      "log_digest": "891be6399074b9bf49d82252a40ac2785ec8030ad05b62b94cf2402c3070e23e"
+      "log_digest": "a26158e402da72e2a15059becd05fbec60158e4e5bf669ecd5bb07dd330dcf95"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.779343123,
+      "duration_seconds": 0.757768996,
       "optional": false,
       "passed": true,
-      "log_digest": "731204871950aa929971fb605bfc518862a320a0eabc72f77ca90243c4a8c2ec"
+      "log_digest": "ff4d69bcd4a5e49c3ac9ed888b2181240b73cfafee404d0e0f20848c17aee54e"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.071993431,
+      "duration_seconds": 0.059466576,
       "optional": false,
       "passed": true,
-      "log_digest": "48d0e0b4908afcf279995a417e5e753cfc285447384d77a33d06ad83001f2dc8"
+      "log_digest": "7d184fd5d971b758c7402ea8e4bcc75c7d2f7e37c39855bc52b739778d2d8444"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.008011116,
+      "duration_seconds": 0.011710581,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -238,86 +236,52 @@
         "commit_oid": "3f63030ef49d852c3f4e419a1431e4e466b87293",
         "timestamp": "2026-10-25T15:28:34Z",
         "digest": "3786ae79a11cf783419597564a4b780418cd0f4d482be2fc177b41b4806d8bad"
+      },
+      {
+        "session_nonce": "sess-21582552",
+        "role": "TDD Craftsman",
+        "phase": "REFACTOR",
+        "commit_oid": "215825522b19f7e2654cd598163ff59a7ea34faa",
+        "timestamp": "2026-10-25T15:32:13Z",
+        "digest": "19d82e917bca8a12f42a0ec0345266a9f5f455dd48621597e2d66ff18f7842c6"
       }
     ]
   },
   "test_provenance": [
     {
-      "test_identifier": "test_extract_test_identifiers_polyglot",
-      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
-      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
-      "verified_at": "2026-10-25T15:50:03+01:00",
+      "test_identifier": "test_session_lineage_trail_genesis_and_chaining",
+      "failure_output": "Verified in RED checkpoint commit 589985b",
+      "failure_digest": "9e57b6c459f4004bc5b5297cf8f535e08a16002cb0b443f30a18aa6ca2cd4935",
+      "verified_at": "2026-10-25T15:00:27+01:00",
       "status": "red_checkpoint_verified"
     },
     {
-      "test_identifier": "test_synchronous_case",
-      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
-      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
-      "verified_at": "2026-10-25T15:50:03+01:00",
+      "test_identifier": "test_session_lineage_tamper_detection",
+      "failure_output": "Verified in RED checkpoint commit 589985b",
+      "failure_digest": "9e57b6c459f4004bc5b5297cf8f535e08a16002cb0b443f30a18aa6ca2cd4935",
+      "verified_at": "2026-10-25T15:00:27+01:00",
       "status": "red_checkpoint_verified"
     },
     {
-      "test_identifier": "test_asynchronous_worker",
-      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
-      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
-      "verified_at": "2026-10-25T15:50:03+01:00",
+      "test_identifier": "test_verification_report_backward_compatibility",
+      "failure_output": "Verified in RED checkpoint commit 589985b",
+      "failure_digest": "9e57b6c459f4004bc5b5297cf8f535e08a16002cb0b443f30a18aa6ca2cd4935",
+      "verified_at": "2026-10-25T15:00:27+01:00",
       "status": "red_checkpoint_verified"
     },
     {
-      "test_identifier": "test_inline_definition",
-      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
-      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
-      "verified_at": "2026-10-25T15:50:03+01:00",
+      "test_identifier": "test_evidence_markdown_renders_lineage_table",
+      "failure_output": "Verified in RED checkpoint commit 589985b",
+      "failure_digest": "9e57b6c459f4004bc5b5297cf8f535e08a16002cb0b443f30a18aa6ca2cd4935",
+      "verified_at": "2026-10-25T15:00:27+01:00",
       "status": "red_checkpoint_verified"
     },
     {
-      "test_identifier": "test_detect_born_green_tests_in_git_diff",
-      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
-      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
-      "verified_at": "2026-10-25T15:50:03+01:00",
+      "test_identifier": "test_checkpoint_engine_appends_lineage",
+      "failure_output": "Verified in RED checkpoint commit 589985b",
+      "failure_digest": "9e57b6c459f4004bc5b5297cf8f535e08a16002cb0b443f30a18aa6ca2cd4935",
+      "verified_at": "2026-10-25T15:00:27+01:00",
       "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_initial_requirement",
-      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
-      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
-      "verified_at": "2026-10-25T15:50:03+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_sneaky_born_green_requirement",
-      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
-      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
-      "verified_at": "2026-10-25T15:50:03+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_inverse_preflight_detects_tautological_test",
-      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
-      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
-      "verified_at": "2026-10-25T15:50:03+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_inverse_preflight_verifies_legitimate_test",
-      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
-      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
-      "verified_at": "2026-10-25T15:50:03+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_checkpoint_green_fails_closed_on_born_green_with_strict_provenance",
-      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
-      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
-      "verified_at": "2026-10-25T15:50:03+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_collect_task_test_provenance_and_verification_report",
-      "failure_output": "Compiling xgauntlet-core v0.8.5 (/home/rolfmadsen/Github/xgauntlet/crates/xgauntlet-core)\n   Compiling xgauntlet-cli v0.8.5 (/home/rolfmadsen/Github/xgauntlet/crates/xgauntlet-cli)\nerror[E0432]: unresolved import `xgauntlet_core::features::checkpoint::provenance`\n  --> crates/xgauntlet-core/tests/provenance_engine_test.rs:12:43\n   |\n12 | use xgauntlet_core::features::checkpoint::provenance::{\n   |                                           ^^^^^^^^^^ could not find `provenance` in `checkpoint`\n\nerror[E0433]: cannot find `provenance` in `checkpoint`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:393:47\n    |\n393 | ...point::provenance::collect_task_test_provenance(ws, \"032\")\n    |           ^^^^^^^^^^ could not find `provenance` in `checkpoint`\n\nerror[E0599]: no variant named `TautologicalTestDetected` found for enum `CheckpointError`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:255:30\n    |\n255 |         Err(CheckpointError::TautologicalTestDetected { test_name }) => {\n    |                              ^^^^^^^^^^^^^^^^^^^^^^^^ variant not found in `CheckpointError`\n\nerror[E0599]: no method named `with_strict_provenance` found for struct `CheckpointOptions` in the current scope\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:364:10\n    |\n362 |       let opts = CheckpointOptions::new(CheckpointPhase::Green, ws)\n    |  ________________-\n363 | |         .with_task_id(\"032-test-provenance\")\n364 | |         .with_strict_provenance(true);\n    | |         -^^^^^^^^^^^^^^^^^^^^^^ method not found in `CheckpointOptions`\n    | |_________|\n    |\n\nerror[E0599]: no variant named `BornGreenTestDetected` found for enum `CheckpointError`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:368:30\n    |\n368 |         Err(CheckpointError::BornGreenTestDetected { tests }) => {\n    |                              ^^^^^^^^^^^^^^^^^^^^^ variant not found in `CheckpointError`\n\nerror[E0609]: no field `test_provenance` on type `VerificationReport`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:402:12\n    |\n402 |     report.test_provenance = Some(prov);\n    |            ^^^^^^^^^^^^^^^ unknown field\n    |\n    = note: available fields are: `schema`, `schema_version`, `execution_origin`, `verdict`, `task_contract` ... and 5 others\n\nSome errors have detailed explanations: E0432, E0433, E0599, E0609.\nFor more information about an error, try `rustc --explain E0432`.\nerror: could not compile `xgauntlet-core` (test \"provenance_engine_test\") due to 6 previous errors\nwarning: build failed, waiting for other jobs to finish...",
-      "failure_digest": "c46f890b2d9b738e1dd1748557166cf54f55ea9b0ef9c0d7177ea0a78f96365f",
-      "verified_at": "2026-10-25T15:07:56Z",
-      "status": "inverse_preflight_verified"
     },
     {
       "test_identifier": "test_models_and_conventions",
@@ -409,6 +373,83 @@
       "failure_digest": "a8f350e1e23e32407bc888141cc3746d4e3675bc60e0e942cee58639134063c8",
       "verified_at": "2026-10-25T16:22:47+01:00",
       "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_extract_test_identifiers_polyglot",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_synchronous_case",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_asynchronous_worker",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_inline_definition",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_detect_born_green_tests_in_git_diff",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_initial_requirement",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_sneaky_born_green_requirement",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_inverse_preflight_detects_tautological_test",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_inverse_preflight_verifies_legitimate_test",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_checkpoint_green_fails_closed_on_born_green_with_strict_provenance",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_collect_task_test_provenance_and_verification_report",
+      "failure_output": "Compiling xgauntlet-core v0.8.5 (/home/rolfmadsen/Github/xgauntlet/crates/xgauntlet-core)\n   Compiling xgauntlet-cli v0.8.5 (/home/rolfmadsen/Github/xgauntlet/crates/xgauntlet-cli)\nerror[E0432]: unresolved import `xgauntlet_core::features::checkpoint::provenance`\n  --> crates/xgauntlet-core/tests/provenance_engine_test.rs:12:43\n   |\n12 | use xgauntlet_core::features::checkpoint::provenance::{\n   |                                           ^^^^^^^^^^ could not find `provenance` in `checkpoint`\n\nerror[E0433]: cannot find `provenance` in `checkpoint`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:393:47\n    |\n393 | ...point::provenance::collect_task_test_provenance(ws, \"032\")\n    |           ^^^^^^^^^^ could not find `provenance` in `checkpoint`\n\nerror[E0599]: no variant named `TautologicalTestDetected` found for enum `CheckpointError`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:255:30\n    |\n255 |         Err(CheckpointError::TautologicalTestDetected { test_name }) => {\n    |                              ^^^^^^^^^^^^^^^^^^^^^^^^ variant not found in `CheckpointError`\n\nerror[E0599]: no method named `with_strict_provenance` found for struct `CheckpointOptions` in the current scope\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:364:10\n    |\n362 |       let opts = CheckpointOptions::new(CheckpointPhase::Green, ws)\n    |  ________________-\n363 | |         .with_task_id(\"032-test-provenance\")\n364 | |         .with_strict_provenance(true);\n    | |         -^^^^^^^^^^^^^^^^^^^^^^ method not found in `CheckpointOptions`\n    | |_________|\n    |\n\nerror[E0599]: no variant named `BornGreenTestDetected` found for enum `CheckpointError`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:368:30\n    |\n368 |         Err(CheckpointError::BornGreenTestDetected { tests }) => {\n    |                              ^^^^^^^^^^^^^^^^^^^^^ variant not found in `CheckpointError`\n\nerror[E0609]: no field `test_provenance` on type `VerificationReport`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:402:12\n    |\n402 |     report.test_provenance = Some(prov);\n    |            ^^^^^^^^^^^^^^^ unknown field\n    |\n    = note: available fields are: `schema`, `schema_version`, `execution_origin`, `verdict`, `task_contract` ... and 5 others\n\nSome errors have detailed explanations: E0432, E0433, E0599, E0609.\nFor more information about an error, try `rustc --explain E0432`.\nerror: could not compile `xgauntlet-core` (test \"provenance_engine_test\") due to 6 previous errors\nwarning: build failed, waiting for other jobs to finish...",
+      "failure_digest": "c46f890b2d9b738e1dd1748557166cf54f55ea9b0ef9c0d7177ea0a78f96365f",
+      "verified_at": "2026-10-25T15:07:56Z",
+      "status": "inverse_preflight_verified"
     }
   ]
 }
