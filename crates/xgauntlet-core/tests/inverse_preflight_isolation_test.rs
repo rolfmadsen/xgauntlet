@@ -31,9 +31,22 @@ impl TempDir {
             std::process::id()
         ));
         fs::create_dir_all(&path).unwrap();
-        Self {
-            path: path.canonicalize().unwrap(),
-        }
+        let canon = path.canonicalize().unwrap();
+        #[cfg(windows)]
+        let clean = {
+            let s = canon.to_string_lossy();
+            if let Some(stripped) = s.strip_prefix(r"\\?\UNC\") {
+                std::path::PathBuf::from(format!(r"\\{}", stripped))
+            } else if let Some(stripped) = s.strip_prefix(r"\\?\") {
+                std::path::PathBuf::from(stripped)
+            } else {
+                canon
+            }
+        };
+        #[cfg(not(windows))]
+        let clean = canon;
+
+        Self { path: clean }
     }
 
     fn path(&self) -> &Path {
@@ -113,12 +126,16 @@ fn test_preflight_leaves_working_tree_untouched_during_test_run() {
     let ws = temp.path();
     init_repo(ws);
 
+    let ws_file = ws.join("src/lib.rs").to_string_lossy().replace('\\', "/");
+    let obs_file = observer
+        .path()
+        .join("observed.txt")
+        .to_string_lossy()
+        .replace('\\', "/");
     let script = format!(
-        "cat {}/src/lib.rs > {}/observed.txt; grep -q worldmarker src/lib.rs",
-        ws.display(),
-        observer.path().display()
+        "const fs = require('fs'); fs.copyFileSync('{ws_file}', '{obs_file}'); const content = fs.readFileSync('src/lib.rs', 'utf8'); if (content.includes('worldmarker')) process.exit(0); else process.exit(1);"
     );
-    write_test_layer(ws, &["sh", "-c", &script]);
+    write_test_layer(ws, &["node", "-e", &script]);
     write(
         ws,
         "src/lib.rs",
@@ -158,11 +175,15 @@ fn test_preflight_runs_in_isolated_worktree_and_cleans_up() {
     let ws = temp.path();
     init_repo(ws);
 
+    let obs_file = observer
+        .path()
+        .join("cwd.txt")
+        .to_string_lossy()
+        .replace('\\', "/");
     let script = format!(
-        "pwd -P > {}/cwd.txt; grep -q worldmarker src/lib.rs",
-        observer.path().display()
+        "const fs = require('fs'); fs.writeFileSync('{obs_file}', process.cwd()); const content = fs.readFileSync('src/lib.rs', 'utf8'); if (content.includes('worldmarker')) process.exit(0); else process.exit(1);"
     );
-    write_test_layer(ws, &["sh", "-c", &script]);
+    write_test_layer(ws, &["node", "-e", &script]);
     write(ws, "src/lib.rs", "hello\n");
     commit_all(ws, "chore: baseline");
 
@@ -172,10 +193,32 @@ fn test_preflight_runs_in_isolated_worktree_and_cleans_up() {
     verify_inverse_test_failure(ws, &["test_isolated".to_string()])
         .expect("legitimate test must be verified against baseline");
 
-    let cwd = fs::read_to_string(observer.path().join("cwd.txt")).unwrap();
-    let cwd = PathBuf::from(cwd.trim());
+    let cwd_raw = fs::read_to_string(observer.path().join("cwd.txt")).unwrap();
+    let cwd = PathBuf::from(cwd_raw.trim());
+    let clean_cwd = {
+        let canon = cwd.canonicalize().unwrap_or_else(|_| cwd.clone());
+        let s = canon.to_string_lossy();
+        if let Some(stripped) = s.strip_prefix(r"\\?\UNC\") {
+            PathBuf::from(format!(r"\\{}", stripped))
+        } else if let Some(stripped) = s.strip_prefix(r"\\?\") {
+            PathBuf::from(stripped)
+        } else {
+            canon
+        }
+    };
+    let clean_ws = {
+        let canon = ws.canonicalize().unwrap_or_else(|_| ws.to_path_buf());
+        let s = canon.to_string_lossy();
+        if let Some(stripped) = s.strip_prefix(r"\\?\UNC\") {
+            PathBuf::from(format!(r"\\{}", stripped))
+        } else if let Some(stripped) = s.strip_prefix(r"\\?\") {
+            PathBuf::from(stripped)
+        } else {
+            canon
+        }
+    };
     assert_ne!(
-        cwd, ws,
+        clean_cwd, clean_ws,
         "test layer must not execute inside the user's workspace"
     );
     assert!(
