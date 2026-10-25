@@ -124,3 +124,23 @@ impl SpecReadinessReport {
         }
     }
 }
+
+/// Consolidated assessment of ADR frontmatter completeness and OKF v0.2 rules.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AdrReadinessReport {
+    pub is_valid: bool,
+    pub adr_id: String,
+    pub diagnostics: Vec<DiagnosticFinding>,
+    pub inspected_files: Vec<String>,
+}
+
+impl AdrReadinessReport {
+    pub fn new(adr_id: impl Into<String>) -> Self {
+        Self {
+            is_valid: true,
+            adr_id: adr_id.into(),
+            diagnostics: Vec::new(),
+            inspected_files: Vec::new(),
+        }
+    }
+}

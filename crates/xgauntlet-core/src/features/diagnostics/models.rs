@@ -14,6 +14,7 @@ pub enum FindingType {
     DriftDetected,
     InvariantViolation,
     GeneralError,
+    Warning,
 }
 
 /// A single structured diagnostic finding with actionable remediation guidance.
@@ -48,6 +49,22 @@ impl DiagnosticFinding {
             remediation_hint: remediation_hint.into(),
             raw_context: String::new(),
         }
+    }
+
+    /// Creates a new warning diagnostic finding.
+    pub fn warning(
+        tool_name: impl Into<String>,
+        file_path: impl Into<String>,
+        message: impl Into<String>,
+        remediation_hint: impl Into<String>,
+    ) -> Self {
+        Self::new(
+            FindingType::Warning,
+            tool_name,
+            file_path,
+            message,
+            remediation_hint,
+        )
     }
 
     /// Sets the line number for this finding.

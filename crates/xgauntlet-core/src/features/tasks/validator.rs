@@ -4,7 +4,7 @@ use std::fs;
 use std::path::Path;
 
 use crate::features::diagnostics::{DiagnosticFinding, FindingType};
-use crate::features::tasks::models::SpecReadinessReport;
+use crate::features::tasks::models::{AdrReadinessReport, SpecReadinessReport};
 use crate::features::tasks::okf::parse_frontmatter;
 use crate::features::tasks::parser::parse_task_content;
 
@@ -316,4 +316,14 @@ pub fn check_all_tasks(workspace: &Path) -> Vec<SpecReadinessReport> {
         .into_iter()
         .map(|p| check_task_specification(&p, workspace))
         .collect()
+}
+
+/// Validates an Architectural Decision Record (ADR) file against OKF v0.2 frontmatter rules.
+pub fn check_adr_frontmatter(_adr_path: &Path) -> AdrReadinessReport {
+    unimplemented!("check_adr_frontmatter RED stub")
+}
+
+/// Validates all ADR markdown files in `docs/adr/`.
+pub fn check_all_adrs(_workspace: &Path) -> Vec<AdrReadinessReport> {
+    unimplemented!("check_all_adrs RED stub")
 }
