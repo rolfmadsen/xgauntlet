@@ -21,6 +21,10 @@ pub enum ArchitectureFindingCategory {
     ExemptionAdrNotFound,
     /// An architectural exemption references an ADR that is not in `accepted` or `stable` status.
     ExemptionAdrNotAccepted,
+    /// An architectural exemption ceiling was inflated without explicit ADR authorization.
+    RatchetCeilingInflated,
+    /// Baseline gauntlet.toml could not be read or resolved in a git repository.
+    RatchetBaselineUnreadable,
 }
 
 /// An individual finding produced during architectural analysis.
@@ -39,6 +43,8 @@ pub struct ArchitectureReport {
     pub is_valid: bool,
     pub files_scanned: usize,
     pub findings: Vec<ArchitectureFinding>,
+    #[serde(default)]
+    pub notices: Vec<String>,
 }
 
 impl ArchitectureReport {
@@ -47,12 +53,17 @@ impl ArchitectureReport {
             is_valid: true,
             files_scanned: 0,
             findings: Vec::new(),
+            notices: Vec::new(),
         }
     }
 
     pub fn add_finding(&mut self, finding: ArchitectureFinding) {
         self.is_valid = false;
         self.findings.push(finding);
+    }
+
+    pub fn add_notice(&mut self, notice: impl Into<String>) {
+        self.notices.push(notice.into());
     }
 }
 
