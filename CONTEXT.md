@@ -167,4 +167,13 @@ _Avoid_: Session status, token limit, chat age, turn guard.
 A degenerative state of context degradation, where excessive conversational turns and cumulative tool payloads reduce model reasoning fidelity and increase hallucination risk.
 _Avoid_: Context rot, memory drift, prompt bloat.
 
+**Session Lineage Trail**:
+An append-only cryptographic audit ledger, that records sequential engineering role contributions, phase checkpoints, and Git commit OIDs via tamper-evident SHA-256 hash-chaining across isolated chat sessions.
+_Avoid_: Audit log, commit history, session list, chat transcript.
+
+**Session Nonce**:
+A deterministic or pseudo-random unique run identifier, that disambiguates independent AI harness sessions contributing to the same task.
+_Avoid_: Session ID, conversation key, run token.
+
+
 

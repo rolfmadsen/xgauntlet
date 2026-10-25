@@ -5,6 +5,8 @@ description: "Etablere 'xgauntlet migrate' og 'xgauntlet doctor --fix' til kirur
 status: todo
 generated: { by: process:xgauntlet-task-init, at: "2026-09-13T21:02:50Z" }
 tags: [migration, doctor, hooks, schema, governance, dx, rust]
+scope: ["crates/xgauntlet-core/src/features/doctor/**", "crates/xgauntlet-core/src/features/migration/**", "crates/xgauntlet-cli/**"]
+test_refs: ["crates/xgauntlet-core/tests/migration_engine_test.rs", "crates/xgauntlet-core/tests/doctor_diagnostics_test.rs"]
 ---
 
 # Task 026: In-Repo Migration Engine and Doctor Auto-Remediation
@@ -44,6 +46,7 @@ Etablere en robust Developer Experience (DX) opgraderingsmotor (`xgauntlet migra
 
 ## 📝 Revisions
 - 2026-09-13: Oprettet efter sparring om opgraderings-DX og konfigurations-drift i forretningsprojekter som `knowledgegraphstudio`.
+- 2026-10-25: Tilføjet OKF v0.2 scope og test_refs (ADR 0008).
 
 ## 🧪 Verifikation
 - `cargo test --workspace`

@@ -25,7 +25,7 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
 3. **Mathematical Anti-Tamper Manifest & Two-Tier Trust Model (ADR 0005)**:
    - Self-mutation invariant: Pre- and post-test verification of Git-blob SHA-256 digests.
    - Any modification of source code, test assertions, or configuration during verification triggers an immediate tamper failure.
-   - Local verification generates self-contained `verification-report.json` and updates `evidence.md`.
+   - Local verification generates self-contained `verification-report.json`, updates `evidence.md`, and maintains an append-only cryptographically chained `SessionLineageTrail` across multi-session handoffs.
    - CI runner provides authoritative cryptographic Sigstore OIDC attestation (`attestation.bundle` / `attestation.json`) verified at install-time by bootstrapper and CLI (`check-attestation`).
 
 4. **Uncle Bob Clean Architecture & TDD**:
@@ -44,7 +44,7 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
 - `crates/xgauntlet-core/src/features/`:
   - `wasm`: Embedded Wasmtime runtime host (`WasmRuntimeHost`). In-memory WebAssembly module instantiation with Zero Ambient Authority (no filesystem, no network, no clock, no random). Exposes linear memory bridge (`alloc`, `dealloc`, `evaluate_json_wasm`).
   - `policy`: Capability request and trusted context evaluator (`CapabilityRequest`, `EnforcementContext`, `PolicyDecision`, `PolicyEvaluator`, `WasmPolicyEngine`). Enforces task-binding, path protection, destructive command denials, and verification whitelists.
-  - `evidence`: Canonical workspace manifest, report generation, drift detection, and cryptographic release attestation verification (`xgauntlet check-attestation`).
+  - `evidence`: Canonical workspace manifest, multi-session tamper-evident lineage trail, report generation, drift detection, and cryptographic release attestation verification (`xgauntlet check-attestation`).
   - `gauntlet`: Multi-layer process runner (`std::process::Command`), timeouts, exit code handling.
   - `diagnostics`: Actionable diagnostics parser transforming compiler/test output into structured LLM hints.
   - `tasks`: OKF v0.2 Markdown parser, task binding, and Aristotelian glossary validation (`check-spec`).
@@ -55,7 +55,7 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
   - `release`: Release readiness gatekeeper (`check-release --strict`), manifest version harmony, CHANGELOG.md verification, ADR coverage validation, and transactional SemVer release manager (`release bump`) with in-process wasm32 compilation and non-destructive disk-staging backup/rollback.
   - `plugin`: Global plugin distribution and embedded 6-skill sovereign suite (`xgauntlet plugin install`).
   - `topology`: Deterministic AST codebase topology, graph traversals, and token-optimized blast-radius discovery engine (`xgauntlet topology`).
-- `crates/xgauntlet-cli`: Native CLI frontend (`verify`, `check-spec`, `check-evidence`, `check-release`, `check-attestation`, `check-architecture`, `release bump`, `handoff`).
+- `crates/xgauntlet-cli`: Native CLI frontend (`verify`, `check-spec`, `check-evidence`, `check-release`, `check-attestation`, `check-architecture`, `release bump`, `handoff`, `evidence lineage`).
 - `packages/cli`: Zero-dependency Node.js distribution launcher (`xgauntlet` / `npx xgauntlet`) with cryptographic Sigstore attestation integrity verification against GitHub Repository ID (`1359184794`) before caching/execution.
 
 ---

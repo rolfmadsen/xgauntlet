@@ -5,6 +5,8 @@ description: "Håndhæve test-proveniens og forhindre 'født grønne' tests ved 
 status: todo
 generated: { by: process:xgauntlet-task-init, at: "2026-10-06T22:30:00Z" }
 tags: [task-lifecycle, tdd, checkpoint, test-provenance, born-green, epistemic-integrity, gatekeeper, preflight, adr-0003]
+scope: ["crates/xgauntlet-core/src/features/checkpoint/**", "crates/xgauntlet-core/src/features/config/**", "crates/xgauntlet-cli/**", "evidence.md", "verification-report.json"]
+test_refs: ["crates/xgauntlet-core/tests/provenance_engine_test.rs"]
 ---
 
 # Task 032: Enforce RED-First Test Provenance & Born-Green Detection
@@ -115,7 +117,7 @@ For at undgå unødig friktion, hvis en udvikler eller agent reelt opdager et ma
     - Lister alle verificerede tests med deres proveniensstatus (`RedCheckpointVerified` vs `InversePreflightVerified`).
     - Inkluderer baseline failure digest for enhver test verificeret via inverse preflight.
 - [ ] **AC7 (Retningslinjer & AI Harness Vejledning)**:
-  - Opdatere template for `.agents/AGENTS.md` og `old-coder` skill med explicit vejledning:
+  - Opdatere template for `.agents/AGENTS.md` og suveræn `tdd` skill med explicit vejledning:
     - *Regel*: "Nye tests må ALDRIG fødes grønne. Hvis et nyt kriterie eller kant-case opdages under GREEN, skal testen bevises rød via en ny RED-cyklus eller verificeres via xGauntlets inverse preflight."
 - [ ] **AC8 (Testsuite & Verifikation)**:
   - Tilføje tests i `crates/xgauntlet-core/tests/provenance_engine_test.rs`, der verificerer:
@@ -138,6 +140,7 @@ For at undgå unødig friktion, hvis en udvikler eller agent reelt opdager et ma
 
 ## 📝 Revisions
 - 2026-10-06: Task oprettet som ACTIVE for håndhævelse af RED-first test-proveniens og eliminering af 'født grønne' tests.
+- 2026-10-25: Moderniseret med OKF v0.2 scope og test_refs, samt tilpasset xGauntlets suveræne tdd skill.
 
 ---
 

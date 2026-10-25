@@ -5,6 +5,8 @@ description: "Enable stack profiler and doctor to automatically detect composite
 status: todo
 generated: { by: process:xgauntlet-task-init, at: "2026-09-15T16:40:34Z" }
 tags: [stack-profiler, typescript, vite, project-references, gauntlet]
+scope: ["crates/xgauntlet-core/src/features/config/**", "crates/xgauntlet-core/src/features/doctor/**"]
+test_refs: ["crates/xgauntlet-core/tests/stack_profiles_test.rs", "crates/xgauntlet-core/tests/doctor_test.rs"]
 ---
 
 # Task 029: Detect Composite TypeScript Project References in Stack Profile
@@ -15,6 +17,8 @@ tags: [stack-profiler, typescript, vite, project-references, gauntlet]
 
 ## 🎯 Formål
 Gøre xgauntlets Node/TypeScript stack profiler og `doctor` bevidst om "composite project references" (typisk for moderne Vite, Turborepo og Monorepo setups med `tsconfig.json` -> `files: []` og `references: [...]`). Når dette mønster opdages, skal xgauntlet automatisk konfigurere `tsc -b` (eller `tsc -p tsconfig.app.json --noEmit`) frem for `tsc --noEmit`, for at forhindre at typecheck-laget passerer i stilhed uden at tjekke nogen filer overhovedet.
+
+Da konfigurationen deklareres centralt i `gauntlet.toml [layers.types]` og inspiceres via `xgauntlet doctor`, fungerer løsningen **100% ensartet på tværs af samtlige understøttede AI harnesses** (Google Antigravity, Claude Code, OpenAI Codex og Mistral Vibe) jf. ADR 0004.
 
 ## 📋 Acceptance Criteria
 - [ ] **AC1 (Detection Engine)**: Stack profiler scanner rodens `tsconfig.json` for tilstedeværelse af `"references"` og tomme/manglende kilde-inclusions i roden.
@@ -29,8 +33,10 @@ Gøre xgauntlets Node/TypeScript stack profiler og `doctor` bevidst om "composit
 
 ## 📝 Revisions
 - 2026-09-15: Task oprettet med detaljerede kriterier baseret på erfaringer fra knowledgegraphstudio.
+- 2026-10-25: Tilføjet OKF v0.2 scope og test_refs (ADR 0008), samt ekspliciteret tværgående harness-paritet.
 
 ## 🧪 Verifikation
 - `cargo test --workspace`
 - `cargo clippy --workspace --all-targets -- -D warnings`
 - `cargo run -p xgauntlet-cli -- check-spec -t 029-detect-composite-typescript-references`
+
