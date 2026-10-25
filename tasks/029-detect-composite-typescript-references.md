@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 029: Detect Composite TypeScript Project References in Stack Profile"
 description: "Enable stack profiler and doctor to automatically detect composite tsconfig setups (files: [], references) and configure tsc -b instead of tsc --noEmit to prevent silent typecheck bypasses."
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-15T16:40:34Z" }
 tags: [stack-profiler, typescript, vite, project-references, gauntlet]
 scope:
@@ -18,7 +18,7 @@ test_refs:
 
 # Task 029: Detect Composite TypeScript Project References in Stack Profile
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-09-15`
 
@@ -28,10 +28,10 @@ Gøre xgauntlets Node/TypeScript stack profiler og `doctor` bevidst om "composit
 Da konfigurationen deklareres centralt i `gauntlet.toml [layers.types]` og inspiceres via `xgauntlet doctor`, fungerer løsningen **100% ensartet på tværs af samtlige understøttede AI harnesses** (Google Antigravity, Claude Code, OpenAI Codex og Mistral Vibe) jf. ADR 0004.
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Detection Engine)**: Stack profiler scanner rodens `tsconfig.json` for tilstedeværelse af `"references"` og tomme/manglende kilde-inclusions i roden.
-- [ ] **AC2 (Profile Generation)**: `xgauntlet init` genererer automatisk `command = ["npx", "tsc", "-b"]` i `gauntlet.toml` [layers.types], når composite references detekteres.
-- [ ] **AC3 (Doctor Warning)**: `xgauntlet doctor` advarer, hvis `gauntlet.toml` bruger `tsc --noEmit` i et repository med composite project references.
-- [ ] **AC4 (Test Suite)**: Unit tests for composite tsconfig detection og profiler output.
+- [x] **AC1 (Detection Engine)**: Stack profiler scanner rodens `tsconfig.json` for tilstedeværelse af `"references"` og tomme/manglende kilde-inclusions i roden.
+- [x] **AC2 (Profile Generation)**: `xgauntlet init` genererer automatisk `command = ["npx", "tsc", "-b"]` i `gauntlet.toml` [layers.types], når composite references detekteres.
+- [x] **AC3 (Doctor Warning)**: `xgauntlet doctor` advarer, hvis `gauntlet.toml` bruger `tsc --noEmit` i et repository med composite project references.
+- [x] **AC4 (Test Suite)**: Unit tests for composite tsconfig detection og profiler output.
 
 ## 🚫 Must NOT
 - Må IKKE bryde eksisterende standard Node/TS projekter (hvor flad `tsconfig.json` anvendes).
@@ -41,6 +41,7 @@ Da konfigurationen deklareres centralt i `gauntlet.toml [layers.types]` og inspi
 ## 📝 Revisions
 - 2026-09-15: Task oprettet med detaljerede kriterier baseret på erfaringer fra knowledgegraphstudio.
 - 2026-10-25: Tilføjet OKF v0.2 scope og test_refs (ADR 0008), samt ekspliciteret tværgående harness-paritet.
+- 2026-10-25: Gennemført TDD implementation for detektion af composite TypeScript project references og doctor advarsler (AC1-AC4).
 
 ## 🧪 Verifikation
 - `cargo test --workspace`
