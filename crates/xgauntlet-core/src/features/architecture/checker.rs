@@ -100,6 +100,11 @@ fn validate_exemptions(
     }
 }
 
+/// Mechanically validates architectural exemption ceilings against the baseline `gauntlet.toml`.
+///
+/// Enforces Task 049 (AC1-AC4) and ADR 0010: monotonic ratchet lofter må ikke hæves
+/// uden en eksplicit autorisation i den refererede ADR på formen:
+/// `ratchet: <path> <= <ny værdi>`.
 fn validate_ratchets(
     workspace: &Path,
     config: &ArchitectureConfig,
@@ -256,6 +261,7 @@ fn validate_ratchets(
     }
 }
 
+/// Checks whether the target workspace is located inside a valid Git work tree.
 fn is_git_workspace(workspace: &Path) -> bool {
     let output = std::process::Command::new("git")
         .arg("-C")
@@ -268,6 +274,7 @@ fn is_git_workspace(workspace: &Path) -> bool {
     }
 }
 
+/// Resolves baseline commit by checking merge-base with upstream (@{upstream}), falling back to HEAD.
 fn resolve_baseline_commit(workspace: &Path) -> Option<String> {
     // 1. Try merge-base with upstream (@{upstream})
     let upstream_res = std::process::Command::new("git")
@@ -304,6 +311,7 @@ fn resolve_baseline_commit(workspace: &Path) -> Option<String> {
     None
 }
 
+/// Resolves relative path of a workspace file with respect to the Git repository root.
 fn resolve_git_relative_path(workspace: &Path, file_name: &str) -> String {
     let toplevel_out = std::process::Command::new("git")
         .arg("-C")
@@ -324,6 +332,7 @@ fn resolve_git_relative_path(workspace: &Path, file_name: &str) -> String {
     file_name.to_string()
 }
 
+/// Parses ADR markdown content and verifies whether an explicit line authorizes an exemption ceiling.
 fn has_ratchet_authorization(adr_content: &str, target_path: &str, requested_limit: usize) -> bool {
     let norm_target = target_path.replace('\\', "/");
     for line in adr_content.lines() {
