@@ -1,34 +1,22 @@
 # Verification Report
 
-**Task ID**: `026-in-repo-migration-engine-and-doctor-auto-remediation`  
-**Task Title**: Task 026: In-Repo Migration Engine and Doctor Auto-Remediation  
+**Task ID**: `046-adr-bound-architectural-exemptions-and-monotonic-ratchets`  
+**Task Title**: Task 046: ADR-Bound Architectural Exemptions and Monotonic Ratchet Governance  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `5559c9f7318ea321742822e1180338c88f93e6f8c10308fd146e18d43db35ea9`  
-**Timestamp**: `2026-10-25T17:01:29Z`  
-**Head**: `fdbda2a`  
-**Commit**: `fdbda2a`  
+**Source Manifest Digest**: `7791743f9b081e7d02a02b548b43aa7faa969cedcd3dd0c21720fb5c93da9a8c`  
+**Timestamp**: `2026-10-25T17:26:10Z`  
+**Head**: `2604f95`  
+**Commit**: `2604f95`  
 
 ## Acceptance Criteria
 
-- [x] **Dybde-inspektion i `xgauntlet doctor`**:
-- [x] Udvid `governance_agent_harness` i doctor-motoren til at parse og inspicere indholdet af `.agents/hooks.json`.
-- [x] Flag `[WARN]` hvis `.agents/hooks.json` mangler `PreInvocation` telemetri-hook eller benytter det forældede `"agent-gauntlet-gatekeeper"` namespace.
-- [x] Flag `[WARN]` hvis `gauntlet.toml` refererer forældet `evidence_file = "evidence.json"` i stedet for `"verification-report.json"`.
-- [x] Give actionable remediation-meddelelse: `Action: Run 'xgauntlet migrate' (or 'xgauntlet doctor --fix')`.
-- [x] **Kirurgisk Migrations-motor (`xgauntlet migrate`)**:
-- [x] Etablere CLI subcommand `xgauntlet migrate` i `crates/xgauntlet-cli` og kerne-logik i `crates/xgauntlet-core/src/features/migration/`.
-- [x] Kirurgisk opdatering af `.agents/hooks.json`: Omdøb `"agent-gauntlet-gatekeeper"` til `"xgauntlet"` og injicer `"PreInvocation"` hook uden at overskrive brugerens egne `PreToolUse` matcher-regler.
-- [x] Kirurgisk opdatering af `gauntlet.toml`: Modernisér `evidence_file` til `"verification-report.json"` uden at berøre eksisterende bruger-definerede `[[layers]]`.
-- [x] Automatisk scaffolding af manglende template-filer (f.eks. `docs/adr/template.md`).
-- [x] Flag-understøttelse: `--dry-run` (viser planlagte ændringer uden diskskrivning), `--workspace <path>` og `--json`.
-- [x] **Auto-remediation i `xgauntlet doctor --fix`**:
-- [x] Tilføje `--fix` flag til `xgauntlet doctor`, som automatisk kalder migrationsmotoren for identificerede governance-advarsler.
-- [x] **Runtime Bagudkompatibilitet**:
-- [x] `xgauntlet hook` accepterer fortsat legacy namespace `"agent-gauntlet-gatekeeper"` i `.agents/hooks.json` med en opgraderings-anbefaling i stderr.
-- [x] **Multi-layer Verifikation**:
-- [x] Tilføje omfattende integrationstests i `crates/xgauntlet-core/tests/migration_engine_test.rs` der beviser in-place migrering mod ældre projektopsætninger.
-- [x] Verificere at samtlige tests og invariant-tjek passerer (`cargo test --workspace`, `cargo clippy`, `xgauntlet check-spec`).
+- [x] **AC1 (ADR 0010 Formulering & Indeksering)**: Formulere ADR 0010 i `docs/adr/0010-adr-bound-architectural-exemptions-and-monotonic-ratchets.md` og indeksere i `docs/adr/README.md`, `README.md` og `spec.md`.
+- [x] **AC2 (ArchitectureExemption Schema & ADR Attribution)**: Udvide `ArchitectureExemption` med `pub adr: String`, og opdatere TOML loader (`loader.rs`) og serialization (`render_toml`) til at understøtte `adr = "docs/adr/..."`.
+- [x] **AC3 (Fail-Closed ADR Verification i Architecture Gatekeeper)**: I `run_architecture_check` verificere:
+- [x] **AC4 (Monotone Ratchet-Invarianter)**: Håndhæve at ratchet-lofter ikke kan hæves uden godkendt ADR og at gatekeeperen fail-closed validerer lofterne mod filstørrelser og ADR-begrundelser.
+- [x] **AC5 (Opdatering af gauntlet.toml)**: Forankre de 3 eksisterende exemptions i `gauntlet.toml` til henholdsvis ADR 0010 (for `main.rs`) og ADR 0004 (for `harness_contracts_test.rs` og `harness_adapters_test.rs`).
+- [x] **AC6 (Testsuite & Multi-Layer Gauntlet)**: Skrive dækkende integrationstests i `architecture_gate_test.rs` og verificere at hele workspace består (`cargo test --workspace`, `cargo clippy`, `cargo fmt`, `check-architecture`, `check-spec`).
 
 ---
 
@@ -36,13 +24,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.071s` |
-| `format` | `PASSED` | `0` | `0.238s` |
-| `lint` | `PASSED` | `0` | `0.131s` |
-| `types` | `PASSED` | `0` | `0.104s` |
-| `unit` | `PASSED` | `0` | `19.561s` |
-| `npm` | `PASSED` | `0` | `0.831s` |
-| `invariants` | `PASSED` | `0` | `0.072s` |
+| `architecture` | `PASSED` | `0` | `0.069s` |
+| `format` | `PASSED` | `0` | `0.221s` |
+| `lint` | `PASSED` | `0` | `0.137s` |
+| `types` | `PASSED` | `0` | `0.118s` |
+| `unit` | `PASSED` | `0` | `19.105s` |
+| `npm` | `PASSED` | `0` | `0.759s` |
+| `invariants` | `PASSED` | `0` | `0.055s` |
 | `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---
@@ -83,6 +71,7 @@
 | `sess-aa21fa7f` | `Software Engineer` | `DONE` | `aa21fa7` | `2026-10-25T17:01:29Z` | `VALID` |
 | `sess-88b26411` | `TDD Craftsman` | `RED` | `88b2641` | `2026-10-25T17:19:44Z` | `VALID` |
 | `sess-e40eb6c5` | `TDD Craftsman` | `GREEN` | `e40eb6c` | `2026-10-25T17:23:59Z` | `VALID` |
+| `sess-2604f95e` | `TDD Craftsman` | `REFACTOR` | `2604f95` | `2026-10-25T17:24:43Z` | `VALID` |
 
 ---
 
@@ -90,6 +79,18 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_architecture_config_parsing_from_toml` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
+| `test_architecture_check_passes_on_compliant_workspace` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
+| `test_architecture_check_fails_on_monolithic_production_file` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
+| `test_architecture_check_fails_on_monolithic_test_file` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
+| `test_architecture_check_honors_explicit_exemption` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
+| `test_architecture_check_fails_if_exemption_ceiling_exceeded` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
+| `test_architecture_check_catches_forbidden_tokens` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
+| `test_architecture_check_catches_forbidden_imports` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
+| `test_architecture_check_fails_when_exemption_lacks_adr` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
+| `test_architecture_check_fails_when_exemption_adr_not_found` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
+| `test_architecture_check_fails_when_exemption_adr_is_not_accepted` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
+| `test_architecture_config_parsing_from_toml_with_adr` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
 | `test_doctor_warns_on_legacy_hooks_namespace_and_missing_preinvocation` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
 | `test_doctor_warns_on_legacy_evidence_file_in_gauntlet_toml` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
 | `test_doctor_passes_when_hooks_and_evidence_are_modern` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
@@ -142,17 +143,5 @@
 | `test_detect_composite_typescript_in_workspace` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
-| `test_architecture_config_parsing_from_toml` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
-| `test_architecture_check_passes_on_compliant_workspace` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
-| `test_architecture_check_fails_on_monolithic_production_file` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
-| `test_architecture_check_fails_on_monolithic_test_file` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
-| `test_architecture_check_honors_explicit_exemption` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
-| `test_architecture_check_fails_if_exemption_ceiling_exceeded` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
-| `test_architecture_check_catches_forbidden_tokens` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
-| `test_architecture_check_catches_forbidden_imports` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
-| `test_architecture_check_fails_when_exemption_lacks_adr` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
-| `test_architecture_check_fails_when_exemption_adr_not_found` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
-| `test_architecture_check_fails_when_exemption_adr_is_not_accepted` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
-| `test_architecture_config_parsing_from_toml_with_adr` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
 
 ---
