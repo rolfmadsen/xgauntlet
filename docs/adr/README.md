@@ -27,4 +27,5 @@ Dette katalog indeholder Architecture Decision Records (ADR) for `xGauntlet`.
 | [ADR 0006](0006-multi-harness-policy-adapter-contract.md) | Multi-Harness Policy Adapter Contract | `ACCEPTED` | Strikt adskillelse af `CapabilityRequest` og `EnforcementContext`. Zero cryptographic authority. |
 | [ADR 0007](0007-local-transparent-supervisor-and-wasm-verifier.md) | Zero-Daemon WASM Policy Verifier | `ACCEPTED` | Nul ambient authority via in-memory Wasmtime og matematisk pre/post manifestkontrol. |
 | [ADR 0008](0008-sovereign-agentic-sdlc-task-scoping-and-design-tokens.md) | Sovereign Agentic SDLC & Task Scoping | `ACCEPTED` | 7-faset SDLC, suveræn skill suite, obligatorisk task scoping og tilgængelige design tokens. |
+| [ADR 0009](0009-autonomous-tdd-inner-loop-and-boundary-human-gates.md) | Autonomous TDD Inner Loop & Boundary Human Gates | `ACCEPTED` | Autonom overgang mellem RED og GREEN ved mekanisk verificeret test; bevarelse af menneskelige grænse-gates. |
 

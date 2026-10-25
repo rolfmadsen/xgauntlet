@@ -324,7 +324,7 @@ For at undgå uendelige review-loops (*bikeshedding*) og bevare et skarpt kontek
 ```text
 xGauntlet/
 ├── tasks/                        # Aktive og afsluttede opgavepakker (OKF v0.2)
-├── docs/adr/                     # Arkitekturbeslutninger (ADRs 0001-0008)
+├── docs/adr/                     # Arkitekturbeslutninger (ADRs 0001-0009)
 ├── CONTEXT.md                    # Domæne-glossary (Aristoteles' genus et differentiam)
 ├── CODING_STANDARDS.md           # Multi-stack kodestandarder (Rust, TypeScript, Python)
 ├── spec.md                       # Makro-specifikation & system-invarianter
@@ -477,6 +477,7 @@ Projektets invariante tekniske valg og designprincipper er dokumenteret i [`docs
 - 🏛️ **[ADR 0006](docs/adr/0006-multi-harness-policy-adapter-contract.md)**: Multi-Harness Policy Adapter Contract
 - 🏛️ **[ADR 0007](docs/adr/0007-local-transparent-supervisor-and-wasm-verifier.md)**: Zero-Daemon WASM Policy Verifier
 - 🏛️ **[ADR 0008](docs/adr/0008-sovereign-agentic-sdlc-task-scoping-and-design-tokens.md)**: Sovereign Agentic SDLC, Task Scoping, and Design Token Governance
+- 🏛️ **[ADR 0009](docs/adr/0009-autonomous-tdd-inner-loop-and-boundary-human-gates.md)**: Autonomous TDD Inner Loop and Boundary Human-in-the-Loop Gates
 
 ---
 

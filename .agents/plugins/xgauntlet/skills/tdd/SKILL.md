@@ -14,8 +14,16 @@ Fase 3 i xGauntlets Agentic SDLC: **Implementation via Test-Driven Development**
 ## 🔄 TDD Faseløkken & Lokale Checkpoints
 
 ```text
-SPEC ➔ RED ➔ GREEN ➔ REFACTOR ➔ VERIFY / GAUNTLET
+SPEC (Human Gate) ➔ [RED ➔ GREEN ➔ REFACTOR (Autonomous Inner Loop)] ➔ GAUNTLET ➔ AUDIT (Human Gate)
 ```
+
+### Autonomous TDD Inner Loop Princippet
+Human-in-the-Loop gates tilhører opgavens ydre grænser:
+1. **Gate 1: SPEC Godkendelse** – Mennesket godkender scope, kriterier og test-seams.
+2. **Gate 2: AUDIT & HANDOFF Godkendelse** – Mennesket godkender review, evidens og endelig opgavelukning.
+
+Den indre løkke `[RED ➔ GREEN ➔ REFACTOR]` er **100% autonom**:
+Når en rød accepttest er skrevet og preflight-verificeret via `xgauntlet checkpoint --phase red`, må agenten **IKKE** standse op eller afvente brugergodkendelse. Agenten overgår umiddelbart til GREEN fasen i én sammenhængende eksekvering, da den mekaniske preflight og det atomiske Git-commit allerede garanterer sikkerhed og tilbagerulning.
 
 ### 1. SPEC Checkpoint
 Når opgaven er godkendt af brugeren og valideret via `check-spec`:
@@ -30,6 +38,7 @@ git commit -m "task(<id>): initialize task specification and criteria"
 ```bash
 git commit -m "test(<id>): add failing acceptance test for <feature> [RED]"
 ```
+- **Autonom Overgang**: Fortsæt straks til GREEN fasen uden turn-pause!
 
 ### 3. GREEN Fase (Minimal implementation)
 - Skriv den *minimale* mængde produktionskode, der får testen til at passere.

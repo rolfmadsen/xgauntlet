@@ -113,11 +113,11 @@ Når en bruger henvender sig med et ustruktureret eller uformelt ønske, fungere
 
 ## 🔄 Core Development Loop
 ```text
-SPEC / DISCOVER → (Human Approval) → RED → GREEN → REFACTOR → GAUNTLET → EVIDENCE
+SPEC / DISCOVER → (Human Approval) → [RED → GREEN → REFACTOR (Autonomous)] → GAUNTLET → (Human Audit) → EVIDENCE / DONE
 ```
 
 1. **SPEC / DISCOVER**: Konkrete eksekverbare kriterier i `tasks/<task>.md` og `spec.md`, afstemt med `CONTEXT.md`.
-2. **RED**: Skriv fejlede accepttests først, og bevis at de fejler med den forventede årsag.
+2. **RED**: Skriv fejlede accepttests først, og bevis at de fejler med den forventede årsag (`xgauntlet checkpoint --phase red`). Når en rød accepttest fejler som forventet og `checkpoint --phase red` er udført, må agenten IKKE standse eller afvente brugerbekræftelse; agenten skal umiddelbart overgå til GREEN fasen.
 3. **GREEN**: Minimal implementation for at få testene til at passere.
 4. **REFACTOR**: Oprydning i kode og modularitet, mens assertionerne forbliver frosne.
 5. **GAUNTLET**: Kør multi-layer verifikation via `cargo run -p xgauntlet-cli -- verify` / `xgauntlet verify`:
