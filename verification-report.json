@@ -130,5 +130,17 @@
       "remediation_hint": "Check full command output logs for root cause remediation.",
       "raw_context": ""
     }
-  ]
+  ],
+  "lineage": {
+    "entries": [
+      {
+        "session_nonce": "sess-89220d3e",
+        "role": "TDD Craftsman",
+        "phase": "GREEN",
+        "commit_oid": "89220d3e0388d48de96c48ebfe0ae7ebe64481e5",
+        "timestamp": "2026-10-25T14:05:09Z",
+        "digest": "221ea7ed78e7dfa5b770c4660ccfedaae00d3a30e3a59e5b4043c8b53768dd65"
+      }
+    ]
+  }
 }
