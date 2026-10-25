@@ -1,22 +1,34 @@
 # Verification Report
 
-**Task ID**: `045-multi-session-lineage-and-evidence-traceability`  
-**Task Title**: Task 045: Multi-Session Lineage & Evidence Traceability  
+**Task ID**: `026-in-repo-migration-engine-and-doctor-auto-remediation`  
+**Task Title**: Task 026: In-Repo Migration Engine and Doctor Auto-Remediation  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `4892d8bec6e1234b3682c2428c649af2ec690c98fefda18cb845a7ea37621aef`  
-**Timestamp**: `2026-10-25T16:29:59Z`  
-**Head**: `24ac25a`  
-**Commit**: `24ac25a`  
+**Source Manifest Digest**: `5559c9f7318ea321742822e1180338c88f93e6f8c10308fd146e18d43db35ea9`  
+**Timestamp**: `2026-10-25T17:01:29Z`  
+**Head**: `fdbda2a`  
+**Commit**: `fdbda2a`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (Session Lineage Datamodel)**:
-- [x] **AC2 (Integration i Checkpoint Engine)**:
-- [x] **AC3 (Tamper-Evident Hash Chaining)**:
-- [x] **AC4 (Evidence Markdown Visualisering)**:
-- [x] **AC5 (CLI Undersøgelse & Formatering)**:
-- [x] **AC6 (Testsuite & Verifikation)**:
+- [x] **Dybde-inspektion i `xgauntlet doctor`**:
+- [x] Udvid `governance_agent_harness` i doctor-motoren til at parse og inspicere indholdet af `.agents/hooks.json`.
+- [x] Flag `[WARN]` hvis `.agents/hooks.json` mangler `PreInvocation` telemetri-hook eller benytter det forældede `"agent-gauntlet-gatekeeper"` namespace.
+- [x] Flag `[WARN]` hvis `gauntlet.toml` refererer forældet `evidence_file = "evidence.json"` i stedet for `"verification-report.json"`.
+- [x] Give actionable remediation-meddelelse: `Action: Run 'xgauntlet migrate' (or 'xgauntlet doctor --fix')`.
+- [x] **Kirurgisk Migrations-motor (`xgauntlet migrate`)**:
+- [x] Etablere CLI subcommand `xgauntlet migrate` i `crates/xgauntlet-cli` og kerne-logik i `crates/xgauntlet-core/src/features/migration/`.
+- [x] Kirurgisk opdatering af `.agents/hooks.json`: Omdøb `"agent-gauntlet-gatekeeper"` til `"xgauntlet"` og injicer `"PreInvocation"` hook uden at overskrive brugerens egne `PreToolUse` matcher-regler.
+- [x] Kirurgisk opdatering af `gauntlet.toml`: Modernisér `evidence_file` til `"verification-report.json"` uden at berøre eksisterende bruger-definerede `[[layers]]`.
+- [x] Automatisk scaffolding af manglende template-filer (f.eks. `docs/adr/template.md`).
+- [x] Flag-understøttelse: `--dry-run` (viser planlagte ændringer uden diskskrivning), `--workspace <path>` og `--json`.
+- [x] **Auto-remediation i `xgauntlet doctor --fix`**:
+- [x] Tilføje `--fix` flag til `xgauntlet doctor`, som automatisk kalder migrationsmotoren for identificerede governance-advarsler.
+- [x] **Runtime Bagudkompatibilitet**:
+- [x] `xgauntlet hook` accepterer fortsat legacy namespace `"agent-gauntlet-gatekeeper"` i `.agents/hooks.json` med en opgraderings-anbefaling i stderr.
+- [x] **Multi-layer Verifikation**:
+- [x] Tilføje omfattende integrationstests i `crates/xgauntlet-core/tests/migration_engine_test.rs` der beviser in-place migrering mod ældre projektopsætninger.
+- [x] Verificere at samtlige tests og invariant-tjek passerer (`cargo test --workspace`, `cargo clippy`, `xgauntlet check-spec`).
 
 ---
 
@@ -24,14 +36,14 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.077s` |
-| `format` | `PASSED` | `0` | `0.207s` |
-| `lint` | `PASSED` | `0` | `0.124s` |
-| `types` | `PASSED` | `0` | `0.169s` |
-| `unit` | `PASSED` | `0` | `19.294s` |
-| `npm` | `PASSED` | `0` | `0.804s` |
+| `architecture` | `PASSED` | `0` | `0.071s` |
+| `format` | `PASSED` | `0` | `0.238s` |
+| `lint` | `PASSED` | `0` | `0.131s` |
+| `types` | `PASSED` | `0` | `0.104s` |
+| `unit` | `PASSED` | `0` | `19.561s` |
+| `npm` | `PASSED` | `0` | `0.831s` |
 | `invariants` | `PASSED` | `0` | `0.072s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.017s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---
 
@@ -67,6 +79,7 @@
 | `sess-05fd66fd` | `System Architect` | `SPEC` | `05fd66f` | `2026-10-25T16:41:15Z` | `VALID` |
 | `sess-de771be3` | `TDD Craftsman` | `RED` | `de771be` | `2026-10-25T16:47:22Z` | `VALID` |
 | `sess-0c135645` | `TDD Craftsman` | `GREEN` | `0c13564` | `2026-10-25T16:55:51Z` | `VALID` |
+| `sess-fdbda2ae` | `TDD Craftsman` | `REFACTOR` | `fdbda2a` | `2026-10-25T16:59:02Z` | `VALID` |
 
 ---
 
@@ -74,6 +87,15 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_doctor_warns_on_legacy_hooks_namespace_and_missing_preinvocation` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
+| `test_doctor_warns_on_legacy_evidence_file_in_gauntlet_toml` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
+| `test_doctor_passes_when_hooks_and_evidence_are_modern` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
+| `test_doctor_fix_flag_auto_remediates_governance_issues` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
+| `test_migration_engine_dry_run_does_not_modify_disk` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
+| `test_migration_engine_modernizes_hooks_preserving_custom_matchers` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
+| `test_migration_engine_modernizes_gauntlet_toml_preserving_custom_layers` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
+| `test_migration_engine_scaffolds_missing_adr_template` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
+| `test_runtime_backward_compatibility_with_legacy_hooks_namespace` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
 | `test_session_lineage_trail_genesis_and_chaining` | `RedCheckpointVerified` | `9e57b6c459f4004b...` | `2026-10-25T15:00:27+01:00` |
 | `test_session_lineage_tamper_detection` | `RedCheckpointVerified` | `9e57b6c459f4004b...` | `2026-10-25T15:00:27+01:00` |
 | `test_verification_report_backward_compatibility` | `RedCheckpointVerified` | `9e57b6c459f4004b...` | `2026-10-25T15:00:27+01:00` |
@@ -117,14 +139,5 @@
 | `test_detect_composite_typescript_in_workspace` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
-| `test_doctor_warns_on_legacy_hooks_namespace_and_missing_preinvocation` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
-| `test_doctor_warns_on_legacy_evidence_file_in_gauntlet_toml` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
-| `test_doctor_passes_when_hooks_and_evidence_are_modern` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
-| `test_doctor_fix_flag_auto_remediates_governance_issues` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
-| `test_migration_engine_dry_run_does_not_modify_disk` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
-| `test_migration_engine_modernizes_hooks_preserving_custom_matchers` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
-| `test_migration_engine_modernizes_gauntlet_toml_preserving_custom_layers` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
-| `test_migration_engine_scaffolds_missing_adr_template` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
-| `test_runtime_backward_compatibility_with_legacy_hooks_namespace` | `RedCheckpointVerified` | `f18b5278ca4d2b25...` | `2026-10-25T17:47:22+01:00` |
 
 ---
