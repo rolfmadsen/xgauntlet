@@ -28,4 +28,5 @@ Dette katalog indeholder Architecture Decision Records (ADR) for `xGauntlet`.
 | [ADR 0007](0007-local-transparent-supervisor-and-wasm-verifier.md) | Zero-Daemon WASM Policy Verifier | `ACCEPTED` | Nul ambient authority via in-memory Wasmtime og matematisk pre/post manifestkontrol. |
 | [ADR 0008](0008-sovereign-agentic-sdlc-task-scoping-and-design-tokens.md) | Sovereign Agentic SDLC & Task Scoping | `ACCEPTED` | 7-faset SDLC, suveræn skill suite, obligatorisk task scoping og tilgængelige design tokens. |
 | [ADR 0009](0009-autonomous-tdd-inner-loop-and-boundary-human-gates.md) | Autonomous TDD Inner Loop & Boundary Human Gates | `ACCEPTED` | Autonom overgang mellem RED og GREEN ved mekanisk verificeret test; bevarelse af menneskelige grænse-gates. |
+| [ADR 0010](0010-adr-bound-architectural-exemptions-and-monotonic-ratchets.md) | ADR-Bound Architectural Exemptions & Monotonic Ratchet Governance | `ACCEPTED` | Obligatorisk ADR-tilknytning for alle undtagelser; forbud mod autonom forøgelse af ratchet-lofter. |
 
