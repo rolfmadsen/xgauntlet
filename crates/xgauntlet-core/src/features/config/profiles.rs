@@ -83,6 +83,7 @@ pub fn default_config_for_stack(stack: &str) -> GauntletConfig {
         evidence_markdown_file: "evidence.md".to_string(),
         paths: PathsConfig::default(),
         architecture: ArchitectureConfig::default(),
+        checkpoint: super::models::CheckpointConfig::default(),
         layers,
     }
 }

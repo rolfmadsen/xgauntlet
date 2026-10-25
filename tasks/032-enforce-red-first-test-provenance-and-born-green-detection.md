@@ -5,7 +5,7 @@ description: "Håndhæve test-proveniens og forhindre 'født grønne' tests ved 
 status: active
 generated: { by: process:xgauntlet-task-init, at: "2026-10-06T22:30:00Z" }
 tags: [task-lifecycle, tdd, checkpoint, test-provenance, born-green, epistemic-integrity, gatekeeper, preflight, adr-0003]
-scope: ["crates/xgauntlet-core/src/features/checkpoint/**", "crates/xgauntlet-core/src/features/config/**", "crates/xgauntlet-cli/**", "evidence.md", "verification-report.json"]
+scope: ["crates/xgauntlet-core/src/features/**", "crates/xgauntlet-cli/**", "evidence.md", "verification-report.json"]
 test_refs: ["crates/xgauntlet-core/tests/provenance_engine_test.rs"]
 ---
 

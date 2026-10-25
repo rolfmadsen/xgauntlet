@@ -181,6 +181,23 @@ pub async fn run_checkpoint(
         .get_or_insert_with(crate::features::evidence::SessionLineageTrail::new);
     lineage.append(session_nonce, role, phase_str, &commit_oid, None);
 
+    if let Ok(provenance_list) =
+        super::provenance::collect_task_test_provenance(&options.workspace, &task_id)
+    {
+        let mut combined = report.test_provenance.take().unwrap_or_default();
+        for p in provenance_list {
+            if !combined
+                .iter()
+                .any(|c| c.test_identifier == p.test_identifier)
+            {
+                combined.push(p);
+            }
+        }
+        if !combined.is_empty() {
+            report.test_provenance = Some(combined);
+        }
+    }
+
     let _ = crate::features::evidence::save_verification_report(&options.workspace, &report);
 
     Ok(CheckpointResult {

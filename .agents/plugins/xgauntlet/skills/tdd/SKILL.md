@@ -57,3 +57,4 @@ git commit -m "refactor(<id>): clean up module boundaries and types [REFACTOR]"
 - Tilføj ALDRIG tests til monolitiske testfiler over 1.000 linjer.
 - Foretag ALDRIG remote publication (`git push`) under TDD løkken.
 - Foretag ALDRIG destruktive Git-kommandoer (`git reset --hard` eller `git clean -f`).
+- Nye tests må ALDRIG fødes grønne. Hvis et nyt kriterie eller kant-case opdages under GREEN, skal testen bevises rød via en ny RED-cyklus eller verificeres via xGauntlets inverse preflight.

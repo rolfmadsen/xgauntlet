@@ -11,7 +11,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 
 use xgauntlet_core::features::checkpoint::provenance::{
     detect_born_green_tests, extract_test_identifiers, verify_inverse_test_failure,
-    TestProvenanceEvidence, TestProvenanceStatus,
+    TestProvenanceStatus,
 };
 use xgauntlet_core::features::checkpoint::{
     run_checkpoint, CheckpointError, CheckpointOptions, CheckpointPhase,
@@ -214,12 +214,22 @@ fn test_inverse_preflight_detects_tautological_test() {
     fs::create_dir_all(&src_dir).unwrap();
     fs::create_dir_all(&tests_dir).unwrap();
 
-    // Baseline: simple math module
+    // Configure test layer via gauntlet.toml
     fs::write(
-        src_dir.join("lib.rs"),
-        "pub fn calculate() -> i32 { 42 }\n",
+        ws.join("gauntlet.toml"),
+        r#"
+[stack]
+name = "custom"
+
+[[layers]]
+name = "test"
+command = ["grep", "pub fn calculate() -> i32 { 42 }", "src/lib.rs"]
+"#,
     )
     .unwrap();
+
+    // Baseline: simple math module
+    fs::write(src_dir.join("lib.rs"), "pub fn calculate() -> i32 { 42 }\n").unwrap();
     fs::write(
         tests_dir.join("calc_test.rs"),
         "use dummy::calculate;\n#[test]\nfn test_existing() { assert_eq!(calculate(), 42); }\n",
@@ -259,6 +269,20 @@ fn test_inverse_preflight_verifies_legitimate_test() {
     let tests_dir = ws.join("tests");
     fs::create_dir_all(&src_dir).unwrap();
     fs::create_dir_all(&tests_dir).unwrap();
+
+    // Configure test layer via gauntlet.toml
+    fs::write(
+        ws.join("gauntlet.toml"),
+        r#"
+[stack]
+name = "custom"
+
+[[layers]]
+name = "test"
+command = ["grep", "hello world", "src/lib.rs"]
+"#,
+    )
+    .unwrap();
 
     // Baseline: greet returns "hello"
     fs::write(
@@ -346,4 +370,39 @@ test_refs: ["tests/provenance_test.rs"]
         }
         other => panic!("expected BornGreenTestDetected error, got: {:?}", other),
     }
+}
+
+#[tokio::test]
+async fn test_collect_task_test_provenance_and_verification_report() {
+    let temp = TempDir::new("provenance_report");
+    let ws = temp.path();
+    init_git_repo(ws);
+
+    let tests_dir = ws.join("tests");
+    fs::create_dir_all(&tests_dir).unwrap();
+
+    fs::write(
+        tests_dir.join("sample_test.rs"),
+        "#[test]\nfn test_alpha() { assert_eq!(1, 2); }\n",
+    )
+    .unwrap();
+
+    let _ = git_commit_all(ws, "test(032): initial red test [RED]");
+
+    let prov =
+        xgauntlet_core::features::checkpoint::provenance::collect_task_test_provenance(ws, "032")
+            .expect("should collect provenance");
+
+    assert_eq!(prov.len(), 1);
+    assert_eq!(prov[0].test_identifier, "test_alpha");
+    assert_eq!(prov[0].status, TestProvenanceStatus::RedCheckpointVerified);
+    assert!(!prov[0].failure_digest.is_empty());
+
+    let mut report = xgauntlet_core::features::evidence::VerificationReport::new_local("032");
+    report.test_provenance = Some(prov);
+
+    let md = xgauntlet_core::features::evidence::generate_report_markdown(&report, None);
+    assert!(md.contains("### 🧪 Test Provenance & Born-Green Verification"));
+    assert!(md.contains("test_alpha"));
+    assert!(md.contains("RedCheckpointVerified"));
 }

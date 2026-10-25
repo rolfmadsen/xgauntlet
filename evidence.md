@@ -48,3 +48,11 @@
 | `sess-4a8a2566` | `TDD Craftsman` | `RED` | `c1b2b2d` | `2026-10-25T14:50:03Z` | `VALID` |
 
 ---
+
+### 🧪 Test Provenance & Born-Green Verification
+
+| Test Identifier | Status | Baseline Failure Digest | Verified At |
+|---|---|---|---|
+| `test_collect_task_test_provenance_and_verification_report` | `InversePreflightVerified` | `c46f890b2d9b738e...` | `2026-10-25T15:07:56Z` |
+
+---

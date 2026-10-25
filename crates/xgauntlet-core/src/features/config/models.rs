@@ -227,6 +227,21 @@ impl Default for ArchitectureConfig {
     }
 }
 
+/// Configuration for phase-bound checkpoints and test provenance.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct CheckpointConfig {
+    #[serde(default = "default_true")]
+    pub enforce_provenance: bool,
+}
+
+impl Default for CheckpointConfig {
+    fn default() -> Self {
+        Self {
+            enforce_provenance: true,
+        }
+    }
+}
+
 /// Root gauntlet configuration.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct GauntletConfig {
@@ -242,6 +257,8 @@ pub struct GauntletConfig {
     pub paths: PathsConfig,
     #[serde(default)]
     pub architecture: ArchitectureConfig,
+    #[serde(default)]
+    pub checkpoint: CheckpointConfig,
     #[serde(default)]
     pub layers: Vec<LayerConfig>,
 }

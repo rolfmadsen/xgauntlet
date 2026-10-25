@@ -190,6 +190,41 @@ pub fn generate_report_markdown(report: &VerificationReport, title: Option<&str>
         }
     }
 
+    if let Some(ref provenance) = report.test_provenance {
+        if !provenance.is_empty() {
+            lines.push(String::new());
+            lines.push("---".to_string());
+            lines.push(String::new());
+            lines.push("### 🧪 Test Provenance & Born-Green Verification".to_string());
+            lines.push(String::new());
+            lines.push(
+                "| Test Identifier | Status | Baseline Failure Digest | Verified At |".to_string(),
+            );
+            lines.push("|---|---|---|---|".to_string());
+            for p in provenance {
+                let status_str = match p.status {
+                    crate::features::checkpoint::provenance::TestProvenanceStatus::RedCheckpointVerified => {
+                        "RedCheckpointVerified"
+                    }
+                    crate::features::checkpoint::provenance::TestProvenanceStatus::InversePreflightVerified => {
+                        "InversePreflightVerified"
+                    }
+                };
+                let digest_display = if p.failure_digest.len() > 16 {
+                    format!("{}...", &p.failure_digest[..16])
+                } else if !p.failure_digest.is_empty() {
+                    p.failure_digest.clone()
+                } else {
+                    "(none)".to_string()
+                };
+                lines.push(format!(
+                    "| `{}` | `{}` | `{}` | `{}` |",
+                    p.test_identifier, status_str, digest_display, p.verified_at
+                ));
+            }
+        }
+    }
+
     lines.push(String::new());
     lines.push("---".to_string());
     lines.push(String::new());

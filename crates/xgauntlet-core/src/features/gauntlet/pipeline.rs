@@ -228,9 +228,35 @@ pub async fn execute_gauntlet_pipeline(
         ),
     };
 
-    let existing_lineage = load_verification_report(workspace)
-        .ok()
-        .and_then(|r| r.lineage);
+    let existing_report = load_verification_report(workspace).ok();
+    let existing_lineage = existing_report.as_ref().and_then(|r| r.lineage.clone());
+    let existing_provenance = existing_report
+        .as_ref()
+        .and_then(|r| r.test_provenance.clone());
+
+    let test_provenance = if !task_id.is_empty() {
+        match crate::features::checkpoint::provenance::collect_task_test_provenance(
+            workspace, &task_id,
+        ) {
+            Ok(mut list) => {
+                if let Some(existing) = existing_provenance {
+                    for ex in existing {
+                        if !list.iter().any(|p| p.test_identifier == ex.test_identifier) {
+                            list.push(ex);
+                        }
+                    }
+                }
+                if list.is_empty() {
+                    None
+                } else {
+                    Some(list)
+                }
+            }
+            Err(_) => existing_provenance,
+        }
+    } else {
+        existing_provenance
+    };
 
     let report = VerificationReport {
         schema: "https://xgauntlet.dev/schemas/v2/verification-report.json".to_string(),
@@ -249,6 +275,7 @@ pub async fn execute_gauntlet_pipeline(
         checks,
         diagnostics: all_findings,
         lineage: existing_lineage,
+        test_provenance,
     };
 
     // 12. Save Evidence Artifacts if requested

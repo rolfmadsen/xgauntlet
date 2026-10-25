@@ -333,6 +333,7 @@ For at sikre sporbarhed, atomiske tilbagerulningspunkter og beskytte mod context
 - Foretag ALDRIG remote publication handlinger (`git push`).
 - Foretag ALDRIG destruktive reset handlinger (`git reset --hard` eller `git clean -f`).
 - Alle commits forbliver strengt lokale checkpoints på udviklerens maskine.
+- Nye tests må ALDRIG fødes grønne. Hvis et nyt kriterie eller kant-case opdages under GREEN, skal testen bevises rød via en ny RED-cyklus eller verificeres via xGauntlets inverse preflight.
 "#
     )
 }

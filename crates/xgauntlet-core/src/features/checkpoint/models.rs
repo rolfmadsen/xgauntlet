@@ -106,6 +106,10 @@ pub struct CheckpointOptions {
     pub skip_verify: bool,
     /// Allow creating empty commit when no files changed.
     pub allow_empty: bool,
+    /// Strictly require tests to be committed in RED phase; reject any in-flight test additions.
+    pub strict_provenance: bool,
+    /// Allow born-green tests to pass without inverse preflight verification (emergency override).
+    pub allow_born_green: bool,
 }
 
 impl CheckpointOptions {
@@ -117,6 +121,8 @@ impl CheckpointOptions {
             workspace: workspace.into(),
             skip_verify: false,
             allow_empty: false,
+            strict_provenance: false,
+            allow_born_green: false,
         }
     }
 
@@ -137,6 +143,16 @@ impl CheckpointOptions {
 
     pub fn with_allow_empty(mut self, allow: bool) -> Self {
         self.allow_empty = allow;
+        self
+    }
+
+    pub fn with_strict_provenance(mut self, strict: bool) -> Self {
+        self.strict_provenance = strict;
+        self
+    }
+
+    pub fn with_allow_born_green(mut self, allow: bool) -> Self {
+        self.allow_born_green = allow;
         self
     }
 }
@@ -266,6 +282,12 @@ pub enum CheckpointError {
         task_id: String,
         violations: Vec<String>,
     },
+
+    #[error("Born-green tests detected in GREEN/REFACTOR checkpoint without prior RED failure: {tests:?}")]
+    BornGreenTestDetected { tests: Vec<String> },
+
+    #[error("Tautological test detected: '{test_name}' passed against baseline code before production changes")]
+    TautologicalTestDetected { test_name: String },
 
     #[error("Git error: {0}")]
     GitError(String),

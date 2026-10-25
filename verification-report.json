@@ -190,5 +190,14 @@
         "digest": "53791b293ec1cec17c0c996379453492c7faf9d3de60fea369b9436e55d111a4"
       }
     ]
-  }
+  },
+  "test_provenance": [
+    {
+      "test_identifier": "test_collect_task_test_provenance_and_verification_report",
+      "failure_output": "Compiling xgauntlet-core v0.8.5 (/home/rolfmadsen/Github/xgauntlet/crates/xgauntlet-core)\n   Compiling xgauntlet-cli v0.8.5 (/home/rolfmadsen/Github/xgauntlet/crates/xgauntlet-cli)\nerror[E0432]: unresolved import `xgauntlet_core::features::checkpoint::provenance`\n  --> crates/xgauntlet-core/tests/provenance_engine_test.rs:12:43\n   |\n12 | use xgauntlet_core::features::checkpoint::provenance::{\n   |                                           ^^^^^^^^^^ could not find `provenance` in `checkpoint`\n\nerror[E0433]: cannot find `provenance` in `checkpoint`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:393:47\n    |\n393 | ...point::provenance::collect_task_test_provenance(ws, \"032\")\n    |           ^^^^^^^^^^ could not find `provenance` in `checkpoint`\n\nerror[E0599]: no variant named `TautologicalTestDetected` found for enum `CheckpointError`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:255:30\n    |\n255 |         Err(CheckpointError::TautologicalTestDetected { test_name }) => {\n    |                              ^^^^^^^^^^^^^^^^^^^^^^^^ variant not found in `CheckpointError`\n\nerror[E0599]: no method named `with_strict_provenance` found for struct `CheckpointOptions` in the current scope\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:364:10\n    |\n362 |       let opts = CheckpointOptions::new(CheckpointPhase::Green, ws)\n    |  ________________-\n363 | |         .with_task_id(\"032-test-provenance\")\n364 | |         .with_strict_provenance(true);\n    | |         -^^^^^^^^^^^^^^^^^^^^^^ method not found in `CheckpointOptions`\n    | |_________|\n    |\n\nerror[E0599]: no variant named `BornGreenTestDetected` found for enum `CheckpointError`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:368:30\n    |\n368 |         Err(CheckpointError::BornGreenTestDetected { tests }) => {\n    |                              ^^^^^^^^^^^^^^^^^^^^^ variant not found in `CheckpointError`\n\nerror[E0609]: no field `test_provenance` on type `VerificationReport`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:402:12\n    |\n402 |     report.test_provenance = Some(prov);\n    |            ^^^^^^^^^^^^^^^ unknown field\n    |\n    = note: available fields are: `schema`, `schema_version`, `execution_origin`, `verdict`, `task_contract` ... and 5 others\n\nSome errors have detailed explanations: E0432, E0433, E0599, E0609.\nFor more information about an error, try `rustc --explain E0432`.\nerror: could not compile `xgauntlet-core` (test \"provenance_engine_test\") due to 6 previous errors\nwarning: build failed, waiting for other jobs to finish...",
+      "failure_digest": "c46f890b2d9b738e1dd1748557166cf54f55ea9b0ef9c0d7177ea0a78f96365f",
+      "verified_at": "2026-10-25T15:07:56Z",
+      "status": "inverse_preflight_verified"
+    }
+  ]
 }

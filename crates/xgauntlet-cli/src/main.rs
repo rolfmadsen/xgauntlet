@@ -270,6 +270,14 @@ enum Commands {
         #[arg(long)]
         json: bool,
 
+        /// Strictly enforce that tests must be committed in RED phase; reject in-flight test additions
+        #[arg(long)]
+        strict_provenance: bool,
+
+        /// Allow born-green tests to pass without inverse preflight verification (emergency override)
+        #[arg(long)]
+        allow_born_green: bool,
+
         /// Target harness format for wrapping response (e.g. 'codex', 'antigravity', 'claude_code', 'mistral')
         #[arg(long)]
         harness: Option<String>,
@@ -1098,6 +1106,8 @@ async fn main() -> anyhow::Result<()> {
             skip_verify,
             json,
             harness,
+            strict_provenance,
+            allow_born_green,
         }) => {
             let canonical_ws = if workspace.is_absolute() {
                 workspace.clone()
@@ -1123,7 +1133,9 @@ async fn main() -> anyhow::Result<()> {
             };
 
             let mut opts = xgauntlet_core::CheckpointOptions::new(parsed_phase, &canonical_ws)
-                .with_skip_verify(*skip_verify);
+                .with_skip_verify(*skip_verify)
+                .with_strict_provenance(*strict_provenance)
+                .with_allow_born_green(*allow_born_green);
             if let Some(t) = task {
                 opts = opts.with_task_id(t);
             }
