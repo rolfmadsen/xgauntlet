@@ -1,22 +1,24 @@
 # Verification Report
 
-**Task ID**: `030-autonomous-red-to-green-tdd-transition`  
-**Task Title**: Task 030: Autonomous RED to GREEN TDD Phase Transition  
+**Task ID**: `031-adr-okf-frontmatter-validation`  
+**Task Title**: Task 031: ADR OKF v0.2 Frontmatter Validation & Template Hardening  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `ab271da18fb423e456914914d61901fb9f3f82c6185546383af8e7b08d32a123`  
-**Timestamp**: `2026-10-25T15:34:59Z`  
-**Head**: `a70236b`  
-**Commit**: `a70236b`  
+**Source Manifest Digest**: `a8b098518ad1c518d16ab4691267e89e85c7c736929d653b214a41b6f14f1894`  
+**Timestamp**: `2026-10-25T16:09:59Z`  
+**Head**: `2c9ed01`  
+**Commit**: `2c9ed01`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (Core Development Loop i Retningslinjer & Skabeloner)**:
-- [x] **AC2 (JIT Telemetry Directive Opdatering i `jit.rs`)**:
-- [x] **AC3 (Checkpoint Engine & CLI Next-Action Prompting)**:
-- [x] **AC4 (Skill Refactoring i `tdd`)**:
-- [x] **AC5 (ADR 0009 Formulering)**:
-- [x] **AC6 (Testsuite & Verifikation)**:
+- [x] **AC1 (Template Fix i `templates.rs`)**: `render_adr_template_md()` returnerer et ADR-skelet med `generated:` og `verified:` blokke i OKF v0.2 format, inkl. placeholdere. Eksisterende tests opdateres/tilføjes for at bekræfte det nye indhold.
+- [x] **AC2 (`AdrReadinessReport` model i `models.rs`)**: Ny struct `AdrReadinessReport` (analogt med `SpecReadinessReport`) eksponeres fra `features/tasks/models.rs` med felter `adr_id`, `is_valid`, `diagnostics`, `inspected_files`.
+- [x] **AC3 (`check_adr_frontmatter` funktion i `validator.rs`)**: Ny funktion `check_adr_frontmatter(adr_path: &Path) -> AdrReadinessReport` validerer:
+- [x] **AC4 (`check_all_adrs` bulk funktion i `validator.rs`)**: Ny funktion `check_all_adrs(workspace: &Path) -> Vec<AdrReadinessReport>` scanner alle `*.md` filer i `docs/adr/` (eksklusiv `template.md` og `README.md`) og kører `check_adr_frontmatter` på hver.
+- [x] **AC5 (`check-adr` CLI subkommando i `main.rs`)**: Ny `check-adr` subkommando tilgængelig i `xgauntlet-cli` med:
+- [x] **AC6 (Pub-eksponering i `lib.rs`)**: `check_adr_frontmatter` og `check_all_adrs` eksporteres fra `xgauntlet-core` crate root.
+- [x] **AC7 (Tests i `task_lifecycle_test.rs` eller ny `adr_validation_test.rs`)**: Tests verificerer:
+- [x] **AC8 (xGauntlets egne ADRs validerer grønt)**: `xgauntlet check-adr --all` på xgauntlet-repositoriet selv returnerer 0 fejl.
 
 ---
 
@@ -24,13 +26,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.063s` |
-| `format` | `PASSED` | `0` | `0.201s` |
-| `lint` | `PASSED` | `0` | `0.135s` |
-| `types` | `PASSED` | `0` | `0.129s` |
-| `unit` | `PASSED` | `0` | `19.065s` |
-| `npm` | `PASSED` | `0` | `0.909s` |
-| `invariants` | `PASSED` | `0` | `0.074s` |
+| `architecture` | `PASSED` | `0` | `0.076s` |
+| `format` | `PASSED` | `0` | `0.211s` |
+| `lint` | `PASSED` | `0` | `0.155s` |
+| `types` | `PASSED` | `0` | `0.101s` |
+| `unit` | `PASSED` | `0` | `19.115s` |
+| `npm` | `PASSED` | `0` | `0.764s` |
+| `invariants` | `PASSED` | `0` | `0.076s` |
 | `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---
@@ -57,6 +59,7 @@
 | `sess-f50fd4dc` | `Software Engineer` | `DONE` | `f50fd4d` | `2026-10-25T15:34:59Z` | `VALID` |
 | `sess-1d7f44ec` | `TDD Craftsman` | `RED` | `1d7f44e` | `2026-10-25T16:01:02Z` | `VALID` |
 | `sess-9dc6319c` | `TDD Craftsman` | `GREEN` | `9dc6319` | `2026-10-25T16:06:50Z` | `VALID` |
+| `sess-2c9ed01a` | `TDD Craftsman` | `REFACTOR` | `2c9ed01` | `2026-10-25T16:07:41Z` | `VALID` |
 
 ---
 
@@ -64,6 +67,14 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_adr_with_complete_okf_header_validates_ok` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
+| `test_adr_without_generated_gives_generated_missing_error` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
+| `test_adr_with_invalid_actor_gives_invalid_actor_error` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
+| `test_adr_with_invalid_timestamp_gives_invalid_timestamp_error` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
+| `test_adr_with_missing_verified_gives_warning_not_error` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
+| `test_check_all_adrs_skips_template_and_readme` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
+| `test_scaffold_template_includes_generated_and_verified` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
+| `test_xgauntlet_own_adrs_validate_cleanly` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
 | `test_models_and_conventions` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
 | `test_compose_commit_message_variations` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
 | `test_checkpoint_fails_without_active_task` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
@@ -93,13 +104,5 @@
 | `test_inverse_preflight_verifies_legitimate_test` | `RedCheckpointVerified` | `b02ab9f2e3aea63d...` | `2026-10-25T15:50:03+01:00` |
 | `test_checkpoint_green_fails_closed_on_born_green_with_strict_provenance` | `RedCheckpointVerified` | `b02ab9f2e3aea63d...` | `2026-10-25T15:50:03+01:00` |
 | `test_collect_task_test_provenance_and_verification_report` | `InversePreflightVerified` | `c46f890b2d9b738e...` | `2026-10-25T15:07:56Z` |
-| `test_adr_with_complete_okf_header_validates_ok` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
-| `test_adr_without_generated_gives_generated_missing_error` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
-| `test_adr_with_invalid_actor_gives_invalid_actor_error` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
-| `test_adr_with_invalid_timestamp_gives_invalid_timestamp_error` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
-| `test_adr_with_missing_verified_gives_warning_not_error` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
-| `test_check_all_adrs_skips_template_and_readme` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
-| `test_scaffold_template_includes_generated_and_verified` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
-| `test_xgauntlet_own_adrs_validate_cleanly` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
 
 ---

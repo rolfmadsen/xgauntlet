@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 031: ADR OKF v0.2 Frontmatter Validation & Template Hardening"
 description: "Håndhæve OKF v0.2 påkrævede felter (generated, verified) i ADR-filer via check-spec-validering og rette scaffold-template til at inkludere dem"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-09-19T13:50:00Z" }
 tags: [okf, adr, frontmatter, validation, check-spec, scaffold, template, docs]
 scope:
@@ -20,7 +20,7 @@ test_refs:
 
 # Task 031: ADR OKF v0.2 Frontmatter Validation & Template Hardening
 
-**Status**: `ACTIVE`  
+**Status**: `DONE`  
 **Intent**: `🚀 NEW FEATURE`  
 **Oprettet**: `2026-09-19`  
 
@@ -60,24 +60,24 @@ xgauntlet check-adr --all --json                   # JSON output
 ---
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Template Fix i `templates.rs`)**: `render_adr_template_md()` returnerer et ADR-skelet med `generated:` og `verified:` blokke i OKF v0.2 format, inkl. placeholdere. Eksisterende tests opdateres/tilføjes for at bekræfte det nye indhold.
-- [ ] **AC2 (`AdrReadinessReport` model i `models.rs`)**: Ny struct `AdrReadinessReport` (analogt med `SpecReadinessReport`) eksponeres fra `features/tasks/models.rs` med felter `adr_id`, `is_valid`, `diagnostics`, `inspected_files`.
-- [ ] **AC3 (`check_adr_frontmatter` funktion i `validator.rs`)**: Ny funktion `check_adr_frontmatter(adr_path: &Path) -> AdrReadinessReport` validerer:
+- [x] **AC1 (Template Fix i `templates.rs`)**: `render_adr_template_md()` returnerer et ADR-skelet med `generated:` og `verified:` blokke i OKF v0.2 format, inkl. placeholdere. Eksisterende tests opdateres/tilføjes for at bekræfte det nye indhold.
+- [x] **AC2 (`AdrReadinessReport` model i `models.rs`)**: Ny struct `AdrReadinessReport` (analogt med `SpecReadinessReport`) eksponeres fra `features/tasks/models.rs` med felter `adr_id`, `is_valid`, `diagnostics`, `inspected_files`.
+- [x] **AC3 (`check_adr_frontmatter` funktion i `validator.rs`)**: Ny funktion `check_adr_frontmatter(adr_path: &Path) -> AdrReadinessReport` validerer:
   - `type` er `"Architectural Decision Record"` (fejl hvis fraværende eller forkert)
   - `title` er tilstede og ikke tom (fejl)
   - `status` er tilstede og ikke tom (fejl)
   - `generated.by` er tilstede og er en valid OKF Actor (fejl)
   - `generated.at` er tilstede og er en valid ISO 8601 UTC timestamp (fejl)
   - `verified` er tilstede (warning, ikke fejl — kan være tom liste)
-- [ ] **AC4 (`check_all_adrs` bulk funktion i `validator.rs`)**: Ny funktion `check_all_adrs(workspace: &Path) -> Vec<AdrReadinessReport>` scanner alle `*.md` filer i `docs/adr/` (eksklusiv `template.md` og `README.md`) og kører `check_adr_frontmatter` på hver.
-- [ ] **AC5 (`check-adr` CLI subkommando i `main.rs`)**: Ny `check-adr` subkommando tilgængelig i `xgauntlet-cli` med:
+- [x] **AC4 (`check_all_adrs` bulk funktion i `validator.rs`)**: Ny funktion `check_all_adrs(workspace: &Path) -> Vec<AdrReadinessReport>` scanner alle `*.md` filer i `docs/adr/` (eksklusiv `template.md` og `README.md`) og kører `check_adr_frontmatter` på hver.
+- [x] **AC5 (`check-adr` CLI subkommando i `main.rs`)**: Ny `check-adr` subkommando tilgængelig i `xgauntlet-cli` med:
   - `-f`/`--file <PATH>`: Valider enkelt ADR-fil
   - `-w`/`--workspace <PATH>`: Workspace-rod (default: `.`)
   - `--all`: Valider alle ADRs i `docs/adr/`
   - `--json`: Struktureret JSON output
   - Exit code 1 ved validationsfejl (warnings giver ikke exit code 1)
-- [ ] **AC6 (Pub-eksponering i `lib.rs`)**: `check_adr_frontmatter` og `check_all_adrs` eksporteres fra `xgauntlet-core` crate root.
-- [ ] **AC7 (Tests i `task_lifecycle_test.rs` eller ny `adr_validation_test.rs`)**: Tests verificerer:
+- [x] **AC6 (Pub-eksponering i `lib.rs`)**: `check_adr_frontmatter` og `check_all_adrs` eksporteres fra `xgauntlet-core` crate root.
+- [x] **AC7 (Tests i `task_lifecycle_test.rs` eller ny `adr_validation_test.rs`)**: Tests verificerer:
   - ADR med komplet OKF v0.2 header validerer OK
   - ADR uden `generated` giver `GENERATED_MISSING` fejl
   - ADR med ugyldigt `generated.by` format giver `INVALID_ACTOR` fejl
@@ -85,7 +85,7 @@ xgauntlet check-adr --all --json                   # JSON output
   - ADR med korrekt header men manglende `verified` giver warning (ikke fejl)
   - `check_all_adrs` springer `template.md` og `README.md` over
   - `cargo run -p xgauntlet-cli -- check-spec -t 031-adr-okf-frontmatter-validation` validerer med 0 fejl
-- [ ] **AC8 (xGauntlets egne ADRs validerer grønt)**: `xgauntlet check-adr --all` på xgauntlet-repositoriet selv returnerer 0 fejl.
+- [x] **AC8 (xGauntlets egne ADRs validerer grønt)**: `xgauntlet check-adr --all` på xgauntlet-repositoriet selv returnerer 0 fejl.
 
 ---
 
