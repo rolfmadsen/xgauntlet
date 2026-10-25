@@ -154,7 +154,7 @@ fn test_migration_normalizes_defective_harness_hook_and_is_idempotent() {
     let hooks_item = report1
         .items
         .iter()
-        .find(|item| item.file == PathBuf::from(".agents/hooks.json"))
+        .find(|item| item.file == std::path::Path::new(".agents/hooks.json"))
         .expect("Report must include .agents/hooks.json item");
 
     assert!(
@@ -288,7 +288,7 @@ fn test_migration_merges_simultaneous_legacy_and_modern_groups_without_data_loss
     let hooks_item = report
         .items
         .iter()
-        .find(|item| item.file == PathBuf::from(".agents/hooks.json"))
+        .find(|item| item.file == std::path::Path::new(".agents/hooks.json"))
         .expect("Report must include .agents/hooks.json item");
 
     assert!(
