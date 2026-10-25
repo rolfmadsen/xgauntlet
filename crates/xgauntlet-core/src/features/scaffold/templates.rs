@@ -216,6 +216,10 @@ type: Architectural Decision Record
 title: 'ADR [Number]: [Short Title]'
 status: draft
 tags: [architecture, adr]
+generated:
+  by: human:<author>
+  at: 'YYYY-MM-DDTHH:MM:SSZ'
+verified: []
 ---
 
 # [ADR Number]. [Short Title]

@@ -5,7 +5,7 @@ use std::path::Path;
 
 use crate::features::diagnostics::{DiagnosticFinding, FindingType};
 use crate::features::tasks::models::{AdrReadinessReport, SpecReadinessReport};
-use crate::features::tasks::okf::parse_frontmatter;
+use crate::features::tasks::okf::{parse_frontmatter, OkfError};
 use crate::features::tasks::parser::parse_task_content;
 
 /// Validates raw content of CONTEXT.md against Aristotle's formula (*definitio per genus et differentiam*).
@@ -319,11 +319,229 @@ pub fn check_all_tasks(workspace: &Path) -> Vec<SpecReadinessReport> {
 }
 
 /// Validates an Architectural Decision Record (ADR) file against OKF v0.2 frontmatter rules.
-pub fn check_adr_frontmatter(_adr_path: &Path) -> AdrReadinessReport {
-    unimplemented!("check_adr_frontmatter RED stub")
+pub fn check_adr_frontmatter(adr_path: &Path) -> AdrReadinessReport {
+    let adr_id = adr_path
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("unknown")
+        .to_string();
+
+    let rel_adr = adr_path.display().to_string();
+    let mut report = AdrReadinessReport::new(adr_id);
+
+    if !adr_path.is_file() {
+        report.is_valid = false;
+        report.diagnostics.push(DiagnosticFinding::new(
+            FindingType::GeneralError,
+            "ADR_FILE_NOT_FOUND",
+            &rel_adr,
+            format!("ADR file '{rel_adr}' does not exist."),
+            "Specify a valid path to an existing ADR file in docs/adr/.",
+        ));
+        return report;
+    }
+
+    report.inspected_files.push(rel_adr.clone());
+
+    let raw_content = match fs::read_to_string(adr_path) {
+        Ok(c) => c,
+        Err(err) => {
+            report.is_valid = false;
+            report.diagnostics.push(DiagnosticFinding::new(
+                FindingType::GeneralError,
+                "ADR_READ_ERROR",
+                &rel_adr,
+                format!("Failed to read ADR file: {err}"),
+                "Ensure ADR file has readable permissions.",
+            ));
+            return report;
+        }
+    };
+
+    let meta = match parse_frontmatter(&raw_content) {
+        Ok((Some(meta), _)) => meta,
+        Ok((None, _)) => {
+            report.is_valid = false;
+            report.diagnostics.push(DiagnosticFinding::new(
+                FindingType::GeneralError,
+                "INVALID_OKF_METADATA",
+                &rel_adr,
+                "ADR file is missing required Open Knowledge Format (OKF v0.2) YAML frontmatter.",
+                "Add YAML frontmatter with 'type: Architectural Decision Record', 'title', 'status', and 'generated' block.",
+            ));
+            return report;
+        }
+        Err(OkfError::InvalidActor(actor)) => {
+            report.is_valid = false;
+            report.diagnostics.push(DiagnosticFinding::new(
+                FindingType::GeneralError,
+                "INVALID_ACTOR",
+                &rel_adr,
+                format!("Invalid actor format: {actor}"),
+                "Use valid OKF actor format: 'human:<id>', 'process:<id>', or '<agent>/<version>'.",
+            ));
+            return report;
+        }
+        Err(OkfError::InvalidTimestamp(ts, msg)) => {
+            report.is_valid = false;
+            report.diagnostics.push(DiagnosticFinding::new(
+                FindingType::GeneralError,
+                "INVALID_TIMESTAMP",
+                &rel_adr,
+                format!("Invalid timestamp '{ts}': {msg}"),
+                "Use strict ISO 8601 UTC timestamp format (e.g. '2026-09-19T13:50:00Z').",
+            ));
+            return report;
+        }
+        Err(OkfError::MissingType) => {
+            report.is_valid = false;
+            report.diagnostics.push(DiagnosticFinding::new(
+                FindingType::GeneralError,
+                "MISSING_TYPE",
+                &rel_adr,
+                "ADR file is missing required 'type' field in frontmatter.",
+                "Add 'type: Architectural Decision Record' to frontmatter.",
+            ));
+            return report;
+        }
+        Err(err) => {
+            report.is_valid = false;
+            report.diagnostics.push(DiagnosticFinding::new(
+                FindingType::GeneralError,
+                "INVALID_OKF_METADATA",
+                &rel_adr,
+                format!("Frontmatter parse error: {err}"),
+                "Ensure YAML frontmatter is well-formed.",
+            ));
+            return report;
+        }
+    };
+
+    // 1. Validate doc_type
+    if meta.doc_type != "Architectural Decision Record" {
+        report.diagnostics.push(DiagnosticFinding::new(
+            FindingType::GeneralError,
+            "INVALID_TYPE",
+            &rel_adr,
+            format!(
+                "Invalid ADR doc_type '{}', expected 'Architectural Decision Record'.",
+                meta.doc_type
+            ),
+            "Set 'type: Architectural Decision Record' in frontmatter.",
+        ));
+    }
+
+    // 2. Validate title
+    match meta.title.as_deref() {
+        Some(t) if !t.trim().is_empty() => {}
+        _ => {
+            report.diagnostics.push(DiagnosticFinding::new(
+                FindingType::GeneralError,
+                "MISSING_TITLE",
+                &rel_adr,
+                "ADR is missing required 'title' field in frontmatter.",
+                "Add 'title: [Title]' to frontmatter.",
+            ));
+        }
+    }
+
+    // 3. Validate status
+    match meta.status.as_deref() {
+        Some(s) if !s.trim().is_empty() => {}
+        _ => {
+            report.diagnostics.push(DiagnosticFinding::new(
+                FindingType::GeneralError,
+                "MISSING_STATUS",
+                &rel_adr,
+                "ADR is missing required 'status' field in frontmatter.",
+                "Add 'status: draft | accepted | deprecated | superseded' to frontmatter.",
+            ));
+        }
+    }
+
+    // 4. Validate generated block
+    match meta.generated.as_ref() {
+        None => {
+            report.diagnostics.push(DiagnosticFinding::new(
+                FindingType::GeneralError,
+                "GENERATED_MISSING",
+                &rel_adr,
+                "ADR is missing required 'generated' metadata block in frontmatter.",
+                "Add 'generated: { by: human:<author>, at: \"YYYY-MM-DDTHH:MM:SSZ\" }' to frontmatter.",
+            ));
+        }
+        Some(gen) => {
+            if gen.by.trim().is_empty() {
+                report.diagnostics.push(DiagnosticFinding::new(
+                    FindingType::GeneralError,
+                    "INVALID_ACTOR",
+                    &rel_adr,
+                    "ADR 'generated.by' is empty.",
+                    "Specify a valid OKF actor in 'generated.by'.",
+                ));
+            }
+            match gen.at.as_deref() {
+                Some(at) if !at.trim().is_empty() => {}
+                _ => {
+                    report.diagnostics.push(DiagnosticFinding::new(
+                        FindingType::GeneralError,
+                        "INVALID_TIMESTAMP",
+                        &rel_adr,
+                        "ADR 'generated' block is missing required 'at' timestamp.",
+                        "Add valid ISO 8601 UTC timestamp to 'generated.at'.",
+                    ));
+                }
+            }
+        }
+    }
+
+    // 5. Validate verified block (warning if missing, not an error)
+    if !meta.has_verified {
+        report.diagnostics.push(DiagnosticFinding::warning(
+            "MISSING_VERIFIED",
+            &rel_adr,
+            "ADR is missing recommended 'verified' field in frontmatter.",
+            "Add 'verified: []' or a list of verification entries.",
+        ));
+    }
+
+    report.is_valid = !report
+        .diagnostics
+        .iter()
+        .any(|d| d.finding_type != FindingType::Warning);
+    report
 }
 
 /// Validates all ADR markdown files in `docs/adr/`.
-pub fn check_all_adrs(_workspace: &Path) -> Vec<AdrReadinessReport> {
-    unimplemented!("check_all_adrs RED stub")
+pub fn check_all_adrs(workspace: &Path) -> Vec<AdrReadinessReport> {
+    let adr_dir = workspace.join("docs").join("adr");
+    if !adr_dir.is_dir() {
+        return Vec::new();
+    }
+
+    let entries = match fs::read_dir(&adr_dir) {
+        Ok(e) => e,
+        Err(_) => return Vec::new(),
+    };
+
+    let mut paths: Vec<_> = entries
+        .filter_map(|e| e.ok().map(|d| d.path()))
+        .filter(|p| {
+            if !p.is_file() || p.extension().is_none_or(|ext| ext != "md") {
+                return false;
+            }
+            let name = p
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("")
+                .to_ascii_lowercase();
+            name != "readme.md" && name != "template.md"
+        })
+        .collect();
+    paths.sort();
+
+    paths
+        .into_iter()
+        .map(|p| check_adr_frontmatter(&p))
+        .collect()
 }

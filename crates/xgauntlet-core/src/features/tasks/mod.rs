@@ -11,7 +11,9 @@ pub mod telemetry;
 pub mod validator;
 
 pub use lifecycle::{ScaffoldTaskOptions, TaskScaffoldResult, TaskScaffolder};
-pub use models::{AdrReadinessReport, SpecReadinessReport, TaskContract, TaskPackageInfo, TaskStatus};
+pub use models::{
+    AdrReadinessReport, SpecReadinessReport, TaskContract, TaskPackageInfo, TaskStatus,
+};
 pub use okf::{
     parse_frontmatter, validate_iso_timestamp, Actor, GeneratedEntry, OkfError, OkfMetadata,
     SourceEntry, VerifiedEntry,

@@ -695,3 +695,38 @@ pub fn execute_release_workflow(
 
     Ok(())
 }
+
+pub fn render_check_adr_summary(reports: &[xgauntlet_core::AdrReadinessReport]) {
+    println!("\n=== xGauntlet ADR OKF v0.2 Gatekeeper ===\n");
+    for rep in reports {
+        let status_badge = if rep.is_valid {
+            "\x1b[32m[PASSED]\x1b[0m"
+        } else {
+            "\x1b[31m[FAILED]\x1b[0m"
+        };
+        println!("ADR: {} {}", rep.adr_id, status_badge);
+        println!(
+            "  - Inspected files:           {}",
+            rep.inspected_files.join(", ")
+        );
+
+        if !rep.diagnostics.is_empty() {
+            println!("  - Diagnostics findings ({}):", rep.diagnostics.len());
+            for d in &rep.diagnostics {
+                let badge = if d.finding_type == xgauntlet_core::FindingType::Warning {
+                    "\x1b[33m[!]\x1b[0m"
+                } else {
+                    "\x1b[31m[!]\x1b[0m"
+                };
+                println!(
+                    "    {} [{}] {}: {}",
+                    badge, d.tool_name, d.file_path, d.message
+                );
+                if !d.remediation_hint.is_empty() {
+                    println!("        Hint: {}", d.remediation_hint);
+                }
+            }
+        }
+        println!();
+    }
+}

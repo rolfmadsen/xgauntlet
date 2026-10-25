@@ -59,6 +59,24 @@ enum Commands {
         #[arg(long)]
         json: bool,
     },
+    /// Shift-left Architectural Decision Record (ADR) frontmatter gatekeeper
+    CheckAdr {
+        /// Specific ADR file to validate
+        #[arg(short, long)]
+        file: Option<std::path::PathBuf>,
+
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Validate all ADRs in docs/adr/ directory
+        #[arg(short, long)]
+        all: bool,
+
+        /// Output findings in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
     /// Verify workspace source manifest and multi-digest integrity against verification-report.json
     CheckEvidence {
         /// Path to repository workspace root
@@ -568,6 +586,25 @@ async fn main() -> anyhow::Result<()> {
                 println!("{}", serde_json::to_string_pretty(&reports)?);
             } else {
                 render_check_spec_summary(&reports);
+            }
+
+            if !all_valid {
+                std::process::exit(1);
+            }
+        }
+        Some(Commands::CheckAdr {
+            file,
+            workspace,
+            all,
+            json,
+        }) => {
+            let reports = run_check_adr(workspace, file.as_deref(), *all)?;
+            let all_valid = reports.iter().all(|r| r.is_valid);
+
+            if *json {
+                println!("{}", serde_json::to_string_pretty(&reports)?);
+            } else {
+                render_check_adr_summary(&reports);
             }
 
             if !all_valid {
@@ -1698,6 +1735,27 @@ fn run_check_spec(
         rep.inspected_files.push("CONTEXT.md".to_string());
     }
     Ok(vec![rep])
+}
+
+fn run_check_adr(
+    workspace: &std::path::Path,
+    file_filter: Option<&std::path::Path>,
+    _all: bool,
+) -> anyhow::Result<Vec<xgauntlet_core::AdrReadinessReport>> {
+    let adr_dir = workspace.join("docs").join("adr");
+
+    if let Some(target) = file_filter {
+        let p = if target.is_absolute() {
+            target.to_path_buf()
+        } else if workspace.join(target).exists() {
+            workspace.join(target)
+        } else {
+            adr_dir.join(target)
+        };
+        return Ok(vec![xgauntlet_core::check_adr_frontmatter(&p)]);
+    }
+
+    Ok(xgauntlet_core::check_all_adrs(workspace))
 }
 
 fn render_check_spec_summary(reports: &[xgauntlet_core::SpecReadinessReport]) {

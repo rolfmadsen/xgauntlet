@@ -63,14 +63,22 @@ verified: []
     fs::write(&adr_path, content).unwrap();
 
     let report = check_adr_frontmatter(&adr_path);
-    assert!(report.is_valid, "Report should be valid: {:?}", report.diagnostics);
+    assert!(
+        report.is_valid,
+        "Report should be valid: {:?}",
+        report.diagnostics
+    );
     assert_eq!(report.adr_id, "0001-valid-architecture");
     let errors: Vec<_> = report
         .diagnostics
         .iter()
         .filter(|d| d.finding_type != FindingType::Warning)
         .collect();
-    assert!(errors.is_empty(), "Expected no error findings, got: {:?}", errors);
+    assert!(
+        errors.is_empty(),
+        "Expected no error findings, got: {:?}",
+        errors
+    );
 }
 
 #[test]
@@ -234,7 +242,12 @@ verified: []
     fs::write(adr_dir.join("0002-second.md"), valid_adr).unwrap();
 
     let reports = check_all_adrs(temp.path());
-    assert_eq!(reports.len(), 2, "Expected exactly 2 reports, got: {:?}", reports);
+    assert_eq!(
+        reports.len(),
+        2,
+        "Expected exactly 2 reports, got: {:?}",
+        reports
+    );
     let ids: Vec<_> = reports.iter().map(|r| r.adr_id.as_str()).collect();
     assert!(ids.contains(&"0001-first"));
     assert!(ids.contains(&"0002-second"));
@@ -291,7 +304,8 @@ fn test_xgauntlet_own_adrs_validate_cleanly() {
         assert!(
             errors.is_empty(),
             "ADR {} has errors: {:?}",
-            report.adr_id, errors
+            report.adr_id,
+            errors
         );
     }
 }

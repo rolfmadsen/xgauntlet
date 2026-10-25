@@ -137,6 +137,8 @@ pub struct OkfMetadata {
     pub scope: Vec<String>,
     #[serde(default)]
     pub test_refs: Vec<String>,
+    #[serde(default)]
+    pub has_verified: bool,
 }
 
 /// Validates strict ISO 8601 UTC timestamp (e.g. `2026-09-06T16:15:00Z`).
@@ -273,7 +275,8 @@ fn parse_yaml_metadata(lines: &[&str]) -> Result<OkfMetadata, OkfError> {
     let mut scope: Vec<String> = Vec::new();
     let mut test_refs: Vec<String> = Vec::new();
     let mut generated: Option<GeneratedEntry> = None;
-    let verified: Vec<VerifiedEntry> = Vec::new();
+    let mut verified: Vec<VerifiedEntry> = Vec::new();
+    let mut has_verified = false;
     let sources: Vec<SourceEntry> = Vec::new();
     let mut stale_after: Option<String> = None;
 
@@ -369,8 +372,55 @@ fn parse_yaml_metadata(lines: &[&str]) -> Result<OkfMetadata, OkfError> {
                         }
                     }
                 }
-                "verified" if val.starts_with('[') && val.ends_with(']') => {
-                    // inline list of maps if any
+                "verified" => {
+                    has_verified = true;
+                    if val.starts_with('[') && val.ends_with(']') {
+                        // inline list of maps if any
+                    } else if val.is_empty() {
+                        while i + 1 < lines.len() {
+                            let next = lines[i + 1].trim();
+                            if next.starts_with("- ") {
+                                let mut by = String::new();
+                                let mut at = String::new();
+                                if let Some(stripped) = next.strip_prefix("- ") {
+                                    if let Some((pk, pv)) = stripped.split_once(':') {
+                                        let pk = pk.trim();
+                                        let pv = strip_quotes(pv.trim());
+                                        if pk == "by" {
+                                            by = pv.to_string();
+                                        } else if pk == "at" {
+                                            at = pv.to_string();
+                                        }
+                                    }
+                                }
+                                i += 1;
+                                while i + 1 < lines.len() {
+                                    let sub_next = lines[i + 1].trim();
+                                    if sub_next.starts_with("- ")
+                                        || (!sub_next.starts_with("by:")
+                                            && !sub_next.starts_with("at:"))
+                                    {
+                                        break;
+                                    }
+                                    if let Some((pk, pv)) = sub_next.split_once(':') {
+                                        let pk = pk.trim();
+                                        let pv = strip_quotes(pv.trim());
+                                        if pk == "by" {
+                                            by = pv.to_string();
+                                        } else if pk == "at" {
+                                            at = pv.to_string();
+                                        }
+                                    }
+                                    i += 1;
+                                }
+                                if !by.is_empty() {
+                                    verified.push(VerifiedEntry { by, at });
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
                 }
                 _ => {}
             }
@@ -392,5 +442,6 @@ fn parse_yaml_metadata(lines: &[&str]) -> Result<OkfMetadata, OkfError> {
         stale_after,
         scope,
         test_refs,
+        has_verified,
     })
 }

@@ -260,6 +260,14 @@
         "commit_oid": "f50fd4dcc6052e154367fb3ac9886f81eaf781d5",
         "timestamp": "2026-10-25T15:34:59Z",
         "digest": "8c77a8f4e137d6b9c9542ec59ec8e6eac96bd81851c64e118e9d99416dc4d96e"
+      },
+      {
+        "session_nonce": "sess-1d7f44ec",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "1d7f44ec5fe58a73e79c406050afeeac43c6b4ae",
+        "timestamp": "2026-10-25T16:01:02Z",
+        "digest": "dd7f858ee3316ad049b90f407d07069b89b7091eb15f8d3454c7c5e232a52377"
       }
     ]
   },
@@ -466,6 +474,62 @@
       "failure_digest": "c46f890b2d9b738e1dd1748557166cf54f55ea9b0ef9c0d7177ea0a78f96365f",
       "verified_at": "2026-10-25T15:07:56Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_adr_with_complete_okf_header_validates_ok",
+      "failure_output": "Verified in RED checkpoint commit 1d7f44e",
+      "failure_digest": "808853cea2e5c9a3dc73c8f6f8b8e1ddeac576747a208a8910eeeb2662dca903",
+      "verified_at": "2026-10-25T17:01:02+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_adr_without_generated_gives_generated_missing_error",
+      "failure_output": "Verified in RED checkpoint commit 1d7f44e",
+      "failure_digest": "808853cea2e5c9a3dc73c8f6f8b8e1ddeac576747a208a8910eeeb2662dca903",
+      "verified_at": "2026-10-25T17:01:02+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_adr_with_invalid_actor_gives_invalid_actor_error",
+      "failure_output": "Verified in RED checkpoint commit 1d7f44e",
+      "failure_digest": "808853cea2e5c9a3dc73c8f6f8b8e1ddeac576747a208a8910eeeb2662dca903",
+      "verified_at": "2026-10-25T17:01:02+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_adr_with_invalid_timestamp_gives_invalid_timestamp_error",
+      "failure_output": "Verified in RED checkpoint commit 1d7f44e",
+      "failure_digest": "808853cea2e5c9a3dc73c8f6f8b8e1ddeac576747a208a8910eeeb2662dca903",
+      "verified_at": "2026-10-25T17:01:02+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_adr_with_missing_verified_gives_warning_not_error",
+      "failure_output": "Verified in RED checkpoint commit 1d7f44e",
+      "failure_digest": "808853cea2e5c9a3dc73c8f6f8b8e1ddeac576747a208a8910eeeb2662dca903",
+      "verified_at": "2026-10-25T17:01:02+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_check_all_adrs_skips_template_and_readme",
+      "failure_output": "Verified in RED checkpoint commit 1d7f44e",
+      "failure_digest": "808853cea2e5c9a3dc73c8f6f8b8e1ddeac576747a208a8910eeeb2662dca903",
+      "verified_at": "2026-10-25T17:01:02+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_scaffold_template_includes_generated_and_verified",
+      "failure_output": "Verified in RED checkpoint commit 1d7f44e",
+      "failure_digest": "808853cea2e5c9a3dc73c8f6f8b8e1ddeac576747a208a8910eeeb2662dca903",
+      "verified_at": "2026-10-25T17:01:02+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_xgauntlet_own_adrs_validate_cleanly",
+      "failure_output": "Verified in RED checkpoint commit 1d7f44e",
+      "failure_digest": "808853cea2e5c9a3dc73c8f6f8b8e1ddeac576747a208a8910eeeb2662dca903",
+      "verified_at": "2026-10-25T17:01:02+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }
