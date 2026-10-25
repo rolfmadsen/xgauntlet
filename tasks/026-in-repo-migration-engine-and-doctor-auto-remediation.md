@@ -2,16 +2,25 @@
 type: Task Package
 title: "Task 026: In-Repo Migration Engine and Doctor Auto-Remediation"
 description: "Etablere 'xgauntlet migrate' og 'xgauntlet doctor --fix' til kirurgisk, in-place schema-migrering af hooks.json og gauntlet.toml uden tab af brugertilpasninger"
-status: todo
+status: active
 generated: { by: process:xgauntlet-task-init, at: "2026-09-13T21:02:50Z" }
 tags: [migration, doctor, hooks, schema, governance, dx, rust]
-scope: ["crates/xgauntlet-core/src/features/doctor/**", "crates/xgauntlet-core/src/features/migration/**", "crates/xgauntlet-cli/**"]
-test_refs: ["crates/xgauntlet-core/tests/migration_engine_test.rs", "crates/xgauntlet-core/tests/doctor_diagnostics_test.rs"]
+scope:
+  - "crates/xgauntlet-core/src/features/doctor/**"
+  - "crates/xgauntlet-core/src/features/migration/**"
+  - "crates/xgauntlet-core/src/features/adapters/**"
+  - "crates/xgauntlet-core/src/features/mod.rs"
+  - "crates/xgauntlet-core/src/lib.rs"
+  - "crates/xgauntlet-cli/**"
+  - "tasks/026-in-repo-migration-engine-and-doctor-auto-remediation.md"
+test_refs:
+  - "crates/xgauntlet-core/tests/migration_engine_test.rs"
+  - "crates/xgauntlet-core/tests/doctor_diagnostics_test.rs"
 ---
 
 # Task 026: In-Repo Migration Engine and Doctor Auto-Remediation
 
-**Status**: `TODO`
+**Status**: `ACTIVE`
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-09-13`
 
