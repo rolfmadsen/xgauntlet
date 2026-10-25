@@ -121,16 +121,7 @@ impl SessionHealth {
                     tok_label
                 )
             }
-            SessionHealthStatus::Aging => {
-                format!(
-                    "{} ({} {} • {}) • Forbered Handoff",
-                    self.status.badge(),
-                    self.turns_count,
-                    turn_label,
-                    tok_label
-                )
-            }
-            SessionHealthStatus::Saturated => {
+            SessionHealthStatus::Aging | SessionHealthStatus::Saturated => {
                 format!(
                     "{} ({} {} • {}) • Forbered Handoff",
                     self.status.badge(),

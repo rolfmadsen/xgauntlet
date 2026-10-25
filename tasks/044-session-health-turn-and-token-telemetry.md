@@ -21,7 +21,7 @@ Formålet med denne opgave er at give udvikleren og AI-agenten realtidsindsigt i
 I stedet for skrøbelige prompt-heuristikker (som "Canary tags" i chatteksten) eller uforståelige automatiske værktøjslåse, skal xGauntlets telemetrimotor monitorere samtalens turn-historik, målte payload-størrelser og estimerede tokenforbrug for den aktive opgave. Telemetrien viser løbende en diskret, informativ sundhedsstatus i det 5-linjers Cockpit HUD og advarer proaktivt i JIT-direktivet, når det er tid til at afslutte opgaven og tage et rent Session Handoff.
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Session Health Datamodel)**:
+- [x] **AC1 (Session Health Datamodel)**:
   - Definere `SessionHealth` og `SessionHealthStatus` i `crates/xgauntlet-core/src/features/telemetry/`:
     - `turns_count: usize`: Antal interaktions-turns siden tasken blev aktiv eller seneste checkpoint.
     - `payload_bytes: usize`: Akkumulerede bytes læst eller eksekveret via værktøjer for den aktive task.
@@ -31,19 +31,19 @@ I stedet for skrøbelige prompt-heuristikker (som "Canary tags" i chatteksten) e
       - `Aging` (gul, typisk 11–18 turns).
       - `Saturated` (rød, typisk >18 turns).
   - Integrere `session_health: Option<SessionHealth>` i `TaskTelemetry`.
-- [ ] **AC2 (Turn & Payload Tracking Engine)**:
+- [x] **AC2 (Turn & Payload Tracking Engine)**:
   - Implementere letvægts, in-repo sessions-tracking (f.eks. via `.xgauntlet/session_state.json` eller Git commit/checkpoint inspektion), der registrerer turns for den aktuelle opgave.
   - Zero-Daemon invariant: Må ikke kræve baggrundsprocesser eller dæmoner; opdateres rent in-process ved hook-kald eller checkpoint.
-- [ ] **AC3 (Deterministisk Token & Payload Beregning)**:
+- [x] **AC3 (Deterministisk Token & Payload Beregning)**:
   - Implementere hurtig, deterministisk BPE/tegn-ratio estimator ($\sim 1 \text{ token} \approx 3.8 \text{ tegn}$), som fungerer på tværs af alle harnesses uden eksterne netværkskald.
   - Støtte indlæsning af rå token-tal, hvis harness'et eksplicit leverer det i hook-payloaden.
-- [ ] **AC4 (Cockpit HUD & JIT Telemetri Integration)**:
+- [x] **AC4 (Cockpit HUD & JIT Telemetri Integration)**:
   - Opdatere `render_blockquote_hud` og `format_ephemeral_telemetry` i `AntigravityAdapter` og øvrige adapters:
     - Vise Session Health i HUD: f.eks. `Session: 🟢 Optimal (4 turns • ~15k tok)` eller ved saturation: `Session: 🟡 Aging (14 turns) • Forbered Handoff`.
     - Når `Saturated` nås: Injicere en venlig, ikke-blokerende anbefaling i JIT-direktivet: `💡 Anbefaling: Opgaven trækker ud (>18 turns). Forsegl checkpoints og start en frisk session via 'xgauntlet handoff'.`
-- [ ] **AC5 (CLI & Formateringsstøtte)**:
+- [x] **AC5 (CLI & Formateringsstøtte)**:
   - Sikre at `xgauntlet telemetry --format json`, `--format box` og `--format antigravity-hook` indeholder de nye sundhedsmetrikker.
-- [ ] **AC6 (Testsuite & Verifikation)**:
+- [x] **AC6 (Testsuite & Verifikation)**:
   - Oprette `crates/xgauntlet-core/tests/session_health_telemetry_test.rs` med tests for:
     - Korrekt kategorisering af `Optimal`, `Aging` og `Saturated`.
     - Deterministisk token-estimering på kendte strenge.
