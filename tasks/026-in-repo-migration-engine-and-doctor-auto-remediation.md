@@ -16,6 +16,9 @@ scope:
 test_refs:
   - "crates/xgauntlet-core/tests/migration_engine_test.rs"
   - "crates/xgauntlet-core/tests/doctor_diagnostics_test.rs"
+  - "crates/xgauntlet-core/tests/doctor_engine_test.rs"
+  - "crates/xgauntlet-core/tests/doctor_test.rs"
+  - "crates/xgauntlet-core/tests/plugin_distribution_test.rs"
 ---
 
 # Task 026: In-Repo Migration Engine and Doctor Auto-Remediation

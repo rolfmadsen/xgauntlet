@@ -37,6 +37,15 @@ pub fn run_doctor(options: &DoctorOptions) -> Result<DoctorReport, DoctorError> 
         Err(_) => options.workspace.clone(),
     };
 
+    // Auto-remediate safe governance drift issues if --fix was requested
+    if options.fix {
+        let mig_options = crate::features::migration::MigrationOptions {
+            workspace: workspace.clone(),
+            dry_run: false,
+        };
+        let _ = crate::features::migration::run_migration(&mig_options);
+    }
+
     let mut checks = Vec::new();
 
     // 1. Host Category

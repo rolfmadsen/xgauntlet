@@ -340,6 +340,14 @@
         "commit_oid": "05fd66fda210f71ade8e5b560924036ae1b942b0",
         "timestamp": "2026-10-25T16:41:15Z",
         "digest": "14f16747ae1129186a066ebffa73272b879d18f08ddd38b31c4f0a4e57d9add0"
+      },
+      {
+        "session_nonce": "sess-de771be3",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "de771be304cd749f90e992683a4ca6bfdf0feddf",
+        "timestamp": "2026-10-25T16:47:22Z",
+        "digest": "1626d8452d2b25adf181efb4862c6a29fe008a89ba330cf7feaefb8c38454f43"
       }
     ]
   },
@@ -643,6 +651,69 @@
       "failure_output": "Verified in RED checkpoint commit 67315fa",
       "failure_digest": "ccdb618c81ed206d536e3a773cce4dfe89c9fe28fb345b18dd09775778e14a8b",
       "verified_at": "2026-10-25T17:21:56+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_doctor_warns_on_legacy_hooks_namespace_and_missing_preinvocation",
+      "failure_output": "Verified in RED checkpoint commit de771be",
+      "failure_digest": "f18b5278ca4d2b25b925a11ca39a338655aa43e9d9b5fb945859a6fd2156d19a",
+      "verified_at": "2026-10-25T17:47:22+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_doctor_warns_on_legacy_evidence_file_in_gauntlet_toml",
+      "failure_output": "Verified in RED checkpoint commit de771be",
+      "failure_digest": "f18b5278ca4d2b25b925a11ca39a338655aa43e9d9b5fb945859a6fd2156d19a",
+      "verified_at": "2026-10-25T17:47:22+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_doctor_passes_when_hooks_and_evidence_are_modern",
+      "failure_output": "Verified in RED checkpoint commit de771be",
+      "failure_digest": "f18b5278ca4d2b25b925a11ca39a338655aa43e9d9b5fb945859a6fd2156d19a",
+      "verified_at": "2026-10-25T17:47:22+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_doctor_fix_flag_auto_remediates_governance_issues",
+      "failure_output": "Verified in RED checkpoint commit de771be",
+      "failure_digest": "f18b5278ca4d2b25b925a11ca39a338655aa43e9d9b5fb945859a6fd2156d19a",
+      "verified_at": "2026-10-25T17:47:22+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_migration_engine_dry_run_does_not_modify_disk",
+      "failure_output": "Verified in RED checkpoint commit de771be",
+      "failure_digest": "f18b5278ca4d2b25b925a11ca39a338655aa43e9d9b5fb945859a6fd2156d19a",
+      "verified_at": "2026-10-25T17:47:22+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_migration_engine_modernizes_hooks_preserving_custom_matchers",
+      "failure_output": "Verified in RED checkpoint commit de771be",
+      "failure_digest": "f18b5278ca4d2b25b925a11ca39a338655aa43e9d9b5fb945859a6fd2156d19a",
+      "verified_at": "2026-10-25T17:47:22+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_migration_engine_modernizes_gauntlet_toml_preserving_custom_layers",
+      "failure_output": "Verified in RED checkpoint commit de771be",
+      "failure_digest": "f18b5278ca4d2b25b925a11ca39a338655aa43e9d9b5fb945859a6fd2156d19a",
+      "verified_at": "2026-10-25T17:47:22+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_migration_engine_scaffolds_missing_adr_template",
+      "failure_output": "Verified in RED checkpoint commit de771be",
+      "failure_digest": "f18b5278ca4d2b25b925a11ca39a338655aa43e9d9b5fb945859a6fd2156d19a",
+      "verified_at": "2026-10-25T17:47:22+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_runtime_backward_compatibility_with_legacy_hooks_namespace",
+      "failure_output": "Verified in RED checkpoint commit de771be",
+      "failure_digest": "f18b5278ca4d2b25b925a11ca39a338655aa43e9d9b5fb945859a6fd2156d19a",
+      "verified_at": "2026-10-25T17:47:22+01:00",
       "status": "red_checkpoint_verified"
     }
   ]

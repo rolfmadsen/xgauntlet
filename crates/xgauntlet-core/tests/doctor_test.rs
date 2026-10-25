@@ -73,6 +73,7 @@ command = ["npx", "tsc", "--noEmit"]
         verbose: true,
         strict: false,
         category: Some(DoctorCategory::Governance),
+        fix: false,
     };
 
     let report = run_doctor(&options).expect("Doctor check should run successfully");
@@ -135,6 +136,7 @@ command = ["npx", "tsc", "-b"]
         verbose: true,
         strict: false,
         category: Some(DoctorCategory::Governance),
+        fix: false,
     };
 
     let report = run_doctor(&options).expect("Doctor check should run successfully");

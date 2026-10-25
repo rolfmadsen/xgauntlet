@@ -142,10 +142,14 @@ fn test_migration_engine_modernizes_hooks_preserving_custom_matchers() {
     assert!(report.is_success);
 
     let migrated = fs::read_to_string(agents_dir.join("hooks.json")).unwrap();
-    let v: serde_json::Value = serde_json::from_str(&migrated).expect("Migrated hooks must be valid JSON");
+    let v: serde_json::Value =
+        serde_json::from_str(&migrated).expect("Migrated hooks must be valid JSON");
 
     // 1. Must rename agent-gauntlet-gatekeeper to xgauntlet
-    assert!(v.get("xgauntlet").is_some(), "Expected 'xgauntlet' namespace");
+    assert!(
+        v.get("xgauntlet").is_some(),
+        "Expected 'xgauntlet' namespace"
+    );
     assert!(
         v.get("agent-gauntlet-gatekeeper").is_none(),
         "Legacy namespace must be replaced"
@@ -154,19 +158,28 @@ fn test_migration_engine_modernizes_hooks_preserving_custom_matchers() {
     let xgauntlet_group = v.get("xgauntlet").unwrap();
 
     // 2. PreToolUse custom matchers must be preserved
-    let pre_tool = xgauntlet_group.get("PreToolUse").and_then(|p| p.as_array()).unwrap();
-    let has_custom = pre_tool.iter().any(|item| {
-        item.get("matcher").and_then(|m| m.as_str()) == Some("custom_internal_tool")
-    });
+    let pre_tool = xgauntlet_group
+        .get("PreToolUse")
+        .and_then(|p| p.as_array())
+        .unwrap();
+    let has_custom = pre_tool
+        .iter()
+        .any(|item| item.get("matcher").and_then(|m| m.as_str()) == Some("custom_internal_tool"));
     assert!(has_custom, "User's custom matcher must be preserved");
 
     // 3. PreInvocation telemetry hook must be injected
-    let pre_inv = xgauntlet_group.get("PreInvocation").and_then(|p| p.as_array()).unwrap();
+    let pre_inv = xgauntlet_group
+        .get("PreInvocation")
+        .and_then(|p| p.as_array())
+        .unwrap();
     let has_telemetry = pre_inv.iter().any(|item| {
         let cmd = item.get("command").and_then(|c| c.as_str()).unwrap_or("");
         cmd.contains("xgauntlet telemetry")
     });
-    assert!(has_telemetry, "PreInvocation telemetry hook must be injected");
+    assert!(
+        has_telemetry,
+        "PreInvocation telemetry hook must be injected"
+    );
 }
 
 #[test]

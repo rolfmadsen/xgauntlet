@@ -734,14 +734,20 @@ pub fn render_check_adr_summary(reports: &[xgauntlet_core::AdrReadinessReport]) 
 pub fn render_migration_summary(report: &xgauntlet_core::MigrationReport, dry_run: bool) {
     println!("\n=== xGauntlet In-Repo Schema Migration Engine ===\n");
     if dry_run {
-        println!("\x1b[33m[DRY RUN] Previewing migrations without modifying files on disk:\x1b[0m\n");
+        println!(
+            "\x1b[33m[DRY RUN] Previewing migrations without modifying files on disk:\x1b[0m\n"
+        );
     }
     if report.items.is_empty() {
         println!("  \x1b[32m[✓]\x1b[0m No migrations required. Workspace governance artifacts are fully up-to-date.\n");
         return;
     }
     for item in &report.items {
-        let tag = if dry_run { "[WOULD MIGRATE]" } else { "[MIGRATED]" };
+        let tag = if dry_run {
+            "[WOULD MIGRATE]"
+        } else {
+            "[MIGRATED]"
+        };
         println!("  \x1b[32m{:<16}\x1b[0m {}", tag, item.file.display());
         println!("    Description: {}", item.description);
         for change in &item.changes {
@@ -750,9 +756,14 @@ pub fn render_migration_summary(report: &xgauntlet_core::MigrationReport, dry_ru
     }
     println!();
     if dry_run {
-        println!("Summary: {} file(s) would be migrated. Run without --dry-run to apply.\n", report.items.len());
+        println!(
+            "Summary: {} file(s) would be migrated. Run without --dry-run to apply.\n",
+            report.items.len()
+        );
     } else {
-        println!("Summary: {} file(s) successfully migrated.\n", report.files_modified.len());
+        println!(
+            "Summary: {} file(s) successfully migrated.\n",
+            report.files_modified.len()
+        );
     }
 }
-

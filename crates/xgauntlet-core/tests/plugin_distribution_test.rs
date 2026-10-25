@@ -557,6 +557,7 @@ fn test_doctor_harnesses_category() {
         verbose: true,
         strict: false,
         category: Some(DoctorCategory::Harnesses),
+        fix: false,
     };
 
     let report = run_doctor(&options).expect("Doctor harnesses execution must succeed");

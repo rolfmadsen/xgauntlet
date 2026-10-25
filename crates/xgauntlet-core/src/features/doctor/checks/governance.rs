@@ -23,19 +23,32 @@ pub fn check_governance(workspace: &Path) -> Vec<DoctorCheckItem> {
                 let report = validate_config(&cfg, Some(workspace));
                 let duration = start.elapsed().as_millis() as u64;
 
+                let has_legacy_evidence = cfg.evidence_file == "evidence.json";
                 if report.issues.is_empty() {
                     let layer_count = cfg.layers.len();
-                    checks.push(DoctorCheckItem {
-                        name: "governance_gauntlet_toml".to_string(),
-                        category: DoctorCategory::Governance,
-                        status: DoctorCheckStatus::Pass,
-                        message: format!(
-                            "Valid declarative configuration ({layer_count} layers configured)"
-                        ),
-                        detail: Some(format!("Stack profile: {}", cfg.stack)),
-                        remediation: None,
-                        duration_ms: duration,
-                    });
+                    if has_legacy_evidence {
+                        checks.push(DoctorCheckItem {
+                            name: "governance_gauntlet_toml".to_string(),
+                            category: DoctorCategory::Governance,
+                            status: DoctorCheckStatus::Warn,
+                            message: "gauntlet.toml references legacy evidence_file = 'evidence.json'".to_string(),
+                            detail: Some("Modern xGauntlet requires 'verification-report.json' for authoritative attestation and multi-tier verification.".to_string()),
+                            remediation: Some("Action: Run 'xgauntlet migrate' (or 'xgauntlet doctor --fix')".to_string()),
+                            duration_ms: duration,
+                        });
+                    } else {
+                        checks.push(DoctorCheckItem {
+                            name: "governance_gauntlet_toml".to_string(),
+                            category: DoctorCategory::Governance,
+                            status: DoctorCheckStatus::Pass,
+                            message: format!(
+                                "Valid declarative configuration ({layer_count} layers configured)"
+                            ),
+                            detail: Some(format!("Stack profile: {}", cfg.stack)),
+                            remediation: None,
+                            duration_ms: duration,
+                        });
+                    }
                 } else {
                     let has_errors = report
                         .issues
@@ -47,26 +60,39 @@ pub fn check_governance(workspace: &Path) -> Vec<DoctorCheckItem> {
                         DoctorCheckStatus::Warn
                     };
 
-                    let detail = report
+                    let mut detail_parts = report
                         .issues
                         .iter()
                         .map(|i| format!("[{:?}] {}: {}", i.severity, i.code, i.message))
-                        .collect::<Vec<_>>()
-                        .join("; ");
+                        .collect::<Vec<_>>();
 
-                    let remediation = report
-                        .issues
-                        .first()
-                        .and_then(|i| i.remediation.clone())
-                        .or_else(|| {
-                            Some("Correct configuration defects in gauntlet.toml.".to_string())
-                        });
+                    if has_legacy_evidence {
+                        detail_parts.push("[Warn] LEGACY_EVIDENCE_FILE: gauntlet.toml references legacy evidence_file = 'evidence.json'".to_string());
+                    }
+                    let detail = detail_parts.join("; ");
 
+                    let remediation = if has_legacy_evidence {
+                        Some(
+                            "Action: Run 'xgauntlet migrate' (or 'xgauntlet doctor --fix')"
+                                .to_string(),
+                        )
+                    } else {
+                        report
+                            .issues
+                            .first()
+                            .and_then(|i| i.remediation.clone())
+                            .or_else(|| {
+                                Some("Correct configuration defects in gauntlet.toml.".to_string())
+                            })
+                    };
+
+                    let total_issues =
+                        report.issues.len() + if has_legacy_evidence { 1 } else { 0 };
                     checks.push(DoctorCheckItem {
                         name: "governance_gauntlet_toml".to_string(),
                         category: DoctorCategory::Governance,
                         status,
-                        message: format!("Configuration has {} issue(s)", report.issues.len()),
+                        message: format!("Configuration has {} issue(s)", total_issues),
                         detail: Some(detail),
                         remediation,
                         duration_ms: duration,
@@ -326,17 +352,75 @@ pub fn check_governance(workspace: &Path) -> Vec<DoctorCheckItem> {
     let has_hooks = hooks_json.is_file();
 
     if has_guidelines && has_hooks {
-        checks.push(DoctorCheckItem {
-            name: "governance_agent_harness".to_string(),
-            category: DoctorCategory::Governance,
-            status: DoctorCheckStatus::Pass,
-            message: "Agent guidelines and policy hooks configured".to_string(),
-            detail: Some(
-                "Found .agents/AGENTS.md (or CLAUDE.md) and .agents/hooks.json".to_string(),
-            ),
-            remediation: None,
-            duration_ms: duration,
-        });
+        let mut hook_warnings = Vec::new();
+        if let Ok(content) = fs::read_to_string(&hooks_json) {
+            if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
+                if let Some(obj) = val.as_object() {
+                    if obj.contains_key("agent-gauntlet-gatekeeper")
+                        || obj.contains_key("gauntlet-gatekeeper")
+                    {
+                        hook_warnings.push(
+                            "Legacy hook namespace 'agent-gauntlet-gatekeeper' detected"
+                                .to_string(),
+                        );
+                    }
+
+                    let has_pre_invocation = obj.values().any(|group| {
+                        group
+                            .get("PreInvocation")
+                            .and_then(|pi| pi.as_array())
+                            .is_some_and(|arr| {
+                                arr.iter().any(|item| {
+                                    let cmd =
+                                        item.get("command").and_then(|c| c.as_str()).unwrap_or("");
+                                    cmd.contains("xgauntlet telemetry")
+                                        || cmd.contains("agent_gauntlet telemetry")
+                                })
+                            })
+                    });
+
+                    if !has_pre_invocation {
+                        hook_warnings.push(
+                            "Missing 'PreInvocation' telemetry hook in .agents/hooks.json"
+                                .to_string(),
+                        );
+                    }
+                } else {
+                    hook_warnings.push(".agents/hooks.json root must be a JSON object".to_string());
+                }
+            } else {
+                hook_warnings.push(".agents/hooks.json contains invalid JSON syntax".to_string());
+            }
+        }
+
+        if !hook_warnings.is_empty() {
+            checks.push(DoctorCheckItem {
+                name: "governance_agent_harness".to_string(),
+                category: DoctorCategory::Governance,
+                status: DoctorCheckStatus::Warn,
+                message: format!(
+                    "Agent hooks configuration has {} warning(s)",
+                    hook_warnings.len()
+                ),
+                detail: Some(hook_warnings.join("; ")),
+                remediation: Some(
+                    "Action: Run 'xgauntlet migrate' (or 'xgauntlet doctor --fix')".to_string(),
+                ),
+                duration_ms: duration,
+            });
+        } else {
+            checks.push(DoctorCheckItem {
+                name: "governance_agent_harness".to_string(),
+                category: DoctorCategory::Governance,
+                status: DoctorCheckStatus::Pass,
+                message: "Agent guidelines and policy hooks configured".to_string(),
+                detail: Some(
+                    "Found .agents/AGENTS.md (or CLAUDE.md) and .agents/hooks.json".to_string(),
+                ),
+                remediation: None,
+                duration_ms: duration,
+            });
+        }
     } else if has_guidelines {
         checks.push(DoctorCheckItem {
             name: "governance_agent_harness".to_string(),

@@ -96,6 +96,7 @@ fn test_run_doctor_on_real_workspace() {
         verbose: true,
         strict: false,
         category: None,
+        fix: false,
     };
 
     let report = run_doctor(&options).expect("Doctor execution must succeed on real workspace");
@@ -181,6 +182,7 @@ fn test_run_doctor_filter_by_category() {
         verbose: false,
         strict: false,
         category: Some(DoctorCategory::Git),
+        fix: false,
     };
 
     let report = run_doctor(&options).expect("Doctor execution should succeed");
@@ -203,6 +205,7 @@ fn test_host_diagnostics_check() {
         verbose: true,
         strict: false,
         category: Some(DoctorCategory::Host),
+        fix: false,
     };
 
     let report = run_doctor(&options).expect("Host checks must succeed");
@@ -237,6 +240,7 @@ fn test_git_diagnostics_check() {
         verbose: true,
         strict: false,
         category: Some(DoctorCategory::Git),
+        fix: false,
     };
 
     let report = run_doctor(&options).expect("Git checks must succeed");
@@ -269,6 +273,7 @@ fn test_governance_diagnostics_check() {
         verbose: true,
         strict: false,
         category: Some(DoctorCategory::Governance),
+        fix: false,
     };
 
     let report = run_doctor(&options).expect("Governance checks must succeed");
@@ -309,6 +314,7 @@ fn test_toolchains_diagnostics_check() {
         verbose: true,
         strict: false,
         category: Some(DoctorCategory::Toolchains),
+        fix: false,
     };
 
     let report = run_doctor(&options).expect("Toolchain checks must succeed");
@@ -337,6 +343,7 @@ fn test_engine_wasm_diagnostics_check() {
         verbose: true,
         strict: false,
         category: Some(DoctorCategory::Engine),
+        fix: false,
     };
 
     let report = run_doctor(&options).expect("Engine checks must succeed");
@@ -357,6 +364,7 @@ fn test_run_doctor_missing_governance_provides_remediations() {
         verbose: false,
         strict: false,
         category: Some(DoctorCategory::Governance),
+        fix: false,
     };
 
     let report = run_doctor(&options).expect("Doctor should run on empty directory");

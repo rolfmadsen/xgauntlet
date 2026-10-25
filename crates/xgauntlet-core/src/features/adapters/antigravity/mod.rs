@@ -670,6 +670,15 @@ impl HarnessAdapter for AntigravityAdapter {
             }
         };
 
+        let hooks_path = workspace.join(".agents").join("hooks.json");
+        if hooks_path.is_file() {
+            if let Ok(content) = fs::read_to_string(&hooks_path) {
+                if content.contains("\"agent-gauntlet-gatekeeper\"") {
+                    eprintln!("⚠️ Legacy hook namespace 'agent-gauntlet-gatekeeper' detected in .agents/hooks.json. Run 'xgauntlet migrate' to upgrade.");
+                }
+            }
+        }
+
         let is_pre_invocation = payload
             .get("hookEventName")
             .and_then(|v| v.as_str())

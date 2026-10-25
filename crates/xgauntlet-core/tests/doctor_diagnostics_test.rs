@@ -148,6 +148,12 @@ fn test_doctor_passes_when_hooks_and_evidence_are_modern() {
 
     let agents_dir = ws.join(".agents");
     fs::create_dir_all(&agents_dir).unwrap();
+    fs::create_dir_all(ws.join("tasks")).unwrap();
+    fs::write(
+        ws.join("CONTEXT.md"),
+        "# Glossary\n\n### Term\nIs a concept.\n",
+    )
+    .unwrap();
     fs::write(agents_dir.join("AGENTS.md"), "# Guidelines").unwrap();
 
     let modern_hooks = r#"{
@@ -258,7 +264,10 @@ command = ["cargo", "test"]
     };
 
     let report = run_doctor(&options).expect("Doctor with --fix must succeed");
-    assert!(report.is_healthy(), "Doctor with fix should remediate warnings");
+    assert!(
+        report.is_healthy(),
+        "Doctor with fix should remediate warnings"
+    );
 
     // Verify hooks.json on disk was modernized
     let hooks_content = fs::read_to_string(agents_dir.join("hooks.json")).unwrap();
