@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 047: Worktree-Isolated Inverse Preflight"
 description: "Eliminere datatab-risiko i inverse preflight ved at køre baseline-testen i en isoleret git worktree i stedet for at overskrive brugerens working tree"
-status: active
+status: done
 generated: { by: process:antigravity-task-init, at: "2026-10-25T19:17:00Z" }
 tags: [checkpoint, provenance, inverse-preflight, data-safety, git-worktree, fail-closed, adr-0003]
 scope:
@@ -14,7 +14,7 @@ test_refs:
 
 # Task 047: Worktree-Isolated Inverse Preflight
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🐛 BUG FIX`
 **Oprettet**: `2026-10-25`
 
