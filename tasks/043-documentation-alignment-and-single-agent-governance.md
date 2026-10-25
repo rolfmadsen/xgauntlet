@@ -6,7 +6,7 @@ status: active
 generated: { by: process:antigravity-task-init, at: "2026-10-25T11:25:00Z" }
 tags: [documentation, governance, single-agent, review-skill, transparency, clean-craftsmanship]
 scope: ["ROADMAP.md", ".agents/AGENTS.md", ".agents/plugins/xgauntlet/skills/review/SKILL.md", "README.md", "packages/cli/README.md"]
-test_refs: ["crates/xgauntlet-core/tests/harness_contracts_test.rs"]
+test_refs: ["crates/xgauntlet-core/tests/single_agent_governance_test.rs"]
 ---
 
 # Task 043: Documentation Alignment & Single-Agent Governance
