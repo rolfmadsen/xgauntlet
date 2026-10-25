@@ -70,18 +70,16 @@ fn test_review_skill_free_of_subagent_dogmas() {
 #[test]
 fn test_readme_and_cli_readme_single_agent_hitl_architecture_note() {
     let ws = workspace_root();
-    let readmes = [
-        ws.join("README.md"),
-        ws.join("packages/cli/README.md"),
-    ];
+    let readmes = [ws.join("README.md"), ws.join("packages/cli/README.md")];
 
     for readme_path in readmes {
         let content = fs::read_to_string(&readme_path).expect("read README file");
-        
+
         // Under De 4 AI-roller, must explain single-agent model under direct human supervision
         assert!(
             content.contains("transparent enkelt-agent model under direkte menneskeligt opsyn")
-                || content.contains("transparent enkelt-agent-model under direkte menneskeligt opsyn"),
+                || content
+                    .contains("transparent enkelt-agent-model under direkte menneskeligt opsyn"),
             "README at {:?} must document transparent enkelt-agent model under direkte opsyn",
             readme_path
         );
