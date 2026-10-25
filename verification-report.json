@@ -324,6 +324,14 @@
         "commit_oid": "24ac25ac3c4ca5c6ac370ed7426e1d281a1b09dd",
         "timestamp": "2026-10-25T16:28:37Z",
         "digest": "c5f8d025923fc86306133f1e1d981f6513af621532e720e2d8a3c3e5ef5e3af9"
+      },
+      {
+        "session_nonce": "sess-1884ade7",
+        "role": "Software Engineer",
+        "phase": "DONE",
+        "commit_oid": "1884ade7fceba651b41d81d6f6b14a62b0f7c41b",
+        "timestamp": "2026-10-25T16:29:59Z",
+        "digest": "6eeccd224e4ee38ab214f931efaa2705f55d247156b56bcc3696a030a85c8c54"
       }
     ]
   },
