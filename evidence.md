@@ -1,22 +1,22 @@
 # Verification Report
 
-**Task ID**: `048-canonical-antigravity-hook-in-migration`  
-**Task Title**: Task 048: Canonical Antigravity Hook in Migration  
+**Task ID**: `049-mechanical-monotonic-ratchet-enforcement`  
+**Task Title**: Task 049: Mechanical Monotonic Ratchet Enforcement  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `672f234760a4b83326bf5e8ebbe18e61fe71e814fcd7ffc7179acb5da5c954a9`  
-**Timestamp**: `2026-10-25T19:48:47Z`  
-**Head**: `9e9ed74`  
-**Commit**: `9e9ed74`  
+**Source Manifest Digest**: `278f4cb2115d499c0380cd89d3efcb1c6f08138c2418c2fc9206ddc3363b551d`  
+**Timestamp**: `2026-10-25T20:29:20Z`  
+**Head**: `94ccfce`  
+**Commit**: `94ccfce`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (Single source of truth)**: Én offentlig konstant for Antigravity PreInvocation-kommandoen (`xgauntlet telemetry --format antigravity-hook`) i `adapters/antigravity`, genbrugt af adapter, scaffold-template og migration.
-- [x] **AC2 (Korrekt injektion)**: Migration af `hooks.json` uden telemetry-hook indsætter præcis den kanoniske kommando.
-- [x] **AC3 (Normalisering)**: Migration af `hooks.json` med `--harness antigravity-hook` (eller `--harness antigravity`) erstatter den med den kanoniske kommando, rapporterer ændringen og er idempotent ved anden kørsel.
-- [x] **AC4 (Ingen tavs overskrivning)**: Findes både `agent-gauntlet-gatekeeper` og `xgauntlet`, bevares den kanoniske gruppes hooks (merge uden dubletter), og ændringslisten nævner sammenfletningen.
-- [x] **AC5 (doctor --fix er ærlig)**: Fejler migrationen under `doctor --fix`, rapporteres fejlen i doctor-resultatet i stedet for at blive kasseret.
-- [x] **AC6 (Fixture-korrektion)**: `doctor_diagnostics_test.rs` bruger ikke længere den defekte streng som "korrekt" fixture.
+- [x] **AC1 (Baseline-sammenligning)**: `check-architecture` sammenligner hver exemptions `max_lines` med loftet i baseline-`gauntlet.toml`. Baseline = merge-base med upstream (`@{upstream}`), ellers `HEAD`.
+- [x] **AC2 (Afvisning af inflation)**: En stigning afvises som violation, medmindre den refererede ADR indeholder en eksplicit linje `ratchet: <path> <= <ny værdi>`.
+- [x] **AC3 (Tilladte ændringer)**: Uændrede eller sænkede lofter, og nye exemptions med gyldig ADR, passerer.
+- [x] **AC4 (Workspace-agnosticisme)**: Uden git-repo springes sammenligningen over med en eksplicit notits; findes repo, men kan baseline ikke læses, fejler checket lukket.
+- [x] **AC5 (Tilbagerulning)**: `main.rs`-loftet i `gauntlet.toml` sænkes til 2180, og ADR 0010 dokumenterer ratchet-linje-konventionen.
+- [x] **AC6 (Ærlig evidens)**: Task 046 AC4 sættes til `[ ]` med revisionsnote, der henviser til Task 049.
 
 ---
 
@@ -24,14 +24,14 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.072s` |
-| `format` | `PASSED` | `0` | `0.212s` |
-| `lint` | `PASSED` | `0` | `0.116s` |
-| `types` | `PASSED` | `0` | `0.126s` |
-| `unit` | `PASSED` | `0` | `21.049s` |
-| `npm` | `PASSED` | `0` | `0.824s` |
-| `invariants` | `PASSED` | `0` | `0.068s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.014s` |
+| `architecture` | `PASSED` | `0` | `0.114s` |
+| `format` | `PASSED` | `0` | `0.213s` |
+| `lint` | `PASSED` | `0` | `0.147s` |
+| `types` | `PASSED` | `0` | `0.074s` |
+| `unit` | `PASSED` | `0` | `21.419s` |
+| `npm` | `PASSED` | `0` | `0.898s` |
+| `invariants` | `PASSED` | `0` | `0.075s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.020s` |
 
 ---
 
@@ -84,6 +84,7 @@
 | `sess-df1eb13b` | `System Architect` | `SPEC` | `df1eb13` | `2026-10-25T20:20:29Z` | `VALID` |
 | `sess-76ff794c` | `TDD Craftsman` | `RED` | `76ff794` | `2026-10-25T20:21:37Z` | `VALID` |
 | `sess-009bffa7` | `TDD Craftsman` | `GREEN` | `009bffa` | `2026-10-25T20:25:55Z` | `VALID` |
+| `sess-94ccfcec` | `TDD Craftsman` | `REFACTOR` | `94ccfce` | `2026-10-25T20:27:03Z` | `VALID` |
 
 ---
 
@@ -91,6 +92,13 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_ratchet_enforcement_rejects_unauthorized_ceiling_inflation` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
+| `test_ratchet_enforcement_accepts_authorized_ceiling_inflation` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
+| `test_ratchet_enforcement_rejects_inflation_exceeding_authorized_limit` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
+| `test_ratchet_enforcement_allows_lowered_or_unchanged_ceilings` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
+| `test_ratchet_enforcement_allows_new_exemption_with_valid_adr` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
+| `test_ratchet_enforcement_skips_in_non_git_workspace_with_notice` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
+| `test_ratchet_enforcement_fails_closed_when_git_baseline_unreadable` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
 | `test_migration_injects_canonical_telemetry_format` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
 | `test_migration_normalizes_defective_harness_hook_and_is_idempotent` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
 | `test_migration_normalizes_legacy_harness_antigravity` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
@@ -166,12 +174,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_ratchet_enforcement_rejects_unauthorized_ceiling_inflation` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
-| `test_ratchet_enforcement_accepts_authorized_ceiling_inflation` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
-| `test_ratchet_enforcement_rejects_inflation_exceeding_authorized_limit` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
-| `test_ratchet_enforcement_allows_lowered_or_unchanged_ceilings` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
-| `test_ratchet_enforcement_allows_new_exemption_with_valid_adr` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
-| `test_ratchet_enforcement_skips_in_non_git_workspace_with_notice` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
-| `test_ratchet_enforcement_fails_closed_when_git_baseline_unreadable` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
 
 ---

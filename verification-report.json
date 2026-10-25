@@ -4,40 +4,40 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "048-canonical-antigravity-hook-in-migration",
-    "task_title": "Task 048: Canonical Antigravity Hook in Migration",
-    "task_digest": "00b2b5d1dad68f01a07599b342ed7f9dad23ef06799b3f9389c6b22e9d799e03",
+    "task_id": "049-mechanical-monotonic-ratchet-enforcement",
+    "task_title": "Task 049: Mechanical Monotonic Ratchet Enforcement",
+    "task_digest": "115e169cdd88a85f8c1458b5d1dd03c06b5a328ee192a8b03544aad3c7bb64c6",
     "acceptance_criteria": [
-      "**AC1 (Single source of truth)**: Én offentlig konstant for Antigravity PreInvocation-kommandoen (`xgauntlet telemetry --format antigravity-hook`) i `adapters/antigravity`, genbrugt af adapter, scaffold-template og migration.",
-      "**AC2 (Korrekt injektion)**: Migration af `hooks.json` uden telemetry-hook indsætter præcis den kanoniske kommando.",
-      "**AC3 (Normalisering)**: Migration af `hooks.json` med `--harness antigravity-hook` (eller `--harness antigravity`) erstatter den med den kanoniske kommando, rapporterer ændringen og er idempotent ved anden kørsel.",
-      "**AC4 (Ingen tavs overskrivning)**: Findes både `agent-gauntlet-gatekeeper` og `xgauntlet`, bevares den kanoniske gruppes hooks (merge uden dubletter), og ændringslisten nævner sammenfletningen.",
-      "**AC5 (doctor --fix er ærlig)**: Fejler migrationen under `doctor --fix`, rapporteres fejlen i doctor-resultatet i stedet for at blive kasseret.",
-      "**AC6 (Fixture-korrektion)**: `doctor_diagnostics_test.rs` bruger ikke længere den defekte streng som \"korrekt\" fixture."
+      "**AC1 (Baseline-sammenligning)**: `check-architecture` sammenligner hver exemptions `max_lines` med loftet i baseline-`gauntlet.toml`. Baseline = merge-base med upstream (`@{upstream}`), ellers `HEAD`.",
+      "**AC2 (Afvisning af inflation)**: En stigning afvises som violation, medmindre den refererede ADR indeholder en eksplicit linje `ratchet: <path> <= <ny værdi>`.",
+      "**AC3 (Tilladte ændringer)**: Uændrede eller sænkede lofter, og nye exemptions med gyldig ADR, passerer.",
+      "**AC4 (Workspace-agnosticisme)**: Uden git-repo springes sammenligningen over med en eksplicit notits; findes repo, men kan baseline ikke læses, fejler checket lukket.",
+      "**AC5 (Tilbagerulning)**: `main.rs`-loftet i `gauntlet.toml` sænkes til 2180, og ADR 0010 dokumenterer ratchet-linje-konventionen.",
+      "**AC6 (Ærlig evidens)**: Task 046 AC4 sættes til `[ ]` med revisionsnote, der henviser til Task 049."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "8725b23c10d60fbef6112c23e71db13984b33cc809fa9d6cd36b00c288403633",
-    "source_manifest_digest_pre": "672f234760a4b83326bf5e8ebbe18e61fe71e814fcd7ffc7179acb5da5c954a9",
-    "source_manifest_digest_post": "672f234760a4b83326bf5e8ebbe18e61fe71e814fcd7ffc7179acb5da5c954a9",
-    "config_digest": "fded6790c14b87f1b1febb0518ed3c6fbdd0d8ae2ba69364ea1d0ce4bbf947a6",
-    "task_digest": "00b2b5d1dad68f01a07599b342ed7f9dad23ef06799b3f9389c6b22e9d799e03",
-    "policy_digest": "e13f93c8a490b56aec5a3405b7f4a8e8f8bbe107099877891ab5be4848ae511b",
+    "source_content_digest": "344082eadbc9c71ee4676ba6029457ce6ea88581acfead921cb00c0d711911ed",
+    "source_manifest_digest_pre": "278f4cb2115d499c0380cd89d3efcb1c6f08138c2418c2fc9206ddc3363b551d",
+    "source_manifest_digest_post": "278f4cb2115d499c0380cd89d3efcb1c6f08138c2418c2fc9206ddc3363b551d",
+    "config_digest": "0b514351db528b3d3392d53de5c991266376f596ddf5237758503e284cb899b5",
+    "task_digest": "115e169cdd88a85f8c1458b5d1dd03c06b5a328ee192a8b03544aad3c7bb64c6",
+    "policy_digest": "d7ca88f51ed2c325fbc5cd474e816627e3182da8d8f88957f48bc6bd8553cf9f",
     "check_definitions_digest": "138fd39199ca1ff02f1546e8f3128c38c38d368226e0aa141bacdcdbfe12d76b",
-    "included_files_count": 232,
+    "included_files_count": 233,
     "vcs": {
       "type": "git",
-      "head": "9e9ed74",
-      "commit": "9e9ed74",
+      "head": "94ccfce",
+      "commit": "94ccfce",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-10-25T19:48:24Z",
-    "finished_at": "2026-10-25T19:48:47Z",
-    "total_duration_seconds": 22.666985883,
+    "started_at": "2026-10-25T20:28:57Z",
+    "finished_at": "2026-10-25T20:29:20Z",
+    "total_duration_seconds": 23.158257199,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -50,16 +50,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.072388321,
+      "duration_seconds": 0.114169893,
       "optional": false,
       "passed": true,
-      "log_digest": "587cce0fa242b43cee7d9b362c09172990a8fe7c18e3205b90d257d8eb6ba2ab"
+      "log_digest": "a1d9bddd8fd2f39eb9a70137dc56db685054d11edf2627dd997dbd194ec12bb4"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.212444223,
+      "duration_seconds": 0.213439099,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -68,52 +68,52 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.115519256,
-      "optional": false,
-      "passed": true,
-      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
-    },
-    {
-      "name": "types",
-      "status": "PASSED",
-      "exit_code": 0,
-      "duration_seconds": 0.125684941,
+      "duration_seconds": 0.147185372,
       "optional": false,
       "passed": true,
       "log_digest": "4cf86278c1e6d659943a46a3d7e3da429ac15be90f0f17742e24ef85228e7d3e"
     },
     {
+      "name": "types",
+      "status": "PASSED",
+      "exit_code": 0,
+      "duration_seconds": 0.074389275,
+      "optional": false,
+      "passed": true,
+      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
+    },
+    {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 21.048756884,
+      "duration_seconds": 21.419116516,
       "optional": false,
       "passed": true,
-      "log_digest": "54f375e38c2db4e2134658003f3614f65eb62fc3fb9de1b0d7b0f40b990e89d9"
+      "log_digest": "fbe77925f791947ecdfff26f6f63f9f368fdc5fe66f06fe2d34270b6faa35812"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.823766665,
+      "duration_seconds": 0.897709863,
       "optional": false,
       "passed": true,
-      "log_digest": "98fb65a801d22b27c74091e7f8e72490b67839b6f1e6df37053441190b117fac"
+      "log_digest": "312d61cbc508c94af6e24c25d0cb5caf064b44f18576b5c8475b6a7d26087635"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.067638411,
+      "duration_seconds": 0.075057832,
       "optional": false,
       "passed": true,
-      "log_digest": "2c3ef680f0525bbc8e82c9389f57ac5bda2a8d3d9e82617911908558b2da0ebe"
+      "log_digest": "48d0e0b4908afcf279995a417e5e753cfc285447384d77a33d06ad83001f2dc8"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.014425584,
+      "duration_seconds": 0.019620317,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -492,10 +492,67 @@
         "commit_oid": "009bffa7bb8317912491c73ded9b74d92fdb465e",
         "timestamp": "2026-10-25T20:25:55Z",
         "digest": "dbc9ade2fa41e178e49efaa685a64634b5028697f501061820ae0e6d873ae74c"
+      },
+      {
+        "session_nonce": "sess-94ccfcec",
+        "role": "TDD Craftsman",
+        "phase": "REFACTOR",
+        "commit_oid": "94ccfcec0017cb4c3727a0d1a21adf7992c2e97a",
+        "timestamp": "2026-10-25T20:27:03Z",
+        "digest": "da633989536def1eb2794658e9d190a632232681838faba38ec9ce1f1cdd0ae2"
       }
     ]
   },
   "test_provenance": [
+    {
+      "test_identifier": "test_ratchet_enforcement_rejects_unauthorized_ceiling_inflation",
+      "failure_output": "Verified in RED checkpoint commit 76ff794",
+      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
+      "verified_at": "2026-10-25T21:21:37+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ratchet_enforcement_accepts_authorized_ceiling_inflation",
+      "failure_output": "Verified in RED checkpoint commit 76ff794",
+      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
+      "verified_at": "2026-10-25T21:21:37+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ratchet_enforcement_rejects_inflation_exceeding_authorized_limit",
+      "failure_output": "Verified in RED checkpoint commit 76ff794",
+      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
+      "verified_at": "2026-10-25T21:21:37+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ratchet_enforcement_allows_lowered_or_unchanged_ceilings",
+      "failure_output": "Verified in RED checkpoint commit 76ff794",
+      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
+      "verified_at": "2026-10-25T21:21:37+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ratchet_enforcement_allows_new_exemption_with_valid_adr",
+      "failure_output": "Verified in RED checkpoint commit 76ff794",
+      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
+      "verified_at": "2026-10-25T21:21:37+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ratchet_enforcement_skips_in_non_git_workspace_with_notice",
+      "failure_output": "Verified in RED checkpoint commit 76ff794",
+      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
+      "verified_at": "2026-10-25T21:21:37+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ratchet_enforcement_fails_closed_when_git_baseline_unreadable",
+      "failure_output": "Verified in RED checkpoint commit 76ff794",
+      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
+      "verified_at": "2026-10-25T21:21:37+01:00",
+      "status": "red_checkpoint_verified"
+    },
     {
       "test_identifier": "test_migration_injects_canonical_telemetry_format",
       "failure_output": "Verified in RED checkpoint commit 2f2e245",
@@ -1020,55 +1077,6 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
-    },
-    {
-      "test_identifier": "test_ratchet_enforcement_rejects_unauthorized_ceiling_inflation",
-      "failure_output": "Verified in RED checkpoint commit 76ff794",
-      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
-      "verified_at": "2026-10-25T21:21:37+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ratchet_enforcement_accepts_authorized_ceiling_inflation",
-      "failure_output": "Verified in RED checkpoint commit 76ff794",
-      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
-      "verified_at": "2026-10-25T21:21:37+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ratchet_enforcement_rejects_inflation_exceeding_authorized_limit",
-      "failure_output": "Verified in RED checkpoint commit 76ff794",
-      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
-      "verified_at": "2026-10-25T21:21:37+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ratchet_enforcement_allows_lowered_or_unchanged_ceilings",
-      "failure_output": "Verified in RED checkpoint commit 76ff794",
-      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
-      "verified_at": "2026-10-25T21:21:37+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ratchet_enforcement_allows_new_exemption_with_valid_adr",
-      "failure_output": "Verified in RED checkpoint commit 76ff794",
-      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
-      "verified_at": "2026-10-25T21:21:37+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ratchet_enforcement_skips_in_non_git_workspace_with_notice",
-      "failure_output": "Verified in RED checkpoint commit 76ff794",
-      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
-      "verified_at": "2026-10-25T21:21:37+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ratchet_enforcement_fails_closed_when_git_baseline_unreadable",
-      "failure_output": "Verified in RED checkpoint commit 76ff794",
-      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
-      "verified_at": "2026-10-25T21:21:37+01:00",
-      "status": "red_checkpoint_verified"
     }
   ]
 }
