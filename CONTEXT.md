@@ -159,3 +159,12 @@ _Avoid_: Git rollback, hard reset, cleanup script.
 A client-side verification gate, that authenticates pre-compiled distribution archives against Sigstore attestation ledgers and static repository identifiers prior to unarchiving into the local cache.
 _Avoid_: Tarball check, download validator, integrity test.
 
+**Session Health**:
+A quantitative telemetry model, that measures interaction turn counts, tool payload bytes, and estimated token saturation to detect cognitive fatigue and recommend clean session handoffs before attention dilution occurs.
+_Avoid_: Session status, token limit, chat age, turn guard.
+
+**Attention Dilution**:
+A degenerative state of context degradation, where excessive conversational turns and cumulative tool payloads reduce model reasoning fidelity and increase hallucination risk.
+_Avoid_: Context rot, memory drift, prompt bloat.
+
+
