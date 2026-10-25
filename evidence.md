@@ -82,6 +82,7 @@
 | `sess-9e9ed74b` | `TDD Craftsman` | `REFACTOR` | `9e9ed74` | `2026-10-25T19:43:16Z` | `VALID` |
 | `sess-a15bf0d4` | `Software Engineer` | `DONE` | `a15bf0d` | `2026-10-25T19:48:47Z` | `VALID` |
 | `sess-df1eb13b` | `System Architect` | `SPEC` | `df1eb13` | `2026-10-25T20:20:29Z` | `VALID` |
+| `sess-76ff794c` | `TDD Craftsman` | `RED` | `76ff794` | `2026-10-25T20:21:37Z` | `VALID` |
 
 ---
 
@@ -164,5 +165,12 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_ratchet_enforcement_rejects_unauthorized_ceiling_inflation` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
+| `test_ratchet_enforcement_accepts_authorized_ceiling_inflation` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
+| `test_ratchet_enforcement_rejects_inflation_exceeding_authorized_limit` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
+| `test_ratchet_enforcement_allows_lowered_or_unchanged_ceilings` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
+| `test_ratchet_enforcement_allows_new_exemption_with_valid_adr` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
+| `test_ratchet_enforcement_skips_in_non_git_workspace_with_notice` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
+| `test_ratchet_enforcement_fails_closed_when_git_baseline_unreadable` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
 
 ---

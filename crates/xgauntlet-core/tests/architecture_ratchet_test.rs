@@ -4,9 +4,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use xgauntlet_core::features::architecture::{
-    run_architecture_check, ArchitectureFindingCategory,
-};
+use xgauntlet_core::features::architecture::{run_architecture_check, ArchitectureFindingCategory};
 use xgauntlet_core::features::config::load_config;
 
 static TEST_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
@@ -122,7 +120,11 @@ adr = "docs/adr/0010-test.md"
 max_lines = 2100
 "#;
     write_file(ws, "gauntlet.toml", baseline_toml);
-    write_file(ws, "docs/adr/0010-test.md", &make_adr_content("accepted", "No ratchet line"));
+    write_file(
+        ws,
+        "docs/adr/0010-test.md",
+        &make_adr_content("accepted", "No ratchet line"),
+    );
     write_file(ws, "src/big.rs", &"// line\n".repeat(1500));
     repo.commit_all("initial baseline with ceiling 2100");
 
@@ -179,7 +181,11 @@ adr = "docs/adr/0010-test.md"
 max_lines = 2100
 "#;
     write_file(ws, "gauntlet.toml", baseline_toml);
-    write_file(ws, "docs/adr/0010-test.md", &make_adr_content("accepted", "No ratchet line"));
+    write_file(
+        ws,
+        "docs/adr/0010-test.md",
+        &make_adr_content("accepted", "No ratchet line"),
+    );
     write_file(ws, "src/big.rs", &"// line\n".repeat(1500));
     repo.commit_all("initial baseline with ceiling 2100");
 
@@ -199,7 +205,10 @@ max_lines = 2180
     write_file(
         ws,
         "docs/adr/0010-test.md",
-        &make_adr_content("accepted", "Autoriseret loft:\n- ratchet: src/big.rs <= 2180\n"),
+        &make_adr_content(
+            "accepted",
+            "Autoriseret loft:\n- ratchet: src/big.rs <= 2180\n",
+        ),
     );
 
     let config = load_config(ws).expect("load config");
@@ -229,7 +238,11 @@ adr = "docs/adr/0010-test.md"
 max_lines = 2100
 "#;
     write_file(ws, "gauntlet.toml", baseline_toml);
-    write_file(ws, "docs/adr/0010-test.md", &make_adr_content("accepted", ""));
+    write_file(
+        ws,
+        "docs/adr/0010-test.md",
+        &make_adr_content("accepted", ""),
+    );
     write_file(ws, "src/big.rs", &"// line\n".repeat(1500));
     repo.commit_all("initial baseline with ceiling 2100");
 
@@ -282,7 +295,11 @@ adr = "docs/adr/0010-test.md"
 max_lines = 2100
 "#;
     write_file(ws, "gauntlet.toml", baseline_toml);
-    write_file(ws, "docs/adr/0010-test.md", &make_adr_content("accepted", "No ratchet line"));
+    write_file(
+        ws,
+        "docs/adr/0010-test.md",
+        &make_adr_content("accepted", "No ratchet line"),
+    );
     write_file(ws, "src/big.rs", &"// line\n".repeat(1500));
     repo.commit_all("initial baseline with ceiling 2100");
 
@@ -337,7 +354,11 @@ adr = "docs/adr/0011-new.md"
 max_lines = 1500
 "#;
     write_file(ws, "gauntlet.toml", new_ex_toml);
-    write_file(ws, "docs/adr/0011-new.md", &make_adr_content("accepted", ""));
+    write_file(
+        ws,
+        "docs/adr/0011-new.md",
+        &make_adr_content("accepted", ""),
+    );
     write_file(ws, "src/new_big.rs", &"// line\n".repeat(1200));
 
     let config = load_config(ws).expect("load config");
@@ -367,7 +388,11 @@ adr = "docs/adr/0010-test.md"
 max_lines = 2190
 "#;
     write_file(ws, "gauntlet.toml", toml);
-    write_file(ws, "docs/adr/0010-test.md", &make_adr_content("accepted", ""));
+    write_file(
+        ws,
+        "docs/adr/0010-test.md",
+        &make_adr_content("accepted", ""),
+    );
     write_file(ws, "src/big.rs", &"// line\n".repeat(1500));
 
     let config = load_config(ws).expect("load config");
@@ -375,7 +400,10 @@ max_lines = 2190
 
     assert!(report.is_valid);
     assert!(
-        report.notices.iter().any(|n| n.contains("No Git repository")),
+        report
+            .notices
+            .iter()
+            .any(|n| n.contains("No Git repository")),
         "Expected notice about skipping git baseline comparison. Notices: {:?}",
         report.notices
     );
@@ -401,7 +429,11 @@ adr = "docs/adr/0010-test.md"
 max_lines = 2100
 "#;
     write_file(ws, "gauntlet.toml", toml);
-    write_file(ws, "docs/adr/0010-test.md", &make_adr_content("accepted", ""));
+    write_file(
+        ws,
+        "docs/adr/0010-test.md",
+        &make_adr_content("accepted", ""),
+    );
     write_file(ws, "src/big.rs", &"// line\n".repeat(500));
 
     let config = load_config(ws).expect("load config");

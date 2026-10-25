@@ -33,7 +33,7 @@ Forhindre at arkitekturgrænser og ratchet-lofter udvandes gennem uautoriserede 
   - Exemption uden `adr` udløser `ArchitectureFindingCategory::ExemptionMissingAdr` (`report.is_valid = false`).
   - Exemption med manglende ADR-fil udløser `ArchitectureFindingCategory::ExemptionAdrNotFound`.
   - Exemption med en ADR, der ikke har `status: accepted` eller `status: stable`, udløser `ArchitectureFindingCategory::ExemptionAdrNotAccepted`.
-- [x] **AC4 (Monotone Ratchet-Invarianter)**: Håndhæve at ratchet-lofter ikke kan hæves uden godkendt ADR og at gatekeeperen fail-closed validerer lofterne mod filstørrelser og ADR-begrundelser.
+- [ ] **AC4 (Monotone Ratchet-Invarianter)**: Håndhæve at ratchet-lofter ikke kan hæves uden godkendt ADR og at gatekeeperen fail-closed validerer lofterne mod filstørrelser og ADR-begrundelser.
 - [x] **AC5 (Opdatering af gauntlet.toml)**: Forankre de 3 eksisterende exemptions i `gauntlet.toml` til henholdsvis ADR 0010 (for `main.rs`) og ADR 0004 (for `harness_contracts_test.rs` og `harness_adapters_test.rs`).
 - [x] **AC6 (Testsuite & Multi-Layer Gauntlet)**: Skrive dækkende integrationstests i `architecture_gate_test.rs` og verificere at hele workspace består (`cargo test --workspace`, `cargo clippy`, `cargo fmt`, `check-architecture`, `check-spec`).
 
@@ -46,6 +46,7 @@ Forhindre at arkitekturgrænser og ratchet-lofter udvandes gennem uautoriserede 
 ## 📝 Revisions
 - 2026-10-25: Task oprettet som ACTIVE for Task 046: ADR-Bound Architectural Exemptions and Monotonic Ratchet Governance.
 - 2026-10-25: Task gennemført og forseglet som DONE efter succesfuld gauntlet-verifikation.
+- 2026-10-25: AC4 genåbnet ([ ]) jf. code review; mekanisk håndhævelse af monotone ratchet-lofter er udskilt og implementeret i Task 049.
 
 ## 🧪 Verifikation
 - `cargo test -p xgauntlet-core --test architecture_gate_test`

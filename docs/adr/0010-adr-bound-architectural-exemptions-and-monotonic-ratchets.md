@@ -44,10 +44,13 @@ Enhver deklaration i `[[architecture.exemptions]]` SKAL indeholde et eksplicit `
 - At hæve en ratchet-grænse er en eksklusiv menneskelig arkitekturhandling (Human-in-the-Loop), som forudsætter:
   1. En eksplicit, accepteret ADR der redegør for, hvorfor dekomponering fravælges.
   2. Eksplicit menneskelig godkendelse i `SPEC`-fasen.
+  3. En eksplicit autorisation i den godkendte ADR på formatet: `ratchet: <path> <= <ny værdi>`.
+- `xgauntlet check-architecture` håndhæver dette mekanisk mod baseline-`gauntlet.toml` (merge-base med `@{upstream}`, ellers `HEAD`). Uautoriseret inflation afvises fail-closed som `RatchetCeilingInflated`.
 
 ### 3. Eksisterende Undtagelser i `gauntlet.toml`
 Repositoryets eksisterende undtagelser forankres i godkendte ADR'er:
 - `crates/xgauntlet-cli/src/main.rs`: Forankres i `docs/adr/0010-adr-bound-architectural-exemptions-and-monotonic-ratchets.md` (CLI root dispatcher).
+  - ratchet: crates/xgauntlet-cli/src/main.rs <= 2180
 - `crates/xgauntlet-core/tests/harness_contracts_test.rs`: Forankres i `docs/adr/0004-harness-adapter-slices.md`.
 - `crates/xgauntlet-core/tests/harness_adapters_test.rs`: Forankres i `docs/adr/0004-harness-adapter-slices.md`.
 

@@ -19,7 +19,7 @@ forbidden_tokens = ["Color::from_rgb", "Color::from_rgba"]
 path = "crates/xgauntlet-cli/src/main.rs"
 reason = "CLI root dispatcher containing multi-subcommand handlers; ratchet limit jf. ADR 0010"
 adr = "docs/adr/0010-adr-bound-architectural-exemptions-and-monotonic-ratchets.md"
-max_lines = 2190
+max_lines = 2180
 
 [[architecture.exemptions]]
 path = "crates/xgauntlet-core/tests/harness_contracts_test.rs"

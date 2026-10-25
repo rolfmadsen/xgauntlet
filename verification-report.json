@@ -476,6 +476,14 @@
         "commit_oid": "df1eb13b31da35090f4123f0a917e24e3f1839d5",
         "timestamp": "2026-10-25T20:20:29Z",
         "digest": "5c828cffb4c7f6d14b5c7b341e54d356b61c9269d90cb7ef108dc121c5432341"
+      },
+      {
+        "session_nonce": "sess-76ff794c",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "76ff794ccec7604a45127d20b1c981ee461accc3",
+        "timestamp": "2026-10-25T20:21:37Z",
+        "digest": "d662e1e041615f44c1a6d9490414cde99b80b6b1ee07446b851136b97addc2a2"
       }
     ]
   },
@@ -1004,6 +1012,55 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_ratchet_enforcement_rejects_unauthorized_ceiling_inflation",
+      "failure_output": "Verified in RED checkpoint commit 76ff794",
+      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
+      "verified_at": "2026-10-25T21:21:37+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ratchet_enforcement_accepts_authorized_ceiling_inflation",
+      "failure_output": "Verified in RED checkpoint commit 76ff794",
+      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
+      "verified_at": "2026-10-25T21:21:37+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ratchet_enforcement_rejects_inflation_exceeding_authorized_limit",
+      "failure_output": "Verified in RED checkpoint commit 76ff794",
+      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
+      "verified_at": "2026-10-25T21:21:37+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ratchet_enforcement_allows_lowered_or_unchanged_ceilings",
+      "failure_output": "Verified in RED checkpoint commit 76ff794",
+      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
+      "verified_at": "2026-10-25T21:21:37+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ratchet_enforcement_allows_new_exemption_with_valid_adr",
+      "failure_output": "Verified in RED checkpoint commit 76ff794",
+      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
+      "verified_at": "2026-10-25T21:21:37+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ratchet_enforcement_skips_in_non_git_workspace_with_notice",
+      "failure_output": "Verified in RED checkpoint commit 76ff794",
+      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
+      "verified_at": "2026-10-25T21:21:37+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ratchet_enforcement_fails_closed_when_git_baseline_unreadable",
+      "failure_output": "Verified in RED checkpoint commit 76ff794",
+      "failure_digest": "b62800e1576998b64092a8b026fa6953ff0c5e971b2d60f9e3a3fe60baa334d5",
+      "verified_at": "2026-10-25T21:21:37+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }
