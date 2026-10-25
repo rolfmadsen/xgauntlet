@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 045: Multi-Session Lineage & Evidence Traceability"
 description: "Udvide Two-Tier Evidensmodellen med en kryptografisk, append-only Session Lineage Trail i verification-report.json og evidence.md"
-status: active
+status: done
 generated: { by: process:antigravity-task-init, at: "2026-10-25T11:25:00Z" }
 tags: [evidence, multi-session, lineage, traceability, two-tier-model, adr-0005, audit-trail]
 scope: ["crates/xgauntlet-core/src/features/evidence/**", "crates/xgauntlet-core/src/features/checkpoint/**", "crates/xgauntlet-core/src/features/gauntlet/**", "crates/xgauntlet-core/src/lib.rs", "crates/xgauntlet-cli/**"]
@@ -11,7 +11,7 @@ test_refs: ["crates/xgauntlet-core/tests/session_lineage_test.rs"]
 
 # Task 045: Multi-Session Lineage & Evidence Traceability
 
-**Status**: `ACTIVE`  
+**Status**: `DONE`  
 **Intent**: `🚀 NEW FEATURE`  
 **Oprettet**: `2026-10-25`  
 

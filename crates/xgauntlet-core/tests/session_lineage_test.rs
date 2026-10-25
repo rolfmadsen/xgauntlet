@@ -324,3 +324,36 @@ Test purpose
     assert_eq!(Some(&entry.commit_oid), res.commit_oid.as_ref());
     assert!(lineage.verify_integrity().is_ok());
 }
+
+#[tokio::test]
+async fn test_verify_preserves_existing_lineage() {
+    let temp = TempDir::new("verify_preserves_lineage");
+    let ws = temp.path();
+
+    let mut trail = SessionLineageTrail::new();
+    trail.append(
+        "nonce-123",
+        "System Architect",
+        "SPEC",
+        "commit111111111111111111111111111111111111",
+        None,
+    );
+    let mut initial_report = VerificationReport::new_local("045");
+    initial_report.lineage = Some(trail);
+    xgauntlet_core::features::evidence::save_verification_report(ws, &initial_report).unwrap();
+
+    let options = xgauntlet_core::GauntletOptions {
+        task_id: Some("045".to_string()),
+        save_evidence: true,
+        layers: Some(vec![]),
+    };
+
+    let outcome = xgauntlet_core::execute_gauntlet_pipeline(ws, &options)
+        .await
+        .unwrap();
+    assert!(outcome.report.lineage.is_some());
+    let reloaded = xgauntlet_core::features::evidence::load_verification_report(ws).unwrap();
+    let reloaded_trail = reloaded.lineage.expect("lineage preserved");
+    assert_eq!(reloaded_trail.len(), 1);
+    assert_eq!(reloaded_trail.entries[0].session_nonce, "nonce-123");
+}

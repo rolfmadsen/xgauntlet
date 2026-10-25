@@ -4,40 +4,40 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "044-session-health-turn-and-token-telemetry",
-    "task_title": "Task 044: Session Health, Turn & Token Telemetry",
-    "task_digest": "19ae55a5d27c5139c451ca37a1227345ba357832af598eedde4eb2f06a3b95ca",
+    "task_id": "045-multi-session-lineage-and-evidence-traceability",
+    "task_title": "Task 045: Multi-Session Lineage & Evidence Traceability",
+    "task_digest": "a3da09714ffc78784319570db8e921c39eb266de8bb7900305c3d65b6d9fadc7",
     "acceptance_criteria": [
-      "**AC1 (Session Health Datamodel)**:",
-      "**AC2 (Turn & Payload Tracking Engine)**:",
-      "**AC3 (Deterministisk Token & Payload Beregning)**:",
-      "**AC4 (Cockpit HUD & JIT Telemetri Integration)**:",
-      "**AC5 (CLI & Formateringsstøtte)**:",
+      "**AC1 (Session Lineage Datamodel)**:",
+      "**AC2 (Integration i Checkpoint Engine)**:",
+      "**AC3 (Tamper-Evident Hash Chaining)**:",
+      "**AC4 (Evidence Markdown Visualisering)**:",
+      "**AC5 (CLI Undersøgelse & Formatering)**:",
       "**AC6 (Testsuite & Verifikation)**:"
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "22e9e2a2d65c8de4676266d162949840a319b4d09e571f96ad3ab686f7c14c06",
-    "source_manifest_digest_pre": "59d43c030ddf30541b8258edda6ba6b51ccca1a353bcd3d47f2a52d803bb5636",
-    "source_manifest_digest_post": "59d43c030ddf30541b8258edda6ba6b51ccca1a353bcd3d47f2a52d803bb5636",
+    "source_content_digest": "1099e55963e687e16f189d221a4854a7401ae3dcbdd5ac7344b177b02ee5fdd7",
+    "source_manifest_digest_pre": "9cd24d685a0d439e06bc593c3ebc7e00d0f0b7a9e92d9027ef9f7142dc584694",
+    "source_manifest_digest_post": "9cd24d685a0d439e06bc593c3ebc7e00d0f0b7a9e92d9027ef9f7142dc584694",
     "config_digest": "3dadefc33d5cbb74aefe95edbf94c618be136c0434a9b2d02bb908c505bda8b9",
-    "task_digest": "19ae55a5d27c5139c451ca37a1227345ba357832af598eedde4eb2f06a3b95ca",
-    "policy_digest": "d66a98f7fb844a38e9d515a0f89aeab6bf85dfd9956ab525cd2c8fd1f462bf51",
+    "task_digest": "a3da09714ffc78784319570db8e921c39eb266de8bb7900305c3d65b6d9fadc7",
+    "policy_digest": "c9cc8ea8d74f3bad04d67d38493ae4e477d14531cc6a1426b78999722ca43f70",
     "check_definitions_digest": "138fd39199ca1ff02f1546e8f3128c38c38d368226e0aa141bacdcdbfe12d76b",
-    "included_files_count": 211,
+    "included_files_count": 213,
     "vcs": {
       "type": "git",
-      "head": "f620878",
-      "commit": "f620878",
+      "head": "0de064f",
+      "commit": "0de064f",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-10-25T11:42:25Z",
-    "finished_at": "2026-10-25T11:42:46Z",
-    "total_duration_seconds": 20.730641729,
+    "started_at": "2026-10-25T14:15:52Z",
+    "finished_at": "2026-10-25T14:16:13Z",
+    "total_duration_seconds": 20.785485034,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -50,16 +50,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.080742083,
+      "duration_seconds": 0.069082303,
       "optional": false,
       "passed": true,
-      "log_digest": "7dc5fbb595dd081ae5dbc9b69bc3daba0622845d64adac0faa641603eabff139"
+      "log_digest": "cf33a2843e7c61cc0d3a2bf4543a3edaff17b0bfee1c58d134c125ff62b4c46a"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.207289237,
+      "duration_seconds": 0.210199179,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -68,52 +68,52 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.133376609,
+      "duration_seconds": 0.106666699,
       "optional": false,
       "passed": true,
-      "log_digest": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
+      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.155223481,
+      "duration_seconds": 0.11567133,
       "optional": false,
       "passed": true,
-      "log_digest": "a41051563a4cb5fc1b1bcdd9aa0ba28ca80f7736d629d90cc138218756e8e3a9"
+      "log_digest": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 19.136495011,
+      "duration_seconds": 19.295326961,
       "optional": false,
       "passed": true,
-      "log_digest": "7aa25e8b0fff19b50edd89552c6a93d1c740311363eb14730041ac3617f8d0a4"
+      "log_digest": "f49f396caaea4df8e981ddf43205d4d72244fa845ac6d5999d776c32d57932ad"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.771849845,
+      "duration_seconds": 0.755452831,
       "optional": false,
       "passed": true,
-      "log_digest": "b9e920c483108af445cfccb017966b13fdda56cc0bf24e65b1d2d5ac214fac35"
+      "log_digest": "9fe9266160f2cb938ac2eac53f778f644d2367f2f6a50761aca9887080280b21"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.066804638,
+      "duration_seconds": 0.055766606,
       "optional": false,
       "passed": true,
-      "log_digest": "5b9cecd519a482ded1b197e8e04414b1dd6f99ca555bac896d8d3d22c242bd43"
+      "log_digest": "7d184fd5d971b758c7402ea8e4bcc75c7d2f7e37c39855bc52b739778d2d8444"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.011928632,
+      "duration_seconds": 0.011501135,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -134,12 +134,36 @@
   "lineage": {
     "entries": [
       {
+        "session_nonce": "sess-0e5ff17b",
+        "role": "System Architect",
+        "phase": "SPEC",
+        "commit_oid": "0e5ff17b8a17856d42721c97652ba00c685785c9",
+        "timestamp": "2026-10-25T14:51:15Z",
+        "digest": "340ac0aff5cfafadc433f9ad64acf492c84cdde9f8e78c43f00dcd30a6f483be"
+      },
+      {
+        "session_nonce": "sess-589985b0",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "589985b0be3f75ab1b93e46fd60bed4854c5714f",
+        "timestamp": "2026-10-25T15:00:27Z",
+        "digest": "20208d55a654fcae4d233554bbd36803954f0207f23c1b6edf6cb1dde32fee2c"
+      },
+      {
         "session_nonce": "sess-89220d3e",
         "role": "TDD Craftsman",
         "phase": "GREEN",
         "commit_oid": "89220d3e0388d48de96c48ebfe0ae7ebe64481e5",
-        "timestamp": "2026-10-25T14:05:09Z",
-        "digest": "221ea7ed78e7dfa5b770c4660ccfedaae00d3a30e3a59e5b4043c8b53768dd65"
+        "timestamp": "2026-10-25T15:05:09Z",
+        "digest": "2e576dd99e9e9aaacd85930b17d7e59f5b36e858af5f7b94c41ebff3aed8af5c"
+      },
+      {
+        "session_nonce": "sess-0de064f4",
+        "role": "TDD Craftsman",
+        "phase": "REFACTOR",
+        "commit_oid": "0de064f4c4d2a5654a12448a4cf495562eaf59ac",
+        "timestamp": "2026-10-25T15:06:38Z",
+        "digest": "1a92a23b35e707bb053c464eb7e0518ccd08cbad970758d535f5ec3389d03903"
       }
     ]
   }

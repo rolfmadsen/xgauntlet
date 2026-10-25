@@ -7,9 +7,9 @@ use thiserror::Error;
 use crate::features::config::{ConfigError, GauntletConfig};
 use crate::features::diagnostics::{DiagnosticFinding, DiagnosticParser, FindingType};
 use crate::features::evidence::{
-    compute_workspace_manifest, current_iso_utc, save_verification_report, verify_self_mutation,
-    CheckSummary, ExecutionMetadata, ManifestError, ReportError, TaskContractSummary,
-    VerificationReport, WorkspaceState,
+    compute_workspace_manifest, current_iso_utc, load_verification_report,
+    save_verification_report, verify_self_mutation, CheckSummary, ExecutionMetadata, ManifestError,
+    ReportError, TaskContractSummary, VerificationReport, WorkspaceState,
 };
 use crate::features::gauntlet::models::{GauntletReport, LayerDefinition, LayerRequirement};
 use crate::features::gauntlet::runner::run_gauntlet;
@@ -228,6 +228,10 @@ pub async fn execute_gauntlet_pipeline(
         ),
     };
 
+    let existing_lineage = load_verification_report(workspace)
+        .ok()
+        .and_then(|r| r.lineage);
+
     let report = VerificationReport {
         schema: "https://xgauntlet.dev/schemas/v2/verification-report.json".to_string(),
         schema_version: "2.0.0".to_string(),
@@ -244,7 +248,7 @@ pub async fn execute_gauntlet_pipeline(
         execution_metadata,
         checks,
         diagnostics: all_findings,
-        lineage: None,
+        lineage: existing_lineage,
     };
 
     // 12. Save Evidence Artifacts if requested
