@@ -5,9 +5,9 @@
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
 **Source Manifest Digest**: `a8b098518ad1c518d16ab4691267e89e85c7c736929d653b214a41b6f14f1894`  
-**Timestamp**: `2026-10-25T16:09:59Z`  
-**Head**: `2c9ed01`  
-**Commit**: `2c9ed01`  
+**Timestamp**: `2026-10-25T16:10:58Z`  
+**Head**: `1f4859a`  
+**Commit**: `1f4859a`  
 
 ## Acceptance Criteria
 
@@ -26,13 +26,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.076s` |
-| `format` | `PASSED` | `0` | `0.211s` |
-| `lint` | `PASSED` | `0` | `0.155s` |
-| `types` | `PASSED` | `0` | `0.101s` |
-| `unit` | `PASSED` | `0` | `19.115s` |
-| `npm` | `PASSED` | `0` | `0.764s` |
-| `invariants` | `PASSED` | `0` | `0.076s` |
+| `architecture` | `PASSED` | `0` | `0.066s` |
+| `format` | `PASSED` | `0` | `0.197s` |
+| `lint` | `PASSED` | `0` | `0.137s` |
+| `types` | `PASSED` | `0` | `0.218s` |
+| `unit` | `PASSED` | `0` | `19.323s` |
+| `npm` | `PASSED` | `0` | `0.813s` |
+| `invariants` | `PASSED` | `0` | `0.070s` |
 | `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---
