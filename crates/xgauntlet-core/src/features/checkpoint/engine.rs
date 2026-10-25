@@ -147,6 +147,42 @@ pub async fn run_checkpoint(
         None
     };
 
+    // Record SessionLineageEntry into verification report
+    let mut report = crate::features::evidence::load_verification_report(&options.workspace)
+        .unwrap_or_else(|_| crate::features::evidence::VerificationReport::new_local(&task_id));
+
+    let role = match options.phase {
+        super::models::CheckpointPhase::Spec => "System Architect",
+        super::models::CheckpointPhase::Red
+        | super::models::CheckpointPhase::Green
+        | super::models::CheckpointPhase::Refactor => "TDD Craftsman",
+        super::models::CheckpointPhase::Done => "Software Engineer",
+    };
+
+    let phase_str = match options.phase {
+        super::models::CheckpointPhase::Spec => "SPEC",
+        super::models::CheckpointPhase::Red => "RED",
+        super::models::CheckpointPhase::Green => "GREEN",
+        super::models::CheckpointPhase::Refactor => "REFACTOR",
+        super::models::CheckpointPhase::Done => "DONE",
+    };
+
+    let session_nonce = std::env::var("XGAUNTLET_SESSION_NONCE").unwrap_or_else(|_| {
+        let short_oid = if commit_oid.len() >= 8 {
+            &commit_oid[..8]
+        } else {
+            &commit_oid
+        };
+        format!("sess-{short_oid}")
+    });
+
+    let lineage = report
+        .lineage
+        .get_or_insert_with(crate::features::evidence::SessionLineageTrail::new);
+    lineage.append(session_nonce, role, phase_str, &commit_oid, None);
+
+    let _ = crate::features::evidence::save_verification_report(&options.workspace, &report);
+
     Ok(CheckpointResult {
         phase: options.phase,
         task_id,

@@ -514,7 +514,7 @@ fn probe_git(root: &Path) -> Option<VcsMetadata> {
     })
 }
 
-mod hex {
+pub(crate) mod hex {
     pub fn encode<T: AsRef<[u8]>>(data: T) -> String {
         let bytes = data.as_ref();
         let mut s = String::with_capacity(bytes.len() * 2);

@@ -5,7 +5,11 @@
 //! across isolated chat sessions.
 
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use thiserror::Error;
+
+use super::manifest::hex;
+use super::time::current_iso_utc;
 
 /// Genesis digest used as previous digest for the initial checkpoint in a lineage chain.
 pub const GENESIS_DIGEST: &str = "0000000000000000000000000000000000000000000000000000000000000000";
@@ -21,6 +25,36 @@ pub enum LineageError {
     },
     #[error("Invalid lineage entry: {0}")]
     InvalidEntry(String),
+}
+
+/// Computes a chained SHA-256 digest binding previous digest and current entry properties.
+pub fn compute_lineage_entry_digest(
+    prev_digest: &str,
+    session_nonce: &str,
+    role: &str,
+    phase: &str,
+    commit_oid: &str,
+    timestamp: &str,
+) -> String {
+    let payload = format!("{prev_digest}|{session_nonce}|{role}|{phase}|{commit_oid}|{timestamp}");
+    let mut hasher = Sha256::new();
+    hasher.update(payload.as_bytes());
+    hex::encode(hasher.finalize())
+}
+
+/// Generates a unique pseudo-random session nonce for an AI engineering session.
+pub fn generate_session_nonce() -> String {
+    use std::time::{SystemTime, UNIX_EPOCH};
+    let nanos = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_nanos();
+    let pid = std::process::id();
+    let payload = format!("xgauntlet-session-{nanos}-{pid}");
+    let mut hasher = Sha256::new();
+    hasher.update(payload.as_bytes());
+    let hex_str = hex::encode(hasher.finalize());
+    format!("sess-{}", &hex_str[..12])
 }
 
 /// A single immutable audit entry representing a recorded phase checkpoint.
@@ -57,19 +91,60 @@ impl SessionLineageTrail {
     /// Appends a new checkpoint entry to the trail with chained SHA-256 digest calculation.
     pub fn append(
         &mut self,
-        _session_nonce: impl Into<String>,
-        _role: impl Into<String>,
-        _phase: impl Into<String>,
-        _commit_oid: impl Into<String>,
-        _timestamp: Option<String>,
+        session_nonce: impl Into<String>,
+        role: impl Into<String>,
+        phase: impl Into<String>,
+        commit_oid: impl Into<String>,
+        timestamp: Option<String>,
     ) -> SessionLineageEntry {
-        // RED stub: implementation pending
-        panic!("RED: append not implemented yet");
+        let nonce = session_nonce.into();
+        let r = role.into();
+        let p = phase.into();
+        let oid = commit_oid.into();
+        let ts = timestamp.unwrap_or_else(current_iso_utc);
+
+        let prev_digest = self
+            .entries
+            .last()
+            .map(|e| e.digest.as_str())
+            .unwrap_or(GENESIS_DIGEST);
+
+        let digest = compute_lineage_entry_digest(prev_digest, &nonce, &r, &p, &oid, &ts);
+
+        let entry = SessionLineageEntry {
+            session_nonce: nonce,
+            role: r,
+            phase: p,
+            commit_oid: oid,
+            timestamp: ts,
+            digest,
+        };
+
+        self.entries.push(entry.clone());
+        entry
     }
 
     /// Verifies the cryptographic integrity of the entire lineage trail from Genesis to head.
     pub fn verify_integrity(&self) -> Result<(), LineageError> {
-        // RED stub: implementation pending
+        let mut prev_digest = GENESIS_DIGEST;
+        for (i, entry) in self.entries.iter().enumerate() {
+            let expected = compute_lineage_entry_digest(
+                prev_digest,
+                &entry.session_nonce,
+                &entry.role,
+                &entry.phase,
+                &entry.commit_oid,
+                &entry.timestamp,
+            );
+            if entry.digest != expected {
+                return Err(LineageError::TamperDetected {
+                    index: i,
+                    expected,
+                    actual: entry.digest.clone(),
+                });
+            }
+            prev_digest = &entry.digest;
+        }
         Ok(())
     }
 

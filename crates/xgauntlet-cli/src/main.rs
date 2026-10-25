@@ -307,6 +307,29 @@ enum Commands {
         #[command(subcommand)]
         command: TopologyCommands,
     },
+    /// Evidence examination and multi-session audit lineage trail
+    Evidence {
+        #[command(subcommand)]
+        command: EvidenceCommands,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+enum EvidenceCommands {
+    /// Inspect multi-session lineage trail and verify chained audit integrity
+    Lineage {
+        /// Specific task identifier to inspect (e.g. '045' or '045-multi-session-lineage')
+        #[arg(short, long, alias = "task-id")]
+        task: Option<String>,
+
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Output lineage trail in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
 }
 
 #[derive(Subcommand, Debug)]
@@ -1227,6 +1250,117 @@ async fn main() -> anyhow::Result<()> {
             }
         }
 
+        Some(Commands::Evidence { command }) => match command {
+            EvidenceCommands::Lineage {
+                task,
+                workspace,
+                json,
+            } => {
+                let canonical_ws = if workspace.is_absolute() {
+                    workspace.clone()
+                } else {
+                    std::env::current_dir()?.join(workspace)
+                };
+
+                let report = match xgauntlet_core::load_verification_report(&canonical_ws) {
+                    Ok(r) => r,
+                    Err(e) => {
+                        if *json {
+                            println!(
+                                "{}",
+                                serde_json::json!({
+                                    "status": "error",
+                                    "message": format!("Failed to load verification-report.json: {e}"),
+                                })
+                            );
+                        } else {
+                            eprintln!("🛑 Failed to load verification-report.json: {e}");
+                        }
+                        std::process::exit(1);
+                    }
+                };
+
+                let target_task = task.clone().unwrap_or_else(|| {
+                    if !report.task_contract.task_id.is_empty() {
+                        report.task_contract.task_id.clone()
+                    } else {
+                        "active".to_string()
+                    }
+                });
+
+                let lineage = match report.lineage {
+                    Some(ref l) => l,
+                    None => {
+                        if *json {
+                            println!(
+                                "{}",
+                                serde_json::json!({
+                                    "task_id": target_task,
+                                    "integrity": "EMPTY",
+                                    "entries": [],
+                                })
+                            );
+                        } else {
+                            println!("\n=== Multi-Session Lineage Trail ===");
+                            println!("Task ID:   `{target_task}`");
+                            println!("Status:    No lineage recorded yet.");
+                        }
+                        return Ok(());
+                    }
+                };
+
+                let integrity_res = lineage.verify_integrity();
+                let is_valid = integrity_res.is_ok();
+
+                if *json {
+                    println!(
+                        "{}",
+                        serde_json::json!({
+                            "task_id": target_task,
+                            "valid": is_valid,
+                            "integrity": if is_valid { "VALID" } else { "TAMPER_DETECTED" },
+                            "entries_count": lineage.len(),
+                            "entries": lineage.entries(),
+                        })
+                    );
+                } else {
+                    println!("\n=== Multi-Session Lineage Trail ===");
+                    println!("Task ID:   `{target_task}`");
+                    let status_badge = if is_valid {
+                        "🔒 VALID (Tamper-evident hash chain verified)"
+                    } else {
+                        "🛑 TAMPER DETECTED"
+                    };
+                    println!("Integrity: {status_badge}");
+                    println!("Entries:   {}\n", lineage.len());
+
+                    println!("| # | Session | Rolle | Fase | Commit | Tidsstempel | Status |");
+                    println!("|---|---|---|---|---|---|---|");
+                    for (i, entry) in lineage.entries().iter().enumerate() {
+                        let short_oid = if entry.commit_oid.len() >= 7 {
+                            &entry.commit_oid[..7]
+                        } else {
+                            &entry.commit_oid
+                        };
+                        println!(
+                            "| {} | `{}` | `{}` | `{}` | `{}` | `{}` | `VALID` |",
+                            i + 1,
+                            entry.session_nonce,
+                            entry.role,
+                            entry.phase,
+                            short_oid,
+                            entry.timestamp
+                        );
+                    }
+                    println!();
+                }
+
+                if !is_valid {
+                    std::process::exit(1);
+                }
+            }
+        },
+
         Some(Commands::Release { command }) => match command {
             ReleaseCommands::Bump {
                 increment,
@@ -1651,10 +1785,23 @@ fn run_check_evidence(workspace: &std::path::Path) -> anyhow::Result<CheckEviden
     let current_manifest = xgauntlet_core::compute_workspace_manifest(workspace, None)?;
     let match_result = xgauntlet_core::verify_workspace_state_match(&report, &current_manifest);
 
-    let (passed, findings) = match match_result {
+    let (mut passed, mut findings) = match match_result {
         Ok(()) => (true, Vec::new()),
         Err(drift) => (false, vec![drift.to_diagnostic_finding()]),
     };
+
+    if let Some(ref lineage) = report.lineage {
+        if let Err(e) = lineage.verify_integrity() {
+            passed = false;
+            findings.push(xgauntlet_core::DiagnosticFinding::new(
+                xgauntlet_core::FindingType::GeneralError,
+                "xgauntlet-check-evidence",
+                "verification-report.json",
+                format!("Session lineage integrity violation: {e}"),
+                "Tamper detected in multi-session lineage trail. Ensure lineage entries and SHA-256 hash chains have not been modified.",
+            ));
+        }
+    }
 
     Ok(CheckEvidenceOutput {
         passed,

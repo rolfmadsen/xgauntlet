@@ -167,6 +167,29 @@ pub fn generate_report_markdown(report: &VerificationReport, title: Option<&str>
         }
     }
 
+    if let Some(ref lineage) = report.lineage {
+        if !lineage.is_empty() {
+            lines.push(String::new());
+            lines.push("---".to_string());
+            lines.push(String::new());
+            lines.push("### 📜 Multi-Session Audit Lineage".to_string());
+            lines.push(String::new());
+            lines.push("| Session | Rolle | Fase | Commit | Tidsstempel | Status |".to_string());
+            lines.push("|---|---|---|---|---|---|".to_string());
+            for entry in lineage.entries() {
+                let short_oid = if entry.commit_oid.len() >= 7 {
+                    &entry.commit_oid[..7]
+                } else {
+                    &entry.commit_oid
+                };
+                lines.push(format!(
+                    "| `{}` | `{}` | `{}` | `{}` | `{}` | `VALID` |",
+                    entry.session_nonce, entry.role, entry.phase, short_oid, entry.timestamp
+                ));
+            }
+        }
+    }
+
     lines.push(String::new());
     lines.push("---".to_string());
     lines.push(String::new());

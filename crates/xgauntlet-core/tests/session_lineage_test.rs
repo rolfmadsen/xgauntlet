@@ -138,7 +138,8 @@ fn test_session_lineage_tamper_detection() {
 
     // Case A: Tamper with Genesis entry commit OID
     let mut tampered_trail_a = trail.clone();
-    tampered_trail_a.entries[0].commit_oid = "hacked111111111111111111111111111111111111".to_string();
+    tampered_trail_a.entries[0].commit_oid =
+        "hacked111111111111111111111111111111111111".to_string();
     let res_a = tampered_trail_a.verify_integrity();
     assert!(
         matches!(res_a, Err(LineageError::TamperDetected { index: 0, .. })),
@@ -156,7 +157,8 @@ fn test_session_lineage_tamper_detection() {
 
     // Case C: Tamper with entry digest
     let mut tampered_trail_c = trail.clone();
-    tampered_trail_c.entries[1].digest = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef".to_string();
+    tampered_trail_c.entries[1].digest =
+        "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef".to_string();
     let res_c = tampered_trail_c.verify_integrity();
     assert!(
         matches!(res_c, Err(LineageError::TamperDetected { .. })),
@@ -181,7 +183,8 @@ fn test_verification_report_backward_compatibility() {
         "diagnostics": []
     }"#;
 
-    let report: VerificationReport = load_report_json(legacy_json).expect("legacy report loads cleanly");
+    let report: VerificationReport =
+        load_report_json(legacy_json).expect("legacy report loads cleanly");
     assert!(report.lineage.is_none());
 
     // Serialization with lineage should include lineage field
@@ -240,11 +243,15 @@ fn test_evidence_markdown_renders_lineage_table() {
         markdown
     );
     assert!(
-        markdown.contains("`sess-alpha`") && markdown.contains("`System Architect`") && markdown.contains("`SPEC`"),
+        markdown.contains("`sess-alpha`")
+            && markdown.contains("`System Architect`")
+            && markdown.contains("`SPEC`"),
         "expected first entry in markdown table"
     );
     assert!(
-        markdown.contains("`sess-beta`") && markdown.contains("`TDD Craftsman`") && markdown.contains("`RED`"),
+        markdown.contains("`sess-beta`")
+            && markdown.contains("`TDD Craftsman`")
+            && markdown.contains("`RED`"),
         "expected second entry in markdown table"
     );
 }
