@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 049: Mechanical Monotonic Ratchet Enforcement"
 description: "Implementere den manglende AC4 fra Task 046: mekanisk afvisning af hævede ratchet-lofter uden eksplicit ADR-dækning, og rulle inflationen tilbage"
-status: todo
+status: active
 generated: { by: process:antigravity-task-init, at: "2026-10-25T19:17:00Z" }
 tags: [architecture, ratchet, adr, governance, fail-closed, adr-0010]
 scope:
@@ -17,7 +17,7 @@ test_refs:
 
 # Task 049: Mechanical Monotonic Ratchet Enforcement
 
-**Status**: `TODO`
+**Status**: `ACTIVE`
 **Intent**: `🐛 BUG FIX`
 **Oprettet**: `2026-10-25`
 
