@@ -177,6 +177,12 @@ pub struct CheckpointResult {
     /// Pre-rendered session handoff card (populated upon Done phase).
     #[serde(default)]
     pub handoff: Option<SessionHandoff>,
+    /// Optional next phase recommendation (e.g. "green" after RED).
+    #[serde(default)]
+    pub next_phase: Option<String>,
+    /// Whether this phase triggers an autonomous transition without turn pauses.
+    #[serde(default)]
+    pub autonomous_transition: bool,
 }
 
 /// Deterministic Session Handoff metadata and pre-rendered presentation card.

@@ -209,5 +209,7 @@ pub async fn run_checkpoint(
         preflight_passed: !options.skip_verify,
         details: None,
         handoff,
+        next_phase: None,
+        autonomous_transition: false,
     })
 }
