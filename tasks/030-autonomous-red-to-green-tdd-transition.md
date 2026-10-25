@@ -2,14 +2,16 @@
 type: Task Package
 title: "Task 030: Autonomous RED to GREEN TDD Phase Transition"
 description: "Eliminere overflødig human-in-the-loop gate mellem RED og GREEN faserne ved verificeret fejlet test og etablere en autonom indre TDD-løkke"
-status: todo
+status: active
 generated: { by: process:xgauntlet-task-init, at: "2026-09-19T13:45:00Z" }
 tags: [task-lifecycle, tdd, checkpoint, autonomy, preflight, jit, human-in-the-loop, adr-0003]
+scope: ["crates/xgauntlet-core/src/features/**", "crates/xgauntlet-cli/**", ".agents/**", "docs/adr/**", "evidence.md", "verification-report.json"]
+test_refs: ["crates/xgauntlet-core/tests/checkpoint_engine_test.rs"]
 ---
 
 # Task 030: Autonomous RED to GREEN TDD Phase Transition
 
-**Status**: `TODO`  
+**Status**: `ACTIVE`  
 **Intent**: `🚀 NEW FEATURE`  
 **Oprettet**: `2026-09-19`  
 
@@ -50,11 +52,11 @@ Vi etablerer en skarp sondring mellem to typer faser:
     - Ved fuldført `--phase red` udskriver terminalen et klart direktiv:
       `⚡ [AUTONOMOUS TDD] RED checkpoint established. Preflight confirmed test failure. Do NOT pause for user approval. Proceed immediately to GREEN phase.`
     - I `--json` output medtages `next_phase` og `autonomous_transition`.
-- [ ] **AC4 (Skill Refactoring i `old-coder`)**:
-  - Opdatere `plugins/xgauntlet/skills/old-coder/SKILL.md` (og den indlejrede template i `plugin/models.rs`):
+- [ ] **AC4 (Skill Refactoring i `tdd`)**:
+  - Opdatere `.agents/plugins/xgauntlet/skills/tdd/SKILL.md`:
     - Dokumentere "Autonomous TDD Inner Loop" princippet: Hvorfor overgang fra RED til GREEN sker i én sammenhængende eksekvering uden turn-pauser.
-- [ ] **AC5 (ADR 0008 Formulering)**:
-  - Oprette `docs/adr/0008-autonomous-tdd-inner-loop-and-boundary-human-gates.md` og registrere den i `docs/adr/README.md`.
+- [ ] **AC5 (ADR 0009 Formulering)**:
+  - Oprette `docs/adr/0009-autonomous-tdd-inner-loop-and-boundary-human-gates.md` og registrere den i `docs/adr/README.md`.
 - [ ] **AC6 (Testsuite & Verifikation)**:
   - Tilføje tests i `crates/xgauntlet-core/tests/checkpoint_engine_test.rs`, der verificerer at `CheckpointResult` for `--phase red` returnerer `autonomous_transition: true` og `next_phase: Some("green")`.
   - Verificere at `xgauntlet check-spec -t 030-autonomous-red-to-green-tdd-transition` validerer med 0 fejl.
