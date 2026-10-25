@@ -4,40 +4,42 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "045-multi-session-lineage-and-evidence-traceability",
-    "task_title": "Task 045: Multi-Session Lineage & Evidence Traceability",
-    "task_digest": "a3da09714ffc78784319570db8e921c39eb266de8bb7900305c3d65b6d9fadc7",
+    "task_id": "032-enforce-red-first-test-provenance-and-born-green-detection",
+    "task_title": "Task 032: Enforce RED-First Test Provenance & Born-Green Detection",
+    "task_digest": "9d1bb571983606a935c92fc52e68d404a3e44a520cd167845da6787e3d372649",
     "acceptance_criteria": [
-      "**AC1 (Session Lineage Datamodel)**:",
-      "**AC2 (Integration i Checkpoint Engine)**:",
-      "**AC3 (Tamper-Evident Hash Chaining)**:",
-      "**AC4 (Evidence Markdown Visualisering)**:",
-      "**AC5 (CLI Undersøgelse & Formatering)**:",
-      "**AC6 (Testsuite & Verifikation)**:"
+      "**AC1 (Test Identifier Extraction Engine)**:",
+      "**AC2 (Git Diff Provenance Inspector)**:",
+      "**AC3 (Inverse Preflight Engine)**:",
+      "**AC4 (Checkpoint Preflight Integration i `preflight.rs`)**:",
+      "**AC5 (Deklarativ Konfiguration & CLI Styring)**:",
+      "**AC6 (Evidens & Manifest Attestation)**:",
+      "**AC7 (Retningslinjer & AI Harness Vejledning)**:",
+      "**AC8 (Testsuite & Verifikation)**:"
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "1099e55963e687e16f189d221a4854a7401ae3dcbdd5ac7344b177b02ee5fdd7",
-    "source_manifest_digest_pre": "9cd24d685a0d439e06bc593c3ebc7e00d0f0b7a9e92d9027ef9f7142dc584694",
-    "source_manifest_digest_post": "9cd24d685a0d439e06bc593c3ebc7e00d0f0b7a9e92d9027ef9f7142dc584694",
+    "source_content_digest": "59a8eb742a04db634e0e89ceab25e0b5e350292078b567d93804822ea8d89e26",
+    "source_manifest_digest_pre": "c2134c38ecaebd4f46cd577df948dda6ea5aa7b948edacb8b8b717641173cb8c",
+    "source_manifest_digest_post": "c2134c38ecaebd4f46cd577df948dda6ea5aa7b948edacb8b8b717641173cb8c",
     "config_digest": "3dadefc33d5cbb74aefe95edbf94c618be136c0434a9b2d02bb908c505bda8b9",
-    "task_digest": "a3da09714ffc78784319570db8e921c39eb266de8bb7900305c3d65b6d9fadc7",
-    "policy_digest": "c9cc8ea8d74f3bad04d67d38493ae4e477d14531cc6a1426b78999722ca43f70",
+    "task_digest": "9d1bb571983606a935c92fc52e68d404a3e44a520cd167845da6787e3d372649",
+    "policy_digest": "c06847ec9fabc3240297a90850c1c29c680d5124c26661410ccfd1252f003b8b",
     "check_definitions_digest": "138fd39199ca1ff02f1546e8f3128c38c38d368226e0aa141bacdcdbfe12d76b",
-    "included_files_count": 213,
+    "included_files_count": 215,
     "vcs": {
       "type": "git",
-      "head": "0de064f",
-      "commit": "0de064f",
+      "head": "58ba84b",
+      "commit": "58ba84b",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-10-25T14:15:52Z",
-    "finished_at": "2026-10-25T14:16:13Z",
-    "total_duration_seconds": 20.785485034,
+    "started_at": "2026-10-25T15:11:55Z",
+    "finished_at": "2026-10-25T15:12:16Z",
+    "total_duration_seconds": 20.697224836,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -50,16 +52,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.069082303,
+      "duration_seconds": 0.074432962,
       "optional": false,
       "passed": true,
-      "log_digest": "cf33a2843e7c61cc0d3a2bf4543a3edaff17b0bfee1c58d134c125ff62b4c46a"
+      "log_digest": "62c71afdf436478840617c4467f1b12952d97a3144eab305cfe87e9f0a49deb3"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.210199179,
+      "duration_seconds": 0.189825348,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -68,52 +70,52 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.106666699,
+      "duration_seconds": 0.154805551,
       "optional": false,
       "passed": true,
-      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
+      "log_digest": "22e0df986057b9ba5be07526ac5fb348862a3dedef42108383cc3e088acbb889"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.11567133,
+      "duration_seconds": 0.100643926,
       "optional": false,
       "passed": true,
-      "log_digest": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
+      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 19.295326961,
+      "duration_seconds": 19.15033942,
       "optional": false,
       "passed": true,
-      "log_digest": "f49f396caaea4df8e981ddf43205d4d72244fa845ac6d5999d776c32d57932ad"
+      "log_digest": "891be6399074b9bf49d82252a40ac2785ec8030ad05b62b94cf2402c3070e23e"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.755452831,
+      "duration_seconds": 0.779343123,
       "optional": false,
       "passed": true,
-      "log_digest": "9fe9266160f2cb938ac2eac53f778f644d2367f2f6a50761aca9887080280b21"
+      "log_digest": "731204871950aa929971fb605bfc518862a320a0eabc72f77ca90243c4a8c2ec"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.055766606,
+      "duration_seconds": 0.071993431,
       "optional": false,
       "passed": true,
-      "log_digest": "7d184fd5d971b758c7402ea8e4bcc75c7d2f7e37c39855bc52b739778d2d8444"
+      "log_digest": "48d0e0b4908afcf279995a417e5e753cfc285447384d77a33d06ad83001f2dc8"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.011501135,
+      "duration_seconds": 0.008011116,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -196,17 +198,26 @@
         "commit_oid": "7793d1b75659f9f7b3d12fac047036b388873261",
         "timestamp": "2026-10-25T15:08:20Z",
         "digest": "73b9c969fe693721e2d5a76f04f3bfe26a0072a2096f653c778fbe2762a7cb55"
+      },
+      {
+        "session_nonce": "sess-58ba84b2",
+        "role": "TDD Craftsman",
+        "phase": "REFACTOR",
+        "commit_oid": "58ba84b2ecc69f7bc5807791b4177f18ae0e49e3",
+        "timestamp": "2026-10-25T15:08:57Z",
+        "digest": "12b4bac8f5369de12bc5f7f2f6f6ed92e666264e83a741e397fe0978b901cdaa"
+      },
+      {
+        "session_nonce": "sess-cfddffd7",
+        "role": "Software Engineer",
+        "phase": "DONE",
+        "commit_oid": "cfddffd711f0686eabfca41f84f63376203f5ba1",
+        "timestamp": "2026-10-25T15:12:16Z",
+        "digest": "82afc6a2bbabe2f8199fef0e8764154d23b80b8874e0443ad2973ca866f8634f"
       }
     ]
   },
   "test_provenance": [
-    {
-      "test_identifier": "test_collect_task_test_provenance_and_verification_report",
-      "failure_output": "Compiling xgauntlet-core v0.8.5 (/home/rolfmadsen/Github/xgauntlet/crates/xgauntlet-core)\n   Compiling xgauntlet-cli v0.8.5 (/home/rolfmadsen/Github/xgauntlet/crates/xgauntlet-cli)\nerror[E0432]: unresolved import `xgauntlet_core::features::checkpoint::provenance`\n  --> crates/xgauntlet-core/tests/provenance_engine_test.rs:12:43\n   |\n12 | use xgauntlet_core::features::checkpoint::provenance::{\n   |                                           ^^^^^^^^^^ could not find `provenance` in `checkpoint`\n\nerror[E0433]: cannot find `provenance` in `checkpoint`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:393:47\n    |\n393 | ...point::provenance::collect_task_test_provenance(ws, \"032\")\n    |           ^^^^^^^^^^ could not find `provenance` in `checkpoint`\n\nerror[E0599]: no variant named `TautologicalTestDetected` found for enum `CheckpointError`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:255:30\n    |\n255 |         Err(CheckpointError::TautologicalTestDetected { test_name }) => {\n    |                              ^^^^^^^^^^^^^^^^^^^^^^^^ variant not found in `CheckpointError`\n\nerror[E0599]: no method named `with_strict_provenance` found for struct `CheckpointOptions` in the current scope\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:364:10\n    |\n362 |       let opts = CheckpointOptions::new(CheckpointPhase::Green, ws)\n    |  ________________-\n363 | |         .with_task_id(\"032-test-provenance\")\n364 | |         .with_strict_provenance(true);\n    | |         -^^^^^^^^^^^^^^^^^^^^^^ method not found in `CheckpointOptions`\n    | |_________|\n    |\n\nerror[E0599]: no variant named `BornGreenTestDetected` found for enum `CheckpointError`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:368:30\n    |\n368 |         Err(CheckpointError::BornGreenTestDetected { tests }) => {\n    |                              ^^^^^^^^^^^^^^^^^^^^^ variant not found in `CheckpointError`\n\nerror[E0609]: no field `test_provenance` on type `VerificationReport`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:402:12\n    |\n402 |     report.test_provenance = Some(prov);\n    |            ^^^^^^^^^^^^^^^ unknown field\n    |\n    = note: available fields are: `schema`, `schema_version`, `execution_origin`, `verdict`, `task_contract` ... and 5 others\n\nSome errors have detailed explanations: E0432, E0433, E0599, E0609.\nFor more information about an error, try `rustc --explain E0432`.\nerror: could not compile `xgauntlet-core` (test \"provenance_engine_test\") due to 6 previous errors\nwarning: build failed, waiting for other jobs to finish...",
-      "failure_digest": "c46f890b2d9b738e1dd1748557166cf54f55ea9b0ef9c0d7177ea0a78f96365f",
-      "verified_at": "2026-10-25T15:07:56Z",
-      "status": "inverse_preflight_verified"
-    },
     {
       "test_identifier": "test_extract_test_identifiers_polyglot",
       "failure_output": "Verified in RED checkpoint commit c1b2b2d",
@@ -276,6 +287,13 @@
       "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
       "verified_at": "2026-10-25T15:50:03+01:00",
       "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_collect_task_test_provenance_and_verification_report",
+      "failure_output": "Compiling xgauntlet-core v0.8.5 (/home/rolfmadsen/Github/xgauntlet/crates/xgauntlet-core)\n   Compiling xgauntlet-cli v0.8.5 (/home/rolfmadsen/Github/xgauntlet/crates/xgauntlet-cli)\nerror[E0432]: unresolved import `xgauntlet_core::features::checkpoint::provenance`\n  --> crates/xgauntlet-core/tests/provenance_engine_test.rs:12:43\n   |\n12 | use xgauntlet_core::features::checkpoint::provenance::{\n   |                                           ^^^^^^^^^^ could not find `provenance` in `checkpoint`\n\nerror[E0433]: cannot find `provenance` in `checkpoint`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:393:47\n    |\n393 | ...point::provenance::collect_task_test_provenance(ws, \"032\")\n    |           ^^^^^^^^^^ could not find `provenance` in `checkpoint`\n\nerror[E0599]: no variant named `TautologicalTestDetected` found for enum `CheckpointError`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:255:30\n    |\n255 |         Err(CheckpointError::TautologicalTestDetected { test_name }) => {\n    |                              ^^^^^^^^^^^^^^^^^^^^^^^^ variant not found in `CheckpointError`\n\nerror[E0599]: no method named `with_strict_provenance` found for struct `CheckpointOptions` in the current scope\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:364:10\n    |\n362 |       let opts = CheckpointOptions::new(CheckpointPhase::Green, ws)\n    |  ________________-\n363 | |         .with_task_id(\"032-test-provenance\")\n364 | |         .with_strict_provenance(true);\n    | |         -^^^^^^^^^^^^^^^^^^^^^^ method not found in `CheckpointOptions`\n    | |_________|\n    |\n\nerror[E0599]: no variant named `BornGreenTestDetected` found for enum `CheckpointError`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:368:30\n    |\n368 |         Err(CheckpointError::BornGreenTestDetected { tests }) => {\n    |                              ^^^^^^^^^^^^^^^^^^^^^ variant not found in `CheckpointError`\n\nerror[E0609]: no field `test_provenance` on type `VerificationReport`\n   --> crates/xgauntlet-core/tests/provenance_engine_test.rs:402:12\n    |\n402 |     report.test_provenance = Some(prov);\n    |            ^^^^^^^^^^^^^^^ unknown field\n    |\n    = note: available fields are: `schema`, `schema_version`, `execution_origin`, `verdict`, `task_contract` ... and 5 others\n\nSome errors have detailed explanations: E0432, E0433, E0599, E0609.\nFor more information about an error, try `rustc --explain E0432`.\nerror: could not compile `xgauntlet-core` (test \"provenance_engine_test\") due to 6 previous errors\nwarning: build failed, waiting for other jobs to finish...",
+      "failure_digest": "c46f890b2d9b738e1dd1748557166cf54f55ea9b0ef9c0d7177ea0a78f96365f",
+      "verified_at": "2026-10-25T15:07:56Z",
+      "status": "inverse_preflight_verified"
     }
   ]
 }

@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 032: Enforce RED-First Test Provenance & Born-Green Detection"
 description: "Håndhæve test-proveniens og forhindre 'født grønne' tests ved at detektere tests tilføjet under eller efter GREEN fasen uden forudgående bevis for rød fejl"
-status: active
+status: done
 generated: { by: process:xgauntlet-task-init, at: "2026-10-06T22:30:00Z" }
 tags: [task-lifecycle, tdd, checkpoint, test-provenance, born-green, epistemic-integrity, gatekeeper, preflight, adr-0003]
 scope: ["crates/xgauntlet-core/src/features/**", "crates/xgauntlet-cli/**", "evidence.md", "verification-report.json"]
@@ -11,7 +11,7 @@ test_refs: ["crates/xgauntlet-core/tests/provenance_engine_test.rs"]
 
 # Task 032: Enforce RED-First Test Provenance & Born-Green Detection
 
-**Status**: `ACTIVE`  
+**Status**: `DONE`  
 **Intent**: `🚀 NEW FEATURE`  
 **Oprettet**: `2026-10-06`  
 
@@ -86,40 +86,40 @@ For at undgå unødig friktion, hvis en udvikler eller agent reelt opdager et ma
 ---
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Test Identifier Extraction Engine)**:
+- [x] **AC1 (Test Identifier Extraction Engine)**:
   - Oprette modulet `crates/xgauntlet-core/src/features/checkpoint/provenance.rs`.
   - Implementere `extract_test_identifiers(file_path: &Path, content: &str) -> Vec<String>` der udtrækker test-navne baseret på stakkens konfiguration (Rust `#[test]` / `#[tokio::test]`, TypeScript/JavaScript `test(` / `it(`, Python `def test_`, Go `func Test`).
-- [ ] **AC2 (Git Diff Provenance Inspector)**:
+- [x] **AC2 (Git Diff Provenance Inspector)**:
   - Implementere `detect_born_green_tests(workspace: &Path, base_commit_oid: &str) -> Result<Vec<String>, CheckpointError>`:
     - Sammenligner test-definitioner mellem `base_commit_oid` og det nuværende arbejdsindeks.
     - Returnerer listen af nyopståede test-identifikatorer, som ikke eksisterede i base commit.
-- [ ] **AC3 (Inverse Preflight Engine)**:
+- [x] **AC3 (Inverse Preflight Engine)**:
   - Implementere `verify_inverse_test_failure(workspace: &Path, test_identifiers: &[String]) -> Result<TestProvenanceEvidence, CheckpointError>`:
     - Opretter en midlertidig, ikke-destruktiv baseline ved at deaktivere produktionstræets diff (f.eks. via Git tree isolation eller in-memory patch reversal).
     - Eksekverer det relevante testlag mod baseline for at bekræfte, at de angivne tests fejler.
     - Validerer at testen fejler med en legitim assertion- eller syntaksfejl relateret til den manglende adfærd.
     - Genopretter produktionstræet og verificerer, at testene passerer grønt.
     - Returnerer `TestProvenanceEvidence` med baseline stderr/stdout som bevis.
-- [ ] **AC4 (Checkpoint Preflight Integration i `preflight.rs`)**:
+- [x] **AC4 (Checkpoint Preflight Integration i `preflight.rs`)**:
   - Opdatere `run_preflight_check` for `CheckpointPhase::Green` og `CheckpointPhase::Refactor`:
     - Finder det forudgående RED checkpoint commit OID.
     - Kører proveniens-inspektion på arbejdsgrenen.
     - Hvis born-green tests detekteres: Kører automatisk `verify_inverse_test_failure` (eller fejler hårdt hvis strict mode kræver forudgående RED commit).
     - Afviser checkpointet med `CheckpointError::TautologicalTestDetected`, hvis testen passerede mod baseline uden produktionsændringer.
-- [ ] **AC5 (Deklarativ Konfiguration & CLI Styring)**:
+- [x] **AC5 (Deklarativ Konfiguration & CLI Styring)**:
   - Udvide `GauntletConfig` i `features/config/models.rs` med `checkpoint.enforce_provenance: bool` (default: `true`).
   - Udvide `CheckpointOptions` med:
     - `strict_provenance: bool` (kræver at tests SKAL være committet i RED; ingen in-flight tilføjelser).
     - `allow_born_green: bool` (nød-tilsidesættelse til legacy kodebaser).
   - Udvide `xgauntlet checkpoint` CLI subkommandoen med flagene `--strict-provenance` og `--allow-born-green`.
-- [ ] **AC6 (Evidens & Manifest Attestation)**:
+- [x] **AC6 (Evidens & Manifest Attestation)**:
   - Udvide `verification-report.json` og `manifest.rs` med sektionen `test_provenance`:
     - Lister alle verificerede tests med deres proveniensstatus (`RedCheckpointVerified` vs `InversePreflightVerified`).
     - Inkluderer baseline failure digest for enhver test verificeret via inverse preflight.
-- [ ] **AC7 (Retningslinjer & AI Harness Vejledning)**:
+- [x] **AC7 (Retningslinjer & AI Harness Vejledning)**:
   - Opdatere template for `.agents/AGENTS.md` og suveræn `tdd` skill med explicit vejledning:
     - *Regel*: "Nye tests må ALDRIG fødes grønne. Hvis et nyt kriterie eller kant-case opdages under GREEN, skal testen bevises rød via en ny RED-cyklus eller verificeres via xGauntlets inverse preflight."
-- [ ] **AC8 (Testsuite & Verifikation)**:
+- [x] **AC8 (Testsuite & Verifikation)**:
   - Tilføje tests i `crates/xgauntlet-core/tests/provenance_engine_test.rs`, der verificerer:
     - Detektering af ny test i diff mellem commits.
     - Afvisning af en tautologisk test, der passerer både før og efter produktionskode.

@@ -1,22 +1,24 @@
 # Verification Report
 
-**Task ID**: `045-multi-session-lineage-and-evidence-traceability`  
-**Task Title**: Task 045: Multi-Session Lineage & Evidence Traceability  
+**Task ID**: `032-enforce-red-first-test-provenance-and-born-green-detection`  
+**Task Title**: Task 032: Enforce RED-First Test Provenance & Born-Green Detection  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `9cd24d685a0d439e06bc593c3ebc7e00d0f0b7a9e92d9027ef9f7142dc584694`  
-**Timestamp**: `2026-10-25T14:16:13Z`  
-**Head**: `0de064f`  
-**Commit**: `0de064f`  
+**Source Manifest Digest**: `c2134c38ecaebd4f46cd577df948dda6ea5aa7b948edacb8b8b717641173cb8c`  
+**Timestamp**: `2026-10-25T15:12:16Z`  
+**Head**: `58ba84b`  
+**Commit**: `58ba84b`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (Session Lineage Datamodel)**:
-- [x] **AC2 (Integration i Checkpoint Engine)**:
-- [x] **AC3 (Tamper-Evident Hash Chaining)**:
-- [x] **AC4 (Evidence Markdown Visualisering)**:
-- [x] **AC5 (CLI Undersøgelse & Formatering)**:
-- [x] **AC6 (Testsuite & Verifikation)**:
+- [x] **AC1 (Test Identifier Extraction Engine)**:
+- [x] **AC2 (Git Diff Provenance Inspector)**:
+- [x] **AC3 (Inverse Preflight Engine)**:
+- [x] **AC4 (Checkpoint Preflight Integration i `preflight.rs`)**:
+- [x] **AC5 (Deklarativ Konfiguration & CLI Styring)**:
+- [x] **AC6 (Evidens & Manifest Attestation)**:
+- [x] **AC7 (Retningslinjer & AI Harness Vejledning)**:
+- [x] **AC8 (Testsuite & Verifikation)**:
 
 ---
 
@@ -24,14 +26,14 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.069s` |
-| `format` | `PASSED` | `0` | `0.210s` |
-| `lint` | `PASSED` | `0` | `0.107s` |
-| `types` | `PASSED` | `0` | `0.116s` |
-| `unit` | `PASSED` | `0` | `19.295s` |
-| `npm` | `PASSED` | `0` | `0.755s` |
-| `invariants` | `PASSED` | `0` | `0.056s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
+| `architecture` | `PASSED` | `0` | `0.074s` |
+| `format` | `PASSED` | `0` | `0.190s` |
+| `lint` | `PASSED` | `0` | `0.155s` |
+| `types` | `PASSED` | `0` | `0.101s` |
+| `unit` | `PASSED` | `0` | `19.150s` |
+| `npm` | `PASSED` | `0` | `0.779s` |
+| `invariants` | `PASSED` | `0` | `0.072s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.008s` |
 
 ---
 
@@ -47,6 +49,8 @@
 | `sess-4a8a2566` | `System Architect` | `SPEC` | `4a8a256` | `2026-10-25T14:43:26Z` | `VALID` |
 | `sess-4a8a2566` | `TDD Craftsman` | `RED` | `c1b2b2d` | `2026-10-25T14:50:03Z` | `VALID` |
 | `sess-7793d1b7` | `TDD Craftsman` | `GREEN` | `7793d1b` | `2026-10-25T15:08:20Z` | `VALID` |
+| `sess-58ba84b2` | `TDD Craftsman` | `REFACTOR` | `58ba84b` | `2026-10-25T15:08:57Z` | `VALID` |
+| `sess-cfddffd7` | `Software Engineer` | `DONE` | `cfddffd` | `2026-10-25T15:12:16Z` | `VALID` |
 
 ---
 
@@ -54,7 +58,6 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
-| `test_collect_task_test_provenance_and_verification_report` | `InversePreflightVerified` | `c46f890b2d9b738e...` | `2026-10-25T15:07:56Z` |
 | `test_extract_test_identifiers_polyglot` | `RedCheckpointVerified` | `b02ab9f2e3aea63d...` | `2026-10-25T15:50:03+01:00` |
 | `test_synchronous_case` | `RedCheckpointVerified` | `b02ab9f2e3aea63d...` | `2026-10-25T15:50:03+01:00` |
 | `test_asynchronous_worker` | `RedCheckpointVerified` | `b02ab9f2e3aea63d...` | `2026-10-25T15:50:03+01:00` |
@@ -65,5 +68,6 @@
 | `test_inverse_preflight_detects_tautological_test` | `RedCheckpointVerified` | `b02ab9f2e3aea63d...` | `2026-10-25T15:50:03+01:00` |
 | `test_inverse_preflight_verifies_legitimate_test` | `RedCheckpointVerified` | `b02ab9f2e3aea63d...` | `2026-10-25T15:50:03+01:00` |
 | `test_checkpoint_green_fails_closed_on_born_green_with_strict_provenance` | `RedCheckpointVerified` | `b02ab9f2e3aea63d...` | `2026-10-25T15:50:03+01:00` |
+| `test_collect_task_test_provenance_and_verification_report` | `InversePreflightVerified` | `c46f890b2d9b738e...` | `2026-10-25T15:07:56Z` |
 
 ---

@@ -249,35 +249,27 @@ enum Commands {
         /// TDD phase for this checkpoint: spec, red, green, refactor, done
         #[arg(short, long)]
         phase: String,
-
         /// Explicit task identifier (e.g. '015' or '015-security-and-policy-boundary-hardening')
         #[arg(short, long)]
         task: Option<String>,
-
         /// Commit message (conventional prefix will be formatted automatically if omitted)
         #[arg(short, long)]
         message: Option<String>,
-
         /// Path to repository workspace root
         #[arg(short, long, default_value = ".")]
         workspace: std::path::PathBuf,
-
         /// Skip phase pre-flight verification checks (emergency override)
         #[arg(long)]
         skip_verify: bool,
-
         /// Output checkpoint result in structured JSON format
         #[arg(long)]
         json: bool,
-
         /// Strictly enforce that tests must be committed in RED phase; reject in-flight test additions
         #[arg(long)]
         strict_provenance: bool,
-
         /// Allow born-green tests to pass without inverse preflight verification (emergency override)
         #[arg(long)]
         allow_born_green: bool,
-
         /// Target harness format for wrapping response (e.g. 'codex', 'antigravity', 'claude_code', 'mistral')
         #[arg(long)]
         harness: Option<String>,
@@ -287,15 +279,12 @@ enum Commands {
         /// Explicit task identifier (e.g. '035' or '035-mechanical-session-handoff-and-release-engine')
         #[arg(short, long, alias = "task-id")]
         task: Option<String>,
-
         /// Inferred next engineering role (e.g. 'Architect', 'Software Engineer', 'QA')
         #[arg(short, long)]
         role: Option<String>,
-
         /// Path to repository workspace root
         #[arg(short, long, default_value = ".")]
         workspace: std::path::PathBuf,
-
         /// Output handoff card in structured JSON format
         #[arg(long)]
         json: bool,
