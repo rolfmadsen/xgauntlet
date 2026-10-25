@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 048: Canonical Antigravity Hook in Migration"
 description: "Rette migrationens defekte PreInvocation-hook, normalisere eksisterende defekte hooks og fjerne tavs fejlhåndtering i doctor --fix"
-status: todo
+status: active
 generated: { by: process:antigravity-task-init, at: "2026-10-25T19:17:00Z" }
 tags: [migration, doctor, antigravity, hooks, single-source-of-truth, fail-closed]
 scope:
@@ -18,7 +18,7 @@ test_refs:
 
 # Task 048: Canonical Antigravity Hook in Migration
 
-**Status**: `TODO`
+**Status**: `ACTIVE`
 **Intent**: `🐛 BUG FIX`
 **Oprettet**: `2026-10-25`
 
