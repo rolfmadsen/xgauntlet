@@ -281,9 +281,18 @@ fn git_stdout(cwd: &Path, args: &[&str]) -> Result<String, CheckpointError> {
         .output()
         .map_err(|e| CheckpointError::GitError(format!("Failed to run git {args:?}: {e}")))?;
     if !out.status.success() {
+        let stderr = String::from_utf8_lossy(&out.stderr).trim().to_string();
+        let err_msg = if stderr.is_empty() {
+            format!(
+                "git {:?} failed with exit code {:?}",
+                args,
+                out.status.code()
+            )
+        } else {
+            stderr
+        };
         return Err(CheckpointError::GitError(format!(
-            "git {args:?} failed during inverse preflight: {}",
-            String::from_utf8_lossy(&out.stderr).trim()
+            "git {args:?} failed during inverse preflight: {err_msg}"
         )));
     }
     Ok(String::from_utf8_lossy(&out.stdout).to_string())

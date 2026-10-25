@@ -1,22 +1,22 @@
 # Verification Report
 
-**Task ID**: `046-adr-bound-architectural-exemptions-and-monotonic-ratchets`  
-**Task Title**: Task 046: ADR-Bound Architectural Exemptions and Monotonic Ratchet Governance  
+**Task ID**: `047-worktree-isolated-inverse-preflight`  
+**Task Title**: Task 047: Worktree-Isolated Inverse Preflight  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `7791743f9b081e7d02a02b548b43aa7faa969cedcd3dd0c21720fb5c93da9a8c`  
-**Timestamp**: `2026-10-25T17:26:10Z`  
-**Head**: `2604f95`  
-**Commit**: `2604f95`  
+**Source Manifest Digest**: `723f9ebb057187b5287717eab3c5c9c2ac30d4d757be9294c1b214e6b5acd26c`  
+**Timestamp**: `2026-10-25T19:26:06Z`  
+**Head**: `499be1e`  
+**Commit**: `499be1e`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (ADR 0010 Formulering & Indeksering)**: Formulere ADR 0010 i `docs/adr/0010-adr-bound-architectural-exemptions-and-monotonic-ratchets.md` og indeksere i `docs/adr/README.md`, `README.md` og `spec.md`.
-- [x] **AC2 (ArchitectureExemption Schema & ADR Attribution)**: Udvide `ArchitectureExemption` med `pub adr: String`, og opdatere TOML loader (`loader.rs`) og serialization (`render_toml`) til at understøtte `adr = "docs/adr/..."`.
-- [x] **AC3 (Fail-Closed ADR Verification i Architecture Gatekeeper)**: I `run_architecture_check` verificere:
-- [x] **AC4 (Monotone Ratchet-Invarianter)**: Håndhæve at ratchet-lofter ikke kan hæves uden godkendt ADR og at gatekeeperen fail-closed validerer lofterne mod filstørrelser og ADR-begrundelser.
-- [x] **AC5 (Opdatering af gauntlet.toml)**: Forankre de 3 eksisterende exemptions i `gauntlet.toml` til henholdsvis ADR 0010 (for `main.rs`) og ADR 0004 (for `harness_contracts_test.rs` og `harness_adapters_test.rs`).
-- [x] **AC6 (Testsuite & Multi-Layer Gauntlet)**: Skrive dækkende integrationstests i `architecture_gate_test.rs` og verificere at hele workspace består (`cargo test --workspace`, `cargo clippy`, `cargo fmt`, `check-architecture`, `check-spec`).
+- [x] **AC1 (Working tree urørt)**: Under kørsel af testlaget i inverse preflight har ændrede produktionsfiler i brugerens workspace fortsat deres working-tree-indhold (observeret af testlaget selv via absolut sti).
+- [x] **AC2 (Isoleret eksekvering & oprydning)**: Testlaget eksekveres med en arbejdsmappe forskellig fra workspace, og efter preflight eksisterer den midlertidige mappe ikke, og `git worktree list` viser kun hoved-worktree.
+- [x] **AC3 (Ingen genopstandelse)**: En produktionsfil slettet i working tree eksisterer stadig ikke efter preflight.
+- [x] **AC4 (Ren baseline)**: Utrackede nye produktionsfiler indgår ikke i baseline; en ny test, der kun består med en utracket ny produktionsfil, verificeres som `InversePreflightVerified`.
+- [x] **AC5 (Fail-closed opsætning)**: Kan isoleret baseline ikke etableres (f.eks. repo uden `HEAD`), returneres `CheckpointError` i stedet for tavs succes.
+- [x] **AC6 (Regression)**: Eksisterende tests i `provenance_engine_test.rs` og `checkpoint_engine_test.rs` består uændret.
 
 ---
 
@@ -24,14 +24,14 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.069s` |
-| `format` | `PASSED` | `0` | `0.221s` |
-| `lint` | `PASSED` | `0` | `0.137s` |
-| `types` | `PASSED` | `0` | `0.118s` |
-| `unit` | `PASSED` | `0` | `19.105s` |
-| `npm` | `PASSED` | `0` | `0.759s` |
-| `invariants` | `PASSED` | `0` | `0.055s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
+| `architecture` | `PASSED` | `0` | `0.084s` |
+| `format` | `PASSED` | `0` | `0.242s` |
+| `lint` | `PASSED` | `0` | `0.148s` |
+| `types` | `PASSED` | `0` | `0.149s` |
+| `unit` | `PASSED` | `0` | `19.408s` |
+| `npm` | `PASSED` | `0` | `0.839s` |
+| `invariants` | `PASSED` | `0` | `0.064s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.009s` |
 
 ---
 
@@ -75,6 +75,7 @@
 | `sess-4ead69e2` | `Software Engineer` | `DONE` | `4ead69e` | `2026-10-25T17:26:10Z` | `VALID` |
 | `sess-94e8a286` | `TDD Craftsman` | `RED` | `94e8a28` | `2026-10-25T19:19:28Z` | `VALID` |
 | `sess-fc38f6bb` | `TDD Craftsman` | `GREEN` | `fc38f6b` | `2026-10-25T19:22:06Z` | `VALID` |
+| `sess-499be1ee` | `TDD Craftsman` | `REFACTOR` | `499be1e` | `2026-10-25T19:22:38Z` | `VALID` |
 
 ---
 
@@ -82,6 +83,11 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_preflight_leaves_working_tree_untouched_during_test_run` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
+| `test_preflight_runs_in_isolated_worktree_and_cleans_up` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
+| `test_preflight_does_not_resurrect_deleted_production_file` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
+| `test_preflight_baseline_excludes_untracked_production_files` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
+| `test_preflight_fails_closed_without_head` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
 | `test_architecture_config_parsing_from_toml` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
 | `test_architecture_check_passes_on_compliant_workspace` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
 | `test_architecture_check_fails_on_monolithic_production_file` | `RedCheckpointVerified` | `c436f3579eb4e5b6...` | `2026-10-25T18:19:44+01:00` |
@@ -146,10 +152,5 @@
 | `test_detect_composite_typescript_in_workspace` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
-| `test_preflight_leaves_working_tree_untouched_during_test_run` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
-| `test_preflight_runs_in_isolated_worktree_and_cleans_up` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
-| `test_preflight_does_not_resurrect_deleted_production_file` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
-| `test_preflight_baseline_excludes_untracked_production_files` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
-| `test_preflight_fails_closed_without_head` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
 
 ---

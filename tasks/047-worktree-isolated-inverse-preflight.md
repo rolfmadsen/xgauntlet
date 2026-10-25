@@ -34,12 +34,12 @@ Løsning: Baseline-testen køres i en midlertidig `git worktree add --detach <tm
 **Udenfor scope (opfølgning):** Tilskrivning af preflight-fejl pr. test-identifier (review 🟡 #3).
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Working tree urørt)**: Under kørsel af testlaget i inverse preflight har ændrede produktionsfiler i brugerens workspace fortsat deres working-tree-indhold (observeret af testlaget selv via absolut sti).
-- [ ] **AC2 (Isoleret eksekvering & oprydning)**: Testlaget eksekveres med en arbejdsmappe forskellig fra workspace, og efter preflight eksisterer den midlertidige mappe ikke, og `git worktree list` viser kun hoved-worktree.
-- [ ] **AC3 (Ingen genopstandelse)**: En produktionsfil slettet i working tree eksisterer stadig ikke efter preflight.
-- [ ] **AC4 (Ren baseline)**: Utrackede nye produktionsfiler indgår ikke i baseline; en ny test, der kun består med en utracket ny produktionsfil, verificeres som `InversePreflightVerified`.
-- [ ] **AC5 (Fail-closed opsætning)**: Kan isoleret baseline ikke etableres (f.eks. repo uden `HEAD`), returneres `CheckpointError` i stedet for tavs succes.
-- [ ] **AC6 (Regression)**: Eksisterende tests i `provenance_engine_test.rs` og `checkpoint_engine_test.rs` består uændret.
+- [x] **AC1 (Working tree urørt)**: Under kørsel af testlaget i inverse preflight har ændrede produktionsfiler i brugerens workspace fortsat deres working-tree-indhold (observeret af testlaget selv via absolut sti).
+- [x] **AC2 (Isoleret eksekvering & oprydning)**: Testlaget eksekveres med en arbejdsmappe forskellig fra workspace, og efter preflight eksisterer den midlertidige mappe ikke, og `git worktree list` viser kun hoved-worktree.
+- [x] **AC3 (Ingen genopstandelse)**: En produktionsfil slettet i working tree eksisterer stadig ikke efter preflight.
+- [x] **AC4 (Ren baseline)**: Utrackede nye produktionsfiler indgår ikke i baseline; en ny test, der kun består med en utracket ny produktionsfil, verificeres som `InversePreflightVerified`.
+- [x] **AC5 (Fail-closed opsætning)**: Kan isoleret baseline ikke etableres (f.eks. repo uden `HEAD`), returneres `CheckpointError` i stedet for tavs succes.
+- [x] **AC6 (Regression)**: Eksisterende tests i `provenance_engine_test.rs` og `checkpoint_engine_test.rs` består uændret.
 
 ## 🚫 Must NOT
 - Må IKKE skrive til, slette eller omdøbe filer i brugerens working tree (bortset fra git-interne worktree-metadata og ignorerede build-artefakter).
@@ -50,6 +50,7 @@ Løsning: Baseline-testen køres i en midlertidig `git worktree add --detach <tm
 
 ## 📝 Revisions
 - 2026-10-25: Task oprettet på baggrund af code review af `origin/main..HEAD` (fund 3).
+- 2026-10-25: Implementeret IsolatedWorktree mod HEAD, verificeret mod AC1-AC6 via inverse_preflight_isolation_test.
 
 ## 🧪 Verifikation
 - `cargo test -p xgauntlet-core --test inverse_preflight_isolation_test`
