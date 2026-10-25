@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🚀 Added & Hardened
+- **Multi-Session Lineage & Evidence Traceability (`Task 045`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`)**:
+  - Implementeret kryptografisk, append-only `SessionLineageTrail` i Two-Tier evidensmodellen (ADR 0005) med deterministisk sporing af session nonce, ingeniørrolle, fase og commit OID i `verification-report.json` og `evidence.md`.
+  - Tilføjet CLI-kommandoen `xgauntlet lineage --task <id>` til lynhurtig inspektion og validering af sessionsintegritet.
+- **Session Health, Turn & Token Telemetry (`Task 044`, `crates/xgauntlet-core`)**:
+  - Etableret letvægts Session Health telemetri (`Healthy`, `AttentionNeeded`, `Fatigued`) baseret på turn-historik, payload-volumen og deterministisk tokenforbrug for proaktivt at modvirke context rot og attention dilution i Cockpit HUD.
+- **Single-Agent Governance & Sovereign Agentic SDLC Alignment (`Task 043`, `.agents/plugins/xgauntlet`)**:
+  - Afstemt guidelines, skills (`discover`, `spec`, `tdd`, `review`, `release`) og roadmap mod disciplineret Human-in-the-Loop single-agent software engineering uden subagent-dogmer.
+- **ADR-Bound Architectural Exemptions & Monotonic Ratchet Governance (`Task 046`, `Task 049`, `crates/xgauntlet-core`, `gauntlet.toml`)**:
+  - Håndhævet obligatorisk ADR-attribution (`docs/adr/0010-...`) på samtlige arkitekturundtagelser (`allowed_exemptions`).
+  - Implementeret mekanisk fail-closed håndhævelse i `check-architecture`, der forhindrer autonom inflation af fil- og kompleksitetslofter (`ratchets.max_lines`).
+- **Autonomous RED-to-GREEN TDD Transition & Test Provenance (`Task 030`, `Task 032`, `crates/xgauntlet-core`)**:
+  - Fail-closed detektion af born-green tests via preflight assertions og automatisk overgang fra RED til GREEN ved bekræftet rød accepttest.
+- **ADR OKF Frontmatter Validation & Composite TypeScript Detection (`Task 031`, `Task 029`, `crates/xgauntlet-core`)**:
+  - Validering af OKF v0.2 frontmatter på tværs af alle ADRs og understøttelse af sammensatte TypeScript-projekter (`tsc -b`).
+
+### 🐛 Fixed & Resilient
+- **Worktree-Isolated Inverse Preflight Testing (`Task 047`, `crates/xgauntlet-core`)**:
+  - Afværget datatabsrisiko under inverse preflight-testning ved at udføre baseline-fejltesten i et isoleret Git worktree i stedet for det aktive working tree.
+- **Canonical Antigravity Hook Migration & Doctor Auto-Remediation (`Task 048`, `Task 026`, `crates/xgauntlet-core`)**:
+  - Rettet in-migration af Antigravity `PreInvocation` hook, standardiseret canonical hook schema og fjernet tavs fejlhåndtering i `xgauntlet doctor --fix`.
+
 ## [0.8.5] - 2026-10-18
 
 ### 🚀 Added & Hardened
