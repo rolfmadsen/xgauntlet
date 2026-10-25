@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 043: Documentation Alignment & Single-Agent Governance"
 description: "Fjerne forældede referencer til parallelle subagenter og formalisere den transparente single-agent pair-programming model i ROADMAP.md og AGENTS.md"
-status: active
+status: done
 generated: { by: process:antigravity-task-init, at: "2026-10-25T11:25:00Z" }
 tags: [documentation, governance, single-agent, review-skill, transparency, clean-craftsmanship]
 scope: ["ROADMAP.md", ".agents/AGENTS.md", ".agents/plugins/xgauntlet/skills/review/SKILL.md", "README.md", "packages/cli/README.md"]
@@ -11,7 +11,7 @@ test_refs: ["crates/xgauntlet-core/tests/single_agent_governance_test.rs"]
 
 # Task 043: Documentation Alignment & Single-Agent Governance
 
-**Status**: `ACTIVE`  
+**Status**: `DONE`  
 **Intent**: `🔄 REFACTOR`  
 **Oprettet**: `2026-10-25`  
 
