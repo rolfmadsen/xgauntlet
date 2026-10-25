@@ -3,6 +3,7 @@
 pub mod attestation;
 pub mod drift;
 pub mod invariant;
+pub mod lineage;
 pub mod manifest;
 pub mod models;
 pub mod report;
@@ -13,6 +14,7 @@ pub use attestation::{
 };
 pub use drift::{verify_workspace_state_match, DriftViolation};
 pub use invariant::{verify_self_mutation, SelfMutationViolation};
+pub use lineage::{LineageError, SessionLineageEntry, SessionLineageTrail, GENESIS_DIGEST};
 pub use manifest::{
     compute_digest_of_files, compute_file_git_blob_oid, compute_file_raw_hash,
     compute_workspace_manifest, is_binary_buffer, is_excluded, CanonicalWorkspaceManifest,

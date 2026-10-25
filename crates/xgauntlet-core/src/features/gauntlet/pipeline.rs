@@ -244,6 +244,7 @@ pub async fn execute_gauntlet_pipeline(
         execution_metadata,
         checks,
         diagnostics: all_findings,
+        lineage: None,
     };
 
     // 12. Save Evidence Artifacts if requested

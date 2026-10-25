@@ -5,7 +5,7 @@ description: "Udvide Two-Tier Evidensmodellen med en kryptografisk, append-only 
 status: active
 generated: { by: process:antigravity-task-init, at: "2026-10-25T11:25:00Z" }
 tags: [evidence, multi-session, lineage, traceability, two-tier-model, adr-0005, audit-trail]
-scope: ["crates/xgauntlet-core/src/features/evidence/**", "crates/xgauntlet-core/src/features/checkpoint/**", "crates/xgauntlet-cli/**"]
+scope: ["crates/xgauntlet-core/src/features/evidence/**", "crates/xgauntlet-core/src/features/checkpoint/**", "crates/xgauntlet-core/src/features/gauntlet/**", "crates/xgauntlet-core/src/lib.rs", "crates/xgauntlet-cli/**"]
 test_refs: ["crates/xgauntlet-core/tests/session_lineage_test.rs"]
 ---
 

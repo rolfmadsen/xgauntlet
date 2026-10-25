@@ -226,6 +226,8 @@ pub struct VerificationReport {
     pub checks: Vec<CheckSummary>,
     #[serde(default)]
     pub diagnostics: Vec<DiagnosticFinding>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub lineage: Option<super::lineage::SessionLineageTrail>,
 }
 
 fn default_schema_url() -> String {
@@ -263,6 +265,7 @@ impl VerificationReport {
             execution_metadata: ExecutionMetadata::default(),
             checks: Vec::new(),
             diagnostics: Vec::new(),
+            lineage: None,
         }
     }
 }

@@ -37,10 +37,10 @@ pub use features::evidence::{
     load_verification_report, save_verification_report, verify_attestation_file,
     verify_self_mutation, verify_workspace_state_match, AttestationError, AttestationReport,
     AttestationStatus, CanonicalWorkspaceManifest, CheckStatus, CheckSummary, DriftViolation,
-    ExecutionMetadata, ExecutionOrigin, ManifestError, ManifestItem, ReportError,
-    SelfMutationViolation, TaskContractSummary, TrustDecision, TrustPolicy, VcsMetadata,
-    VerificationReport, VerificationVerdict, WorkspaceState, DEFAULT_SCOPES, EXCLUDED_DIRS,
-    EXCLUDED_FILES,
+    ExecutionMetadata, ExecutionOrigin, LineageError, ManifestError, ManifestItem, ReportError,
+    SelfMutationViolation, SessionLineageEntry, SessionLineageTrail, TaskContractSummary,
+    TrustDecision, TrustPolicy, VcsMetadata, VerificationReport, VerificationVerdict,
+    WorkspaceState, DEFAULT_SCOPES, EXCLUDED_DIRS, EXCLUDED_FILES, GENESIS_DIGEST,
 };
 pub use features::gauntlet::{
     execute_gauntlet_pipeline, execute_layer, run_gauntlet, ConfigError, GauntletConfig,
