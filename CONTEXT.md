@@ -175,5 +175,17 @@ _Avoid_: Audit log, commit history, session list, chat transcript.
 A deterministic or pseudo-random unique run identifier, that disambiguates independent AI harness sessions contributing to the same task.
 _Avoid_: Session ID, conversation key, run token.
 
+**Test Provenance**:
+An epistemic verification record, that captures the empirical negative capability and failure evidence of an acceptance test prior to production code implementation.
+_Avoid_: Test history, test log, test trace.
+
+**Born-Green Test**:
+A compromised test case, that is introduced concurrently with or subsequent to production code without prior empirical verification of its negative failure capability.
+_Avoid_: Tautological test, premature test, unverified test, silent green.
+
+**Inverse Preflight**:
+A non-destructive temporal verification mechanism, that executes suspected born-green tests against pre-implementation baseline source trees to empirically confirm failure without data loss.
+_Avoid_: Rollback test, baseline test, diff test, time travel test.
+
 
 

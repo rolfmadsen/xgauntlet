@@ -30,7 +30,7 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
 
 4. **Uncle Bob Clean Architecture & TDD**:
    - Package-by-Feature (Screaming Architecture).
-   - Strict Red -> Green -> Refactor lifecycle.
+   - Strict Red -> Green -> Refactor lifecycle and RED-first test provenance enforcement (elimination of born-green and tautological tests).
    - Multi-layer gauntlet: Linters, typecheckers, unit/feature tests, invariant tests, and mutation gauntlet (`cargo-mutants`).
 
 5. **Multi-Harness Native Support**:
@@ -71,6 +71,7 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
 - Må IKKE foretage destruktive git operationer (`git reset --hard` eller `git clean -f`) ved release fejlhåndtering (skal anvende atomisk disk-staging og transaktionel rollback).
 - Node-bootstrapperen må IKKE eksekvere eller udpakke native binærer uden gyldig kryptografisk Sigstore attestation (fail-closed integrity).
 - Må IKKE introducere udokumenterede eksterne runtime-afhængigheder (f.eks. Python).
+- Må IKKE tillade "født grønne" tests (`born-green tests`) at passere ind i et `[GREEN]` eller `[REFACTOR]` checkpoint uden verificeret negativt fejlbevis i RED-fasen eller via ikke-destruktiv inverse preflight.
 
 ---
 

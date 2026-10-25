@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 032: Enforce RED-First Test Provenance & Born-Green Detection"
 description: "Håndhæve test-proveniens og forhindre 'født grønne' tests ved at detektere tests tilføjet under eller efter GREEN fasen uden forudgående bevis for rød fejl"
-status: todo
+status: active
 generated: { by: process:xgauntlet-task-init, at: "2026-10-06T22:30:00Z" }
 tags: [task-lifecycle, tdd, checkpoint, test-provenance, born-green, epistemic-integrity, gatekeeper, preflight, adr-0003]
 scope: ["crates/xgauntlet-core/src/features/checkpoint/**", "crates/xgauntlet-core/src/features/config/**", "crates/xgauntlet-cli/**", "evidence.md", "verification-report.json"]
@@ -11,7 +11,7 @@ test_refs: ["crates/xgauntlet-core/tests/provenance_engine_test.rs"]
 
 # Task 032: Enforce RED-First Test Provenance & Born-Green Detection
 
-**Status**: `TODO`  
+**Status**: `ACTIVE`  
 **Intent**: `🚀 NEW FEATURE`  
 **Oprettet**: `2026-10-06`  
 
