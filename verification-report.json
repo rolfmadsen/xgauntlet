@@ -188,6 +188,14 @@
         "commit_oid": "c1b2b2db04676cee7da0edef5593aa9b2a614223",
         "timestamp": "2026-10-25T14:50:03Z",
         "digest": "53791b293ec1cec17c0c996379453492c7faf9d3de60fea369b9436e55d111a4"
+      },
+      {
+        "session_nonce": "sess-7793d1b7",
+        "role": "TDD Craftsman",
+        "phase": "GREEN",
+        "commit_oid": "7793d1b75659f9f7b3d12fac047036b388873261",
+        "timestamp": "2026-10-25T15:08:20Z",
+        "digest": "73b9c969fe693721e2d5a76f04f3bfe26a0072a2096f653c778fbe2762a7cb55"
       }
     ]
   },
@@ -198,6 +206,76 @@
       "failure_digest": "c46f890b2d9b738e1dd1748557166cf54f55ea9b0ef9c0d7177ea0a78f96365f",
       "verified_at": "2026-10-25T15:07:56Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_extract_test_identifiers_polyglot",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_synchronous_case",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_asynchronous_worker",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_inline_definition",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_detect_born_green_tests_in_git_diff",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_initial_requirement",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_sneaky_born_green_requirement",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_inverse_preflight_detects_tautological_test",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_inverse_preflight_verifies_legitimate_test",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_checkpoint_green_fails_closed_on_born_green_with_strict_provenance",
+      "failure_output": "Verified in RED checkpoint commit c1b2b2d",
+      "failure_digest": "b02ab9f2e3aea63de4f4d2e3aa533f2f2c7a6398167ba7bb9efa758e6b3c0547",
+      "verified_at": "2026-10-25T15:50:03+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }
