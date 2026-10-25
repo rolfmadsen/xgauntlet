@@ -1,22 +1,22 @@
 # Verification Report
 
-**Task ID**: `047-worktree-isolated-inverse-preflight`  
-**Task Title**: Task 047: Worktree-Isolated Inverse Preflight  
+**Task ID**: `048-canonical-antigravity-hook-in-migration`  
+**Task Title**: Task 048: Canonical Antigravity Hook in Migration  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `723f9ebb057187b5287717eab3c5c9c2ac30d4d757be9294c1b214e6b5acd26c`  
-**Timestamp**: `2026-10-25T19:26:06Z`  
-**Head**: `499be1e`  
-**Commit**: `499be1e`  
+**Source Manifest Digest**: `672f234760a4b83326bf5e8ebbe18e61fe71e814fcd7ffc7179acb5da5c954a9`  
+**Timestamp**: `2026-10-25T19:48:47Z`  
+**Head**: `9e9ed74`  
+**Commit**: `9e9ed74`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (Working tree urørt)**: Under kørsel af testlaget i inverse preflight har ændrede produktionsfiler i brugerens workspace fortsat deres working-tree-indhold (observeret af testlaget selv via absolut sti).
-- [x] **AC2 (Isoleret eksekvering & oprydning)**: Testlaget eksekveres med en arbejdsmappe forskellig fra workspace, og efter preflight eksisterer den midlertidige mappe ikke, og `git worktree list` viser kun hoved-worktree.
-- [x] **AC3 (Ingen genopstandelse)**: En produktionsfil slettet i working tree eksisterer stadig ikke efter preflight.
-- [x] **AC4 (Ren baseline)**: Utrackede nye produktionsfiler indgår ikke i baseline; en ny test, der kun består med en utracket ny produktionsfil, verificeres som `InversePreflightVerified`.
-- [x] **AC5 (Fail-closed opsætning)**: Kan isoleret baseline ikke etableres (f.eks. repo uden `HEAD`), returneres `CheckpointError` i stedet for tavs succes.
-- [x] **AC6 (Regression)**: Eksisterende tests i `provenance_engine_test.rs` og `checkpoint_engine_test.rs` består uændret.
+- [x] **AC1 (Single source of truth)**: Én offentlig konstant for Antigravity PreInvocation-kommandoen (`xgauntlet telemetry --format antigravity-hook`) i `adapters/antigravity`, genbrugt af adapter, scaffold-template og migration.
+- [x] **AC2 (Korrekt injektion)**: Migration af `hooks.json` uden telemetry-hook indsætter præcis den kanoniske kommando.
+- [x] **AC3 (Normalisering)**: Migration af `hooks.json` med `--harness antigravity-hook` (eller `--harness antigravity`) erstatter den med den kanoniske kommando, rapporterer ændringen og er idempotent ved anden kørsel.
+- [x] **AC4 (Ingen tavs overskrivning)**: Findes både `agent-gauntlet-gatekeeper` og `xgauntlet`, bevares den kanoniske gruppes hooks (merge uden dubletter), og ændringslisten nævner sammenfletningen.
+- [x] **AC5 (doctor --fix er ærlig)**: Fejler migrationen under `doctor --fix`, rapporteres fejlen i doctor-resultatet i stedet for at blive kasseret.
+- [x] **AC6 (Fixture-korrektion)**: `doctor_diagnostics_test.rs` bruger ikke længere den defekte streng som "korrekt" fixture.
 
 ---
 
@@ -24,14 +24,14 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.084s` |
-| `format` | `PASSED` | `0` | `0.242s` |
-| `lint` | `PASSED` | `0` | `0.148s` |
-| `types` | `PASSED` | `0` | `0.149s` |
-| `unit` | `PASSED` | `0` | `19.408s` |
-| `npm` | `PASSED` | `0` | `0.839s` |
-| `invariants` | `PASSED` | `0` | `0.064s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.009s` |
+| `architecture` | `PASSED` | `0` | `0.072s` |
+| `format` | `PASSED` | `0` | `0.212s` |
+| `lint` | `PASSED` | `0` | `0.116s` |
+| `types` | `PASSED` | `0` | `0.126s` |
+| `unit` | `PASSED` | `0` | `21.049s` |
+| `npm` | `PASSED` | `0` | `0.824s` |
+| `invariants` | `PASSED` | `0` | `0.068s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.014s` |
 
 ---
 
@@ -79,6 +79,7 @@
 | `sess-dc9e26a3` | `Software Engineer` | `DONE` | `dc9e26a` | `2026-10-25T19:26:06Z` | `VALID` |
 | `sess-2f2e2454` | `TDD Craftsman` | `RED` | `2f2e245` | `2026-10-25T19:34:52Z` | `VALID` |
 | `sess-30e4ad7d` | `TDD Craftsman` | `GREEN` | `30e4ad7` | `2026-10-25T19:41:18Z` | `VALID` |
+| `sess-9e9ed74b` | `TDD Craftsman` | `REFACTOR` | `9e9ed74` | `2026-10-25T19:43:16Z` | `VALID` |
 
 ---
 
@@ -86,6 +87,11 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_migration_injects_canonical_telemetry_format` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
+| `test_migration_normalizes_defective_harness_hook_and_is_idempotent` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
+| `test_migration_normalizes_legacy_harness_antigravity` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
+| `test_migration_merges_simultaneous_legacy_and_modern_groups_without_data_loss` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
+| `test_doctor_fix_reports_migration_errors_truthfully` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
 | `test_preflight_leaves_working_tree_untouched_during_test_run` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
 | `test_preflight_runs_in_isolated_worktree_and_cleans_up` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
 | `test_preflight_does_not_resurrect_deleted_production_file` | `RedCheckpointVerified` | `f0c1287911ae91dd...` | `2026-10-25T20:19:28+01:00` |
@@ -155,11 +161,6 @@
 | `test_detect_composite_typescript_in_workspace` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
-| `test_migration_injects_canonical_telemetry_format` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
-| `test_migration_normalizes_defective_harness_hook_and_is_idempotent` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
-| `test_migration_normalizes_legacy_harness_antigravity` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
-| `test_migration_merges_simultaneous_legacy_and_modern_groups_without_data_loss` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
-| `test_doctor_fix_reports_migration_errors_truthfully` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
 
 ---

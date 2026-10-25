@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 048: Canonical Antigravity Hook in Migration"
 description: "Rette migrationens defekte PreInvocation-hook, normalisere eksisterende defekte hooks og fjerne tavs fejlhåndtering i doctor --fix"
-status: active
+status: done
 generated: { by: process:antigravity-task-init, at: "2026-10-25T19:17:00Z" }
 tags: [migration, doctor, antigravity, hooks, single-source-of-truth, fail-closed]
 scope:
@@ -18,7 +18,7 @@ test_refs:
 
 # Task 048: Canonical Antigravity Hook in Migration
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🐛 BUG FIX`
 **Oprettet**: `2026-10-25`
 
@@ -33,12 +33,12 @@ Inkluderer review 🟡 #1 (`doctor --fix` smider migrationsfejl væk) og 🟡 #2
 samtidig legacy- og kanonisk hooks-gruppe).
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Single source of truth)**: Én offentlig konstant for Antigravity PreInvocation-kommandoen (`xgauntlet telemetry --format antigravity-hook`) i `adapters/antigravity`, genbrugt af adapter, scaffold-template og migration.
-- [ ] **AC2 (Korrekt injektion)**: Migration af `hooks.json` uden telemetry-hook indsætter præcis den kanoniske kommando.
-- [ ] **AC3 (Normalisering)**: Migration af `hooks.json` med `--harness antigravity-hook` (eller `--harness antigravity`) erstatter den med den kanoniske kommando, rapporterer ændringen og er idempotent ved anden kørsel.
-- [ ] **AC4 (Ingen tavs overskrivning)**: Findes både `agent-gauntlet-gatekeeper` og `xgauntlet`, bevares den kanoniske gruppes hooks (merge uden dubletter), og ændringslisten nævner sammenfletningen.
-- [ ] **AC5 (doctor --fix er ærlig)**: Fejler migrationen under `doctor --fix`, rapporteres fejlen i doctor-resultatet i stedet for at blive kasseret.
-- [ ] **AC6 (Fixture-korrektion)**: `doctor_diagnostics_test.rs` bruger ikke længere den defekte streng som "korrekt" fixture.
+- [x] **AC1 (Single source of truth)**: Én offentlig konstant for Antigravity PreInvocation-kommandoen (`xgauntlet telemetry --format antigravity-hook`) i `adapters/antigravity`, genbrugt af adapter, scaffold-template og migration.
+- [x] **AC2 (Korrekt injektion)**: Migration af `hooks.json` uden telemetry-hook indsætter præcis den kanoniske kommando.
+- [x] **AC3 (Normalisering)**: Migration af `hooks.json` med `--harness antigravity-hook` (eller `--harness antigravity`) erstatter den med den kanoniske kommando, rapporterer ændringen og er idempotent ved anden kørsel.
+- [x] **AC4 (Ingen tavs overskrivning)**: Findes både `agent-gauntlet-gatekeeper` og `xgauntlet`, bevares den kanoniske gruppes hooks (merge uden dubletter), og ændringslisten nævner sammenfletningen.
+- [x] **AC5 (doctor --fix er ærlig)**: Fejler migrationen under `doctor --fix`, rapporteres fejlen i doctor-resultatet i stedet for at blive kasseret.
+- [x] **AC6 (Fixture-korrektion)**: `doctor_diagnostics_test.rs` bruger ikke længere den defekte streng som "korrekt" fixture.
 
 ## 🚫 Must NOT
 - Må IKKE ændre CLI'ens `--harness`-semantik i `main.rs` (fejlen rettes ved kilden).

@@ -4,40 +4,40 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "047-worktree-isolated-inverse-preflight",
-    "task_title": "Task 047: Worktree-Isolated Inverse Preflight",
-    "task_digest": "0aff2dcec9f2f22c4988438974ddc14c5909235bd31e901804a6cbbb4b7bdc0f",
+    "task_id": "048-canonical-antigravity-hook-in-migration",
+    "task_title": "Task 048: Canonical Antigravity Hook in Migration",
+    "task_digest": "00b2b5d1dad68f01a07599b342ed7f9dad23ef06799b3f9389c6b22e9d799e03",
     "acceptance_criteria": [
-      "**AC1 (Working tree urørt)**: Under kørsel af testlaget i inverse preflight har ændrede produktionsfiler i brugerens workspace fortsat deres working-tree-indhold (observeret af testlaget selv via absolut sti).",
-      "**AC2 (Isoleret eksekvering & oprydning)**: Testlaget eksekveres med en arbejdsmappe forskellig fra workspace, og efter preflight eksisterer den midlertidige mappe ikke, og `git worktree list` viser kun hoved-worktree.",
-      "**AC3 (Ingen genopstandelse)**: En produktionsfil slettet i working tree eksisterer stadig ikke efter preflight.",
-      "**AC4 (Ren baseline)**: Utrackede nye produktionsfiler indgår ikke i baseline; en ny test, der kun består med en utracket ny produktionsfil, verificeres som `InversePreflightVerified`.",
-      "**AC5 (Fail-closed opsætning)**: Kan isoleret baseline ikke etableres (f.eks. repo uden `HEAD`), returneres `CheckpointError` i stedet for tavs succes.",
-      "**AC6 (Regression)**: Eksisterende tests i `provenance_engine_test.rs` og `checkpoint_engine_test.rs` består uændret."
+      "**AC1 (Single source of truth)**: Én offentlig konstant for Antigravity PreInvocation-kommandoen (`xgauntlet telemetry --format antigravity-hook`) i `adapters/antigravity`, genbrugt af adapter, scaffold-template og migration.",
+      "**AC2 (Korrekt injektion)**: Migration af `hooks.json` uden telemetry-hook indsætter præcis den kanoniske kommando.",
+      "**AC3 (Normalisering)**: Migration af `hooks.json` med `--harness antigravity-hook` (eller `--harness antigravity`) erstatter den med den kanoniske kommando, rapporterer ændringen og er idempotent ved anden kørsel.",
+      "**AC4 (Ingen tavs overskrivning)**: Findes både `agent-gauntlet-gatekeeper` og `xgauntlet`, bevares den kanoniske gruppes hooks (merge uden dubletter), og ændringslisten nævner sammenfletningen.",
+      "**AC5 (doctor --fix er ærlig)**: Fejler migrationen under `doctor --fix`, rapporteres fejlen i doctor-resultatet i stedet for at blive kasseret.",
+      "**AC6 (Fixture-korrektion)**: `doctor_diagnostics_test.rs` bruger ikke længere den defekte streng som \"korrekt\" fixture."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "a8e282787044b0dea9ffbf7ef2303af7b0ca0fa12ea5e4c22bfccb4fabfa81e1",
-    "source_manifest_digest_pre": "723f9ebb057187b5287717eab3c5c9c2ac30d4d757be9294c1b214e6b5acd26c",
-    "source_manifest_digest_post": "723f9ebb057187b5287717eab3c5c9c2ac30d4d757be9294c1b214e6b5acd26c",
+    "source_content_digest": "8725b23c10d60fbef6112c23e71db13984b33cc809fa9d6cd36b00c288403633",
+    "source_manifest_digest_pre": "672f234760a4b83326bf5e8ebbe18e61fe71e814fcd7ffc7179acb5da5c954a9",
+    "source_manifest_digest_post": "672f234760a4b83326bf5e8ebbe18e61fe71e814fcd7ffc7179acb5da5c954a9",
     "config_digest": "fded6790c14b87f1b1febb0518ed3c6fbdd0d8ae2ba69364ea1d0ce4bbf947a6",
-    "task_digest": "0aff2dcec9f2f22c4988438974ddc14c5909235bd31e901804a6cbbb4b7bdc0f",
+    "task_digest": "00b2b5d1dad68f01a07599b342ed7f9dad23ef06799b3f9389c6b22e9d799e03",
     "policy_digest": "e13f93c8a490b56aec5a3405b7f4a8e8f8bbe107099877891ab5be4848ae511b",
     "check_definitions_digest": "138fd39199ca1ff02f1546e8f3128c38c38d368226e0aa141bacdcdbfe12d76b",
-    "included_files_count": 231,
+    "included_files_count": 232,
     "vcs": {
       "type": "git",
-      "head": "499be1e",
-      "commit": "499be1e",
+      "head": "9e9ed74",
+      "commit": "9e9ed74",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-10-25T19:25:45Z",
-    "finished_at": "2026-10-25T19:26:06Z",
-    "total_duration_seconds": 21.136293625,
+    "started_at": "2026-10-25T19:48:24Z",
+    "finished_at": "2026-10-25T19:48:47Z",
+    "total_duration_seconds": 22.666985883,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -50,16 +50,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.083618552,
+      "duration_seconds": 0.072388321,
       "optional": false,
       "passed": true,
-      "log_digest": "6d7d58f1c1cfa7afb8d2a89a3c787fb603498ca62e18d0ce62e8d0b3ac82f5ae"
+      "log_digest": "587cce0fa242b43cee7d9b362c09172990a8fe7c18e3205b90d257d8eb6ba2ab"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.242162553,
+      "duration_seconds": 0.212444223,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -68,43 +68,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.147599291,
+      "duration_seconds": 0.115519256,
       "optional": false,
       "passed": true,
-      "log_digest": "4cf86278c1e6d659943a46a3d7e3da429ac15be90f0f17742e24ef85228e7d3e"
+      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.149391546,
+      "duration_seconds": 0.125684941,
       "optional": false,
       "passed": true,
-      "log_digest": "a41051563a4cb5fc1b1bcdd9aa0ba28ca80f7736d629d90cc138218756e8e3a9"
+      "log_digest": "4cf86278c1e6d659943a46a3d7e3da429ac15be90f0f17742e24ef85228e7d3e"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 19.407911071,
+      "duration_seconds": 21.048756884,
       "optional": false,
       "passed": true,
-      "log_digest": "78328e6ea5c94c2ea670657a849847250749ef01d7c3ebad54543496582324d1"
+      "log_digest": "54f375e38c2db4e2134658003f3614f65eb62fc3fb9de1b0d7b0f40b990e89d9"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.838546146,
+      "duration_seconds": 0.823766665,
       "optional": false,
       "passed": true,
-      "log_digest": "d725ab3054c98fa92801f0fb93b2ef42d3e83d419affde67d5f7cde7193fc719"
+      "log_digest": "98fb65a801d22b27c74091e7f8e72490b67839b6f1e6df37053441190b117fac"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.064417263,
+      "duration_seconds": 0.067638411,
       "optional": false,
       "passed": true,
       "log_digest": "2c3ef680f0525bbc8e82c9389f57ac5bda2a8d3d9e82617911908558b2da0ebe"
@@ -113,7 +113,7 @@
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.009282182,
+      "duration_seconds": 0.014425584,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -452,10 +452,53 @@
         "commit_oid": "30e4ad7d989941eea7713d0ef3c4e87e3888139a",
         "timestamp": "2026-10-25T19:41:18Z",
         "digest": "54b5be7a2bba0419f8f7037942eb22d3b1c39fcea3b7433027cb3242a58774df"
+      },
+      {
+        "session_nonce": "sess-9e9ed74b",
+        "role": "TDD Craftsman",
+        "phase": "REFACTOR",
+        "commit_oid": "9e9ed74bea77edb3100575e2e2523d49bb1899e7",
+        "timestamp": "2026-10-25T19:43:16Z",
+        "digest": "4b495c0ab613d73b5e5ec7e682c2c22456440fc6aec74f1aa75feb7a26bbd953"
       }
     ]
   },
   "test_provenance": [
+    {
+      "test_identifier": "test_migration_injects_canonical_telemetry_format",
+      "failure_output": "Verified in RED checkpoint commit 2f2e245",
+      "failure_digest": "845eb4d02ba21f7de12b8845065448b68037430101ece28b63a5c9236adc7d44",
+      "verified_at": "2026-10-25T20:34:52+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_migration_normalizes_defective_harness_hook_and_is_idempotent",
+      "failure_output": "Verified in RED checkpoint commit 2f2e245",
+      "failure_digest": "845eb4d02ba21f7de12b8845065448b68037430101ece28b63a5c9236adc7d44",
+      "verified_at": "2026-10-25T20:34:52+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_migration_normalizes_legacy_harness_antigravity",
+      "failure_output": "Verified in RED checkpoint commit 2f2e245",
+      "failure_digest": "845eb4d02ba21f7de12b8845065448b68037430101ece28b63a5c9236adc7d44",
+      "verified_at": "2026-10-25T20:34:52+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_migration_merges_simultaneous_legacy_and_modern_groups_without_data_loss",
+      "failure_output": "Verified in RED checkpoint commit 2f2e245",
+      "failure_digest": "845eb4d02ba21f7de12b8845065448b68037430101ece28b63a5c9236adc7d44",
+      "verified_at": "2026-10-25T20:34:52+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_doctor_fix_reports_migration_errors_truthfully",
+      "failure_output": "Verified in RED checkpoint commit 2f2e245",
+      "failure_digest": "845eb4d02ba21f7de12b8845065448b68037430101ece28b63a5c9236adc7d44",
+      "verified_at": "2026-10-25T20:34:52+01:00",
+      "status": "red_checkpoint_verified"
+    },
     {
       "test_identifier": "test_preflight_leaves_working_tree_untouched_during_test_run",
       "failure_output": "Verified in RED checkpoint commit 94e8a28",
@@ -937,41 +980,6 @@
       "failure_output": "Verified in RED checkpoint commit 67315fa",
       "failure_digest": "ccdb618c81ed206d536e3a773cce4dfe89c9fe28fb345b18dd09775778e14a8b",
       "verified_at": "2026-10-25T17:21:56+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_migration_injects_canonical_telemetry_format",
-      "failure_output": "Verified in RED checkpoint commit 2f2e245",
-      "failure_digest": "845eb4d02ba21f7de12b8845065448b68037430101ece28b63a5c9236adc7d44",
-      "verified_at": "2026-10-25T20:34:52+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_migration_normalizes_defective_harness_hook_and_is_idempotent",
-      "failure_output": "Verified in RED checkpoint commit 2f2e245",
-      "failure_digest": "845eb4d02ba21f7de12b8845065448b68037430101ece28b63a5c9236adc7d44",
-      "verified_at": "2026-10-25T20:34:52+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_migration_normalizes_legacy_harness_antigravity",
-      "failure_output": "Verified in RED checkpoint commit 2f2e245",
-      "failure_digest": "845eb4d02ba21f7de12b8845065448b68037430101ece28b63a5c9236adc7d44",
-      "verified_at": "2026-10-25T20:34:52+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_migration_merges_simultaneous_legacy_and_modern_groups_without_data_loss",
-      "failure_output": "Verified in RED checkpoint commit 2f2e245",
-      "failure_digest": "845eb4d02ba21f7de12b8845065448b68037430101ece28b63a5c9236adc7d44",
-      "verified_at": "2026-10-25T20:34:52+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_doctor_fix_reports_migration_errors_truthfully",
-      "failure_output": "Verified in RED checkpoint commit 2f2e245",
-      "failure_digest": "845eb4d02ba21f7de12b8845065448b68037430101ece28b63a5c9236adc7d44",
-      "verified_at": "2026-10-25T20:34:52+01:00",
       "status": "red_checkpoint_verified"
     },
     {
