@@ -216,6 +216,8 @@ pub struct DoctorOptions {
     pub strict: bool,
     /// Optional category filter to run only a subset of checks.
     pub category: Option<DoctorCategory>,
+    /// Auto-remediation flag to apply safe in-repo schema migrations for identified governance issues.
+    pub fix: bool,
 }
 
 impl Default for DoctorOptions {
@@ -225,6 +227,7 @@ impl Default for DoctorOptions {
             verbose: false,
             strict: false,
             category: None,
+            fix: false,
         }
     }
 }

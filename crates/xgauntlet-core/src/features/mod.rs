@@ -6,6 +6,7 @@ pub mod diagnostics;
 pub mod doctor;
 pub mod evidence;
 pub mod gauntlet;
+pub mod migration;
 pub mod plugin;
 pub mod policy;
 pub mod release;

@@ -40,6 +40,24 @@ enum Commands {
         /// Output diagnostic report in structured JSON format
         #[arg(long)]
         json: bool,
+
+        /// Auto-remediate safe governance drift issues via migration engine
+        #[arg(long)]
+        fix: bool,
+    },
+    /// Surgical in-place schema migration and governance artifact modernization
+    Migrate {
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Dry run mode: display planned migrations without writing changes to disk
+        #[arg(long)]
+        dry_run: bool,
+
+        /// Output migration report in structured JSON format
+        #[arg(long)]
+        json: bool,
     },
     /// Shift-left specification, task package, and Aristotelian domain glossary gatekeeper
     CheckSpec {
@@ -544,6 +562,7 @@ async fn main() -> anyhow::Result<()> {
             strict,
             category,
             json,
+            fix,
         }) => {
             let cat_enum = category
                 .as_deref()
@@ -553,6 +572,7 @@ async fn main() -> anyhow::Result<()> {
                 verbose: *verbose,
                 strict: *strict,
                 category: cat_enum,
+                fix: *fix,
             };
 
             let report = xgauntlet_core::run_doctor(&options)?;
@@ -570,6 +590,25 @@ async fn main() -> anyhow::Result<()> {
             };
 
             if !is_success {
+                std::process::exit(1);
+            }
+        }
+        Some(Commands::Migrate {
+            workspace,
+            dry_run,
+            json,
+        }) => {
+            let options = xgauntlet_core::MigrationOptions {
+                workspace: workspace.clone(),
+                dry_run: *dry_run,
+            };
+            let report = xgauntlet_core::run_migration(&options)?;
+            if *json {
+                println!("{}", serde_json::to_string_pretty(&report)?);
+            } else {
+                render_migration_summary(&report, *dry_run);
+            }
+            if !report.is_success {
                 std::process::exit(1);
             }
         }

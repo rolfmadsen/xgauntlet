@@ -49,6 +49,9 @@ pub use features::gauntlet::{
     GauntletExecutionOutcome, GauntletOptions, GauntletPipelineError, GauntletReport, LayerConfig,
     LayerDefinition, LayerExecutionStatus, LayerRequirement, LayerResult,
 };
+pub use features::migration::{
+    run_migration, MigrationError, MigrationItem, MigrationOptions, MigrationReport,
+};
 pub use features::plugin::{
     discover_harnesses_in, discover_installed_harnesses, get_embedded_hooks_manifest,
     get_embedded_plugin_manifest, get_embedded_skill, list_embedded_skills, run_plugin_install,
