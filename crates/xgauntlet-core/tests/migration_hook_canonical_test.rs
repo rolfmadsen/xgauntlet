@@ -232,10 +232,7 @@ fn test_migration_normalizes_legacy_harness_antigravity() {
         .and_then(|p| p.as_array())
         .expect("xgauntlet.PreInvocation must be an array");
 
-    let cmd = pre_inv[0]
-        .get("command")
-        .and_then(|c| c.as_str())
-        .unwrap();
+    let cmd = pre_inv[0].get("command").and_then(|c| c.as_str()).unwrap();
 
     assert_eq!(cmd, EXPECTED_CANONICAL_PRE_INVOCATION);
 }
@@ -311,7 +308,9 @@ fn test_migration_merges_simultaneous_legacy_and_modern_groups_without_data_loss
         "Legacy group must be removed after merge"
     );
 
-    let xg = migrated.get("xgauntlet").expect("xgauntlet group must exist");
+    let xg = migrated
+        .get("xgauntlet")
+        .expect("xgauntlet group must exist");
     let pre_tool = xg
         .get("PreToolUse")
         .and_then(|p| p.as_array())
@@ -387,5 +386,26 @@ fn test_doctor_fix_reports_migration_errors_truthfully() {
         failed_migration_check.is_some(),
         "Doctor checks must contain a failed item reporting the migration error: {:?}",
         report.checks
+    );
+}
+
+/// AC1: Single source of truth constant in adapters::antigravity is reused.
+#[test]
+fn test_canonical_pre_invocation_cmd_single_source_of_truth() {
+    use xgauntlet_core::features::adapters::antigravity::{
+        AntigravityAdapter, ANTIGRAVITY_PRE_INVOCATION_CMD, CANONICAL_PRE_INVOCATION_CMD,
+    };
+
+    assert_eq!(
+        CANONICAL_PRE_INVOCATION_CMD,
+        EXPECTED_CANONICAL_PRE_INVOCATION
+    );
+    assert_eq!(
+        ANTIGRAVITY_PRE_INVOCATION_CMD,
+        EXPECTED_CANONICAL_PRE_INVOCATION
+    );
+    assert_eq!(
+        AntigravityAdapter::CANONICAL_PRE_INVOCATION_CMD,
+        EXPECTED_CANONICAL_PRE_INVOCATION
     );
 }

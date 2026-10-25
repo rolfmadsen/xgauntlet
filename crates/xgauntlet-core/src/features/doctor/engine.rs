@@ -37,16 +37,27 @@ pub fn run_doctor(options: &DoctorOptions) -> Result<DoctorReport, DoctorError> 
         Err(_) => options.workspace.clone(),
     };
 
+    let mut checks = Vec::new();
+
     // Auto-remediate safe governance drift issues if --fix was requested
     if options.fix {
         let mig_options = crate::features::migration::MigrationOptions {
             workspace: workspace.clone(),
             dry_run: false,
         };
-        let _ = crate::features::migration::run_migration(&mig_options);
+        if let Err(e) = crate::features::migration::run_migration(&mig_options) {
+            checks.push(crate::features::doctor::models::DoctorCheckItem::fail(
+                "governance_migration_fix",
+                DoctorCategory::Governance,
+                format!("Auto-remediation migration failed: {e}"),
+                Some(e.to_string()),
+                Some(
+                    "Run 'xgauntlet migrate' manually to inspect and resolve the error".to_string(),
+                ),
+                0,
+            ));
+        }
     }
-
-    let mut checks = Vec::new();
 
     // 1. Host Category
     if options.category.is_none() || options.category == Some(DoctorCategory::Host) {
@@ -80,7 +91,7 @@ pub fn run_doctor(options: &DoctorOptions) -> Result<DoctorReport, DoctorError> 
 
     // Filter checks if a specific category was requested
     if let Some(target_cat) = options.category {
-        checks.retain(|c| c.category == target_cat);
+        checks.retain(|c| c.category == target_cat || c.name == "governance_migration_fix");
     }
 
     let passed_count = checks

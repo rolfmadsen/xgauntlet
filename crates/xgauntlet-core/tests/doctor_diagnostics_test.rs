@@ -169,7 +169,7 @@ fn test_doctor_passes_when_hooks_and_evidence_are_modern() {
         ],
         "PreInvocation": [
           {
-            "command": "xgauntlet telemetry --harness antigravity-hook"
+            "command": "xgauntlet telemetry --format antigravity-hook"
           }
         ]
       }

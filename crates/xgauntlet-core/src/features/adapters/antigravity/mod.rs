@@ -21,10 +21,19 @@ pub const VALID_ANTIGRAVITY_EVENTS: &[&str] = &[
     "Stop",
 ];
 
+/// Canonical command string for the Antigravity PreInvocation telemetry hook (single source of truth).
+pub const CANONICAL_PRE_INVOCATION_CMD: &str = "xgauntlet telemetry --format antigravity-hook";
+
+/// Alias for the canonical Antigravity PreInvocation command.
+pub const ANTIGRAVITY_PRE_INVOCATION_CMD: &str = CANONICAL_PRE_INVOCATION_CMD;
+
 #[derive(Debug, Default, Clone)]
 pub struct AntigravityAdapter;
 
 impl AntigravityAdapter {
+    pub const CANONICAL_PRE_INVOCATION_CMD: &str = CANONICAL_PRE_INVOCATION_CMD;
+    pub const ANTIGRAVITY_PRE_INVOCATION_CMD: &str = ANTIGRAVITY_PRE_INVOCATION_CMD;
+
     pub fn new() -> Self {
         Self
     }
@@ -150,7 +159,7 @@ impl AntigravityAdapter {
     /// Generates or merges the PreInvocation and PreToolUse hook configuration for .agents/hooks.json.
     pub fn generate_hooks_json(existing_json: Option<&serde_json::Value>) -> serde_json::Value {
         let pre_tool_cmd = "xgauntlet hook antigravity";
-        let pre_invocation_cmd = "xgauntlet telemetry --format antigravity-hook";
+        let pre_invocation_cmd = CANONICAL_PRE_INVOCATION_CMD;
 
         let pre_tool_entry = serde_json::json!({
             "matcher": "*",

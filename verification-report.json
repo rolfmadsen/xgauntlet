@@ -436,6 +436,14 @@
         "commit_oid": "dc9e26a3595296b299c485b8b71bef77eef74752",
         "timestamp": "2026-10-25T19:26:06Z",
         "digest": "11162216f3592bc4d4c02a31c8017cf1dc9e65a0037de2c3ea21404c6d8aa67c"
+      },
+      {
+        "session_nonce": "sess-2f2e2454",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "2f2e245420069b2f3d5c0971478bc3423a874973",
+        "timestamp": "2026-10-25T19:34:52Z",
+        "digest": "d273c91a38728c5f5ec443c6150b332a4c1ae2b95fcd26484bb7b634c867bc25"
       }
     ]
   },
@@ -922,6 +930,48 @@
       "failure_digest": "ccdb618c81ed206d536e3a773cce4dfe89c9fe28fb345b18dd09775778e14a8b",
       "verified_at": "2026-10-25T17:21:56+01:00",
       "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_migration_injects_canonical_telemetry_format",
+      "failure_output": "Verified in RED checkpoint commit 2f2e245",
+      "failure_digest": "845eb4d02ba21f7de12b8845065448b68037430101ece28b63a5c9236adc7d44",
+      "verified_at": "2026-10-25T20:34:52+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_migration_normalizes_defective_harness_hook_and_is_idempotent",
+      "failure_output": "Verified in RED checkpoint commit 2f2e245",
+      "failure_digest": "845eb4d02ba21f7de12b8845065448b68037430101ece28b63a5c9236adc7d44",
+      "verified_at": "2026-10-25T20:34:52+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_migration_normalizes_legacy_harness_antigravity",
+      "failure_output": "Verified in RED checkpoint commit 2f2e245",
+      "failure_digest": "845eb4d02ba21f7de12b8845065448b68037430101ece28b63a5c9236adc7d44",
+      "verified_at": "2026-10-25T20:34:52+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_migration_merges_simultaneous_legacy_and_modern_groups_without_data_loss",
+      "failure_output": "Verified in RED checkpoint commit 2f2e245",
+      "failure_digest": "845eb4d02ba21f7de12b8845065448b68037430101ece28b63a5c9236adc7d44",
+      "verified_at": "2026-10-25T20:34:52+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_doctor_fix_reports_migration_errors_truthfully",
+      "failure_output": "Verified in RED checkpoint commit 2f2e245",
+      "failure_digest": "845eb4d02ba21f7de12b8845065448b68037430101ece28b63a5c9236adc7d44",
+      "verified_at": "2026-10-25T20:34:52+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_canonical_pre_invocation_cmd_single_source_of_truth",
+      "failure_output": "Compiling proc-macro2 v1.0.107\n   Compiling quote v1.0.47\n   Compiling unicode-ident v1.0.24\n   Compiling serde_core v1.0.229\n   Compiling serde v1.0.229\n   Compiling hashbrown v0.17.1\n   Compiling equivalent v1.0.2\n   Compiling log v0.4.34\n   Compiling cranelift-assembler-x64-meta v0.117.2\n   Compiling libc v0.2.189\n   Compiling cfg-if v1.0.4\n   Compiling pulley-interpreter v30.0.2\n   Compiling cranelift-isle v0.117.2\n   Compiling libm v0.2.16\n   Compiling foldhash v0.1.5\n   Compiling cranelift-bitset v0.117.2\n   Compiling bitflags v2.13.1\n   Compiling target-lexicon v0.13.5\n   Compiling cranelift-codegen-shared v0.117.2\n   Compiling memchr v2.8.3\n   Compiling thiserror v2.0.20\n   Compiling anyhow v1.0.104\n   Compiling version_check v0.9.5\n   Compiling allocator-api2 v0.2.21\n   Compiling zmij v1.0.23\n   Compiling crc32fast v1.5.1\n   Compiling rustc-hash v2.1.3\n   Compiling wasmparser v0.224.1\n   Compiling arbitrary v1.4.2\n   Compiling wasm-encoder v0.224.1\n   Compiling typenum v1.20.1\n   Compiling hashbrown v0.15.5\n   Compiling semver v1.0.28\n   Compiling object v0.36.7\n   Compiling serde_json v1.0.151\n   Compiling shlex v2.0.1\n   Compiling thiserror v1.0.69\n   Compiling find-msvc-tools v0.1.12\n   Compiling leb128 v0.2.7\n   Compiling generic-array v0.14.7\n   Compiling rustix v1.1.4\n   Compiling bumpalo v3.20.3\n   Compiling parking_lot_core v0.9.12\n   Compiling termcolor v1.4.1\n   Compiling itoa v1.0.18\n   Compiling rustix v0.38.44\n   Compiling cc v1.4.5\n   Compiling either v1.18.0\n   Compiling linux-raw-sys v0.12.1\n   Compiling scopeguard v1.2.0\n   Compiling paste v1.0.15\n   Compiling linux-raw-sys v0.4.15\n   Compiling wasmtime-asm-macros v30.0.2\n   Compiling bytes v1.12.1\n   Compiling cranelift-assembler-x64 v0.117.2\n   Compiling lock_api v0.4.14\n   Compiling once_cell v1.21.4\n   Compiling wasmtime-slab v30.0.2\n   Compiling sptr v0.3.2\n   Compiling itertools v0.12.1\n   Compiling cpufeatures v0.2.17\n   Compiling pin-project-lite v0.2.17\n   Compiling utf8parse v0.2.2\n   Compiling is_terminal_polyfill v1.70.2\n   Compiling colorchoice v1.0.5\n   Compiling anstyle v1.0.14\n   Compiling anstyle-query v1.1.5\n   Compiling anstyle-parse v1.0.0\n   Compiling strsim v0.11.1\n   Compiling heck v0.5.0\n   Compiling clap_lex v1.1.0\n   Compiling cranelift-control v0.117.2\n   Compiling anstream v1.0.0\n   Compiling syn v3.0.5\n   Compiling syn v2.0.119\n   Compiling clap_builder v4.6.6\n   Compiling wasmtime-math v30.0.2\n   Compiling errno v0.3.14\n   Compiling mio v1.2.3\n   Compiling wasmtime-jit-icache-coherence v30.0.2\n   Compiling socket2 v0.6.5\n   Compiling signal-hook-registry v1.4.8\n   Compiling block-buffer v0.10.4\n   Compiling crypto-common v0.1.7\n   Compiling digest v0.10.7\n   Compiling cranelift-codegen-meta v0.117.2\n   Compiling sha2 v0.10.9\n   Compiling memfd v0.6.6\n   Compiling indexmap v2.14.2\n   Compiling cranelift-codegen v0.117.2\n   Compiling serde_derive v1.0.229\n   Compiling thiserror-impl v2.0.20\n   Compiling tokio-macros v2.7.2\n   Compiling clap_derive v4.6.4\n   Compiling gimli v0.31.1\n   Compiling wasmtime-versioned-export-macros v30.0.2\n   Compiling thiserror-impl v1.0.69\n   Compiling wasmtime v30.0.2\n   Compiling cobs v0.3.0\n   Compiling clap v4.6.6\n   Compiling smallvec v1.16.0\n   Compiling postcard v1.1.3\n   Compiling gauntlet-policy-engine v0.8.5 (/tmp/xgauntlet-preflight-41-1792957173699417712/crates/gauntlet-policy-engine)\n   Compiling cranelift-entity v0.117.2\n   Compiling regalloc2 v0.11.2\n   Compiling parking_lot v0.12.5\n   Compiling cranelift-bforest v0.117.2\n   Compiling tokio v1.53.1\n   Compiling wasmprinter v0.224.1\n   Compiling wasmtime-environ v30.0.2\n   Compiling cranelift-frontend v0.117.2\n   Compiling cranelift-native v0.117.2\n   Compiling wasmtime-cranelift v30.0.2\n   Compiling xgauntlet-core v0.8.5 (/tmp/xgauntlet-preflight-41-1792957173699417712/crates/xgauntlet-core)\n   Compiling xgauntlet-cli v0.8.5 (/tmp/xgauntlet-preflight-41-1792957173699417712/crates/xgauntlet-cli)\nerror[E0432]: unresolved imports `xgauntlet_core::features::adapters::antigravity::ANTIGRAVITY_PRE_INVOCATION_CMD`, `xgauntlet_core::features::adapters::antigravity::CANONICAL_PRE_INVOCATION_CMD`\n   --> crates/xgauntlet-core/tests/migration_hook_canonical_test.rs:397:29\n    |\n397 | ...r, ANTIGRAVITY_PRE_INVOCATION_CMD, CANONICAL_PRE_INVOCATION_CMD,\n    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no `CANONICAL_PRE_INVOCATION_CMD` in `features::adapters::antigravity`\n    |       |\n    |       no `ANTIGRAVITY_PRE_INVOCATION_CMD` in `features::adapters::antigravity`\n\nerror[E0599]: no associated function or constant named `CANONICAL_PRE_INVOCATION_CMD` found for struct `AntigravityAdapter` in the current scope\n   --> crates/xgauntlet-core/tests/migration_hook_canonical_test.rs:409:29\n    |\n409 |         AntigravityAdapter::CANONICAL_PRE_INVOCATION_CMD,\n    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ associated function or constant not found in `AntigravityAdapter`\n\nSome errors have detailed explanations: E0432, E0599.\nFor more information about an error, try `rustc --explain E0432`.\nerror: could not compile `xgauntlet-core` (test \"migration_hook_canonical_test\") due to 2 previous errors\nwarning: build failed, waiting for other jobs to finish...",
+      "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
+      "verified_at": "2026-10-25T19:39:49Z",
+      "status": "inverse_preflight_verified"
     }
   ]
 }

@@ -89,20 +89,88 @@ fn migrate_hooks_json(
         None => return Ok(None),
     };
 
-    // 1. Rename legacy namespace to "xgauntlet"
-    let mut group = if let Some(legacy) = root_obj.remove("agent-gauntlet-gatekeeper") {
-        changes.push(
-            "Renamed legacy namespace 'agent-gauntlet-gatekeeper' to 'xgauntlet'".to_string(),
-        );
-        legacy
-    } else if let Some(legacy) = root_obj.remove("gauntlet-gatekeeper") {
-        changes.push("Renamed legacy namespace 'gauntlet-gatekeeper' to 'xgauntlet'".to_string());
-        legacy
-    } else if let Some(canonical) = root_obj.get("xgauntlet").cloned() {
-        canonical
+    // 1. Resolve and modernize namespace: handle legacy, modern, or merge of both
+    let legacy_key = if root_obj.contains_key("agent-gauntlet-gatekeeper") {
+        Some("agent-gauntlet-gatekeeper")
+    } else if root_obj.contains_key("gauntlet-gatekeeper") {
+        Some("gauntlet-gatekeeper")
     } else {
-        // No gauntlet hook configuration present
-        return Ok(None);
+        None
+    };
+
+    let mut group = match (legacy_key, root_obj.contains_key("xgauntlet")) {
+        (Some(leg_key), true) => {
+            // Both legacy and modern group exist: merge legacy into modern without clobbering
+            let legacy_val = root_obj.remove(leg_key).unwrap();
+            let mut canonical_val = root_obj.remove("xgauntlet").unwrap();
+
+            changes.push(format!(
+                "Merged legacy namespace '{leg_key}' into 'xgauntlet' without data loss"
+            ));
+
+            if let (Some(leg_obj), Some(canon_obj)) =
+                (legacy_val.as_object(), canonical_val.as_object_mut())
+            {
+                // Merge PreToolUse
+                if let Some(leg_pre_tool) = leg_obj.get("PreToolUse").and_then(|v| v.as_array()) {
+                    let canon_pre_tool = canon_obj
+                        .entry("PreToolUse".to_string())
+                        .or_insert_with(|| Value::Array(Vec::new()))
+                        .as_array_mut()
+                        .unwrap();
+
+                    for item in leg_pre_tool {
+                        let matcher = item.get("matcher").and_then(|m| m.as_str());
+                        if !canon_pre_tool
+                            .iter()
+                            .any(|c| c.get("matcher").and_then(|m| m.as_str()) == matcher)
+                        {
+                            canon_pre_tool.push(item.clone());
+                        }
+                    }
+                }
+
+                // Merge PreInvocation
+                if let Some(leg_pre_inv) = leg_obj.get("PreInvocation").and_then(|v| v.as_array()) {
+                    let canon_pre_inv = canon_obj
+                        .entry("PreInvocation".to_string())
+                        .or_insert_with(|| Value::Array(Vec::new()))
+                        .as_array_mut()
+                        .unwrap();
+
+                    for item in leg_pre_inv {
+                        let cmd = item.get("command").and_then(|c| c.as_str());
+                        if !canon_pre_inv
+                            .iter()
+                            .any(|c| c.get("command").and_then(|c| c.as_str()) == cmd)
+                        {
+                            canon_pre_inv.push(item.clone());
+                        }
+                    }
+                }
+
+                // Copy any other custom properties from legacy
+                for (k, v) in leg_obj {
+                    if k != "PreToolUse"
+                        && k != "PreInvocation"
+                        && k != "enabled"
+                        && !canon_obj.contains_key(k)
+                    {
+                        canon_obj.insert(k.clone(), v.clone());
+                    }
+                }
+            }
+            canonical_val
+        }
+        (Some(leg_key), false) => {
+            let legacy = root_obj.remove(leg_key).unwrap();
+            changes.push(format!(
+                "Renamed legacy namespace '{leg_key}' to 'xgauntlet'"
+            ));
+            legacy
+        }
+        (None, true) => root_obj.remove("xgauntlet").unwrap(),
+        (None, false) => return Ok(None),
     };
 
     let group_obj = match group.as_object_mut() {
@@ -141,7 +209,7 @@ fn migrate_hooks_json(
         }
     }
 
-    // 3. Ensure PreInvocation telemetry hook is injected
+    // 3. Ensure PreInvocation telemetry hook is injected and normalized to canonical format
     let pre_inv = group_obj
         .entry("PreInvocation".to_string())
         .or_insert_with(|| Value::Array(Vec::new()));
@@ -158,14 +226,45 @@ fn migrate_hooks_json(
         }
     };
 
-    let has_telemetry = pre_inv_arr.iter().any(|item| {
-        let cmd = item.get("command").and_then(|c| c.as_str()).unwrap_or("");
-        cmd.contains("xgauntlet telemetry") || cmd.contains("agent_gauntlet telemetry")
-    });
+    let canonical_cmd = crate::features::adapters::antigravity::CANONICAL_PRE_INVOCATION_CMD;
+    let mut has_telemetry = false;
+
+    for item in pre_inv_arr.iter_mut() {
+        if let Some(cmd) = item.get_mut("command") {
+            if let Some(cmd_str) = cmd.as_str() {
+                if cmd_str.contains("telemetry") {
+                    if cmd_str != canonical_cmd {
+                        *cmd = Value::String(canonical_cmd.to_string());
+                        changes.push(format!(
+                            "Normalized PreInvocation telemetry hook to canonical format: '{canonical_cmd}'"
+                        ));
+                    }
+                    has_telemetry = true;
+                }
+            }
+        } else if let Some(hooks_arr) = item.get_mut("hooks").and_then(|h| h.as_array_mut()) {
+            for h in hooks_arr.iter_mut() {
+                if let Some(cmd) = h.get_mut("command") {
+                    if let Some(cmd_str) = cmd.as_str() {
+                        if cmd_str.contains("telemetry") {
+                            if cmd_str != canonical_cmd {
+                                *cmd = Value::String(canonical_cmd.to_string());
+                                changes.push(format!(
+                                    "Normalized PreInvocation telemetry hook to canonical format: '{canonical_cmd}'"
+                                ));
+                            }
+                            has_telemetry = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     if !has_telemetry {
         pre_inv_arr.push(serde_json::json!({
-            "command": "xgauntlet telemetry --harness antigravity-hook"
+            "type": "command",
+            "command": canonical_cmd
         }));
         changes
             .push("Injected PreInvocation telemetry hook for Antigravity response HUD".to_string());

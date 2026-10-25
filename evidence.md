@@ -77,6 +77,7 @@
 | `sess-fc38f6bb` | `TDD Craftsman` | `GREEN` | `fc38f6b` | `2026-10-25T19:22:06Z` | `VALID` |
 | `sess-499be1ee` | `TDD Craftsman` | `REFACTOR` | `499be1e` | `2026-10-25T19:22:38Z` | `VALID` |
 | `sess-dc9e26a3` | `Software Engineer` | `DONE` | `dc9e26a` | `2026-10-25T19:26:06Z` | `VALID` |
+| `sess-2f2e2454` | `TDD Craftsman` | `RED` | `2f2e245` | `2026-10-25T19:34:52Z` | `VALID` |
 
 ---
 
@@ -153,5 +154,11 @@
 | `test_detect_composite_typescript_in_workspace` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
+| `test_migration_injects_canonical_telemetry_format` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
+| `test_migration_normalizes_defective_harness_hook_and_is_idempotent` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
+| `test_migration_normalizes_legacy_harness_antigravity` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
+| `test_migration_merges_simultaneous_legacy_and_modern_groups_without_data_loss` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
+| `test_doctor_fix_reports_migration_errors_truthfully` | `RedCheckpointVerified` | `845eb4d02ba21f7d...` | `2026-10-25T20:34:52+01:00` |
+| `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
 
 ---

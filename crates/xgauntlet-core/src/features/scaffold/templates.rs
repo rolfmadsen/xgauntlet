@@ -353,36 +353,33 @@ For at sikre sporbarhed, atomiske tilbagerulningspunkter og beskytte mod context
 }
 
 fn render_hooks_json() -> String {
-    r#"{
-  "xgauntlet": {
+    let pre_inv_cmd = crate::features::adapters::antigravity::CANONICAL_PRE_INVOCATION_CMD;
+    format!(
+        r#"{{
+  "xgauntlet": {{
     "enabled": true,
     "PreToolUse": [
-      {
+      {{
         "matcher": ".*",
         "hooks": [
-          {
+          {{
             "type": "command",
             "command": "xgauntlet hook antigravity",
             "timeout": 30
-          }
+          }}
         ]
-      }
+      }}
     ],
     "PreInvocation": [
-      {
-        "matcher": ".*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "xgauntlet telemetry --format antigravity-hook"
-          }
-        ]
-      }
+      {{
+        "type": "command",
+        "command": "{pre_inv_cmd}"
+      }}
     ]
-  }
-}
+  }}
+}}
 "#
-    .to_string()
+    )
 }
 
 fn render_claude_md(project_name: &str) -> String {
