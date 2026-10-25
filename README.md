@@ -291,6 +291,10 @@ For at undgå uendelige review-loops (*bikeshedding*) og bevare et skarpt kontek
 4. **`Release & Operations Engineer (Release Attestation & Deployment)`**:
    * Tager over når alle opgaver og audits er godkendt. Kører `xgauntlet check-release`, synkroniserer versioner og klargør release.
 
+> [!NOTE]
+> **🛡️ Single-Agent Governance & Human-in-the-Loop (HITL):**
+> xGauntlet anvender en transparent enkelt-agent model under direkte menneskeligt opsyn. Kontekst-renhed opnås via mekaniske Session Handoffs, ikke via uigennemskuelige baggrunds-subagenter. Udvikleren bevarer hermed fuld kontrol og sporbarhed over hver eneste sessionsovergang.
+
 ---
 
 ## 🎯 Arkitektur & Designprincipper

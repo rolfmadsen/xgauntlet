@@ -26,7 +26,7 @@ The agent has direct access to bundled skills located in [.agents/plugins/xgaunt
 3. **[tdd](.agents/plugins/xgauntlet/skills/tdd/SKILL.md)**:
    * *Purpose*: Strict Evidence-First Red-Green-Refactor development with local Git phase checkpoints, isolated feature tests, and prohibition of monolithic test files.
 4. **[review](.agents/plugins/xgauntlet/skills/review/SKILL.md)**:
-   * *Purpose*: Two-axis review (Standards vs Spec) running independent parallel sub-agents with Fowler code smells baseline.
+   * *Purpose*: Two-axis review (Standards vs Spec) running as an independent code reviewer role in a fresh session with Fowler code smells baseline.
 5. **[diagnose](.agents/plugins/xgauntlet/skills/diagnose/SKILL.md)**:
    * *Purpose*: Disciplined root-cause diagnosis loop (Reproduce $\to$ Minimize $\to$ Hypothesize $\to$ Instrument $\to$ Fix $\to$ Regression-test).
 6. **[release](.agents/plugins/xgauntlet/skills/release/SKILL.md)**:

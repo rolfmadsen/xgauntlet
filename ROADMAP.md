@@ -162,9 +162,9 @@ Inspireret af Matt Pococks ingeniør-skills, der bekæmper "vibe coding" og etab
 - **Mekanisme**: Omdanner uafklarede spørgsmål til et asynkront Markdown-spørgeskema til tredjepart. Agenten interviewer alene om *"hvem skal udfylde det, og hvilke konkrete svar er nødvendige for at komme videre"*, og genererer et målrettet dokument.
 - **Placering i loop**: [discover skill](.agents/plugins/xgauntlet/skills/discover/).
 
-#### 5. 🔍 `two-axis-review` (Parallel Standard- vs. Spec-anmeldelse)
+#### 5. 🔍 `two-axis-review` (To-akset Standard- vs. Spec-anmeldelse)
 - **Formål**: Adskille teknisk håndværksmæssig renhed fra funktionel opgaveopfyldelse.
-- **Mekanisme**: Kører to uafhængige subagenter parallelt:
+- **Mekanisme**: Evalueres af `Code Reviewer`-rollen i en dedikeret, isoleret session mod opgavens Git diff:
   - **Standards-akse**: Verificerer kodestil og Martin Fowlers kode-lugte (*Code Smells* baseline fra *Refactoring* kap. 3).
   - **Spec-akse**: Verificerer punkt for punkt, om koden opfylder den oprindelige specifikation i opgaven uden scope creep.
 - **Placering i loop**: [review skill](.agents/plugins/xgauntlet/skills/review/) (allerede delvist adopteret som xGauntlets kernereview).
@@ -198,7 +198,7 @@ For at gøre det let at evaluere og sammenligne de 16 identificerede kandidat-sk
 | **10** | **REFACTOR** (Oprydning) | 🔴 **P1** | `simplify` | Addy Osmani | Delvis (TDD refactor) | **Operationel refaktorerings-disciplin**: *Chesterton's Fence*, afgrænsning strictly til ændrede linjer, frosne assertions. |
 | **11** | **REFACTOR** (Oprydning) | 🟡 **P2** | `deepening` & Deletion Test | Matt Pocock | Delvis (Fowler smells) | **Ousterhout dybe moduler**: *The Deletion Test* fjerner overfladiske moduler, hvor snitfladen er lige så kompleks som koden. |
 | **12** | **GAUNTLET** (Verifikation) | 🔴 **P1** | `constraint` (Anti-Suppression) | Addy Osmani | Delvis (`xgauntlet verify`) | **Mekanisk kvalitetsgulv**: Forbud mod nye suppressions (`#[allow]`, `@ts-ignore`) og monotont voksende test/mutant-ratchets. |
-| **13** | **REVIEW** (Anmeldelse) | 🔴 **P1** | `two-axis-review` | Matt Pocock | Adopteret ([review](.agents/plugins/xgauntlet/skills/review/)) | **Parallel Standards vs. Spec**: Uafhængige subagenter uden kontekstforurening (bør udvides med HTML-rapportering). |
+| **13** | **REVIEW** (Anmeldelse) | 🔴 **P1** | `two-axis-review` | Matt Pocock | Adopteret ([review](.agents/plugins/xgauntlet/skills/review/)) | **To-akset Standards vs. Spec**: Evalueret af Code Reviewer i dedikeret session uden kontekstforurening (bør udvides med HTML-rapportering). |
 | **14** | **DIAGNOSE** (Fejlfinding) | 🔴 **P1** | `systematic-debugging` | Superpowers | Delvis ([diagnose](.agents/plugins/xgauntlet/skills/diagnose/)) | **The Iron Law**: *"No fixes without root cause"*; flerlags boundary-logging og baglæns datastrøm-sporing. |
 | **15** | **RELEASE** (Afslutning) | 🔴 **P1** | `finish-branch` | Superpowers | Delvis ([release](.agents/plugins/xgauntlet/skills/release/)) | **Deterministisk integration**: Fast 3-punkts menu og obligatorisk testverifikation på det mergede resultat før cleanup. |
 | **16** | **META** (Skill-udvikling) | 🟢 **P3** | `skill-tdd` | Superpowers | Ingen | **Metodisk skill-udvikling**: TDD på selve agent-instruktionerne (bevis at agenten fejler uden skillen og lykkes med den). |
@@ -257,7 +257,7 @@ For at gøre det let at evaluere og sammenligne de 16 identificerede kandidat-sk
 
 ##### 7. To-akset Kodeanmeldelse (`REVIEW`)
 13. **`two-axis-review` (Matt Pocock) — 🔴 P1**:
-    - *Hvorfor*: Sikrer at kode både lever op til håndværksmæssige standarder (Fowler Code Smells) og funktionel specifikation, evalueret i parallelle subagenter for at undgå kontekstforurening.
+    - *Hvorfor*: Sikrer at kode både lever op til håndværksmæssige standarder (Fowler Code Smells) og funktionel specifikation, evalueret af Code Reviewer-rollen i en dedikeret, isoleret session mod opgavens Git diff for at undgå kontekstforurening.
     - *Tiltag*: Er allerede xGauntlets kernemodel i [review skill](.agents/plugins/xgauntlet/skills/review/); kan udvides med automatisk generering af visualiseret HTML-rapport i `/tmp`.
 
 ##### 8. Disciplineret Fejlfinding (`DIAGNOSE`)

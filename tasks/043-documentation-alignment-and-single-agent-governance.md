@@ -23,18 +23,18 @@ Historiske sektioner i `ROADMAP.md` og `.agents/AGENTS.md` beskriver stadig en h
 Opgaven afskaffer disse referencer og formaliserer, at to-akset review og andre opgaver udføres som sekventielle, fokuserede roller i rene sessioner med eksplicitte *Human-in-the-Loop* session handoffs.
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Opdatering af `ROADMAP.md`)**:
+- [x] **AC1 (Opdatering af `ROADMAP.md`)**:
   - Gennemgå `ROADMAP.md` og fjerne alle formuleringer om kørsel af "parallelle subagenter" i relation til `review` og SDLC-pipelinen (herunder linje 167, 201 og 260).
   - Erstatte med en klar beskrivelse af, at Akse 1 (Specifikation) og Akse 2 (Standarder) evalueres af `Code Reviewer`-rollen i en dedikeret, isoleret session mod opgavens Git diff.
-- [ ] **AC2 (Opdatering af `.agents/AGENTS.md`)**:
+- [x] **AC2 (Opdatering af `.agents/AGENTS.md`)**:
   - Opdatere beskrivelsen af `review`-skillen i `.agents/AGENTS.md` (linje 33) så "running independent parallel sub-agents" erstattes af "running as an independent code reviewer role in a fresh session with Fowler code smells baseline".
-- [ ] **AC3 (Verifikation af `review/SKILL.md`)**:
+- [x] **AC3 (Verifikation af `review/SKILL.md`)**:
   - Verificere at `.agents/plugins/xgauntlet/skills/review/SKILL.md` er fri for subagent-dogmer og udelukkende foreskriver den sekventielle to-aksede model baseret på Definition of Enough.
-- [ ] **AC4 (Dokumentation af Single-Agent & HITL Princippet)**:
+- [x] **AC4 (Dokumentation af Single-Agent & HITL Princippet)**:
   - Indsætte en kort, præcis arkitekturnote i `README.md` / `packages/cli/README.md` under "De 4 AI-roller", der ekspliciterer:
     - xGauntlet anvender en transparent enkelt-agent model under direkte menneskeligt opsyn.
     - Kontekst-renhed opnås via mekaniske Session Handoffs, ikke via uigennemskuelige baggrunds-subagenter.
-- [ ] **AC5 (Spec & Invariant Verifikation)**:
+- [x] **AC5 (Spec & Invariant Verifikation)**:
   - Verificere at `cargo run -p xgauntlet-cli -- check-spec -t 043` validerer med 0 fejl.
 
 ## 🚫 Must NOT
