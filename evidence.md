@@ -1,22 +1,22 @@
 # Verification Report
 
-**Task ID**: `051-antigravity-2-6-0-governance-and-release-remediation`  
-**Task Title**: Task 051: Antigravity 2.6.0 Governance & Strict Release Remediation  
+**Task ID**: `052-dx-fast-track-and-hook-hardening`  
+**Task Title**: Task 052: DX Optimization, Scoped Test Execution, Fast-Track Bugfix Protocol & Hook Hardening  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `60ed23bc9e21dc87d43b9d3ce20742dd9467021233c7042089d0abdc9023e2eb`  
-**Timestamp**: `2026-11-01T14:00:22Z`  
-**Head**: `5fa477f`  
-**Commit**: `5fa477f`  
+**Source Manifest Digest**: `40eda54c4472311e4db00abb5c18e45c7cb8903c9860ead370046d17eb15ebe4`  
+**Timestamp**: `2026-11-01T18:04:49Z`  
+**Head**: `0e9eea5`  
+**Commit**: `0e9eea5`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (ADR 0006 Trusted Workspace Containment)**: Fjern Trin 3 (`toolCall.args.Path` forældretraversering) fuldstændigt fra `crates/xgauntlet-core/src/features/adapters/antigravity/workspace.rs`. Bevar det indkommende `workspace` uændret, når det allerede er et gyldigt workspace (`gauntlet.toml`, `tasks/` eller `.agents/`), og brug kun konvoluttens `workspacePaths` / `cwd` som fallback, når proces-`workspace` ikke selv er et gyldigt workspace. En accepttest i `antigravity_adapter_test.rs` beviser, at et `PreToolUse`-kald (`write_file` / `edit_file`) mod en absolut sti i et andet Git-repo på disken afvises fail-closed (`decision: "deny"`).
-- [x] **AC2 (Single-Agent HITL & Zero-Daemon Tool Gating)**: I `AntigravityAdapter::normalize_tool_call` (`crates/xgauntlet-core/src/features/adapters/antigravity/mod.rs`) mappes kun reelt passive/interaktive læse- og dialogværktøjer uden filsti til `ToolActionType::ReadFile`: `ask_question`, `list_plugin_accounts`, `search_marketplace`, `search_web` samt `manage_task` *udelukkende* når `args.Action` (case-insensitivt) er `"list"` eller `"status"`. Værktøjerne `invoke_subagent`, `define_subagent`, `manage_subagents`, `send_message` og `schedule` samt `manage_task` med `Action: "kill" | "send_input"` (eller manglende/ukendt `Action`) skal mappes til `ToolActionType::Other` (fail-closed `4038: Deny`). Verificeres i `antigravity_adapter_test.rs`.
-- [x] **AC3 (Strict In-Flight Release Gatekeeper & Fail-Closed `cargo check`)**: Gendan strict kontrol af `verification-report.json` og 0% manifest-drift (`verify_workspace_state_match`) i trin 7 af `execute_release_workflow` (`crates/xgauntlet-cli/src/render.rs` og `crates/xgauntlet-core/src/features/release/`) jf. Task 042 AC3 uden at bryde bagudkompatibiliteten på `ReleaseReadinessOptions` (kun `DirtyWorktree`-tjekket må springes over under in-flight transaktionel staging, mens `check-release --strict` fortsat håndhæver begge). Fejl på `cargo check` under `Cargo.lock`-synkronisering i `render.rs` håndteres fail-closed i stedet for `let _ = ...`. Dækkes af tests i `release_in_flight_test.rs` (eller `release_engine_test.rs` inden for 1.000-linjers loftet).
-- [x] **AC4 (Isoleret Hook-Stdin i `Commands::Telemetry`)**: I `crates/xgauntlet-cli/src/main.rs` udledes `effective_format` *før* der læses fra `stdin`, så `stdin` udelukkende læses (via `clean_stdin` mod UTF-8 BOM) når `effective_format` er `antigravity-hook` / `antigravity`. Almindelige CLI-/script-kald (`box`, `json` m.fl.) og andre harnesses (jf. ADR 0004) må ikke læse `stdin` eller kalde `AntigravityAdapter`.
-- [x] **AC5 (Ærlig opgavehistorik for Task 050)**: `tasks/050-antigravity-ide-2-6-0-support-and-release.md` opdateres til `status: done` og `**Status**: DONE`, de manglende berørte stier (`crates/xgauntlet-core/src/features/policy/path.rs`, `crates/xgauntlet-core/src/features/adapters/models.rs`, `package.json`) tilføjes i Task 050's `scope`, og `AC5` i Task 050 sættes til `[ ]` med en revisionsnote, der henviser til Task 051.
-- [x] **AC6 (Genforsegling af Task 051 & Lokalt `v0.10.0` Tag)**: Task 051 markeres `status: done` / `**Status**: DONE`, frisk evidens forsegles med 0% drift i `verification-report.json` og `evidence.md`, det lokale u-pushede tag `v0.10.0` flyttes til det endelige forseglede release-commit (`git tag -d v0.10.0` og `git tag -a v0.10.0 -m "Release v0.10.0"`), og `xgauntlet check-release --strict` passerer med exit code 0 (`RELEASE READY`) på rent arbejdstræ.
+- [x] **AC1 — `test_refs`-bundet Pre-flight Eksekvering i `xgauntlet checkpoint`:**
+- [x] **AC2 — Fast-Track Bugfix Protokol & Worktree Inverse Proof (`intent: bug`):**
+- [x] **AC3 — Hook Policy Engine: Harness Whitelist, Sikker `run_command` & Actionable `stderr`:**
+- [x] **AC4 — Telemetri-Deduplikering, State-Diffing & Direkte Native Binær Hook:**
+- [x] **AC5 — Dedupliceret Rust Stack-Profil, `xgauntlet migrate` & Konsolideret Test-Harness Mønster:**
+- [x] **AC6 — ADR & Selv-Verifikation:**
 
 ---
 
@@ -24,14 +24,14 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.103s` |
-| `format` | `PASSED` | `0` | `0.200s` |
-| `lint` | `PASSED` | `0` | `0.097s` |
-| `types` | `PASSED` | `0` | `0.075s` |
-| `unit` | `PASSED` | `0` | `22.249s` |
-| `npm` | `PASSED` | `0` | `2.935s` |
-| `invariants` | `PASSED` | `0` | `0.057s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
+| `architecture` | `PASSED` | `0` | `0.074s` |
+| `format` | `PASSED` | `0` | `0.250s` |
+| `lint` | `PASSED` | `0` | `0.111s` |
+| `types` | `PASSED` | `0` | `0.109s` |
+| `unit` | `PASSED` | `0` | `24.727s` |
+| `npm` | `PASSED` | `0` | `2.906s` |
+| `invariants` | `PASSED` | `0` | `0.071s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.011s` |
 
 ---
 
@@ -97,6 +97,17 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_rust_target_resolver_standalone_integration_test` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
+| `test_rust_target_resolver_harness_submodule` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
+| `test_rust_target_resolver_lib_unit_test` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
+| `test_fast_track_eligibility_criteria` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
+| `test_fast_track_worktree_inverse_proof_born_green_rejection` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
+| `test_always_passes` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
+| `test_harness_whitelist_paths` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
+| `test_session_brain_artifact_paths` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
+| `test_hook_run_command_remains_strictly_gatekept` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
+| `test_hook_read_only_tools_allowed_in_spec_phase` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
+| `test_rust_stack_profile_deduplication` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
 | `test_antigravity_2_6_tools_normalization` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
 | `test_antigravity_2_6_hook_handler_protocol` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
 | `test_antigravity_resolve_effective_workspace_and_containment` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
