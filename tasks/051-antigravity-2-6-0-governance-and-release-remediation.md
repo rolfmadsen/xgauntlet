@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 051: Antigravity 2.6.0 Governance & Strict Release Remediation"
 description: "Udbedring af de 4 code review-fund fra v0.9.0..07c6cd9 (ADR 0006 workspace-containment, Single-Agent tool-gating, strict in-flight release gatekeeper og genforsegling af v0.10.0)"
-status: active
+status: done
 generated: { by: process:antigravity-task-init, at: "2026-11-01T14:35:00Z" }
 tags: [antigravity, security, governance, adr-0006, release, semver, bugfix]
 scope:
@@ -28,7 +28,7 @@ test_refs:
 
 # Task 051: Antigravity 2.6.0 Governance & Strict Release Remediation
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🐛 BUG FIX`
 **Oprettet**: `2026-11-01`
 
@@ -47,7 +47,7 @@ Formålet med Task 051 er at udbedre disse 4 punkter via streng TDD (RED → GRE
 - [x] **AC3 (Strict In-Flight Release Gatekeeper & Fail-Closed `cargo check`)**: Gendan strict kontrol af `verification-report.json` og 0% manifest-drift (`verify_workspace_state_match`) i trin 7 af `execute_release_workflow` (`crates/xgauntlet-cli/src/render.rs` og `crates/xgauntlet-core/src/features/release/`) jf. Task 042 AC3 uden at bryde bagudkompatibiliteten på `ReleaseReadinessOptions` (kun `DirtyWorktree`-tjekket må springes over under in-flight transaktionel staging, mens `check-release --strict` fortsat håndhæver begge). Fejl på `cargo check` under `Cargo.lock`-synkronisering i `render.rs` håndteres fail-closed i stedet for `let _ = ...`. Dækkes af tests i `release_in_flight_test.rs` (eller `release_engine_test.rs` inden for 1.000-linjers loftet).
 - [x] **AC4 (Isoleret Hook-Stdin i `Commands::Telemetry`)**: I `crates/xgauntlet-cli/src/main.rs` udledes `effective_format` *før* der læses fra `stdin`, så `stdin` udelukkende læses (via `clean_stdin` mod UTF-8 BOM) når `effective_format` er `antigravity-hook` / `antigravity`. Almindelige CLI-/script-kald (`box`, `json` m.fl.) og andre harnesses (jf. ADR 0004) må ikke læse `stdin` eller kalde `AntigravityAdapter`.
 - [x] **AC5 (Ærlig opgavehistorik for Task 050)**: `tasks/050-antigravity-ide-2-6-0-support-and-release.md` opdateres til `status: done` og `**Status**: DONE`, de manglende berørte stier (`crates/xgauntlet-core/src/features/policy/path.rs`, `crates/xgauntlet-core/src/features/adapters/models.rs`, `package.json`) tilføjes i Task 050's `scope`, og `AC5` i Task 050 sættes til `[ ]` med en revisionsnote, der henviser til Task 051.
-- [ ] **AC6 (Genforsegling af Task 051 & Lokalt `v0.10.0` Tag)**: Task 051 markeres `status: done` / `**Status**: DONE`, frisk evidens forsegles med 0% drift i `verification-report.json` og `evidence.md`, det lokale u-pushede tag `v0.10.0` flyttes til det endelige forseglede release-commit (`git tag -d v0.10.0` og `git tag -a v0.10.0 -m "Release v0.10.0"`), og `xgauntlet check-release --strict` passerer med exit code 0 (`RELEASE READY`) på rent arbejdstræ.
+- [x] **AC6 (Genforsegling af Task 051 & Lokalt `v0.10.0` Tag)**: Task 051 markeres `status: done` / `**Status**: DONE`, frisk evidens forsegles med 0% drift i `verification-report.json` og `evidence.md`, det lokale u-pushede tag `v0.10.0` flyttes til det endelige forseglede release-commit (`git tag -d v0.10.0` og `git tag -a v0.10.0 -m "Release v0.10.0"`), og `xgauntlet check-release --strict` passerer med exit code 0 (`RELEASE READY`) på rent arbejdstræ.
 
 ## 🚫 Must NOT
 - Må ALDRIG udføre remote publication (`git push`) jf. ADR 0003.
@@ -59,6 +59,7 @@ Formålet med Task 051 er at udbedre disse 4 punkter via streng TDD (RED → GRE
 
 ## 📝 Revisions
 - 2026-11-01: Oprettet på baggrund af Two-Axis Code Review af `v0.9.0..07c6cd9` for at sikre fuld overensstemmelse med xGauntlets formål før publicering af `v0.10.0`.
+- 2026-11-01: Fuld udbedring af alle 4 review-fund, streng in-flight staging release gatekeeper, isoleret hook-stdin og genforsegling af release v0.10.0.
 
 ## 🧪 Verifikation
 - `cargo run -p xgauntlet-cli -- check-spec -t 051`
@@ -68,4 +69,3 @@ Formålet med Task 051 er at udbedre disse 4 punkter via streng TDD (RED → GRE
 - `cargo run -p xgauntlet-cli -- check-architecture`
 - `cargo test --workspace`
 - `cargo run -p xgauntlet-cli -- check-release --strict`
-

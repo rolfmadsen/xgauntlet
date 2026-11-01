@@ -1,21 +1,22 @@
 # Verification Report
 
-**Task ID**: `050-antigravity-ide-2-6-0-support-and-release`  
-**Task Title**: Task 050: Antigravity IDE 2.6.0 Support and Release  
+**Task ID**: `051-antigravity-2-6-0-governance-and-release-remediation`  
+**Task Title**: Task 051: Antigravity 2.6.0 Governance & Strict Release Remediation  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `28a9f9cd4b1576f87fc436f5cbd17099d9b5ab020dc4f0b00c6add679195d9d4`  
-**Timestamp**: `2026-11-01T12:24:20Z`  
-**Head**: `295e325`  
-**Commit**: `295e325`  
+**Source Manifest Digest**: `60ed23bc9e21dc87d43b9d3ce20742dd9467021233c7042089d0abdc9023e2eb`  
+**Timestamp**: `2026-11-01T14:00:22Z`  
+**Head**: `5fa477f`  
+**Commit**: `5fa477f`  
 
 ## Acceptance Criteria
 
-- [x] AC1: Antigravity-adapteren genkender og normaliserer nye IDE 2.6.0 værktøjskald (`read_file`, `write_file`, `edit_file`, `ask_question`, `list_plugin_accounts`, `manage_task`).
-- [x] AC2: Adapteren udleder det effektive workspace via `workspacePaths`, `cwd` og sti-traversering, og håndhæver fail-safe telemetri ved uoprettede opgaver.
-- [x] AC3: Hele kildekoden er formateret jf. `cargo fmt` og passerer samtlige release-invarianter i `release_engine_test`.
-- [x] AC4: Manifest-filer (`Cargo.toml`, `packages/cli/package.json`), `CHANGELOG.md` og WASM-bytecode synkroniseres til `0.10.0`, og evidens forsegles i `verification-report.json` og `evidence.md`.
-- [x] AC5: Opgaven forsegles som DONE med commit og release-tag `v0.10.0` klar til `git push` jf. ADR 0003.
+- [x] **AC1 (ADR 0006 Trusted Workspace Containment)**: Fjern Trin 3 (`toolCall.args.Path` forældretraversering) fuldstændigt fra `crates/xgauntlet-core/src/features/adapters/antigravity/workspace.rs`. Bevar det indkommende `workspace` uændret, når det allerede er et gyldigt workspace (`gauntlet.toml`, `tasks/` eller `.agents/`), og brug kun konvoluttens `workspacePaths` / `cwd` som fallback, når proces-`workspace` ikke selv er et gyldigt workspace. En accepttest i `antigravity_adapter_test.rs` beviser, at et `PreToolUse`-kald (`write_file` / `edit_file`) mod en absolut sti i et andet Git-repo på disken afvises fail-closed (`decision: "deny"`).
+- [x] **AC2 (Single-Agent HITL & Zero-Daemon Tool Gating)**: I `AntigravityAdapter::normalize_tool_call` (`crates/xgauntlet-core/src/features/adapters/antigravity/mod.rs`) mappes kun reelt passive/interaktive læse- og dialogværktøjer uden filsti til `ToolActionType::ReadFile`: `ask_question`, `list_plugin_accounts`, `search_marketplace`, `search_web` samt `manage_task` *udelukkende* når `args.Action` (case-insensitivt) er `"list"` eller `"status"`. Værktøjerne `invoke_subagent`, `define_subagent`, `manage_subagents`, `send_message` og `schedule` samt `manage_task` med `Action: "kill" | "send_input"` (eller manglende/ukendt `Action`) skal mappes til `ToolActionType::Other` (fail-closed `4038: Deny`). Verificeres i `antigravity_adapter_test.rs`.
+- [x] **AC3 (Strict In-Flight Release Gatekeeper & Fail-Closed `cargo check`)**: Gendan strict kontrol af `verification-report.json` og 0% manifest-drift (`verify_workspace_state_match`) i trin 7 af `execute_release_workflow` (`crates/xgauntlet-cli/src/render.rs` og `crates/xgauntlet-core/src/features/release/`) jf. Task 042 AC3 uden at bryde bagudkompatibiliteten på `ReleaseReadinessOptions` (kun `DirtyWorktree`-tjekket må springes over under in-flight transaktionel staging, mens `check-release --strict` fortsat håndhæver begge). Fejl på `cargo check` under `Cargo.lock`-synkronisering i `render.rs` håndteres fail-closed i stedet for `let _ = ...`. Dækkes af tests i `release_in_flight_test.rs` (eller `release_engine_test.rs` inden for 1.000-linjers loftet).
+- [x] **AC4 (Isoleret Hook-Stdin i `Commands::Telemetry`)**: I `crates/xgauntlet-cli/src/main.rs` udledes `effective_format` *før* der læses fra `stdin`, så `stdin` udelukkende læses (via `clean_stdin` mod UTF-8 BOM) når `effective_format` er `antigravity-hook` / `antigravity`. Almindelige CLI-/script-kald (`box`, `json` m.fl.) og andre harnesses (jf. ADR 0004) må ikke læse `stdin` eller kalde `AntigravityAdapter`.
+- [x] **AC5 (Ærlig opgavehistorik for Task 050)**: `tasks/050-antigravity-ide-2-6-0-support-and-release.md` opdateres til `status: done` og `**Status**: DONE`, de manglende berørte stier (`crates/xgauntlet-core/src/features/policy/path.rs`, `crates/xgauntlet-core/src/features/adapters/models.rs`, `package.json`) tilføjes i Task 050's `scope`, og `AC5` i Task 050 sættes til `[ ]` med en revisionsnote, der henviser til Task 051.
+- [x] **AC6 (Genforsegling af Task 051 & Lokalt `v0.10.0` Tag)**: Task 051 markeres `status: done` / `**Status**: DONE`, frisk evidens forsegles med 0% drift i `verification-report.json` og `evidence.md`, det lokale u-pushede tag `v0.10.0` flyttes til det endelige forseglede release-commit (`git tag -d v0.10.0` og `git tag -a v0.10.0 -m "Release v0.10.0"`), og `xgauntlet check-release --strict` passerer med exit code 0 (`RELEASE READY`) på rent arbejdstræ.
 
 ---
 
@@ -23,14 +24,14 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.064s` |
-| `format` | `PASSED` | `0` | `0.199s` |
-| `lint` | `PASSED` | `0` | `0.105s` |
-| `types` | `PASSED` | `0` | `0.072s` |
-| `unit` | `PASSED` | `0` | `22.464s` |
-| `npm` | `PASSED` | `0` | `2.933s` |
-| `invariants` | `PASSED` | `0` | `0.061s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.015s` |
+| `architecture` | `PASSED` | `0` | `0.103s` |
+| `format` | `PASSED` | `0` | `0.200s` |
+| `lint` | `PASSED` | `0` | `0.097s` |
+| `types` | `PASSED` | `0` | `0.075s` |
+| `unit` | `PASSED` | `0` | `22.249s` |
+| `npm` | `PASSED` | `0` | `2.935s` |
+| `invariants` | `PASSED` | `0` | `0.057s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---
 
@@ -87,6 +88,8 @@
 | `sess-d0428ec1` | `Software Engineer` | `DONE` | `d0428ec` | `2026-10-25T20:29:20Z` | `VALID` |
 | `sess-cb8a691b` | `TDD Craftsman` | `RED` | `cb8a691` | `2026-11-01T13:43:34Z` | `VALID` |
 | `sess-5b500d3d` | `TDD Craftsman` | `GREEN` | `5b500d3` | `2026-11-01T13:48:21Z` | `VALID` |
+| `sess-29ad1a97` | `TDD Craftsman` | `REFACTOR` | `29ad1a9` | `2026-11-01T13:49:03Z` | `VALID` |
+| `sess-4791d8dd` | `Software Engineer` | `DONE` | `4791d8d` | `2026-11-01T13:51:30Z` | `VALID` |
 
 ---
 
@@ -94,6 +97,25 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_antigravity_2_6_tools_normalization` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_antigravity_2_6_hook_handler_protocol` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_antigravity_resolve_effective_workspace_and_containment` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_antigravity_workspace_containment_denies_outside_repo` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_manifest_version_extraction_and_harmony` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_manifest_version_mismatch_detection` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_missing_changelog_detection` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_changelog_version_matching_and_allow_unreleased` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_adr_coverage_detection` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_changelog_parser_helper` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_real_workspace_release_readiness` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_cli_check_release_integration` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_unformatted_code_detection_in_release_gatekeeper` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_wasm_policy_version_mismatch_detection_in_release_gatekeeper` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_format_gate_fails_closed_when_formatter_missing` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_wasm_policy_fails_closed_on_corrupt_bytecode` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_strict_release_gate_fails_closed_when_evidence_report_missing` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_package_json_key_order_preservation_on_update` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
+| `test_in_flight_staging_skips_dirty_worktree_but_enforces_strict_verification` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
 | `test_ratchet_enforcement_rejects_unauthorized_ceiling_inflation` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
 | `test_ratchet_enforcement_accepts_authorized_ceiling_inflation` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
 | `test_ratchet_enforcement_rejects_inflation_exceeding_authorized_limit` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
@@ -176,24 +198,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_antigravity_2_6_tools_normalization` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_antigravity_2_6_hook_handler_protocol` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_antigravity_resolve_effective_workspace_and_containment` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_antigravity_workspace_containment_denies_outside_repo` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_manifest_version_extraction_and_harmony` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_manifest_version_mismatch_detection` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_missing_changelog_detection` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_changelog_version_matching_and_allow_unreleased` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_adr_coverage_detection` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_changelog_parser_helper` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_real_workspace_release_readiness` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_cli_check_release_integration` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_unformatted_code_detection_in_release_gatekeeper` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_wasm_policy_version_mismatch_detection_in_release_gatekeeper` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_format_gate_fails_closed_when_formatter_missing` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_wasm_policy_fails_closed_on_corrupt_bytecode` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_strict_release_gate_fails_closed_when_evidence_report_missing` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_package_json_key_order_preservation_on_update` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_in_flight_staging_skips_dirty_worktree_but_enforces_strict_verification` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
 
 ---
