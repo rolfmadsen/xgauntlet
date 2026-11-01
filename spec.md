@@ -32,7 +32,7 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
    - Package-by-Feature (Screaming Architecture).
    - Strict Red -> Green -> Refactor lifecycle and RED-first test provenance enforcement (elimination of born-green and tautological tests).
    - Autonomous TDD inner loop with boundary Human-in-the-Loop gates ([ADR 0009](docs/adr/0009-autonomous-tdd-inner-loop-and-boundary-human-gates.md)).
-   - Fast-Track Bugfix Lane for bounded defects (`scope.len() <= 3`, zero ADR impact) via direct `RED → DONE` or isolated single-step Worktree Inverse Proof.
+   - Fast-Track Bugfix Lane for bounded defects (`scope.len() <= 3`, zero ADR impact) via direct `RED → DONE` or isolated single-step Worktree Inverse Proof ([ADR 0011](docs/adr/0011-fast-track-worktree-inverse-proof-and-scoped-preflight.md)).
    - ADR-bound architectural exemptions and monotonic ratchet governance ([ADR 0010](docs/adr/0010-adr-bound-architectural-exemptions-and-monotonic-ratchets.md)).
    - Multi-layer gauntlet: Linters, typecheckers, unit/feature tests, invariant tests, and mutation gauntlet (`cargo-mutants`).
 

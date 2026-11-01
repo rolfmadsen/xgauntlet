@@ -2,10 +2,11 @@
 type: Task Package
 title: "Task 052: DX Optimization, Scoped Test Execution, Fast-Track Bugfix Protocol & Hook Hardening"
 description: "Eliminerer unødig udviklingstid, fulde workspace-rebuilds under TDD-checkpoints, tavse hook-blokeringer og dobbelt telemetri-støj i xGauntlet v0.10.x uden at svække uafhængig blackbox-validering eller Zero Ambient Authority."
-status: done
+status: active
 generated: { by: process:xgauntlet-task-init, at: "2026-11-01T18:25:00Z" }
 tags: [dx, performance, fast-track, inverse-proof, checkpoint, test-refs, hooks, antigravity, telemetry, migrate, rust-profile]
 scope:
+  - "crates/gauntlet-policy-engine/**"
   - "crates/xgauntlet-core/**"
   - "crates/xgauntlet-cli/**"
   - "plugins/antigravity/**"
@@ -13,6 +14,15 @@ scope:
   - "skills/**"
   - "docs/adr/**"
   - "gauntlet.toml"
+  - "spec.md"
+  - "CHANGELOG.md"
+  - "Cargo.toml"
+  - "Cargo.lock"
+  - "package.json"
+  - "packages/cli/package.json"
+  - "verification-report.json"
+  - "evidence.md"
+  - "tasks/052-dx-fast-track-and-hook-hardening.md"
 test_refs:
   - "crates/xgauntlet-core/tests/fast_track_and_scoped_checkpoint_test.rs"
   - "crates/xgauntlet-core/tests/hook_policy_and_telemetry_test.rs"
@@ -20,7 +30,7 @@ test_refs:
 
 # Task 052: DX Optimization, Scoped Test Execution, Fast-Track Bugfix Protocol & Hook Hardening
 
-**Status**: `DONE`
+**Status**: `ACTIVE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-01`
 
@@ -116,6 +126,7 @@ Efter udgivelsen af `xgauntlet v0.10.0` ses en markant øget udviklingstid pr. o
 ## 📝 Revisions
 
 - 2026-11-01: Oprettet på baggrund af empirisk performance- og sikkerhedsaudit i Kant (v0.9.1 / Task 113).
+- 2026-11-01: Fjernet pre-WASM `ExecuteCommand`-kortslutning i `adapters/models.rs`, hærdet shell-metategnskontrol i `gauntlet-policy-engine` og klargjort v0.11.0 release.
 
 ---
 

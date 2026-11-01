@@ -287,3 +287,68 @@ invariants = ["cargo", "test", "--", "proptest"]
         "Migration must NOT rewrite to --test proptests if file does not exist: {modernized_without_file}"
     );
 }
+
+#[test]
+fn test_hook_blocks_command_injection_and_unscoped_git_commit_without_task() {
+    // Workspace with NO active task (simulating SPEC or post-DONE state)
+    let ws = TempWorkspace::new("cmd_injection_guard");
+    let adapter = AntigravityAdapter;
+
+    let forbidden_commands = [
+        ("git status | sh", "pipe to shell"),
+        ("git status || rm -r crates", "logical OR chain"),
+        ("git status\nrm -r src", "newline injection"),
+        (
+            "git diff > crates/xgauntlet-core/src/lib.rs",
+            "shell output redirection",
+        ),
+        (
+            "git add . && git commit -m \"unscoped bypass\"",
+            "raw unscoped git commit without active task",
+        ),
+        (
+            "xgauntlet checkpoint -m \"$(rm -r src)\"",
+            "command substitution in checkpoint",
+        ),
+    ];
+
+    for (cmd, label) in forbidden_commands {
+        let payload = json!({
+            "hookEventName": "PreToolUse",
+            "tool_name": "run_command",
+            "parameters": {
+                "CommandLine": cmd
+            }
+        });
+        let (code, output) = adapter.handle_hook(ws.path(), &payload.to_string());
+        assert_ne!(
+            code, 0,
+            "ExecuteCommand '{cmd}' ({label}) MUST be denied without active task, got: {output}"
+        );
+        assert!(
+            output.contains("[XGAUNTLET POLICY BLOCKED]"),
+            "Expected structured denial for '{cmd}' ({label}), got: {output}"
+        );
+    }
+
+    // Conversely, single unchained xgauntlet governance commands without shell metachars are allowed
+    for safe_cmd in [
+        "xgauntlet check-release --strict",
+        "xgauntlet checkpoint --phase done -t 052",
+        "xgauntlet handoff",
+    ] {
+        let payload = json!({
+            "hookEventName": "PreToolUse",
+            "tool_name": "run_command",
+            "parameters": {
+                "CommandLine": safe_cmd
+            }
+        });
+        let (code, output) = adapter.handle_hook(ws.path(), &payload.to_string());
+        assert_eq!(
+            code, 0,
+            "Safe unchained governance command '{safe_cmd}' should be permitted: {output}"
+        );
+    }
+}
+
