@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-01
+
+### 🚀 Added & Hardened
+- **Google Antigravity IDE 2.6.0 Tool Schema Support (`Task 050`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`)**:
+  - Tilføjet adaptiv understøttelse af opdaterede værktøjsnavne og argument-nøgler (`read_file`, `write_file`, `edit_file`, `ask_question`, `list_plugin_accounts`, `manage_task`).
+  - Hærdet sti-normalisering og containment mod absolutte stier inden for workspace-roden jf. fail-closed invarianten (ADR 0006).
+- **Effective Workspace Resolution & Telemetry Resilience (`Task 050`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`)**:
+  - Implementeret deterministisk udledning af det effektive workspace fra stdin-payload (`workspacePaths`, `cwd`, og fallback via målressourcens forældrestier).
+  - Sikret fail-safe telemetri ved uoprettede opgaver eller kald uden for workspace-kontekst, så `PreInvocation` returnerer tomme `injectSteps` i stedet for at fejle.
+- **Architectural Decomposition & Codebase Formatting (`Task 050`, `crates/xgauntlet-cli`, `crates/xgauntlet-core`)**:
+  - Dekomponeret `AntigravityAdapter` i fokuserede delmoduler (`workspace.rs`, `validation.rs`) og etableret isoleret testsuite (`antigravity_adapter_test.rs`).
+  - Udtrukket CLI-kontrolrutiner i `checkers.rs` for at overholde filstørrelsesgrænserne jf. ADR 0010.
+  - Formateret samtlige kildekodefiler jf. `cargo fmt` og release gatekeeper kravene.
+
 ## [0.9.0] - 2026-10-25
 
 ### 🚀 Added & Hardened
