@@ -1,22 +1,20 @@
 # Verification Report
 
-**Task ID**: `052-dx-fast-track-and-hook-hardening`  
-**Task Title**: Task 052: DX Optimization, Scoped Test Execution, Fast-Track Bugfix Protocol & Hook Hardening  
+**Task ID**: `053-windows-home-path-whitelist-fix`  
+**Task Title**: Task 053: Cross-Platform Windows USERPROFILE Whitelist & Backslash Traversal Fix (v0.11.1)  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `cc1cf68f93cf511eef60a5546eba38b9289254f89b86e09ef3d2c9f61acf7ae7`  
-**Timestamp**: `2026-11-01T21:05:02Z`  
-**Head**: `e2f5097`  
-**Commit**: `e2f5097`  
+**Source Manifest Digest**: `01ff6ede09805f8254db3e646fcabe653006d0959e3d586776427711973f8e97`  
+**Timestamp**: `2026-11-01T21:33:26Z`  
+**Head**: `e016e08`  
+**Commit**: `e016e08`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 — `test_refs`-bundet Pre-flight Eksekvering i `xgauntlet checkpoint`:**
-- [x] **AC2 — Fast-Track Bugfix Protokol & Worktree Inverse Proof (`intent: bug`):**
-- [x] **AC3 — Hook Policy Engine: Harness Whitelist, Sikker `run_command` & Actionable `stderr`:**
-- [x] **AC4 — Telemetri-Deduplikering, State-Diffing & Direkte Native Binær Hook:**
-- [x] **AC5 — Dedupliceret Rust Stack-Profil, `xgauntlet migrate` & Konsolideret Test-Harness Mønster:**
-- [x] **AC6 — ADR & Selv-Verifikation:**
+- [x] **AC1 — Multi-Root `HOME` & `USERPROFILE` Evaluering & Windows-Sti Normalisering:**
+- [x] **AC2 — Cross-Platform Backslash `..`-Traversal Hærdning:**
+- [x] **AC3 — Deterministiske Krydsplatform Regressionstests:**
+- [x] **AC4 — Release `v0.11.1` Forsegling:**
 
 ---
 
@@ -24,13 +22,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.097s` |
-| `format` | `PASSED` | `0` | `0.231s` |
-| `lint` | `PASSED` | `0` | `0.111s` |
-| `unit` | `PASSED` | `0` | `30.422s` |
-| `npm` | `PASSED` | `0` | `0.699s` |
-| `invariants` | `PASSED` | `0` | `0.064s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.011s` |
+| `architecture` | `PASSED` | `0` | `0.070s` |
+| `format` | `PASSED` | `0` | `0.227s` |
+| `lint` | `PASSED` | `0` | `0.835s` |
+| `unit` | `PASSED` | `0` | `32.674s` |
+| `npm` | `PASSED` | `0` | `0.700s` |
+| `invariants` | `PASSED` | `0` | `0.080s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---
 
@@ -91,6 +89,7 @@
 | `sess-4791d8dd` | `Software Engineer` | `DONE` | `4791d8d` | `2026-11-01T13:51:30Z` | `VALID` |
 | `sess-13cff77e` | `TDD Craftsman` | `RED` | `13cff77` | `2026-11-01T21:26:55Z` | `VALID` |
 | `sess-c88c37bf` | `TDD Craftsman` | `GREEN` | `c88c37b` | `2026-11-01T21:28:26Z` | `VALID` |
+| `sess-e016e08d` | `TDD Craftsman` | `REFACTOR` | `e016e08` | `2026-11-01T21:30:52Z` | `VALID` |
 
 ---
 
@@ -98,14 +97,16 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
-| `test_harness_whitelist_paths` | `RedCheckpointVerified` | `dd2c8958cdcad4d5...` | `2026-11-01T21:57:31+01:00` |
-| `test_session_brain_artifact_paths` | `RedCheckpointVerified` | `dd2c8958cdcad4d5...` | `2026-11-01T21:57:31+01:00` |
-| `test_hook_run_command_remains_strictly_gatekept` | `RedCheckpointVerified` | `dd2c8958cdcad4d5...` | `2026-11-01T21:57:31+01:00` |
-| `test_hook_parameters_outside_workspace_denied_with_path` | `RedCheckpointVerified` | `dd2c8958cdcad4d5...` | `2026-11-01T21:57:31+01:00` |
-| `test_structured_stderr_on_claude_code_and_malformed_stdin` | `RedCheckpointVerified` | `dd2c8958cdcad4d5...` | `2026-11-01T21:57:31+01:00` |
-| `test_hook_read_only_tools_allowed_in_spec_phase` | `RedCheckpointVerified` | `dd2c8958cdcad4d5...` | `2026-11-01T21:57:31+01:00` |
-| `test_rust_stack_profile_deduplication` | `RedCheckpointVerified` | `dd2c8958cdcad4d5...` | `2026-11-01T21:57:31+01:00` |
-| `test_hook_blocks_command_injection_and_unscoped_git_commit_without_task` | `RedCheckpointVerified` | `dd2c8958cdcad4d5...` | `2026-11-01T21:57:31+01:00` |
+| `test_harness_whitelist_paths` | `RedCheckpointVerified` | `5971e55478f0a410...` | `2026-11-01T22:26:55+01:00` |
+| `test_session_brain_artifact_paths` | `RedCheckpointVerified` | `5971e55478f0a410...` | `2026-11-01T22:26:55+01:00` |
+| `test_windows_userprofile_and_cross_platform_path_normalization` | `RedCheckpointVerified` | `5971e55478f0a410...` | `2026-11-01T22:26:55+01:00` |
+| `test_backslash_traversal_rejected_across_platforms` | `RedCheckpointVerified` | `5971e55478f0a410...` | `2026-11-01T22:26:55+01:00` |
+| `test_hook_run_command_remains_strictly_gatekept` | `RedCheckpointVerified` | `5971e55478f0a410...` | `2026-11-01T22:26:55+01:00` |
+| `test_hook_parameters_outside_workspace_denied_with_path` | `RedCheckpointVerified` | `5971e55478f0a410...` | `2026-11-01T22:26:55+01:00` |
+| `test_structured_stderr_on_claude_code_and_malformed_stdin` | `RedCheckpointVerified` | `5971e55478f0a410...` | `2026-11-01T22:26:55+01:00` |
+| `test_hook_read_only_tools_allowed_in_spec_phase` | `RedCheckpointVerified` | `5971e55478f0a410...` | `2026-11-01T22:26:55+01:00` |
+| `test_rust_stack_profile_deduplication` | `RedCheckpointVerified` | `5971e55478f0a410...` | `2026-11-01T22:26:55+01:00` |
+| `test_hook_blocks_command_injection_and_unscoped_git_commit_without_task` | `RedCheckpointVerified` | `5971e55478f0a410...` | `2026-11-01T22:26:55+01:00` |
 | `test_rust_target_resolver_standalone_integration_test` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
 | `test_rust_target_resolver_harness_submodule` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
 | `test_rust_target_resolver_lib_unit_test` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
@@ -213,7 +214,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_windows_userprofile_and_cross_platform_path_normalization` | `RedCheckpointVerified` | `5971e55478f0a410...` | `2026-11-01T22:26:55+01:00` |
-| `test_backslash_traversal_rejected_across_platforms` | `RedCheckpointVerified` | `5971e55478f0a410...` | `2026-11-01T22:26:55+01:00` |
 
 ---

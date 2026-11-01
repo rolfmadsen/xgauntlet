@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-11-01
+
 ### 🐛 Fixed & Hardened
 - **Cross-Platform Windows `USERPROFILE` Whitelist & Backslash Traversal Hardening (`Task 053`, `crates/xgauntlet-core`)**:
   - Rettet Windows CI-fejl (`windows-latest` / PowerShell uden `HOME`), hvor `is_harness_whitelisted_path` og `is_session_brain_artifact_path` samt tilhørende accepttests nu evaluerer alle gyldige ikke-tomme, ikke-rod kandidat-hjemmemapper (`HOME` og `USERPROFILE`) med deterministisk lexikal normalisering af Windows drevbogstaver (`C:` / `c:`), skråstreger (`\` / `/`) og `\\?\`-præfikser.

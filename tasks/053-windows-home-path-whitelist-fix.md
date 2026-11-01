@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 053: Cross-Platform Windows USERPROFILE Whitelist & Backslash Traversal Fix (v0.11.1)"
 description: "Retter Windows CI-fejl i v0.11.0 ved manglende HOME miljøvariabel under PowerShell (USERPROFILE), normaliserer Windows drev-/backslash-stier deterministisk og hærder mod backslash-baseret '..'-traversal på tværs af OS."
-status: active
+status: done
 intent: bug
 generated: { by: process:antigravity-task-init, at: "2026-11-01T22:20:00Z" }
 tags: [bugfix, windows, ci, policy, whitelist, cross-platform, security, release]
@@ -22,7 +22,7 @@ test_refs:
 
 # Task 053: Cross-Platform Windows USERPROFILE Whitelist & Backslash Traversal Fix (v0.11.1)
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🐛 BUG FIX`
 **Oprettet**: `2026-11-01`
 
@@ -42,14 +42,14 @@ Formålet er at reproducere disse fejl deterministisk i `[RED]`, rette sti-norma
 
 ## 📋 Acceptance Criteria
 
-- [ ] **AC1 — Multi-Root `HOME` & `USERPROFILE` Evaluering & Windows-Sti Normalisering:**
+- [x] **AC1 — Multi-Root `HOME` & `USERPROFILE` Evaluering & Windows-Sti Normalisering:**
   - `is_harness_whitelisted_path` og `is_session_brain_artifact_path` i `crates/xgauntlet-core/src/features/policy/mod.rs` evaluerer alle gyldige (ikke-tomme, ikke-rod) kandidat-hjemmemapper fra både `HOME` og `USERPROFILE`.
   - Eksponer deterministiske hjælpefunktioner (`is_harness_whitelisted_path_with_homes` og `is_session_brain_artifact_path_with_homes`), der normaliserer `\` til `/`, håndterer Windows extended-length præfiks (`\\?\C:\...`) og sammenligner Windows drevbogstaver case-insensitivt (`C:/` vs `c:/`).
-- [ ] **AC2 — Cross-Platform Backslash `..`-Traversal Hærdning:**
+- [x] **AC2 — Cross-Platform Backslash `..`-Traversal Hærdning:**
   - Både `crates/xgauntlet-core/src/features/policy/mod.rs` og `crates/xgauntlet-core/src/features/adapters/models.rs` afviser enhver `..`-segment-komponent og `\0` efter normalisering af både `/` og `\`, så backslash-baseret traversal (`.agents\..\..\etc\passwd` eller `C:\Users\runneradmin\.gemini\config\plugins\..\..\ssh\id_rsa`) blokeres fail-closed på både Linux, macOS og Windows.
-- [ ] **AC3 — Deterministiske Krydsplatform Regressionstests:**
+- [x] **AC3 — Deterministiske Krydsplatform Regressionstests:**
   - `test_harness_whitelist_paths` og `test_session_brain_artifact_paths` i `crates/xgauntlet-core/tests/hook_policy_and_telemetry_test.rs` resolver hjemmemappen konsistent via `HOME` / `USERPROFILE` og suppleres med dedikerede krydsplatform-tests for Windows `USERPROFILE` (`C:\Users\runneradmin`), blandede separatorer, tom `HOME=""`, rod-ankre (`"/"`, `"C:\\"`) og backslash-traversal.
-- [ ] **AC4 — Release `v0.11.1` Forsegling:**
+- [x] **AC4 — Release `v0.11.1` Forsegling:**
   - Opdater `CHANGELOG.md`, bump version til `0.11.1` på tværs af manifester og `gauntlet_policy.wasm`, forsegl `verification-report.json` og `evidence.md`, og opret lokalt annoteret tag `v0.11.1` verificeret med `xgauntlet check-release --strict`.
 
 ---
