@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-01
+
 ### 🚀 Added & Optimized
 - **Scoped `test_refs` Preflight Execution (`Task 052`, `ADR 0011`, `crates/xgauntlet-core`)**:
   - `xgauntlet checkpoint` i faserne `red`, `green` og `refactor` parser opgavens `test_refs` fra OKF v0.2 frontmatter og afvikler målrettet kun de erklærede test-targets via `resolve_scoped_test_command` (selvstændige `[[test]]`-binærer, samlede test-harnesses `tests/features/<submod>.rs` og modul-tests i `src/` inkl. `[package].name` i multi-crate workspaces).

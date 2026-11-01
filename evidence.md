@@ -4,10 +4,10 @@
 **Task Title**: Task 052: DX Optimization, Scoped Test Execution, Fast-Track Bugfix Protocol & Hook Hardening  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `add913cdce30828a4a9b336ec037dab07d44f648936ed11b7cadfcb4756c9dc6`  
-**Timestamp**: `2026-11-01T20:42:01Z`  
-**Head**: `9432994`  
-**Commit**: `9432994`  
+**Source Manifest Digest**: `cc1cf68f93cf511eef60a5546eba38b9289254f89b86e09ef3d2c9f61acf7ae7`  
+**Timestamp**: `2026-11-01T21:05:02Z`  
+**Head**: `e2f5097`  
+**Commit**: `e2f5097`  
 
 ## Acceptance Criteria
 
@@ -24,13 +24,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `1.664s` |
-| `format` | `PASSED` | `0` | `0.217s` |
-| `lint` | `PASSED` | `0` | `0.097s` |
-| `unit` | `PASSED` | `0` | `27.047s` |
-| `npm` | `PASSED` | `0` | `0.686s` |
-| `invariants` | `PASSED` | `0` | `0.048s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
+| `architecture` | `PASSED` | `0` | `0.097s` |
+| `format` | `PASSED` | `0` | `0.231s` |
+| `lint` | `PASSED` | `0` | `0.111s` |
+| `unit` | `PASSED` | `0` | `30.422s` |
+| `npm` | `PASSED` | `0` | `0.699s` |
+| `invariants` | `PASSED` | `0` | `0.064s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.011s` |
 
 ---
 
@@ -96,17 +96,20 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_harness_whitelist_paths` | `RedCheckpointVerified` | `dd2c8958cdcad4d5...` | `2026-11-01T21:57:31+01:00` |
+| `test_session_brain_artifact_paths` | `RedCheckpointVerified` | `dd2c8958cdcad4d5...` | `2026-11-01T21:57:31+01:00` |
+| `test_hook_run_command_remains_strictly_gatekept` | `RedCheckpointVerified` | `dd2c8958cdcad4d5...` | `2026-11-01T21:57:31+01:00` |
+| `test_hook_parameters_outside_workspace_denied_with_path` | `RedCheckpointVerified` | `dd2c8958cdcad4d5...` | `2026-11-01T21:57:31+01:00` |
+| `test_structured_stderr_on_claude_code_and_malformed_stdin` | `RedCheckpointVerified` | `dd2c8958cdcad4d5...` | `2026-11-01T21:57:31+01:00` |
+| `test_hook_read_only_tools_allowed_in_spec_phase` | `RedCheckpointVerified` | `dd2c8958cdcad4d5...` | `2026-11-01T21:57:31+01:00` |
+| `test_rust_stack_profile_deduplication` | `RedCheckpointVerified` | `dd2c8958cdcad4d5...` | `2026-11-01T21:57:31+01:00` |
+| `test_hook_blocks_command_injection_and_unscoped_git_commit_without_task` | `RedCheckpointVerified` | `dd2c8958cdcad4d5...` | `2026-11-01T21:57:31+01:00` |
 | `test_rust_target_resolver_standalone_integration_test` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
 | `test_rust_target_resolver_harness_submodule` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
 | `test_rust_target_resolver_lib_unit_test` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
 | `test_fast_track_eligibility_criteria` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
 | `test_fast_track_worktree_inverse_proof_born_green_rejection` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
 | `test_always_passes` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
-| `test_harness_whitelist_paths` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
-| `test_session_brain_artifact_paths` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
-| `test_hook_run_command_remains_strictly_gatekept` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
-| `test_hook_read_only_tools_allowed_in_spec_phase` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
-| `test_rust_stack_profile_deduplication` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
 | `test_antigravity_2_6_tools_normalization` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
 | `test_antigravity_2_6_hook_handler_protocol` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
 | `test_antigravity_resolve_effective_workspace_and_containment` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
