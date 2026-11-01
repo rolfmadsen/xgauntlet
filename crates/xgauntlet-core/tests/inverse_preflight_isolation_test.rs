@@ -242,7 +242,19 @@ fn test_preflight_does_not_resurrect_deleted_production_file() {
     let ws = temp.path();
     init_repo(ws);
 
-    write_test_layer(ws, &["grep", "-q", "worldmarker", "src/lib.rs"]);
+    write_test_layer(
+        ws,
+        &[
+            "git",
+            "grep",
+            "--no-index",
+            "-q",
+            "-F",
+            "worldmarker",
+            "--",
+            "src/lib.rs",
+        ],
+    );
     write(ws, "src/lib.rs", "hello\n");
     write(ws, "src/legacy.rs", "pub fn legacy() {}\n");
     commit_all(ws, "chore: baseline");
@@ -267,7 +279,19 @@ fn test_preflight_baseline_excludes_untracked_production_files() {
     let ws = temp.path();
     init_repo(ws);
 
-    write_test_layer(ws, &["grep", "-q", "featuremarker", "src/feature.rs"]);
+    write_test_layer(
+        ws,
+        &[
+            "git",
+            "grep",
+            "--no-index",
+            "-q",
+            "-F",
+            "featuremarker",
+            "--",
+            "src/feature.rs",
+        ],
+    );
     write(ws, "src/lib.rs", "hello\n");
     commit_all(ws, "chore: baseline");
 

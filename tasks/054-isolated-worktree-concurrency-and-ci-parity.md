@@ -45,14 +45,14 @@ Formålet er at udbedre alle temp-sti/concurrency/symlink-kilder i kodebasen og 
 
 ## 📋 Acceptance Criteria
 
-- [ ] **AC1 — Kollisionsfri & Kanoniseret `IsolatedWorktree` (macOS + Windows + Parallelitet):**
+- [x] **AC1 — Kollisionsfri & Kanoniseret `IsolatedWorktree` (macOS + Windows + Parallelitet):**
   - `IsolatedWorktree::create` i `crates/xgauntlet-core/src/features/checkpoint/provenance.rs` anvender en proces-global `AtomicU64`-tæller kombineret med `pid` og tidsstempel, samt kanoniseret temp-forældremappe (med fjernelse af Windows `\\?\`-præfiks, så macOS `/var` -> `/private/var` opløses konsistent før `git worktree add`).
   - Samtlige øvrige `temp_dir()`-baserede midlertidige filer og mapper i `crates/` auditeres og sikres mod parallelle kollisioner og race conditions (inkl. atomisk skrivning af telemetri-deduplikerings-cache via unikt temp-filnavn + `rename`).
-- [ ] **AC2 — Lokal Barriere-Synkroniseret Concurrency Stress-Test:**
+- [x] **AC2 — Lokal Barriere-Synkroniseret Concurrency Stress-Test:**
   - `crates/xgauntlet-core/tests/cross_platform_ci_parity_test.rs` starter mindst 16 samtidige tråde synkroniseret på en `std::sync::Barrier`, som i præcis samme øjeblik kalder `verify_inverse_test_failure` og `evaluate_fast_track_inverse_proof`, og beviser `0` sti-kollisioner og `0` efterladte worktrees.
-- [ ] **AC3 — Lokal macOS Symlink (`/var` -> `/private/var`) & Windows-Sti Simulering:**
+- [x] **AC3 — Lokal macOS Symlink (`/var` -> `/private/var`) & Windows-Sti Simulering:**
   - Testsuiten opretter lokalt et workspace og en `TMPDIR`-lignende sti bag et mappe-symlink (`symlink_root -> private_real_root`) og verificerer at `IsolatedWorktree`, `WorkspaceRelativePath::sanitize`, `AntigravityAdapter::handle_hook` og `run_checkpoint` fungerer fejlfrit gennem ikke-kanoniserede symlink-stier.
-- [ ] **AC4 — Mekanisk Kildekode-Invariant mod fremtidige CI-Overraskelser & Release `v0.11.2`:**
+- [x] **AC4 — Mekanisk Kildekode-Invariant mod fremtidige CI-Overraskelser & Release `v0.11.2`:**
   - En statisk arkitektur-/paritetstest scanner `crates/` og fejler lokalt, hvis nogen produktions- eller testfil bruger `temp_dir()` sammen med `as_nanos()`/`process::id()` uden `AtomicU64`, eller bruger `env::var("HOME")` uden `USERPROFILE` i krydsplatform-kode.
   - Dokumenter i `CHANGELOG.md`, bump til `0.11.2`, forsegl evidens og opret lokalt tag `v0.11.2`.
 

@@ -19,8 +19,10 @@ use std::sync::{Arc, Barrier};
 use serde_json::json;
 use xgauntlet_core::features::adapters::antigravity::AntigravityAdapter;
 use xgauntlet_core::features::adapters::models::HarnessAdapter;
+use xgauntlet_core::features::checkpoint::engine::run_checkpoint;
+use xgauntlet_core::features::checkpoint::models::{CheckpointOptions, CheckpointPhase};
 use xgauntlet_core::features::checkpoint::provenance::{
-    verify_inverse_test_failure, TestProvenanceStatus,
+    evaluate_fast_track_inverse_proof, verify_inverse_test_failure, TestProvenanceStatus,
 };
 use xgauntlet_core::features::evidence::lineage::generate_session_nonce;
 use xgauntlet_core::features::policy::WorkspaceRelativePath;
@@ -150,6 +152,28 @@ fn test_concurrent_worktree_inverse_preflight_and_nonce_uniqueness() {
                 evidences[0].status,
                 TestProvenanceStatus::InversePreflightVerified
             );
+
+            let ft_evidences =
+                evaluate_fast_track_inverse_proof(ws, &["tests/parity_test.rs".to_string()])
+                    .unwrap_or_else(|e| {
+                        panic!("Thread {idx} failed fast-track inverse proof under concurrency: {e:?}")
+                    });
+            assert_eq!(ft_evidences.len(), 1);
+
+            let wt_out = Command::new("git")
+                .args(["worktree", "list", "--porcelain"])
+                .current_dir(ws)
+                .output()
+                .unwrap();
+            let wt_stdout = String::from_utf8_lossy(&wt_out.stdout);
+            let wt_count = wt_stdout
+                .lines()
+                .filter(|l| l.starts_with("worktree "))
+                .count();
+            assert_eq!(
+                wt_count, 1,
+                "Thread {idx} left stale git worktrees behind: {wt_stdout}"
+            );
         }));
     }
 
@@ -172,10 +196,15 @@ fn test_macos_style_symlinked_temp_and_workspace_parity() {
     std::os::unix::fs::symlink(root.path().join("private").join("var"), &symlink_var).unwrap();
     let alias_ws = symlink_var.join("workspace");
 
+    fs::write(
+        private_ws.join("CONTEXT.md"),
+        "# Ubiquitous Language\n\n- **Demo**:En isoleret testentitet som verificerer symlinket workspace-paritet.\n",
+    )
+    .unwrap();
     fs::write(private_ws.join("src/lib.rs"), "pub fn ok() {}\n").unwrap();
     fs::write(
         private_ws.join("tasks/001-demo.md"),
-        "---\ntype: Task Package\ntitle: \"Demo\"\nstatus: active\nscope: [\"src/**\"]\ntest_refs: [\"tests/demo.rs\"]\n---\n# Demo\n## 🎯 Formål\nTest\n## 📋 Acceptance Criteria\n- [ ] AC1\n## 🚫 Must NOT\n- None\n",
+        "---\ntype: Task Package\ntitle: \"Task 001: Demo\"\ndescription: \"Demo task\"\nstatus: active\nintent: bug\ngenerated: { by: process:test, at: \"2026-11-01T00:00:00Z\" }\ntags: [bugfix]\nscope: [\"src/**\", \"tests/**\"]\ntest_refs: [\"tests/sym_test.rs\"]\n---\n# Task 001: Demo\n\n**Status**: `ACTIVE`\n**Intent**: `🐛 BUG FIX`\n**Oprettet**: `2026-11-01`\n\n## 🎯 Formål\nVerificer symlinket workspace-paritet.\n\n## 📋 Acceptance Criteria\n- [ ] `src/lib.rs` indeholder `symlink_ok`.\n\n## 🚫 Must NOT\n- Må ikke skrive uden for workspace.\n",
     )
     .unwrap();
 
@@ -232,6 +261,26 @@ fn test_macos_style_symlinked_temp_and_workspace_parity() {
     let evidences = verify_inverse_test_failure(&alias_ws, &["test_sym".to_string()])
         .expect("IsolatedWorktree must succeed when workspace is accessed via symlink");
     assert_eq!(evidences.len(), 1);
+
+    // Case E: run_checkpoint (GREEN phase with inverse preflight + commit) through symlinked workspace path
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .unwrap();
+    let cp_opts = CheckpointOptions {
+        workspace: alias_ws.clone(),
+        phase: CheckpointPhase::Green,
+        task_id: Some("001".to_string()),
+        message: Some("symlink checkpoint parity".to_string()),
+        allow_empty: false,
+        skip_verify: false,
+        allow_born_green: false,
+        strict_provenance: false,
+    };
+    let cp_res = rt
+        .block_on(run_checkpoint(&cp_opts))
+        .expect("run_checkpoint must succeed via symlinked workspace path");
+    assert!(cp_res.commit_oid.is_some());
 }
 
 fn collect_rs_files(dir: &Path, out: &mut Vec<PathBuf>) {
@@ -295,6 +344,13 @@ fn test_codebase_free_of_collision_prone_temp_paths_and_unix_only_env() {
         if content.contains("env::var(\"HOME\")") && !content.contains("\"USERPROFILE\"") {
             violations.push(format!(
                 "{rel}: calls env::var(\"HOME\") without \"USERPROFILE\" support for Windows PowerShell"
+            ));
+        }
+
+        // Invariant 3: Test layers must not spawn external POSIX `["grep",` directly; use `git grep` instead.
+        if content.contains("[\"grep\",") || content.contains("&[\"grep\",") {
+            violations.push(format!(
+                "{rel}: spawns external POSIX `grep` binary instead of portable `git grep`"
             ));
         }
     }

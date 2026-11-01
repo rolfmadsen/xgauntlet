@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🐛 Fixed & Hardened
+- **Collision-Free `IsolatedWorktree`, Symlinked Workspace Sanitization & Local Cross-Platform CI Parity Suite (`Task 054`, `crates/xgauntlet-core`)**:
+  - Rettet `macos-latest` (`aarch64-apple-darwin`) CI-fejl i parallelle inverse-preflight tests, hvor `SystemTime::now()` har `1 µs` opløsning på macOS (mod `1 ns` på Linux x86_64), så samtidige tråde tidligere ramte identisk `xgauntlet-preflight-{pid}-{nanos}` sti og korrumperede hinandens `.git`-gitfile. `IsolatedWorktree::create` og alle øvrige `temp_dir()`-stier bruger nu proces-globale `AtomicU64`-sekvenstællere, kanoniseret temp-rod med fjernelse af Windows `\\?\`-præfiks samt atomisk `rename`-opdatering af telemetri-cache.
+  - Hærdet `WorkspaceRelativePath::sanitize` til at opløse dybeste eksisterende forældresti via kanonisering (og Windows `//?/`-normalisering), så macOS `/var -> /private/var` og `/tmp -> /private/tmp` symlinkede workspaces og filstier fungerer symmetrisk uden at svække workspace-escape afvisning.
+  - Etableret en permanent lokal CI-paritets-testsuite (`crates/xgauntlet-core/tests/cross_platform_ci_parity_test.rs`) med 16-tråds `Barrier`-synkroniseret concurrency-stresstest, macOS symlink-simulering på Linux samt statisk kildekode-invariant mod fremtidige `temp_dir()`-kollisioner, manglende `USERPROFILE`-fallback og eksterne POSIX `grep`-kald.
+
 ## [0.11.1] - 2026-11-01
 
 ### 🐛 Fixed & Hardened
