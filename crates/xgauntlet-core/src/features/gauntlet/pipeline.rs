@@ -185,6 +185,45 @@ pub async fn execute_gauntlet_pipeline(
         environment: env_map,
     };
 
+    // 10. Fast-Track Worktree Inverse Proof evaluation
+    let mut proof_mode = None;
+    if let Some(ref tc) = task_contract {
+        if let Some(info) =
+            crate::features::checkpoint::engine::load_task_package_info(workspace, &tc.task_id)
+        {
+            let has_red_commit =
+                crate::features::checkpoint::preflight::has_task_red_commit(workspace, &tc.task_id);
+            if !has_red_commit && !info.test_refs.is_empty() {
+                let changed =
+                    crate::features::checkpoint::preflight::get_working_tree_changed_files(
+                        workspace,
+                    )
+                    .unwrap_or_default();
+                if crate::features::checkpoint::provenance::is_fast_track_eligible(&info, &changed)
+                {
+                    match crate::features::checkpoint::provenance::evaluate_fast_track_inverse_proof(
+                        workspace,
+                        &info.test_refs,
+                    ) {
+                        Ok(_) => {
+                            proof_mode = Some("worktree_inverse_proof".to_string());
+                        }
+                        Err(e) => {
+                            all_findings.push(DiagnosticFinding::new(
+                                FindingType::InvariantViolation,
+                                "fast-track-inverse-proof",
+                                "worktree",
+                                format!("Worktree Inverse Proof failed: {e}"),
+                                "Ensure regression test fails against HEAD before production fix"
+                                    .to_string(),
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // 11. Determine Final Verification Verdict
     let has_mandatory_failures = checks
         .iter()
@@ -192,6 +231,9 @@ pub async fn execute_gauntlet_pipeline(
     let has_optional_failures = checks
         .iter()
         .any(|c| c.optional && (!c.passed || c.exit_code != 0));
+    let has_invariant_violations = all_findings
+        .iter()
+        .any(|f| f.finding_type == FindingType::InvariantViolation);
     let is_task_invalid = task_contract.is_none();
     let has_unresolved_criteria = task_contract
         .as_ref()
@@ -200,6 +242,7 @@ pub async fn execute_gauntlet_pipeline(
 
     let verdict = if is_self_mutated
         || has_mandatory_failures
+        || has_invariant_violations
         || !gauntlet_report.success
         || checks.is_empty()
         || is_task_invalid
@@ -276,6 +319,7 @@ pub async fn execute_gauntlet_pipeline(
         diagnostics: all_findings,
         lineage: existing_lineage,
         test_provenance,
+        proof_mode,
     };
 
     // 12. Save Evidence Artifacts if requested

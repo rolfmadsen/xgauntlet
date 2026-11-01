@@ -52,12 +52,6 @@ optional = false
 timeout_seconds = 60.0
 
 [[layers]]
-name = "types"
-command = ["cargo", "check"]
-optional = false
-timeout_seconds = 60.0
-
-[[layers]]
 name = "unit"
 command = ["cargo", "test", "--workspace"]
 optional = false

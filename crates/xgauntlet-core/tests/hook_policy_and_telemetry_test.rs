@@ -14,7 +14,7 @@ use serde_json::json;
 use xgauntlet_core::features::adapters::antigravity::AntigravityAdapter;
 use xgauntlet_core::features::adapters::models::HarnessAdapter;
 use xgauntlet_core::features::config::profiles::get_stack_profile;
-use xgauntlet_core::features::migration::modernize_rust_profile_layers;
+use xgauntlet_core::features::migration::modernize_rust_profile_layers_with_workspace;
 use xgauntlet_core::features::policy::{
     is_harness_whitelisted_path, is_session_brain_artifact_path,
 };
@@ -82,6 +82,16 @@ fn test_harness_whitelist_paths() {
     assert!(is_harness_whitelisted_path(&agents_dir));
     assert!(is_harness_whitelisted_path(&claude_skill));
 
+    // Path traversal with '..' must NOT be whitelisted
+    let traversal_skill =
+        PathBuf::from(&home).join(".gemini/config/plugins/xgauntlet/skills/tdd/../../evil/file");
+    assert!(!is_harness_whitelisted_path(&traversal_skill));
+
+    // Unanchored paths outside $HOME must NOT be whitelisted
+    let unanchored_skill =
+        PathBuf::from("/tmp/evil/.gemini/config/plugins/xgauntlet/skills/tdd/SKILL.md");
+    assert!(!is_harness_whitelisted_path(&unanchored_skill));
+
     // Arbitrary external files must NOT be whitelisted
     let etc_passwd = PathBuf::from("/etc/passwd");
     let ssh_key = PathBuf::from(&home).join(".ssh/id_rsa");
@@ -99,6 +109,15 @@ fn test_session_brain_artifact_paths() {
 
     assert!(is_session_brain_artifact_path(&brain_artifact));
     assert!(is_session_brain_artifact_path(&scratch_file));
+
+    // Path traversal with '..' must NOT be allowed
+    let traversal_brain = PathBuf::from(&home)
+        .join(".gemini/antigravity/brain/bbc9e8e6-c901-4018-97d2-ed84df583c36/../../evil/file");
+    assert!(!is_session_brain_artifact_path(&traversal_brain));
+
+    // Unanchored path outside $HOME must NOT be allowed
+    let unanchored_brain = PathBuf::from("/tmp/evil/.gemini/antigravity/brain/session/file.md");
+    assert!(!is_session_brain_artifact_path(&unanchored_brain));
 
     // Outside brain directory must NOT match
     let other_file = PathBuf::from(&home).join(".gemini/antigravity/other/file.txt");
@@ -128,6 +147,63 @@ fn test_hook_run_command_remains_strictly_gatekept() {
     assert!(
         output.contains("Reason:"),
         "Must contain structured Reason field: {output}"
+    );
+    assert!(
+        output.contains("git push") || output.contains("push"),
+        "Denial reason must reference the actual command 'git push', not empty command: {output}"
+    );
+}
+
+#[test]
+fn test_hook_parameters_outside_workspace_denied_with_path() {
+    let ws = TempWorkspace::new("params_outside_ws");
+    let adapter = AntigravityAdapter;
+
+    let payload = json!({
+        "hookEventName": "PreToolUse",
+        "tool_name": "read_file",
+        "parameters": {
+            "Path": "/etc/shadow"
+        }
+    });
+
+    let (code, output) = adapter.handle_hook(ws.path(), &payload.to_string());
+    assert_ne!(code, 0, "read_file on /etc/shadow must be blocked");
+    assert!(
+        output.contains("/etc/shadow")
+            || output.contains("shadow")
+            || output.contains("containment"),
+        "Must evaluate the actual path from parameters: {output}"
+    );
+}
+
+#[test]
+fn test_structured_stderr_on_claude_code_and_malformed_stdin() {
+    let ws = TempWorkspace::new("stderr_contract");
+    use xgauntlet_core::features::adapters::claude_code::ClaudeCodeAdapter;
+
+    let adapter = ClaudeCodeAdapter;
+    let payload = json!({
+        "hook_event_name": "PreToolUse",
+        "tool_name": "Bash",
+        "tool_input": {
+            "command": "git push origin main"
+        }
+    });
+
+    let (code, output) = adapter.handle_hook(ws.path(), &payload.to_string());
+    assert_ne!(code, 0);
+    assert!(
+        output.contains("[XGAUNTLET POLICY BLOCKED]"),
+        "ClaudeCodeAdapter must output structured stderr on denial: {output}"
+    );
+
+    let agy = AntigravityAdapter;
+    let (code_empty, out_empty) = agy.handle_hook(ws.path(), "");
+    assert_ne!(code_empty, 0);
+    assert!(
+        out_empty.contains("[XGAUNTLET POLICY BLOCKED]"),
+        "AntigravityAdapter must output structured stderr on empty/invalid stdin: {out_empty}"
     );
 }
 
@@ -177,7 +253,12 @@ fn test_rust_stack_profile_deduplication() {
         "Rust profile must not include redundant types layer (cargo check) when lint (clippy) is present"
     );
 
-    // 2. Test modernization of existing gauntlet.toml in migration engine
+    // 2. Test modernization with proptests.rs in workspace
+    let ws = TempWorkspace::new("proptests_migration");
+    let tests_dir = ws.path().join("tests");
+    fs::create_dir_all(&tests_dir).unwrap();
+    fs::write(tests_dir.join("proptests.rs"), "// proptest harness").unwrap();
+
     let legacy_toml = r#"
 [layers]
 lint = ["cargo", "clippy", "--all-targets", "--", "-D", "warnings"]
@@ -186,14 +267,23 @@ test = ["cargo", "test"]
 invariants = ["cargo", "test", "--", "proptest"]
 "#;
 
-    let modernized = modernize_rust_profile_layers(legacy_toml);
+    let modernized_with_file =
+        modernize_rust_profile_layers_with_workspace(legacy_toml, Some(ws.path()));
     assert!(
-        !modernized.contains("types = [\"cargo\", \"check\"]"),
-        "Migration must remove redundant types layer: {modernized}"
+        !modernized_with_file.contains("types = [\"cargo\", \"check\"]"),
+        "Migration must remove redundant types layer: {modernized_with_file}"
     );
     assert!(
-        modernized.contains("tests/proptests.rs")
-            || !modernized.contains("test\", \"--\", \"proptest"),
-        "Migration should optimize targeted invariant testing"
+        modernized_with_file.contains("tests/proptests.rs") || modernized_with_file.contains("--test\", \"proptests"),
+        "Migration should rewrite targeted invariant testing when tests/proptests.rs exists: {modernized_with_file}"
+    );
+
+    // 3. Test modernization without proptests.rs in workspace preserves invariants
+    let ws_empty = TempWorkspace::new("empty_migration");
+    let modernized_without_file =
+        modernize_rust_profile_layers_with_workspace(legacy_toml, Some(ws_empty.path()));
+    assert!(
+        modernized_without_file.contains("[\"cargo\", \"test\", \"--\", \"proptest\"]"),
+        "Migration must NOT rewrite to --test proptests if file does not exist: {modernized_without_file}"
     );
 }

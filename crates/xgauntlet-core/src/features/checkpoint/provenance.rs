@@ -427,7 +427,7 @@ pub fn is_fast_track_eligible(
 pub fn evaluate_fast_track_inverse_proof(
     workspace: &Path,
     test_refs: &[String],
-) -> Result<TestProvenanceEvidence, CheckpointError> {
+) -> Result<Vec<TestProvenanceEvidence>, CheckpointError> {
     if test_refs.is_empty() {
         return Err(CheckpointError::GitError(
             "Fast-track inverse proof requires at least one test ref".to_string(),
@@ -471,6 +471,21 @@ pub fn evaluate_fast_track_inverse_proof(
         let stdout_str = String::from_utf8_lossy(&test_output.stdout);
         let stderr_str = String::from_utf8_lossy(&test_output.stderr);
         let failure_log = format!("{stdout_str}\n{stderr_str}").trim().to_string();
+
+        // AC2 bullet 3: If test cannot compile against HEAD due to new API signatures, fail with actionable guidance
+        if (failure_log.contains("cannot find function")
+            || failure_log.contains("cannot find value")
+            || failure_log.contains("no method named")
+            || failure_log.contains("unresolved import"))
+            && (failure_log.contains("error[E0425]")
+                || failure_log.contains("error[E0599]")
+                || failure_log.contains("error[E0432]"))
+        {
+            return Err(CheckpointError::DonePhaseUnmet(
+                "Fast-Track 1-step atomic inverse proof cannot compile against HEAD due to new API signatures. Please use explicit RED -> DONE 2-step flow.".to_string(),
+            ));
+        }
+
         let timestamp = current_iso_utc();
         let failure_digest = format!("{:x}", Sha256::digest(failure_log.as_bytes()));
 
@@ -483,9 +498,13 @@ pub fn evaluate_fast_track_inverse_proof(
         });
     }
 
-    evidences.into_iter().next().ok_or_else(|| {
-        CheckpointError::GitError("No test executed during fast-track inverse proof".to_string())
-    })
+    if evidences.is_empty() {
+        return Err(CheckpointError::GitError(
+            "No test executed during fast-track inverse proof".to_string(),
+        ));
+    }
+
+    Ok(evidences)
 }
 
 impl Drop for IsolatedWorktree {

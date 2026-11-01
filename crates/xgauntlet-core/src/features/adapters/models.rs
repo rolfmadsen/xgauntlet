@@ -110,14 +110,50 @@ pub trait HarnessAdapter: Send + Sync {
     ) -> AdapterHookVerdict {
         let mut req = self.to_capability_request(payload);
 
+        // Command execution validation
+        if req.action_type == ToolActionType::ExecuteCommand
+            && req.target_resource.trim().is_empty()
+        {
+            return AdapterHookVerdict {
+                allowed: false,
+                decision: "deny".to_string(),
+                reason: "Empty command execution is prohibited".to_string(),
+                reason_code: Some(4001),
+            };
+        }
+
         // Path authorization hardening: sanitize paths against workspace containment
         if matches!(
             req.action_type,
             ToolActionType::WriteFile | ToolActionType::ReadFile
         ) {
             let target_path = Path::new(&req.target_resource);
-            if req.target_resource.is_empty() && req.action_type == ToolActionType::ReadFile {
+            if req.target_resource.is_empty() {
+                if matches!(
+                    req.raw_tool_name.as_str(),
+                    "read_file" | "read" | "write_file" | "write" | "edit_file"
+                ) {
+                    return AdapterHookVerdict {
+                        allowed: false,
+                        decision: "deny".to_string(),
+                        reason: format!("Empty target path provided for '{}'", req.raw_tool_name),
+                        reason_code: Some(4000),
+                    };
+                }
                 // Non-filesystem read operations (such as interactive dialogues or metadata queries)
+            } else if target_path
+                .components()
+                .any(|c| matches!(c, std::path::Component::ParentDir))
+            {
+                return AdapterHookVerdict {
+                    allowed: false,
+                    decision: "deny".to_string(),
+                    reason: format!(
+                        "Path traversal with '..' is prohibited: '{}'",
+                        req.target_resource
+                    ),
+                    reason_code: Some(4031),
+                };
             } else if req.action_type == ToolActionType::ReadFile
                 && (crate::features::policy::is_harness_whitelisted_path(target_path)
                     || crate::features::policy::is_session_brain_artifact_path(target_path))

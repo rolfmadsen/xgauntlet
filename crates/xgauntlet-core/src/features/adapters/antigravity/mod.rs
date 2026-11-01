@@ -46,7 +46,13 @@ fn should_suppress_duplicate_telemetry(message: &str) -> bool {
                 .and_then(|t| t.as_u64())
                 .unwrap_or(0) as u128;
 
+            // 1. Rapid duplicate hook suppress (< 1500ms, e.g. duplicate global + workspace hooks)
             if last_digest == current_digest && now.saturating_sub(last_ts) < 1500 {
+                return true;
+            }
+
+            // 2. State-diffing: if state has not changed within the session turn (120s), suppress duplicate emission
+            if last_digest == current_digest && now.saturating_sub(last_ts) < 120_000 {
                 return true;
             }
         }
@@ -414,15 +420,33 @@ impl HarnessAdapter for AntigravityAdapter {
             if let Some(name) = tool_call.get("name").and_then(|n| n.as_str()) {
                 tool_name = name.trim().to_string();
             }
-            if let Some(call_args) = tool_call.get("args") {
+            if let Some(call_args) = tool_call
+                .get("args")
+                .or_else(|| tool_call.get("parameters"))
+            {
                 args = call_args.clone();
             }
         }
         // 2. Legacy / flat format
-        else if let Some(name) = payload.get("tool_name").and_then(|n| n.as_str()) {
+        else if let Some(name) = payload
+            .get("tool_name")
+            .or_else(|| payload.get("name"))
+            .and_then(|n| n.as_str())
+        {
             tool_name = name.trim().to_string();
-            if let Some(input) = payload.get("tool_input") {
+            if let Some(input) = payload
+                .get("parameters")
+                .or_else(|| payload.get("args"))
+                .or_else(|| payload.get("tool_input"))
+            {
                 args = input.clone();
+            }
+        }
+
+        // 3. Fallback: parameters or args at top level
+        if args.as_object().is_none_or(|o| o.is_empty()) {
+            if let Some(p) = payload.get("parameters").or_else(|| payload.get("args")) {
+                args = p.clone();
             }
         }
 
@@ -554,9 +578,11 @@ impl HarnessAdapter for AntigravityAdapter {
     fn handle_hook(&self, workspace: &Path, stdin_content: &str) -> (i32, String) {
         let content = crate::features::adapters::clean_stdin(stdin_content);
         if content.is_empty() {
+            let formatted_denial = "[XGAUNTLET POLICY BLOCKED] Tool: unknown | Task: NONE (Phase: SPEC) | Reason: Empty payload received on stdin | Recovery: Provide valid hook JSON on stdin".to_string();
             let res = serde_json::json!({
                 "decision": "deny",
-                "reason": "Empty payload received on stdin."
+                "reason": formatted_denial,
+                "system_instruction": formatted_denial
             });
             return (1, res.to_string());
         }
@@ -564,9 +590,11 @@ impl HarnessAdapter for AntigravityAdapter {
         let payload: Value = match serde_json::from_str(content) {
             Ok(v) => v,
             Err(e) => {
+                let formatted_denial = format!("[XGAUNTLET POLICY BLOCKED] Tool: unknown | Task: NONE (Phase: SPEC) | Reason: Corrupt JSON payload on stdin: {e} | Recovery: Provide valid hook JSON on stdin");
                 let res = serde_json::json!({
                     "decision": "deny",
-                    "reason": format!("Corrupt JSON payload on stdin: {e}")
+                    "reason": formatted_denial,
+                    "system_instruction": formatted_denial
                 });
                 return (1, res.to_string());
             }

@@ -260,11 +260,34 @@ impl HarnessAdapter for ClaudeCodeAdapter {
             });
             (0, res.to_string())
         } else {
+            let tool_name = payload
+                .get("tool_name")
+                .or_else(|| payload.get("toolName"))
+                .and_then(|n| n.as_str())
+                .unwrap_or("unknown");
+            let task_info = crate::features::tasks::inspect_task_telemetry(workspace, None).ok();
+            let task_id = task_info
+                .as_ref()
+                .map(|t| t.task_id.as_str())
+                .unwrap_or("NONE");
+            let phase = task_info
+                .as_ref()
+                .and_then(|t| t.phase.as_deref())
+                .unwrap_or("SPEC");
+            let recovery = if verdict.reason.contains("scope") {
+                format!("Add target path to 'scope: [...]' in tasks/{task_id}.md")
+            } else {
+                "Adhere to active task scope and invariants".to_string()
+            };
+            let formatted_denial = format!(
+                "[XGAUNTLET POLICY BLOCKED] Tool: {tool_name} | Task: {task_id} (Phase: {phase}) | Reason: {} | Recovery: {recovery}",
+                verdict.reason
+            );
             let res = serde_json::json!({
                 "hookSpecificOutput": {
                     "hookEventName": "PreToolUse",
                     "permissionDecision": "deny",
-                    "permissionDecisionReason": verdict.reason
+                    "permissionDecisionReason": formatted_denial
                 }
             });
             (2, res.to_string())

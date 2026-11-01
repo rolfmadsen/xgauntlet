@@ -10,12 +10,14 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::atomic::{AtomicU64, Ordering};
 
+use xgauntlet_core::features::checkpoint::models::{CheckpointOptions, CheckpointPhase};
 use xgauntlet_core::features::checkpoint::preflight::{
-    resolve_scoped_test_command, RustTestTarget,
+    resolve_scoped_test_command, run_preflight_check, RustTestTarget,
 };
 use xgauntlet_core::features::checkpoint::provenance::{
     evaluate_fast_track_inverse_proof, is_fast_track_eligible,
 };
+use xgauntlet_core::features::gauntlet::{execute_gauntlet_pipeline, GauntletOptions};
 use xgauntlet_core::features::tasks::models::{TaskPackageInfo, TaskStatus};
 
 static TEST_COUNTER: AtomicU64 = AtomicU64::new(1);
@@ -96,6 +98,7 @@ fn test_rust_target_resolver_standalone_integration_test() {
     assert_eq!(
         target,
         RustTestTarget::IntegrationTest {
+            package: None,
             target_name: "order_acceptance_test".to_string(),
             filter: None,
             command: vec![
@@ -129,6 +132,7 @@ fn test_rust_target_resolver_harness_submodule() {
     assert_eq!(
         target,
         RustTestTarget::HarnessSubmodule {
+            package: None,
             harness_name: "features".to_string(),
             submodule: "invoice_acceptance_test".to_string(),
             command: vec![
@@ -153,12 +157,73 @@ fn test_rust_target_resolver_lib_unit_test() {
     assert_eq!(
         target,
         RustTestTarget::LibModule {
+            package: None,
             module_path: "features::auth::validator".to_string(),
             command: vec![
                 "cargo".to_string(),
                 "test".to_string(),
                 "--lib".to_string(),
                 "features::auth::validator".to_string()
+            ],
+        }
+    );
+}
+
+#[test]
+fn test_rust_target_resolver_multi_crate_workspace() {
+    let ws = TempWorkspace::new("multi_crate_ws");
+    let crate_dir = ws.path().join("crates").join("xgauntlet-core");
+    let tests_dir = crate_dir.join("tests");
+    let src_dir = crate_dir.join("src").join("features").join("auth");
+
+    fs::create_dir_all(&tests_dir).unwrap();
+    fs::create_dir_all(&src_dir).unwrap();
+
+    fs::write(
+        crate_dir.join("Cargo.toml"),
+        "[package]\nname = \"xgauntlet-core\"\nversion = \"0.1.0\"\n",
+    )
+    .unwrap();
+    fs::write(tests_dir.join("security_test.rs"), "// integration test").unwrap();
+    fs::write(src_dir.join("token.rs"), "// lib module").unwrap();
+
+    // 1. Integration test in crate subdirectory must include -p <crate-name>
+    let target1 =
+        resolve_scoped_test_command(ws.path(), "crates/xgauntlet-core/tests/security_test.rs");
+    assert_eq!(
+        target1,
+        RustTestTarget::IntegrationTest {
+            package: Some("xgauntlet-core".to_string()),
+            target_name: "security_test".to_string(),
+            filter: None,
+            command: vec![
+                "cargo".to_string(),
+                "test".to_string(),
+                "-p".to_string(),
+                "xgauntlet-core".to_string(),
+                "--test".to_string(),
+                "security_test".to_string(),
+            ],
+        }
+    );
+
+    // 2. Lib module in crate subdirectory must include -p <crate-name>
+    let target2 = resolve_scoped_test_command(
+        ws.path(),
+        "crates/xgauntlet-core/src/features/auth/token.rs",
+    );
+    assert_eq!(
+        target2,
+        RustTestTarget::LibModule {
+            package: Some("xgauntlet-core".to_string()),
+            module_path: "features::auth::token".to_string(),
+            command: vec![
+                "cargo".to_string(),
+                "test".to_string(),
+                "-p".to_string(),
+                "xgauntlet-core".to_string(),
+                "--lib".to_string(),
+                "features::auth::token".to_string(),
             ],
         }
     );
@@ -277,5 +342,165 @@ fn test_always_passes() {
             || upper.contains("BORN_GREEN")
             || upper.contains("TAUTOLOGICAL"),
         "Error message should mention born-green / tautological: {err_msg}"
+    );
+}
+
+#[tokio::test]
+async fn test_phase_machine_blocks_skipping_phases_for_non_fast_track() {
+    let ws = TempWorkspace::new("phase_skip_blocked");
+    init_git_repo(ws.path());
+
+    // Task with intent: feature (NOT fast-track eligible)
+    let tasks_dir = ws.path().join("tasks");
+    fs::create_dir_all(&tasks_dir).unwrap();
+    fs::write(
+        tasks_dir.join("042-new-feature.md"),
+        r#"---
+type: Task Package
+title: "Task 042: New Feature"
+status: active
+scope:
+  - "src/feature.rs"
+test_refs:
+  - "tests/feature_test.rs"
+---
+# Task 042: New Feature
+**Status**: `ACTIVE`
+**Intent**: `🚀 NEW FEATURE`
+## 📋 Acceptance Criteria
+- [x] Feature works
+"#,
+    )
+    .unwrap();
+
+    let opts = CheckpointOptions {
+        workspace: ws.path().to_path_buf(),
+        phase: CheckpointPhase::Done,
+        task_id: Some("042".to_string()),
+        message: None,
+        allow_empty: false,
+        skip_verify: false,
+        strict_provenance: false,
+        allow_born_green: false,
+    };
+
+    // Calling done directly without RED/GREEN for a FEATURE must fail closed
+    let res = run_preflight_check(&opts).await;
+    assert!(
+        res.is_err(),
+        "Skipping TDD phases for feature task must fail closed"
+    );
+    let err_msg = format!("{:?}", res.err().unwrap());
+    assert!(
+        err_msg.to_ascii_lowercase().contains("fast-track")
+            || err_msg.to_ascii_lowercase().contains("phase"),
+        "Expected error mentioning fast-track or phase skip: {err_msg}"
+    );
+}
+
+#[tokio::test]
+async fn test_fast_track_worktree_inverse_proof_in_pipeline() {
+    let ws = TempWorkspace::new("pipeline_inverse_proof");
+    init_git_repo(ws.path());
+
+    // 1. Commit baseline
+    let src_dir = ws.path().join("src");
+    let tests_dir = ws.path().join("tests");
+    let tasks_dir = ws.path().join("tasks");
+    fs::create_dir_all(&src_dir).unwrap();
+    fs::create_dir_all(&tests_dir).unwrap();
+    fs::create_dir_all(&tasks_dir).unwrap();
+
+    fs::write(src_dir.join("lib.rs"), "pub fn compute() -> i32 { 10 }").unwrap();
+    fs::write(
+        ws.path().join("Cargo.toml"),
+        r#"[package]
+name = "math_pkg"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+"#,
+    )
+    .unwrap();
+
+    fs::write(
+        ws.path().join("gauntlet.toml"),
+        r#"[project]
+name = "math_pkg"
+version = "0.1.0"
+
+[[layers]]
+name = "unit"
+command = ["cargo", "test"]
+"#,
+    )
+    .unwrap();
+
+    let _ = Command::new("cargo")
+        .args(["check"])
+        .current_dir(ws.path())
+        .output();
+    let _ = Command::new("git")
+        .args(["add", "."])
+        .current_dir(ws.path())
+        .output();
+    let _ = Command::new("git")
+        .args(["commit", "-m", "chore: baseline"])
+        .current_dir(ws.path())
+        .output();
+
+    // 2. Introduce a bugfix in scope and a regression test in test_refs
+    // Fix: compute returns 20
+    fs::write(src_dir.join("lib.rs"), "pub fn compute() -> i32 { 20 }").unwrap();
+    // Test: expects compute() == 20 (which FAILS on baseline HEAD, and PASSES on workspace!)
+    fs::write(
+        tests_dir.join("calc_test.rs"),
+        r#"
+#[test]
+fn test_fixed_compute() {
+    assert_eq!(math_pkg::compute(), 20);
+}
+"#,
+    )
+    .unwrap();
+
+    fs::write(
+        tasks_dir.join("043-bugfix.md"),
+        r#"---
+type: Task Package
+title: "Task 043: Bugfix"
+status: active
+scope:
+  - "src/lib.rs"
+test_refs:
+  - "tests/calc_test.rs"
+---
+# Task 043: Bugfix
+**Status**: `ACTIVE`
+**Intent**: `🐛 BUG FIX`
+## 📋 Acceptance Criteria
+- [x] Fix calculation bug
+"#,
+    )
+    .unwrap();
+
+    let outcome = execute_gauntlet_pipeline(
+        ws.path(),
+        &GauntletOptions {
+            task_id: Some("043".to_string()),
+            save_evidence: false,
+            layers: None,
+        },
+    )
+    .await
+    .unwrap();
+
+    assert_eq!(outcome.report.verdict, "PASSED");
+    assert_eq!(
+        outcome.report.proof_mode.as_deref(),
+        Some("worktree_inverse_proof"),
+        "Pipeline must record proof_mode = worktree_inverse_proof for 1-step Fast-Track"
     );
 }

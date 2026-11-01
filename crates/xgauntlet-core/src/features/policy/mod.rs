@@ -13,21 +13,58 @@ pub use path::{PathSecurityError, WorkspaceRelativePath};
 
 /// Checks if a file path is within known agent harness configuration or skill directories.
 pub fn is_harness_whitelisted_path(path: &std::path::Path) -> bool {
-    let s = path.to_string_lossy().replace('\\', "/");
-    s.contains("/.gemini/config/plugins/")
-        || s.contains("/.gemini/antigravity/builtin/")
-        || s.contains("/.agents/")
-        || s.contains("/.claude/")
-        || s.contains("/.codex/")
-        || s.starts_with(".agents/")
+    // 1. Must never allow directory traversal with '..'
+    if path
+        .components()
+        .any(|c| matches!(c, std::path::Component::ParentDir))
+    {
+        return false;
+    }
+
+    // 2. Relative workspace agent directories
+    let clean = path.to_string_lossy().replace('\\', "/");
+    let norm = clean.trim_start_matches("./");
+    if norm.starts_with(".agents/") || norm.starts_with(".claude/") || norm.starts_with(".codex/") {
+        return true;
+    }
+
+    // 3. Absolute paths MUST be anchored to user's $HOME
+    if let Ok(home) = std::env::var("HOME") {
+        let home_path = std::path::Path::new(&home);
+        if let Ok(rel) = path.strip_prefix(home_path) {
+            let s = rel.to_string_lossy().replace('\\', "/");
+            return s.starts_with(".gemini/config/plugins/")
+                || s.starts_with(".gemini/antigravity/builtin/")
+                || s.starts_with(".agents/")
+                || s.starts_with(".claude/")
+                || s.starts_with(".codex/");
+        }
+    }
+
+    false
 }
 
 /// Checks if a file path is within Antigravity session brain artifacts/scratch directory.
 pub fn is_session_brain_artifact_path(path: &std::path::Path) -> bool {
-    let s = path.to_string_lossy().replace('\\', "/");
-    s.contains("/.gemini/antigravity/brain/")
-        || s.contains("/antigravity-ide/brain/")
-        || s.contains("/antigravity/brain/")
+    // 1. Must never allow directory traversal with '..'
+    if path
+        .components()
+        .any(|c| matches!(c, std::path::Component::ParentDir))
+    {
+        return false;
+    }
+
+    // 2. Must be anchored to user's $HOME under .gemini/antigravity/brain/
+    if let Ok(home) = std::env::var("HOME") {
+        let home_path = std::path::Path::new(&home);
+        if let Ok(rel) = path.strip_prefix(home_path) {
+            let s = rel.to_string_lossy().replace('\\', "/");
+            return s.starts_with(".gemini/antigravity/brain/")
+                || s.starts_with(".gemini/antigravity-ide/brain/");
+        }
+    }
+
+    false
 }
 
 pub const DEFAULT_POLICY_WASM: &[u8] = include_bytes!("../../../wasm/gauntlet_policy.wasm");

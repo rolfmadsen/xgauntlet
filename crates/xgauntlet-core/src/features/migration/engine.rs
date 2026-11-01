@@ -381,20 +381,29 @@ fn scaffold_missing_adr_template(
 /// Modernizes Rust profile layers in gauntlet.toml: removes redundant cargo check
 /// when clippy is configured and optimizes targeted invariant testing.
 pub fn modernize_rust_profile_layers(toml_content: &str) -> String {
+    modernize_rust_profile_layers_with_workspace(toml_content, None)
+}
+
+/// Modernizes Rust profile layers with optional workspace inspection for tests/proptests.rs existence.
+pub fn modernize_rust_profile_layers_with_workspace(
+    toml_content: &str,
+    workspace: Option<&Path>,
+) -> String {
     let mut lines: Vec<String> = toml_content.lines().map(|s| s.to_string()).collect();
     let has_clippy = lines.iter().any(|l| l.contains("clippy"));
 
     if has_clippy {
-        // 1. Remove inline types layer (e.g. types = ["cargo", "check"])
+        // 1. Remove inline types layer only if it contains "check"
         lines.retain(|l| {
             let t = l.trim_start();
-            !t.starts_with("types =") && !t.starts_with("types=")
+            let is_types = t.starts_with("types =") || t.starts_with("types=");
+            !(is_types && t.contains("check"))
         });
 
-        // 2. Remove table block [[layers]] with name = "types" and cargo check
-        let mut filtered_lines = Vec::new();
+        // 2. Remove table block [[layers]] with name = "types" only if command is cargo check
+        let mut filtered_lines: Vec<String> = Vec::new();
         let mut in_types_block = false;
-        let mut block_buffer = Vec::new();
+        let mut block_buffer: Vec<String> = Vec::new();
 
         for line in lines {
             let trimmed = line.trim();
@@ -402,19 +411,29 @@ pub fn modernize_rust_profile_layers(toml_content: &str) -> String {
                 if !in_types_block {
                     filtered_lines.append(&mut block_buffer);
                 } else {
+                    let is_cargo_check = block_buffer.iter().any(|b| b.contains("check"));
+                    if !is_cargo_check {
+                        filtered_lines.append(&mut block_buffer);
+                    }
                     block_buffer.clear();
                     in_types_block = false;
                 }
                 block_buffer.push(line);
             } else if in_types_block {
                 if trimmed.starts_with('[') {
+                    let is_cargo_check = block_buffer.iter().any(|b| b.contains("check"));
+                    if !is_cargo_check {
+                        filtered_lines.append(&mut block_buffer);
+                    }
                     in_types_block = false;
                     filtered_lines.push(line);
+                } else {
+                    block_buffer.push(line);
                 }
             } else if block_buffer.iter().any(|l| l.trim() == "[[layers]]") {
                 if trimmed == "name = \"types\"" || trimmed == "name = 'types'" {
                     in_types_block = true;
-                    block_buffer.clear();
+                    block_buffer.push(line);
                 } else {
                     block_buffer.push(line);
                 }
@@ -422,26 +441,37 @@ pub fn modernize_rust_profile_layers(toml_content: &str) -> String {
                 filtered_lines.push(line);
             }
         }
-        if !in_types_block {
+        if in_types_block {
+            let is_cargo_check = block_buffer.iter().any(|b| b.contains("check"));
+            if !is_cargo_check {
+                filtered_lines.append(&mut block_buffer);
+            }
+        } else {
             filtered_lines.append(&mut block_buffer);
         }
         lines = filtered_lines;
     }
 
-    for line in lines.iter_mut() {
-        if line.contains("cargo\", \"test\", \"--\", \"proptest\"")
-            || line.contains("cargo\", \"test\", \"--\", \"proptests\"")
-        {
-            *line = line
-                .replace(
-                    "[\"cargo\", \"test\", \"--\", \"proptest\"]",
-                    "[\"cargo\", \"test\", \"--test\", \"proptests\"]",
-                )
-                .replace(
-                    "[\"cargo\", \"test\", \"--\", \"proptests\"]",
-                    "[\"cargo\", \"test\", \"--test\", \"proptests\"]",
-                );
+    // Only rewrite invariants if tests/proptests.rs exists in the workspace
+    let should_rewrite_proptests =
+        workspace.is_some_and(|ws| ws.join("tests/proptests.rs").is_file());
+    if should_rewrite_proptests {
+        for line in lines.iter_mut() {
+            if line.contains("cargo\", \"test\", \"--\", \"proptest\"")
+                || line.contains("cargo\", \"test\", \"--\", \"proptests\"")
+            {
+                *line = line
+                    .replace(
+                        "[\"cargo\", \"test\", \"--\", \"proptest\"]",
+                        "[\"cargo\", \"test\", \"--test\", \"proptests\"]",
+                    )
+                    .replace(
+                        "[\"cargo\", \"test\", \"--\", \"proptests\"]",
+                        "[\"cargo\", \"test\", \"--test\", \"proptests\"]",
+                    );
+            }
         }
     }
+
     lines.join("\n")
 }

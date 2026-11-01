@@ -3,6 +3,8 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use serde_json::Value;
+
 use super::bundle::{
     get_embedded_companion_files, get_embedded_hooks_manifest, get_embedded_plugin_manifest,
     get_embedded_skill, ALL_EMBEDDED_SKILLS,
@@ -97,15 +99,41 @@ fn install_into_directory(
     };
 
     let hooks_content = if binary_path != "xgauntlet" {
-        get_embedded_hooks_manifest()
-            .replace(
-                "\"xgauntlet hook antigravity\"",
-                &format!("\"{} hook antigravity\"", binary_path),
-            )
-            .replace(
-                "\"xgauntlet telemetry --format antigravity-hook\"",
-                &format!("\"{} telemetry --format antigravity-hook\"", binary_path),
-            )
+        let manifest_str = get_embedded_hooks_manifest();
+        if let Ok(mut val) = serde_json::from_str::<Value>(manifest_str) {
+            let hook_cmd = format!("{binary_path} hook antigravity");
+            let telem_cmd = format!("{binary_path} telemetry --format antigravity-hook");
+
+            if let Some(xgauntlet) = val.get_mut("xgauntlet").and_then(|v| v.as_object_mut()) {
+                if let Some(pre_tools) = xgauntlet
+                    .get_mut("PreToolUse")
+                    .and_then(|v| v.as_array_mut())
+                {
+                    for item in pre_tools.iter_mut() {
+                        if let Some(hooks) = item.get_mut("hooks").and_then(|h| h.as_array_mut()) {
+                            for h in hooks.iter_mut() {
+                                if let Some(cmd) = h.get_mut("command") {
+                                    *cmd = Value::String(hook_cmd.clone());
+                                }
+                            }
+                        }
+                    }
+                }
+                if let Some(pre_invs) = xgauntlet
+                    .get_mut("PreInvocation")
+                    .and_then(|v| v.as_array_mut())
+                {
+                    for item in pre_invs.iter_mut() {
+                        if let Some(cmd) = item.get_mut("command") {
+                            *cmd = Value::String(telem_cmd.clone());
+                        }
+                    }
+                }
+            }
+            serde_json::to_string_pretty(&val).unwrap_or_else(|_| manifest_str.to_string())
+        } else {
+            manifest_str.to_string()
+        }
     } else {
         get_embedded_hooks_manifest().to_string()
     };
@@ -135,7 +163,17 @@ fn install_into_directory(
         let exists = dest_path.is_file();
 
         if exists && !options.force {
-            files_skipped.push(dest_path);
+            let is_manifest =
+                rel_path == Path::new("plugin.json") || rel_path == Path::new("hooks.json");
+            let differs = fs::read_to_string(&dest_path).map_or(true, |c| c != content);
+            if is_manifest && differs {
+                if !options.dry_run {
+                    fs::write(&dest_path, content)?;
+                }
+                files_written.push(dest_path);
+            } else {
+                files_skipped.push(dest_path);
+            }
         } else {
             if !options.dry_run {
                 if let Some(parent) = dest_path.parent() {

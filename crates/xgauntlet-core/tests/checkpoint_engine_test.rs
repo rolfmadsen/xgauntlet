@@ -493,6 +493,11 @@ optional = false
 "#;
     fs::write(temp.path().join("gauntlet.toml"), config_content).unwrap();
 
+    let _ = Command::new("git")
+        .args(["commit", "--allow-empty", "-m", "test(014): test [RED]"])
+        .current_dir(temp.path())
+        .output();
+
     let opts = CheckpointOptions::new(CheckpointPhase::Done, temp.path());
     let res = run_checkpoint(&opts)
         .await

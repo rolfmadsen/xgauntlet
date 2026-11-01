@@ -38,16 +38,19 @@ pub fn resolve_test_layer(workspace: &Path) -> LayerDefinition {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RustTestTarget {
     IntegrationTest {
+        package: Option<String>,
         target_name: String,
         filter: Option<String>,
         command: Vec<String>,
     },
     HarnessSubmodule {
+        package: Option<String>,
         harness_name: String,
         submodule: String,
         command: Vec<String>,
     },
     LibModule {
+        package: Option<String>,
         module_path: String,
         command: Vec<String>,
     },
@@ -72,6 +75,18 @@ pub fn resolve_scoped_test_command(workspace: &Path, test_ref: &str) -> RustTest
     let clean = test_ref.replace('\\', "/");
     let clean_ref = clean.trim_start_matches("./");
 
+    // Detect crate package from crates/<pkg>/...
+    let package = if clean_ref.starts_with("crates/") {
+        let parts: Vec<&str> = clean_ref.split('/').collect();
+        if parts.len() >= 2 {
+            Some(parts[1].to_string())
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
     // Case C: Library module in src/
     if let Some(after_src) = clean_ref
         .strip_prefix("src/")
@@ -85,13 +100,15 @@ pub fn resolve_scoped_test_command(workspace: &Path, test_ref: &str) -> RustTest
                 .unwrap_or(&module_path)
                 .to_string();
         }
-        let command = vec![
-            "cargo".to_string(),
-            "test".to_string(),
-            "--lib".to_string(),
-            module_path.clone(),
-        ];
+        let mut command = vec!["cargo".to_string(), "test".to_string()];
+        if let Some(ref pkg) = package {
+            command.push("-p".to_string());
+            command.push(pkg.clone());
+        }
+        command.push("--lib".to_string());
+        command.push(module_path.clone());
         return RustTestTarget::LibModule {
+            package,
             module_path,
             command,
         };
@@ -128,14 +145,16 @@ pub fn resolve_scoped_test_command(workspace: &Path, test_ref: &str) -> RustTest
                 .strip_suffix(".rs")
                 .unwrap_or(submod_filename)
                 .to_string();
-            let command = vec![
-                "cargo".to_string(),
-                "test".to_string(),
-                "--test".to_string(),
-                actual_harness.clone(),
-                submod.clone(),
-            ];
+            let mut command = vec!["cargo".to_string(), "test".to_string()];
+            if let Some(ref pkg) = package {
+                command.push("-p".to_string());
+                command.push(pkg.clone());
+            }
+            command.push("--test".to_string());
+            command.push(actual_harness.clone());
+            command.push(submod.clone());
             return RustTestTarget::HarnessSubmodule {
+                package,
                 harness_name: actual_harness,
                 submodule: submod,
                 command,
@@ -149,13 +168,15 @@ pub fn resolve_scoped_test_command(workspace: &Path, test_ref: &str) -> RustTest
         .strip_suffix(".rs")
         .unwrap_or(file_name)
         .to_string();
-    let command = vec![
-        "cargo".to_string(),
-        "test".to_string(),
-        "--test".to_string(),
-        target_name.clone(),
-    ];
+    let mut command = vec!["cargo".to_string(), "test".to_string()];
+    if let Some(ref pkg) = package {
+        command.push("-p".to_string());
+        command.push(pkg.clone());
+    }
+    command.push("--test".to_string());
+    command.push(target_name.clone());
     RustTestTarget::IntegrationTest {
+        package,
         target_name,
         filter: None,
         command,
@@ -251,6 +272,19 @@ pub async fn run_preflight_check(options: &CheckpointOptions) -> Result<(), Chec
                         details: format!(
                             "Expected failing test assertions in RED phase for '{}', but tests passed",
                             layer.name
+                        ),
+                    });
+                }
+                // AC1: Differentiate between a test assertion failure / missing symbol in test vs syntax/manifest failure in production code
+                let output = &res.output;
+                if (output.contains("error: expected one of") || output.contains("error[E0658]"))
+                    && (output.contains("/src/") || output.contains("src/"))
+                {
+                    return Err(CheckpointError::RedPhaseUnmet {
+                        details: format!(
+                            "Syntax error in production code detected during RED preflight for '{}': {}",
+                            layer.name,
+                            output.trim()
                         ),
                     });
                 }
@@ -368,6 +402,28 @@ pub async fn run_preflight_check(options: &CheckpointOptions) -> Result<(), Chec
             Ok(())
         }
         CheckpointPhase::Done => {
+            // Blocker 1: Check phase progression invariants
+            let task_info = super::engine::load_task_package_info(&options.workspace, &task_id);
+            let has_red = has_task_red_commit(&options.workspace, &task_id);
+
+            if !has_red {
+                if let Some(ref info) = task_info {
+                    let changed =
+                        get_working_tree_changed_files(&options.workspace).unwrap_or_default();
+                    if !super::provenance::is_fast_track_eligible(info, &changed) {
+                        return Err(CheckpointError::DonePhaseUnmet(
+                            "Skipping TDD phases (RED/GREEN) is only permitted for Fast-Track Bugfix Lane tasks (intent: bug, scope <= 3 files).".to_string(),
+                        ));
+                    }
+                    if !info.test_refs.is_empty() {
+                        super::provenance::evaluate_fast_track_inverse_proof(
+                            &options.workspace,
+                            &info.test_refs,
+                        )?;
+                    }
+                }
+            }
+
             let outcome = execute_gauntlet_pipeline(
                 &options.workspace,
                 &GauntletOptions {
@@ -388,4 +444,52 @@ pub async fn run_preflight_check(options: &CheckpointOptions) -> Result<(), Chec
             Ok(())
         }
     }
+}
+
+/// Checks if a task has a preceding RED checkpoint commit in Git history.
+pub fn has_task_red_commit(workspace: &Path, task_id: &str) -> bool {
+    let short_id = super::git::extract_short_task_id(task_id);
+    let output = match std::process::Command::new("git")
+        .args(["log", "-n", "50", "--format=%s"])
+        .current_dir(workspace)
+        .output()
+    {
+        Ok(out) => out,
+        Err(_) => return false,
+    };
+    if !output.status.success() {
+        return false;
+    }
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    for line in stdout.lines() {
+        let trimmed = line.trim();
+        if trimmed.starts_with("test(")
+            && (trimmed.contains(task_id) || (!short_id.is_empty() && trimmed.contains(short_id)))
+            && (trimmed.contains("[RED]") || trimmed.contains("red"))
+        {
+            return true;
+        }
+    }
+    false
+}
+
+/// Lists modified, added, or deleted files in the working tree.
+pub fn get_working_tree_changed_files(workspace: &Path) -> Result<Vec<String>, std::io::Error> {
+    let output = std::process::Command::new("git")
+        .args(["status", "--porcelain"])
+        .current_dir(workspace)
+        .output()?;
+    if !output.status.success() {
+        return Ok(Vec::new());
+    }
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let mut files = Vec::new();
+    for line in stdout.lines() {
+        let trimmed = line.trim();
+        if trimmed.len() > 3 {
+            let path_part = trimmed[3..].trim();
+            files.push(path_part.to_string());
+        }
+    }
+    Ok(files)
 }

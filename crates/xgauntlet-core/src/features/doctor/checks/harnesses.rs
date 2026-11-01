@@ -56,6 +56,27 @@ pub fn check_harnesses(_workspace: &Path) -> Vec<DoctorCheckItem> {
             remediation,
             duration_ms: 1,
         });
+
+        // AC4: Detect duplicate hook registrations across settings.json and hooks.json
+        if h.name == "antigravity" && h.detected && h.plugin_installed {
+            let settings_file = h.config_dir.join("settings.json");
+            let plugin_hooks = h.plugin_dir.join("hooks.json");
+            if settings_file.is_file() && plugin_hooks.is_file() {
+                if let Ok(content) = std::fs::read_to_string(&settings_file) {
+                    if content.contains("\"xgauntlet\"") || content.contains("xgauntlet hook") {
+                        checks.push(DoctorCheckItem {
+                            name: "harness_antigravity_hooks_deduplication".to_string(),
+                            category: DoctorCategory::Harnesses,
+                            status: DoctorCheckStatus::Warn,
+                            message: "Duplicate xGauntlet hook registrations detected across settings.json and plugin hooks.json".to_string(),
+                            detail: Some(format!("Both {} and {} register xgauntlet hooks", settings_file.display(), plugin_hooks.display())),
+                            remediation: Some("Remove duplicate 'xgauntlet' hooks from ~/.gemini/settings.json to eliminate double cockpit emissions".to_string()),
+                            duration_ms: 1,
+                        });
+                    }
+                }
+            }
+        }
     }
 
     checks

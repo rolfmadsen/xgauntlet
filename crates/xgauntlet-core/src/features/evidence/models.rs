@@ -231,6 +231,8 @@ pub struct VerificationReport {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub test_provenance:
         Option<Vec<crate::features::checkpoint::provenance::TestProvenanceEvidence>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub proof_mode: Option<String>,
 }
 
 fn default_schema_url() -> String {
@@ -270,6 +272,7 @@ impl VerificationReport {
             diagnostics: Vec::new(),
             lineage: None,
             test_provenance: None,
+            proof_mode: None,
         }
     }
 }
