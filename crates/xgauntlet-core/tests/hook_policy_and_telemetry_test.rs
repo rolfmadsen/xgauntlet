@@ -16,7 +16,8 @@ use xgauntlet_core::features::adapters::models::HarnessAdapter;
 use xgauntlet_core::features::config::profiles::get_stack_profile;
 use xgauntlet_core::features::migration::modernize_rust_profile_layers_with_workspace;
 use xgauntlet_core::features::policy::{
-    is_harness_whitelisted_path, is_session_brain_artifact_path,
+    is_harness_whitelisted_path, is_harness_whitelisted_path_with_homes,
+    is_session_brain_artifact_path, is_session_brain_artifact_path_with_homes,
 };
 
 static TEST_COUNTER: AtomicU64 = AtomicU64::new(1);
@@ -66,10 +67,22 @@ impl Drop for TempWorkspace {
     }
 }
 
+fn resolve_test_home() -> String {
+    std::env::var("HOME")
+        .ok()
+        .filter(|v| !v.trim().is_empty())
+        .or_else(|| {
+            std::env::var("USERPROFILE")
+                .ok()
+                .filter(|v| !v.trim().is_empty())
+        })
+        .unwrap_or_else(|| "/home/user".to_string())
+}
+
 #[test]
 fn test_harness_whitelist_paths() {
     // Harness configs and skill directories outside workspace must be whitelisted for reading
-    let home = std::env::var("HOME").unwrap_or_else(|_| "/home/user".to_string());
+    let home = resolve_test_home();
     let gemini_skill =
         PathBuf::from(&home).join(".gemini/config/plugins/xgauntlet/skills/tdd/SKILL.md");
     let antigravity_skill =
@@ -101,7 +114,7 @@ fn test_harness_whitelist_paths() {
 
 #[test]
 fn test_session_brain_artifact_paths() {
-    let home = std::env::var("HOME").unwrap_or_else(|_| "/home/user".to_string());
+    let home = resolve_test_home();
     let brain_artifact = PathBuf::from(&home)
         .join(".gemini/antigravity/brain/bbc9e8e6-c901-4018-97d2-ed84df583c36/report.md");
     let scratch_file = PathBuf::from(&home)
@@ -122,6 +135,126 @@ fn test_session_brain_artifact_paths() {
     // Outside brain directory must NOT match
     let other_file = PathBuf::from(&home).join(".gemini/antigravity/other/file.txt");
     assert!(!is_session_brain_artifact_path(&other_file));
+}
+
+#[test]
+fn test_windows_userprofile_and_cross_platform_path_normalization() {
+    // 1. Windows PowerShell environment: HOME unset, USERPROFILE = C:\Users\runneradmin
+    let win_homes = [r"C:\Users\runneradmin"];
+
+    assert!(is_harness_whitelisted_path_with_homes(
+        Path::new(r"C:\Users\runneradmin\.gemini\config\plugins\xgauntlet\skills\tdd\SKILL.md"),
+        &win_homes
+    ));
+    assert!(is_harness_whitelisted_path_with_homes(
+        Path::new("C:/Users/runneradmin/.gemini/config/plugins/xgauntlet/skills/tdd/SKILL.md"),
+        &win_homes
+    ));
+    assert!(is_harness_whitelisted_path_with_homes(
+        Path::new(r"c:\Users\runneradmin\.gemini\antigravity\builtin\skills\spec\SKILL.md"),
+        &win_homes
+    ));
+    assert!(is_harness_whitelisted_path_with_homes(
+        Path::new(r"\\?\C:\Users\runneradmin\.agents\plugins\xgauntlet\skills\review\SKILL.md"),
+        &win_homes
+    ));
+
+    assert!(is_session_brain_artifact_path_with_homes(
+        Path::new(
+            r"C:\Users\runneradmin\.gemini\antigravity\brain\bbc9e8e6-c901-4018-97d2-ed84df583c36\report.md"
+        ),
+        &win_homes
+    ));
+    assert!(is_session_brain_artifact_path_with_homes(
+        Path::new(
+            "c:/Users/runneradmin/.gemini/antigravity/brain/bbc9e8e6-c901-4018-97d2-ed84df583c36/scratch/temp.txt"
+        ),
+        &win_homes
+    ));
+
+    // 2. Dual HOME + USERPROFILE (e.g. Git Bash or empty HOME="") must evaluate all valid roots
+    let mixed_homes = ["", "/c/Users/runneradmin", r"C:\Users\runneradmin"];
+    assert!(is_harness_whitelisted_path_with_homes(
+        Path::new(r"C:\Users\runneradmin\.gemini\config\plugins\xgauntlet\skills\tdd\SKILL.md"),
+        &mixed_homes
+    ));
+    assert!(is_session_brain_artifact_path_with_homes(
+        Path::new(r"C:\Users\runneradmin\.gemini\antigravity\brain\sess-1\artifact.md"),
+        &mixed_homes
+    ));
+    assert!(!is_harness_whitelisted_path_with_homes(
+        Path::new(".gemini/config/plugins/xgauntlet/skills/tdd/SKILL.md"),
+        &mixed_homes
+    ));
+    assert!(!is_harness_whitelisted_path_with_homes(
+        Path::new(r"D:\evil\.gemini\config\plugins\xgauntlet\skills\tdd\SKILL.md"),
+        &mixed_homes
+    ));
+
+    // 3. Empty or filesystem-root anchors MUST be rejected fail-closed
+    let invalid_root_homes = ["", "/", "\\", "C:\\", "C:/", "c:\\"];
+    assert!(!is_harness_whitelisted_path_with_homes(
+        Path::new("/.gemini/config/plugins/xgauntlet/skills/tdd/SKILL.md"),
+        &invalid_root_homes
+    ));
+    assert!(!is_harness_whitelisted_path_with_homes(
+        Path::new(r"C:\.gemini\config\plugins\xgauntlet\skills\tdd\SKILL.md"),
+        &invalid_root_homes
+    ));
+    assert!(!is_session_brain_artifact_path_with_homes(
+        Path::new(r"C:\.gemini\antigravity\brain\sess-1\artifact.md"),
+        &invalid_root_homes
+    ));
+
+    // 4. Prefix boundary check: C:\Users\runner must NOT match C:\Users\runneradmin
+    let short_homes = [r"C:\Users\runner", "/home/rolf"];
+    assert!(!is_harness_whitelisted_path_with_homes(
+        Path::new(r"C:\Users\runneradmin\.gemini\config\plugins\xgauntlet\skills\tdd\SKILL.md"),
+        &short_homes
+    ));
+    assert!(!is_harness_whitelisted_path_with_homes(
+        Path::new("/home/rolfmadsen/.gemini/config/plugins/xgauntlet/skills/tdd/SKILL.md"),
+        &short_homes
+    ));
+}
+
+#[test]
+fn test_backslash_traversal_rejected_across_platforms() {
+    // Relative agent paths with Windows backslashes and '..' must be rejected on ALL OSes
+    assert!(!is_harness_whitelisted_path(Path::new(
+        r".agents\..\..\etc\passwd"
+    )));
+    assert!(!is_harness_whitelisted_path(Path::new(
+        r".claude\..\.ssh\id_rsa"
+    )));
+    assert!(!is_harness_whitelisted_path_with_homes(
+        Path::new(r"C:\Users\runneradmin\.gemini\config\plugins\..\..\.ssh\id_rsa"),
+        &[r"C:\Users\runneradmin"]
+    ));
+    assert!(!is_session_brain_artifact_path_with_homes(
+        Path::new(r"C:\Users\runneradmin\.gemini\antigravity\brain\sess\..\..\..\.ssh\id_rsa"),
+        &[r"C:\Users\runneradmin"]
+    ));
+
+    // End-to-end hook evaluation must also reject backslash '..' traversal
+    let ws = TempWorkspace::new("backslash_traversal_guard");
+    let adapter = AntigravityAdapter;
+    let payload = json!({
+        "hookEventName": "PreToolUse",
+        "tool_name": "read_file",
+        "parameters": {
+            "Path": r".agents\..\..\etc\passwd"
+        }
+    });
+    let (code, output) = adapter.handle_hook(ws.path(), &payload.to_string());
+    assert_ne!(
+        code, 0,
+        "Backslash '..' traversal must be blocked in PreToolUse hook: {output}"
+    );
+    assert!(
+        output.contains("[XGAUNTLET POLICY BLOCKED]"),
+        "Expected structured denial for backslash traversal: {output}"
+    );
 }
 
 #[test]
