@@ -351,4 +351,3 @@ fn test_hook_blocks_command_injection_and_unscoped_git_commit_without_task() {
         );
     }
 }
-

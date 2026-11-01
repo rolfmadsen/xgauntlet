@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🚀 Added & Optimized
+- **Scoped `test_refs` Preflight Execution (`Task 052`, `ADR 0011`, `crates/xgauntlet-core`)**:
+  - `xgauntlet checkpoint` i faserne `red`, `green` og `refactor` parser opgavens `test_refs` fra OKF v0.2 frontmatter og afvikler målrettet kun de erklærede test-targets via `resolve_scoped_test_command` (selvstændige `[[test]]`-binærer, samlede test-harnesses `tests/features/<submod>.rs` og modul-tests i `src/` inkl. `[package].name` i multi-crate workspaces).
+  - Kvalificeret `RED`-preflight skelner nu mellem reelle testfejl og syntaks-/manifestfejl i produktionskode (`src/` / `Cargo.toml`), mens fuld multi-layer verifikation fastholdes uafkortet ved `xgauntlet verify` og `checkpoint -p done`.
+- **Fast-Track Bugfix Protocol & Atomic Worktree Inverse Proof (`Task 052`, `ADR 0011`, `crates/xgauntlet-core`)**:
+  - Afgrænsede fejlrettelser (`intent: bug`, `scope.len() <= 3`, nul ændringer i `docs/adr/` eller `gauntlet.toml`) kvalificerer automatisk til både et 2-trins `RED -> DONE` flow og 1-trins atomisk Worktree Inverse Proof (`proof_mode: "worktree_inverse_proof"`).
+  - Under 1-trins Fast-Track udcheckes en isoleret midlertidig `git worktree` mod `HEAD` med kun opgavens `test_refs` synkroniseret; passerer testen mod uændret `HEAD`, afvises den fail-closed som `BornGreenTestDetected`. Ikke-kvalificerede opgaver (`feature` / `refactor` / `scope > 3`) blokeres fortsat uden forudgående `RED`-commit.
+- **Dedupliceret Rust Stack-Profil & Schema Migration (`Task 052`, `crates/xgauntlet-core`)**:
+  - Standard Rust-profilen i `xgauntlet init` og `xgauntlet migrate` fjerner det redundante `types` (`cargo check`) lag når `clippy` er aktiv, strammer `invariants` mod `tests/proptests.rs` når filen eksisterer, og advarer i `xgauntlet doctor` ved `> 10` separate `[[test]]`-binærer i `Cargo.toml`.
+
+### 🛡️ Security Hardening & Telemetry
+- **Hook Policy Hardening, Harness Whitelist & Actionable `stderr` (`Task 052`, `crates/gauntlet-policy-engine`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`)**:
+  - Eksplicit read-only whitelist for agent-harness skill- og konfigurationsmapper under `$HOME` (`~/.gemini/config/plugins/`, `~/.gemini/antigravity/builtin/`, `~/.agents/`, `~/.claude/`, `~/.codex/`) samt read/write for konversationsspecifikke session brain-artefakter (`~/.gemini/antigravity/brain/<id>/`) med streng `..`-traversal-afvisning.
+  - Hærdet `gauntlet-policy-engine` mod shell-redirection og kommandosubstitution (`>`, `<`, `$(...)`, backticks, `&`) på ikke-kædede kommandoer uden aktiv opgave og udvidet sikre `xgauntlet` governance-subcommands (`checkpoint`, `check-release`, `check-adr`, `check-architecture`, `handoff`, `lineage`).
+  - Indført obligatorisk struktureret `[XGAUNTLET POLICY BLOCKED] Tool: ... | Task: ... | Reason: ... | Recovery: ...` kontrakt på `stderr` ved policy-afvisning og korrupt/tom `stdin` på tværs af harness-adaptere.
+- **Semantisk Telemetri-Deduplikering & Direkte Native Binær Hook (`Task 052`, `crates/xgauntlet-core`)**:
+  - Kontekstbesparende `state_key`-deduplikering over 120s i `PreInvocation`-telemetri når `Task | Phase | Verdict` er uændret, automatisk oprydning af dublerede hooks i `~/.gemini/settings.json` samt direkte binding til den native Rust-executable (`current_exe()`) ved `xgauntlet plugin install`.
+
 ## [0.10.0] - 2026-11-01
 
 ### 🚀 Added & Hardened
