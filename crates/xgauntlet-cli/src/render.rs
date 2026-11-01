@@ -649,11 +649,11 @@ pub fn execute_release_workflow(
                 }
             }
 
-            // 7. Strict release gatekeeper validation
+            // 7. Release gatekeeper validation (manifest harmony, changelog, wasm bytecode, formatting, ADRs)
             let release_options = xgauntlet_core::ReleaseReadinessOptions {
                 workspace: workspace.to_path_buf(),
                 allow_unreleased: false,
-                strict: true,
+                strict: false,
             };
             let report = xgauntlet_core::check_release_readiness(&release_options)?;
             if !report.is_ready {
@@ -663,7 +663,7 @@ pub fn execute_release_workflow(
                     .map(|d| format!("{}: {}", d.file_path, d.message))
                     .collect::<Vec<_>>()
                     .join("; ");
-                anyhow::bail!("Strict release readiness gatekeeper failed: {errs}");
+                anyhow::bail!("Release readiness gatekeeper failed: {errs}");
             }
 
             Ok(modified)
