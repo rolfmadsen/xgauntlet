@@ -32,6 +32,7 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
    - Package-by-Feature (Screaming Architecture).
    - Strict Red -> Green -> Refactor lifecycle and RED-first test provenance enforcement (elimination of born-green and tautological tests).
    - Autonomous TDD inner loop with boundary Human-in-the-Loop gates ([ADR 0009](docs/adr/0009-autonomous-tdd-inner-loop-and-boundary-human-gates.md)).
+   - Fast-Track Bugfix Lane for bounded defects (`scope.len() <= 3`, zero ADR impact) via direct `RED → DONE` or isolated single-step Worktree Inverse Proof.
    - ADR-bound architectural exemptions and monotonic ratchet governance ([ADR 0010](docs/adr/0010-adr-bound-architectural-exemptions-and-monotonic-ratchets.md)).
    - Multi-layer gauntlet: Linters, typecheckers, unit/feature tests, invariant tests, and mutation gauntlet (`cargo-mutants`).
 
@@ -74,6 +75,9 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
 - Node-bootstrapperen må IKKE eksekvere eller udpakke native binærer uden gyldig kryptografisk Sigstore attestation (fail-closed integrity).
 - Må IKKE introducere udokumenterede eksterne runtime-afhængigheder (f.eks. Python).
 - Må IKKE tillade "født grønne" tests (`born-green tests`) at passere ind i et `[GREEN]` eller `[REFACTOR]` checkpoint uden verificeret negativt fejlbevis i RED-fasen eller via ikke-destruktiv inverse preflight.
+- Hook-motoren må ALDRIG fjerne shell-/eksekveringsværktøjer (`run_command`) fra `PreToolUse` policy-evalueringen.
+- Må ALDRIG mutere eller udføre `git stash`, `git checkout` eller `git reset` i udviklerens aktive working tree under invers verifikation (skal anvende isoleret midlertidig `git worktree`).
+- Hook-motoren må ALDRIG afslutte med exit status != 0 uden en struktureret, handlingsorienteret fejlforklaring på `stderr`.
 
 ---
 

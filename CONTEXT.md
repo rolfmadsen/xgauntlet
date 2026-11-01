@@ -187,5 +187,14 @@ _Avoid_: Tautological test, premature test, unverified test, silent green.
 A non-destructive temporal verification mechanism, that executes suspected born-green tests against pre-implementation baseline source trees to empirically confirm failure without data loss.
 _Avoid_: Rollback test, baseline test, diff test, time travel test.
 
+**Fast-Track Bugfix Lane**:
+An accelerated two-phase verification workflow (`RED → DONE`) for bounded defect resolutions touching at most three source files without architectural modifications or ADR changes.
+_Avoid_: Shortcut fix, unverified patch, bypass lane, quick fix.
+
+**Worktree Inverse Proof**:
+A mechanical single-step inverse verification protocol, executed in an isolated temporary Git worktree against unchanged HEAD to prove that a regression test fails before accepting a concurrent production bugfix.
+_Avoid_: In-place rollback, stash test, manual checkout, dirty test.
+
+
 
 
