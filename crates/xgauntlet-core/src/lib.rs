@@ -60,8 +60,10 @@ pub use features::plugin::{
     PluginInstallStatus, PluginTargetInstallReport, ALL_EMBEDDED_SKILLS,
 };
 pub use features::policy::{
-    CapabilityRequest, DecisionVerdict, EnforcementContext, PathSecurityError, PolicyDecision,
-    PolicyError, PolicyEvaluator, ToolActionType, WasmPolicyEngine, WorkspaceRelativePath,
+    has_path_traversal, is_harness_whitelisted_path, is_harness_whitelisted_path_with_homes,
+    is_session_brain_artifact_path, is_session_brain_artifact_path_with_homes, CapabilityRequest,
+    DecisionVerdict, EnforcementContext, PathSecurityError, PolicyDecision, PolicyError,
+    PolicyEvaluator, ToolActionType, WasmPolicyEngine, WorkspaceRelativePath,
 };
 pub use features::release::{
     bump_semver, check_adr_coverage, check_release_readiness, extract_declared_versions,

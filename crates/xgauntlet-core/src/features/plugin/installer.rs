@@ -101,8 +101,13 @@ fn install_into_directory(
     let hooks_content = if binary_path != "xgauntlet" {
         let manifest_str = get_embedded_hooks_manifest();
         if let Ok(mut val) = serde_json::from_str::<Value>(manifest_str) {
-            let hook_cmd = format!("{binary_path} hook antigravity");
-            let telem_cmd = format!("{binary_path} telemetry --format antigravity-hook");
+            let quoted_bin = if binary_path.contains(char::is_whitespace) {
+                format!("\"{binary_path}\"")
+            } else {
+                binary_path.clone()
+            };
+            let hook_cmd = format!("{quoted_bin} hook antigravity");
+            let telem_cmd = format!("{quoted_bin} telemetry --format antigravity-hook");
 
             if let Some(xgauntlet) = val.get_mut("xgauntlet").and_then(|v| v.as_object_mut()) {
                 if let Some(pre_tools) = xgauntlet

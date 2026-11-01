@@ -70,3 +70,4 @@ Formålet er at reproducere disse fejl deterministisk i `[RED]`, rette sti-norma
 - `cargo test -p xgauntlet-core --test hook_policy_and_telemetry_test`
 - `./target/release/xgauntlet verify --save -t 053`
 - `./target/release/xgauntlet check-release --strict`
+
