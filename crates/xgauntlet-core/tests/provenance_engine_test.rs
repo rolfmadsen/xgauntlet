@@ -223,7 +223,7 @@ name = "custom"
 
 [[layers]]
 name = "test"
-command = ["grep", "pub fn calculate() -> i32 { 42 }", "src/lib.rs"]
+command = ["git", "grep", "-q", "-F", "pub fn calculate() -> i32 { 42 }", "--", "src/lib.rs"]
 "#,
     )
     .unwrap();
@@ -279,7 +279,7 @@ name = "custom"
 
 [[layers]]
 name = "test"
-command = ["grep", "hello world", "src/lib.rs"]
+command = ["git", "grep", "-q", "-F", "hello world", "--", "src/lib.rs"]
 "#,
     )
     .unwrap();

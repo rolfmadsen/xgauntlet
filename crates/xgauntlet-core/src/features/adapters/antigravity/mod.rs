@@ -39,10 +39,16 @@ fn should_suppress_duplicate_telemetry(message: &str) -> bool {
     }
 
     use sha2::{Digest, Sha256};
+    use std::sync::atomic::{AtomicU64, Ordering};
     use std::time::{SystemTime, UNIX_EPOCH};
 
-    let user = std::env::var("USER").unwrap_or_else(|_| "default".to_string());
-    let cache_file = std::env::temp_dir().join(format!("xgauntlet_telemetry_dedup_{user}.json"));
+    static DEDUP_TMP_COUNTER: AtomicU64 = AtomicU64::new(1);
+
+    let user = std::env::var("USER")
+        .or_else(|_| std::env::var("USERNAME"))
+        .unwrap_or_else(|_| "default".to_string());
+    let temp_root = std::env::temp_dir();
+    let cache_file = temp_root.join(format!("xgauntlet_telemetry_dedup_{user}.json"));
 
     let now = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -82,7 +88,15 @@ fn should_suppress_duplicate_telemetry(message: &str) -> bool {
         "state_key": current_state_key,
         "timestamp_ms": now,
     });
-    let _ = std::fs::write(&cache_file, payload.to_string());
+    let seq = DEDUP_TMP_COUNTER.fetch_add(1, Ordering::Relaxed);
+    let tmp_file = temp_root.join(format!(
+        "xgauntlet_telemetry_dedup_{user}.{}.{seq}.tmp",
+        std::process::id()
+    ));
+    if std::fs::write(&tmp_file, payload.to_string()).is_ok() {
+        let _ = std::fs::rename(&tmp_file, &cache_file);
+        let _ = std::fs::remove_file(&tmp_file);
+    }
     false
 }
 

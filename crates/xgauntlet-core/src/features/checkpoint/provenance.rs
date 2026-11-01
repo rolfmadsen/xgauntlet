@@ -8,6 +8,9 @@ use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::sync::atomic::{AtomicU64, Ordering};
+
+static WORKTREE_COUNTER: AtomicU64 = AtomicU64::new(1);
 
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -314,14 +317,31 @@ impl IsolatedWorktree {
         // Best-effort removal of registrations left behind by interrupted runs.
         let _ = git_stdout(&repo, &["worktree", "prune"]);
 
+        let base_temp = {
+            let raw_temp = std::env::temp_dir();
+            let canon = raw_temp.canonicalize().unwrap_or(raw_temp);
+            let s = canon.to_string_lossy();
+            if let Some(stripped) = s.strip_prefix(r"\\?\UNC\") {
+                PathBuf::from(format!(r"\\{stripped}"))
+            } else if let Some(stripped) = s.strip_prefix(r"\\?\") {
+                PathBuf::from(stripped)
+            } else {
+                canon
+            }
+        };
+
         let nanos = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .map(|d| d.as_nanos())
             .unwrap_or_default();
-        let path = std::env::temp_dir().join(format!(
-            "xgauntlet-preflight-{}-{nanos}",
-            std::process::id()
-        ));
+        let pid = std::process::id();
+        let path = loop {
+            let seq = WORKTREE_COUNTER.fetch_add(1, Ordering::Relaxed);
+            let candidate = base_temp.join(format!("xgauntlet-preflight-{pid}-{seq}-{nanos}"));
+            if !candidate.exists() {
+                break candidate;
+            }
+        };
         let path_str = path.to_string_lossy().to_string();
         git_stdout(
             &repo,

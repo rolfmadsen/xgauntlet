@@ -6,8 +6,42 @@
 //! - Blocks Windows drive roots (`C:\...`) and UNC paths (`\\server\share`)
 //! - Guarantees the sanitized path remains strictly inside the workspace root.
 
-use std::path::{Component, Path};
+use std::path::{Component, Path, PathBuf};
 use thiserror::Error;
+
+fn strip_win_extended_prefix(s: &str) -> String {
+    if let Some(rest) = s.strip_prefix("//?/UNC/") {
+        format!("//{rest}")
+    } else if let Some(rest) = s.strip_prefix("//?/") {
+        rest.to_string()
+    } else {
+        s.to_string()
+    }
+}
+
+/// Resolves the deepest existing ancestor of `path` via `canonicalize()` and re-appends
+/// the non-existent tail components (when none of them are `..`), enabling macOS
+/// `/var/folders -> /private/var/folders` and `/tmp -> /private/tmp` parity for new files.
+fn canonicalize_existing_prefix(path: &Path) -> Option<PathBuf> {
+    let mut tail: Vec<std::ffi::OsString> = Vec::new();
+    let mut cursor = path;
+    loop {
+        if cursor.exists() {
+            let canon_base = cursor.canonicalize().ok()?;
+            let mut rebuilt = canon_base;
+            for part in tail.into_iter().rev() {
+                rebuilt.push(part);
+            }
+            return Some(rebuilt);
+        }
+        let file_name = cursor.file_name()?;
+        if file_name == ".." {
+            return None;
+        }
+        tail.push(file_name.to_os_string());
+        cursor = cursor.parent()?;
+    }
+}
 
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum PathSecurityError {
@@ -60,16 +94,34 @@ impl WorkspaceRelativePath {
             }
         }
 
-        // Also check against canonicalized workspace path if available
+        // Also check against canonicalized workspace path if available (macOS /var -> /private/var & Windows \\?\)
         if let Ok(canon_ws) = workspace.canonicalize() {
-            let canon_ws_str = canon_ws.to_string_lossy().replace('\\', "/");
+            let canon_ws_raw = canon_ws.to_string_lossy().replace('\\', "/");
+            let canon_ws_str = strip_win_extended_prefix(&canon_ws_raw);
             let canon_ws_trimmed = canon_ws_str.trim_end_matches('/');
             if !canon_ws_trimmed.is_empty() {
                 if normalized == canon_ws_trimmed {
                     return Err(PathSecurityError::EmptyPath);
                 }
-                if normalized.starts_with(&format!("{canon_ws_trimmed}/")) {
-                    normalized = normalized[canon_ws_trimmed.len() + 1..].to_string();
+                let prefix = format!("{canon_ws_trimmed}/");
+                if normalized.starts_with(&prefix) {
+                    normalized = normalized[prefix.len()..].to_string();
+                } else if (normalized.starts_with('/')
+                    || (normalized.len() >= 2
+                        && normalized.as_bytes()[0].is_ascii_alphabetic()
+                        && normalized.as_bytes()[1] == b':'))
+                    && !trimmed.split(['/', '\\']).any(|seg| seg == "..")
+                {
+                    if let Some(canon_target) = canonicalize_existing_prefix(Path::new(trimmed)) {
+                        let canon_target_raw = canon_target.to_string_lossy().replace('\\', "/");
+                        let canon_target_str = strip_win_extended_prefix(&canon_target_raw);
+                        if canon_target_str == canon_ws_trimmed {
+                            return Err(PathSecurityError::EmptyPath);
+                        }
+                        if canon_target_str.starts_with(&prefix) {
+                            normalized = canon_target_str[prefix.len()..].to_string();
+                        }
+                    }
                 }
             }
         }

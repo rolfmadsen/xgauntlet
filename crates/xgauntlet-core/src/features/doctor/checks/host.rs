@@ -44,11 +44,14 @@ pub fn check_host(_workspace: &Path) -> Vec<DoctorCheckItem> {
     });
 
     // 3. System Temporary Directory Access
+    static DOCTOR_PROBE_COUNTER: std::sync::atomic::AtomicU64 =
+        std::sync::atomic::AtomicU64::new(1);
     let start = Instant::now();
     let temp_dir = std::env::temp_dir();
     let (status, msg, detail, remediation) = if temp_dir.is_dir() {
+        let probe_seq = DOCTOR_PROBE_COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         let probe_file = temp_dir.join(format!(
-            "xgauntlet_doctor_probe_{}_{}.tmp",
+            "xgauntlet_doctor_probe_{}_{probe_seq}_{}.tmp",
             std::process::id(),
             start.elapsed().as_nanos()
         ));

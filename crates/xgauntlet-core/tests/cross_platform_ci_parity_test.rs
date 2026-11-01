@@ -191,17 +191,11 @@ fn test_macos_style_symlinked_temp_and_workspace_parity() {
     assert_eq!(sanitized_a.as_str(), "src/new_file.rs");
 
     // Case B: Workspace is symlinked (`/var_alias/workspace`), tool passes canonical path (`/private/var/workspace/src/new_file.rs`)
-    let canonical_new_file = private_ws
-        .canonicalize()
-        .unwrap()
-        .join("src/new_file.rs");
-    let sanitized_b = WorkspaceRelativePath::sanitize(
-        &alias_ws,
-        &canonical_new_file.to_string_lossy(),
-    )
-    .expect(
-        "WorkspaceRelativePath::sanitize must accept canonical path inside symlinked workspace",
-    );
+    let canonical_new_file = private_ws.canonicalize().unwrap().join("src/new_file.rs");
+    let sanitized_b =
+        WorkspaceRelativePath::sanitize(&alias_ws, &canonical_new_file.to_string_lossy()).expect(
+            "WorkspaceRelativePath::sanitize must accept canonical path inside symlinked workspace",
+        );
     assert_eq!(sanitized_b.as_str(), "src/new_file.rs");
 
     // Case C: End-to-end Antigravity PreToolUse write_file through symlinked path against canonical workspace

@@ -90,6 +90,7 @@
 | `sess-13cff77e` | `TDD Craftsman` | `RED` | `13cff77` | `2026-11-01T21:26:55Z` | `VALID` |
 | `sess-c88c37bf` | `TDD Craftsman` | `GREEN` | `c88c37b` | `2026-11-01T21:28:26Z` | `VALID` |
 | `sess-e016e08d` | `TDD Craftsman` | `REFACTOR` | `e016e08` | `2026-11-01T21:30:52Z` | `VALID` |
+| `sess-6830743a` | `TDD Craftsman` | `RED` | `6830743` | `2026-11-01T21:46:42Z` | `VALID` |
 
 ---
 
@@ -214,5 +215,8 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_concurrent_worktree_inverse_preflight_and_nonce_uniqueness` | `RedCheckpointVerified` | `144b13cb7c3d59c3...` | `2026-11-01T22:46:42+01:00` |
+| `test_macos_style_symlinked_temp_and_workspace_parity` | `RedCheckpointVerified` | `144b13cb7c3d59c3...` | `2026-11-01T22:46:42+01:00` |
+| `test_codebase_free_of_collision_prone_temp_paths_and_unix_only_env` | `RedCheckpointVerified` | `144b13cb7c3d59c3...` | `2026-11-01T22:46:42+01:00` |
 
 ---

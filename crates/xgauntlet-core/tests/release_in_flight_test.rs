@@ -3,9 +3,12 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::sync::atomic::{AtomicU64, Ordering};
 use xgauntlet_core::features::release::{
     check_release_readiness, ReleaseFindingCategory, ReleaseReadinessOptions,
 };
+
+static TEST_COUNTER: AtomicU64 = AtomicU64::new(1);
 
 struct TempDir {
     path: PathBuf,
@@ -13,8 +16,15 @@ struct TempDir {
 
 impl TempDir {
     fn new(name: &str) -> Self {
-        let path =
-            std::env::temp_dir().join(format!("xg_rel_test_{}_{}", name, std::process::id()));
+        let seq = TEST_COUNTER.fetch_add(1, Ordering::Relaxed);
+        let nanos = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!(
+            "xg_rel_test_{name}_{}_{seq}_{nanos}",
+            std::process::id()
+        ));
         let _ = fs::remove_dir_all(&path);
         fs::create_dir_all(&path).expect("create temp dir");
         Self { path }

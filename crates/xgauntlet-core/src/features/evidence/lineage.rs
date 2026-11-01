@@ -44,13 +44,18 @@ pub fn compute_lineage_entry_digest(
 
 /// Generates a unique pseudo-random session nonce for an AI engineering session.
 pub fn generate_session_nonce() -> String {
+    use std::sync::atomic::{AtomicU64, Ordering};
     use std::time::{SystemTime, UNIX_EPOCH};
+
+    static SESSION_NONCE_COUNTER: AtomicU64 = AtomicU64::new(1);
+
     let nanos = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap_or_default()
         .as_nanos();
     let pid = std::process::id();
-    let payload = format!("xgauntlet-session-{nanos}-{pid}");
+    let seq = SESSION_NONCE_COUNTER.fetch_add(1, Ordering::Relaxed);
+    let payload = format!("xgauntlet-session-{nanos}-{pid}-{seq}");
     let mut hasher = Sha256::new();
     hasher.update(payload.as_bytes());
     let hex_str = hex::encode(hasher.finalize());

@@ -2,12 +2,29 @@
 //! and Diagnostics Engine (features/diagnostics) in xgauntlet-core.
 
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 use xgauntlet_core::features::tasks::{
     check_task_specification, has_active_task, is_task_active, parse_frontmatter,
     parse_task_content, parse_task_status, resolve_active_task_id, resolve_task_contract,
     validate_context_content, validate_context_glossary, Actor, TaskStatus,
 };
+
+static TEST_COUNTER: AtomicU64 = AtomicU64::new(1);
+
+fn make_temp_dir(prefix: &str) -> PathBuf {
+    let seq = TEST_COUNTER.fetch_add(1, Ordering::Relaxed);
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_nanos();
+    let dir = std::env::temp_dir().join(format!(
+        "xgauntlet_{prefix}_{}_{seq}_{nanos}",
+        std::process::id()
+    ));
+    fs::create_dir_all(&dir).unwrap();
+    dir
+}
 
 #[test]
 fn test_actor_parsing_valid_formats() {
@@ -278,14 +295,7 @@ fn test_workspace_real_context_and_tasks_pass_validation() {
 
 #[test]
 fn test_check_task_specification_catches_all_spec_defects() {
-    let temp_dir = std::env::temp_dir().join(format!(
-        "xgauntlet_test_{}",
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    ));
-    fs::create_dir_all(&temp_dir).unwrap();
+    let temp_dir = make_temp_dir("spec_defects");
 
     // Create a valid CONTEXT.md
     fs::write(
@@ -385,14 +395,7 @@ Test scope parsing.
 
 #[test]
 fn test_check_task_specification_enforces_active_scope_and_test_refs() {
-    let temp_dir = std::env::temp_dir().join(format!(
-        "xgauntlet_scope_test_{}",
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    ));
-    fs::create_dir_all(&temp_dir).unwrap();
+    let temp_dir = make_temp_dir("scope_test");
 
     fs::write(
         temp_dir.join("CONTEXT.md"),
@@ -424,14 +427,7 @@ fn test_check_task_specification_enforces_active_scope_and_test_refs() {
 
 #[test]
 fn test_check_task_specification_prohibits_monolithic_test_file() {
-    let temp_dir = std::env::temp_dir().join(format!(
-        "xgauntlet_monolith_test_{}",
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    ));
-    fs::create_dir_all(&temp_dir).unwrap();
+    let temp_dir = make_temp_dir("monolith_test");
 
     fs::write(
         temp_dir.join("CONTEXT.md"),
