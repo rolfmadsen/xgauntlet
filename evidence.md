@@ -1,22 +1,21 @@
 # Verification Report
 
-**Task ID**: `049-mechanical-monotonic-ratchet-enforcement`  
-**Task Title**: Task 049: Mechanical Monotonic Ratchet Enforcement  
+**Task ID**: `050-antigravity-ide-2-6-0-support-and-release`  
+**Task Title**: Task 050: Antigravity IDE 2.6.0 Support and Release  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `f5a98ad2b0aab1e011facd83aed38033e343b8d5df45ab3ecf103d7ae636cade`  
-**Timestamp**: `2026-10-25T21:42:00Z`  
-**Head**: `04c3388`  
-**Commit**: `04c3388`  
+**Source Manifest Digest**: `28a9f9cd4b1576f87fc436f5cbd17099d9b5ab020dc4f0b00c6add679195d9d4`  
+**Timestamp**: `2026-11-01T12:24:20Z`  
+**Head**: `295e325`  
+**Commit**: `295e325`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (Baseline-sammenligning)**: `check-architecture` sammenligner hver exemptions `max_lines` med loftet i baseline-`gauntlet.toml`. Baseline = merge-base med upstream (`@{upstream}`), ellers `HEAD`.
-- [x] **AC2 (Afvisning af inflation)**: En stigning afvises som violation, medmindre den refererede ADR indeholder en eksplicit linje `ratchet: <path> <= <ny værdi>`.
-- [x] **AC3 (Tilladte ændringer)**: Uændrede eller sænkede lofter, og nye exemptions med gyldig ADR, passerer.
-- [x] **AC4 (Workspace-agnosticisme)**: Uden git-repo springes sammenligningen over med en eksplicit notits; findes repo, men kan baseline ikke læses, fejler checket lukket.
-- [x] **AC5 (Tilbagerulning)**: `main.rs`-loftet i `gauntlet.toml` sænkes til 2180, og ADR 0010 dokumenterer ratchet-linje-konventionen.
-- [x] **AC6 (Ærlig evidens)**: Task 046 AC4 sættes til `[ ]` med revisionsnote, der henviser til Task 049.
+- [x] AC1: Antigravity-adapteren genkender og normaliserer nye IDE 2.6.0 værktøjskald (`read_file`, `write_file`, `edit_file`, `ask_question`, `list_plugin_accounts`, `manage_task`).
+- [x] AC2: Adapteren udleder det effektive workspace via `workspacePaths`, `cwd` og sti-traversering, og håndhæver fail-safe telemetri ved uoprettede opgaver.
+- [x] AC3: Hele kildekoden er formateret jf. `cargo fmt` og passerer samtlige release-invarianter i `release_engine_test`.
+- [x] AC4: Manifest-filer (`Cargo.toml`, `packages/cli/package.json`), `CHANGELOG.md` og WASM-bytecode synkroniseres til `0.10.0`, og evidens forsegles i `verification-report.json` og `evidence.md`.
+- [x] AC5: Opgaven forsegles som DONE med commit og release-tag `v0.10.0` klar til `git push` jf. ADR 0003.
 
 ---
 
@@ -24,14 +23,14 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.101s` |
-| `format` | `PASSED` | `0` | `0.247s` |
-| `lint` | `PASSED` | `0` | `0.125s` |
-| `types` | `PASSED` | `0` | `0.122s` |
-| `unit` | `PASSED` | `0` | `21.826s` |
-| `npm` | `PASSED` | `0` | `0.868s` |
-| `invariants` | `PASSED` | `0` | `0.068s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.013s` |
+| `architecture` | `PASSED` | `0` | `0.064s` |
+| `format` | `PASSED` | `0` | `0.199s` |
+| `lint` | `PASSED` | `0` | `0.105s` |
+| `types` | `PASSED` | `0` | `0.072s` |
+| `unit` | `PASSED` | `0` | `22.464s` |
+| `npm` | `PASSED` | `0` | `2.933s` |
+| `invariants` | `PASSED` | `0` | `0.061s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.015s` |
 
 ---
 

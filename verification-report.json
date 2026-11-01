@@ -4,45 +4,44 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "049-mechanical-monotonic-ratchet-enforcement",
-    "task_title": "Task 049: Mechanical Monotonic Ratchet Enforcement",
-    "task_digest": "115e169cdd88a85f8c1458b5d1dd03c06b5a328ee192a8b03544aad3c7bb64c6",
+    "task_id": "050-antigravity-ide-2-6-0-support-and-release",
+    "task_title": "Task 050: Antigravity IDE 2.6.0 Support and Release",
+    "task_digest": "7f48c78251c33c715445fb6052eef16120556a6d41beb1ac78c5c20d6cf0f748",
     "acceptance_criteria": [
-      "**AC1 (Baseline-sammenligning)**: `check-architecture` sammenligner hver exemptions `max_lines` med loftet i baseline-`gauntlet.toml`. Baseline = merge-base med upstream (`@{upstream}`), ellers `HEAD`.",
-      "**AC2 (Afvisning af inflation)**: En stigning afvises som violation, medmindre den refererede ADR indeholder en eksplicit linje `ratchet: <path> <= <ny værdi>`.",
-      "**AC3 (Tilladte ændringer)**: Uændrede eller sænkede lofter, og nye exemptions med gyldig ADR, passerer.",
-      "**AC4 (Workspace-agnosticisme)**: Uden git-repo springes sammenligningen over med en eksplicit notits; findes repo, men kan baseline ikke læses, fejler checket lukket.",
-      "**AC5 (Tilbagerulning)**: `main.rs`-loftet i `gauntlet.toml` sænkes til 2180, og ADR 0010 dokumenterer ratchet-linje-konventionen.",
-      "**AC6 (Ærlig evidens)**: Task 046 AC4 sættes til `[ ]` med revisionsnote, der henviser til Task 049."
+      "AC1: Antigravity-adapteren genkender og normaliserer nye IDE 2.6.0 værktøjskald (`read_file`, `write_file`, `edit_file`, `ask_question`, `list_plugin_accounts`, `manage_task`).",
+      "AC2: Adapteren udleder det effektive workspace via `workspacePaths`, `cwd` og sti-traversering, og håndhæver fail-safe telemetri ved uoprettede opgaver.",
+      "AC3: Hele kildekoden er formateret jf. `cargo fmt` og passerer samtlige release-invarianter i `release_engine_test`.",
+      "AC4: Manifest-filer (`Cargo.toml`, `packages/cli/package.json`), `CHANGELOG.md` og WASM-bytecode synkroniseres til `0.10.0`, og evidens forsegles i `verification-report.json` og `evidence.md`.",
+      "AC5: Opgaven forsegles som DONE med commit og release-tag `v0.10.0` klar til `git push` jf. ADR 0003."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "54a8d7d4a81b30c63cedb27844b2c2179fb068d3bb66163d80679e7293904094",
-    "source_manifest_digest_pre": "f5a98ad2b0aab1e011facd83aed38033e343b8d5df45ab3ecf103d7ae636cade",
-    "source_manifest_digest_post": "f5a98ad2b0aab1e011facd83aed38033e343b8d5df45ab3ecf103d7ae636cade",
-    "config_digest": "2ab5812ce074a554a3fb405702d0b93511d2a5d5dde2ddd64be1263e47784f36",
-    "task_digest": "115e169cdd88a85f8c1458b5d1dd03c06b5a328ee192a8b03544aad3c7bb64c6",
+    "source_content_digest": "77dc2b5df47ea164f032039e9f9d75e84c3863e0fabfce4dc07f5fac870f9d8d",
+    "source_manifest_digest_pre": "28a9f9cd4b1576f87fc436f5cbd17099d9b5ab020dc4f0b00c6add679195d9d4",
+    "source_manifest_digest_post": "28a9f9cd4b1576f87fc436f5cbd17099d9b5ab020dc4f0b00c6add679195d9d4",
+    "config_digest": "b4511b80507fb42ed9be88c8f965c53d565f669df11608fddb0894248c3d31e7",
+    "task_digest": "7f48c78251c33c715445fb6052eef16120556a6d41beb1ac78c5c20d6cf0f748",
     "policy_digest": "d7ca88f51ed2c325fbc5cd474e816627e3182da8d8f88957f48bc6bd8553cf9f",
     "check_definitions_digest": "138fd39199ca1ff02f1546e8f3128c38c38d368226e0aa141bacdcdbfe12d76b",
-    "included_files_count": 233,
+    "included_files_count": 238,
     "vcs": {
       "type": "git",
-      "head": "04c3388",
-      "commit": "04c3388",
-      "is_dirty": true
+      "head": "295e325",
+      "commit": "295e325",
+      "is_dirty": false
     }
   },
   "execution_metadata": {
-    "started_at": "2026-10-25T21:41:36Z",
-    "finished_at": "2026-10-25T21:42:00Z",
-    "total_duration_seconds": 23.558439113,
+    "started_at": "2026-11-01T12:23:54Z",
+    "finished_at": "2026-11-01T12:24:20Z",
+    "total_duration_seconds": 26.079917294,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
       "platform": "linux",
-      "version": "0.9.0"
+      "version": "0.10.0"
     }
   },
   "checks": [
@@ -50,16 +49,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.101102957,
+      "duration_seconds": 0.064482026,
       "optional": false,
       "passed": true,
-      "log_digest": "a1d9bddd8fd2f39eb9a70137dc56db685054d11edf2627dd997dbd194ec12bb4"
+      "log_digest": "49a75eecf50f0ed9dbe24789c30c3a3d575d2d07d7593bc50273ba88cfb30bea"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.246689959,
+      "duration_seconds": 0.199390121,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -68,52 +67,52 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.125163685,
+      "duration_seconds": 0.105355504,
       "optional": false,
       "passed": true,
-      "log_digest": "a5f4c585ee974ca44916ac30a98bbc189e067a7e0a6bc6d2e8d6bc525be724af"
+      "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
     },
     {
       "name": "types",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.121747575,
+      "duration_seconds": 0.071948054,
       "optional": false,
       "passed": true,
-      "log_digest": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
+      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 21.825973055,
+      "duration_seconds": 22.463597815,
       "optional": false,
       "passed": true,
-      "log_digest": "3a018bb25f3dd85bbf50092695ab29821b457afb74ee1f3c9a426a7da9fd8c7f"
+      "log_digest": "2a41acb07fd431b8e365d29e7a850c33e1a02870bf924b3f81451e591898a397"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.868112282,
+      "duration_seconds": 2.932852955,
       "optional": false,
       "passed": true,
-      "log_digest": "2a7a2bd86750a7cdc69d8ea7eb5a60dde1f4ea4139ea813eb1589651b80ef979"
+      "log_digest": "dc52e212642e92a96228f9076730a7db3ba43e4d496f7cfde1a805c95a2c9742"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.068015799,
+      "duration_seconds": 0.061155471,
       "optional": false,
       "passed": true,
-      "log_digest": "7d184fd5d971b758c7402ea8e4bcc75c7d2f7e37c39855bc52b739778d2d8444"
+      "log_digest": "0df20133297e78eb8625a96353bbc06fb6add3b3681403885f150f6aeab8a947"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.013013589,
+      "duration_seconds": 0.01483025,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
