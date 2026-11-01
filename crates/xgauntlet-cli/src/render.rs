@@ -623,7 +623,22 @@ pub fn execute_release_workflow(
                 }?;
 
                 if outcome.report.verdict.eq_ignore_ascii_case("FAILED") {
-                    anyhow::bail!("Gauntlet verification failed during release bump auto-sealing");
+                    let diags = outcome
+                        .report
+                        .diagnostics
+                        .iter()
+                        .map(|d| format!("[{}] {}: {}", d.tool_name, d.file_path, d.message))
+                        .collect::<Vec<_>>()
+                        .join("\n");
+                    let failed_checks = outcome
+                        .report
+                        .checks
+                        .iter()
+                        .filter(|c| !c.passed && !c.optional)
+                        .map(|c| format!("Check '{}' failed (exit {})", c.name, c.exit_code))
+                        .collect::<Vec<_>>()
+                        .join("\n");
+                    anyhow::bail!("Gauntlet verification failed during release bump auto-sealing:\n{diags}\n{failed_checks}");
                 }
 
                 if workspace.join("verification-report.json").is_file() {
