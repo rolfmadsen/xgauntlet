@@ -72,10 +72,7 @@ fn init_git_repo(ws: &Path) {
         .output()
         .unwrap();
     if !init.status.success() {
-        let _ = Command::new("git")
-            .args(["init"])
-            .current_dir(ws)
-            .output();
+        let _ = Command::new("git").args(["init"]).current_dir(ws).output();
     }
     let _ = Command::new("git")
         .args(["config", "user.name", "Test Committer"])
@@ -117,8 +114,14 @@ fn test_rust_target_resolver_harness_submodule() {
     let tests_dir = ws.path().join("tests");
     fs::create_dir_all(tests_dir.join("features")).unwrap();
     // Harness root exists as tests/features.rs
-    fs::write(tests_dir.join("features.rs"), "mod invoice_acceptance_test;").unwrap();
-    let submod_file = tests_dir.join("features").join("invoice_acceptance_test.rs");
+    fs::write(
+        tests_dir.join("features.rs"),
+        "mod invoice_acceptance_test;",
+    )
+    .unwrap();
+    let submod_file = tests_dir
+        .join("features")
+        .join("invoice_acceptance_test.rs");
     fs::write(&submod_file, "// submod").unwrap();
 
     let target =
@@ -178,7 +181,10 @@ fn test_fast_track_eligibility_criteria() {
     };
 
     // 1. Qualified: intent=Bug, scope.len() <= 3, no ADR/gauntlet changed
-    let changed_files = vec!["src/parser.rs".to_string(), "tests/parser_test.rs".to_string()];
+    let changed_files = vec![
+        "src/parser.rs".to_string(),
+        "tests/parser_test.rs".to_string(),
+    ];
     assert!(is_fast_track_eligible(&task, &changed_files));
 
     // 2. Disqualified: scope.len() > 3
@@ -234,26 +240,42 @@ path = "src/lib.rs"
     )
     .unwrap();
 
-    let _ = Command::new("git").args(["add", "."]).current_dir(ws.path()).output();
-    let _ = Command::new("git").args(["commit", "-m", "chore: baseline"]).current_dir(ws.path()).output();
+    let _ = Command::new("git")
+        .args(["add", "."])
+        .current_dir(ws.path())
+        .output();
+    let _ = Command::new("git")
+        .args(["commit", "-m", "chore: baseline"])
+        .current_dir(ws.path())
+        .output();
 
     // Now introduce a born-green test (already passes against HEAD)
     let test_file = tests_dir.join("dummy_test.rs");
-    fs::write(&test_file, r#"
+    fs::write(
+        &test_file,
+        r#"
 #[test]
 fn test_always_passes() {
     assert_eq!(mock_repo::answer(), 42);
 }
-"#).unwrap();
+"#,
+    )
+    .unwrap();
 
     let test_refs = vec!["tests/dummy_test.rs".to_string()];
     let res = evaluate_fast_track_inverse_proof(ws.path(), &test_refs);
 
     // Must be rejected as born-green
-    assert!(res.is_err(), "Born-green test must be rejected by inverse proof");
-    let err_msg = format!("{:?}", res.err().unwrap());
     assert!(
-        err_msg.contains("BORN_GREEN") || err_msg.contains("Tautological"),
+        res.is_err(),
+        "Born-green test must be rejected by inverse proof"
+    );
+    let err_msg = format!("{:?}", res.err().unwrap());
+    let upper = err_msg.to_ascii_uppercase();
+    assert!(
+        upper.contains("BORNGREEN")
+            || upper.contains("BORN_GREEN")
+            || upper.contains("TAUTOLOGICAL"),
         "Error message should mention born-green / tautological: {err_msg}"
     );
 }

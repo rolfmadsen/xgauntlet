@@ -323,6 +323,16 @@ fn migrate_gauntlet_toml(
         changes.push("Modernized evidence_file to 'verification-report.json'".to_string());
     }
 
+    // In-place modernization of redundant Rust layers
+    let modernized_rust = modernize_rust_profile_layers(&new_content);
+    if modernized_rust != new_content {
+        new_content = modernized_rust;
+        changes.push(
+            "Modernized Rust profile: removed redundant cargo check and optimized invariants"
+                .to_string(),
+        );
+    }
+
     if changes.is_empty() {
         return Ok(None);
     }
@@ -366,4 +376,34 @@ fn scaffold_missing_adr_template(
         description: "Scaffold missing architectural decision record template".to_string(),
         changes,
     }))
+}
+
+/// Modernizes Rust profile layers in gauntlet.toml: removes redundant cargo check
+/// when clippy is configured and optimizes targeted invariant testing.
+pub fn modernize_rust_profile_layers(toml_content: &str) -> String {
+    let mut lines: Vec<String> = toml_content.lines().map(|s| s.to_string()).collect();
+    let has_clippy = lines.iter().any(|l| l.contains("clippy"));
+    if has_clippy {
+        lines.retain(|l| {
+            let t = l.trim_start();
+            !t.starts_with("types =") && !t.starts_with("types=")
+        });
+    }
+
+    for line in lines.iter_mut() {
+        if line.contains("cargo\", \"test\", \"--\", \"proptest\"")
+            || line.contains("cargo\", \"test\", \"--\", \"proptests\"")
+        {
+            *line = line
+                .replace(
+                    "[\"cargo\", \"test\", \"--\", \"proptest\"]",
+                    "[\"cargo\", \"test\", \"--test\", \"proptests\"]",
+                )
+                .replace(
+                    "[\"cargo\", \"test\", \"--\", \"proptests\"]",
+                    "[\"cargo\", \"test\", \"--test\", \"proptests\"]",
+                );
+        }
+    }
+    lines.join("\n")
 }

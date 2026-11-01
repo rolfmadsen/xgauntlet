@@ -61,6 +61,28 @@ git commit -m "refactor(<id>): clean up module boundaries and types [REFACTOR]"
 
 ---
 
+## ⚡ Fast-Track Bugfix Lane (`intent: bug`)
+
+For afgrænsede fejlrettelser understøttes en accelereret verifikationssti jf. [ADR 0011](docs/adr/0011-fast-track-worktree-inverse-proof-and-scoped-preflight.md):
+- **Betingelser for Fast-Track**:
+  1. Task intent er `bug` (`intent: bug` / `🐛 BUG FIX`).
+  2. `scope` indeholder højst 3 kildefiler (`scope.len() <= 3`).
+  3. Ingen berøring af `docs/adr/` eller `gauntlet.toml`.
+- **2-trins Flow**: `checkpoint -p red` (kun `test_refs`) ➔ bugfix i `scope` ➔ `checkpoint -p done` (fuld verifikation og evidensforsegling). Separat `SPEC`- og `REFACTOR`-commit er valgfrie.
+- **1-trins Atomisk Worktree Inverse Proof**: Hvis test og fix leveres i ét trin, udfører xGauntlet automatisk invers verifikation i en isoleret midlertidig git worktree mod uændret HEAD. Testen skal fejle mod HEAD for at bevise sin negative evne; hvis den passerer mod HEAD, afvises den prompte som `BORN_GREEN_TEST`.
+
+---
+
+## 🏗️ Konsolideret Test-Harness Mønster (Undgå Linker-Inflation)
+
+I større Rust-workspaces fører snesevis af separate `[[test]]`-binarier til voldsomt linker-overhead. Anvend i stedet **modul-opdelte accepttests under én samlet harness**:
+- Opret rod-harness i `tests/features.rs` (eller `tests/features_acceptance.rs`).
+- Placer de enkelte feature-accepttests som moduler i `tests/features/<feature>_acceptance_test.rs`.
+- Hver modulfil holdes skarpt afgrænset under 1.000 linjer jf. `max_test_file_lines`, men hele suiten kompileres og linkes som én samlet binærfil.
+- Scoped preflight eksekverer målrettet via `cargo test --test features <submodule>`.
+
+---
+
 ## 🚫 TDD Invarianter
 - Skriv ALDRIG produktionskode før en fejlet test har påvist behovet (RED-first).
 - Tilføj ALDRIG tests til monolitiske testfiler over 1.000 linjer.

@@ -353,7 +353,7 @@ fn test_real_workspace_gauntlet_toml_passes_validation() {
 
 #[test]
 fn test_stack_profiles_default_format_lint_types_optional() {
-    for stack in ["rust", "python", "node", "go"] {
+    for stack in ["python", "node", "go"] {
         let config = GauntletConfig::default_for_stack(stack);
         for layer_name in ["format", "lint", "types"] {
             let layer = config
@@ -376,4 +376,19 @@ fn test_stack_profiles_default_format_lint_types_optional() {
             "Layer 'unit' in stack '{stack}' must be required (optional: false)"
         );
     }
+
+    // Rust stack profile is deduplicated jf. AC5 (clippy replaces redundant cargo check)
+    let rust_config = GauntletConfig::default_for_stack("rust");
+    assert!(
+        rust_config.layers.iter().any(|l| l.name == "format"),
+        "Rust missing format"
+    );
+    assert!(
+        rust_config.layers.iter().any(|l| l.name == "lint"),
+        "Rust missing lint"
+    );
+    assert!(
+        !rust_config.layers.iter().any(|l| l.name == "types"),
+        "Rust must not have redundant types layer"
+    );
 }

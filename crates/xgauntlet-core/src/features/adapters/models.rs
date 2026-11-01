@@ -115,8 +115,28 @@ pub trait HarnessAdapter: Send + Sync {
             req.action_type,
             ToolActionType::WriteFile | ToolActionType::ReadFile
         ) {
+            let target_path = Path::new(&req.target_resource);
             if req.target_resource.is_empty() && req.action_type == ToolActionType::ReadFile {
                 // Non-filesystem read operations (such as interactive dialogues or metadata queries)
+            } else if req.action_type == ToolActionType::ReadFile
+                && (crate::features::policy::is_harness_whitelisted_path(target_path)
+                    || crate::features::policy::is_session_brain_artifact_path(target_path))
+            {
+                return AdapterHookVerdict {
+                    allowed: true,
+                    decision: "allow".to_string(),
+                    reason: "Whitelisted agent harness path".to_string(),
+                    reason_code: Some(2000),
+                };
+            } else if req.action_type == ToolActionType::WriteFile
+                && crate::features::policy::is_session_brain_artifact_path(target_path)
+            {
+                return AdapterHookVerdict {
+                    allowed: true,
+                    decision: "allow".to_string(),
+                    reason: "Session brain artifact path allowed".to_string(),
+                    reason_code: Some(2000),
+                };
             } else {
                 match crate::features::policy::WorkspaceRelativePath::sanitize(
                     workspace,

@@ -34,6 +34,134 @@ pub fn resolve_test_layer(workspace: &Path) -> LayerDefinition {
     LayerDefinition::new("test", vec!["cargo".to_string(), "test".to_string()])
 }
 
+/// Target resolution for scoped Rust test execution.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RustTestTarget {
+    IntegrationTest {
+        target_name: String,
+        filter: Option<String>,
+        command: Vec<String>,
+    },
+    HarnessSubmodule {
+        harness_name: String,
+        submodule: String,
+        command: Vec<String>,
+    },
+    LibModule {
+        module_path: String,
+        command: Vec<String>,
+    },
+    Custom {
+        command: Vec<String>,
+    },
+}
+
+impl RustTestTarget {
+    pub fn command(&self) -> &[String] {
+        match self {
+            RustTestTarget::IntegrationTest { command, .. } => command,
+            RustTestTarget::HarnessSubmodule { command, .. } => command,
+            RustTestTarget::LibModule { command, .. } => command,
+            RustTestTarget::Custom { command } => command,
+        }
+    }
+}
+
+/// Resolves targeted test commands from declared test_refs in task specifications.
+pub fn resolve_scoped_test_command(workspace: &Path, test_ref: &str) -> RustTestTarget {
+    let clean = test_ref.replace('\\', "/");
+    let clean_ref = clean.trim_start_matches("./");
+
+    // Case C: Library module in src/
+    if let Some(after_src) = clean_ref
+        .strip_prefix("src/")
+        .or_else(|| clean_ref.find("/src/").map(|idx| &clean_ref[idx + 5..]))
+    {
+        let stripped = after_src.strip_suffix(".rs").unwrap_or(after_src);
+        let mut module_path = stripped.replace('/', "::");
+        if module_path.ends_with("::mod") {
+            module_path = module_path
+                .strip_suffix("::mod")
+                .unwrap_or(&module_path)
+                .to_string();
+        }
+        let command = vec![
+            "cargo".to_string(),
+            "test".to_string(),
+            "--lib".to_string(),
+            module_path.clone(),
+        ];
+        return RustTestTarget::LibModule {
+            module_path,
+            command,
+        };
+    }
+
+    // Check for tests directory
+    let tests_part = if let Some(idx) = clean_ref.find("/tests/") {
+        &clean_ref[idx + 7..]
+    } else if let Some(after) = clean_ref.strip_prefix("tests/") {
+        after
+    } else {
+        clean_ref
+    };
+
+    let base_tests_dir = if let Some(idx) = clean_ref.find("/tests/") {
+        workspace.join(&clean_ref[..idx + 6])
+    } else {
+        workspace.join("tests")
+    };
+
+    let parts: Vec<&str> = tests_part.split('/').collect();
+    if parts.len() >= 2 {
+        let harness_candidate = parts[0];
+        let harness_file = base_tests_dir.join(format!("{harness_candidate}.rs"));
+        let harness_alt = base_tests_dir.join(format!("{harness_candidate}_acceptance.rs"));
+        if harness_file.is_file() || harness_alt.is_file() {
+            let actual_harness = if harness_file.is_file() {
+                harness_candidate.to_string()
+            } else {
+                format!("{harness_candidate}_acceptance")
+            };
+            let submod_filename = parts.last().unwrap();
+            let submod = submod_filename
+                .strip_suffix(".rs")
+                .unwrap_or(submod_filename)
+                .to_string();
+            let command = vec![
+                "cargo".to_string(),
+                "test".to_string(),
+                "--test".to_string(),
+                actual_harness.clone(),
+                submod.clone(),
+            ];
+            return RustTestTarget::HarnessSubmodule {
+                harness_name: actual_harness,
+                submodule: submod,
+                command,
+            };
+        }
+    }
+
+    // Case A: Standalone integration test
+    let file_name = parts.last().unwrap_or(&"");
+    let target_name = file_name
+        .strip_suffix(".rs")
+        .unwrap_or(file_name)
+        .to_string();
+    let command = vec![
+        "cargo".to_string(),
+        "test".to_string(),
+        "--test".to_string(),
+        target_name.clone(),
+    ];
+    RustTestTarget::IntegrationTest {
+        target_name,
+        filter: None,
+        command,
+    }
+}
+
 fn should_enforce_provenance(options: &CheckpointOptions) -> bool {
     if options.allow_born_green {
         return false;
@@ -44,6 +172,39 @@ fn should_enforce_provenance(options: &CheckpointOptions) -> bool {
     GauntletConfig::load(&options.workspace)
         .map(|c| c.checkpoint.enforce_provenance)
         .unwrap_or(true)
+}
+
+fn resolve_preflight_test_layers(workspace: &Path, task_id: &str) -> Vec<LayerDefinition> {
+    let base_layer = resolve_test_layer(workspace);
+    let is_cargo_project = workspace.join("Cargo.toml").is_file()
+        && base_layer.command.first().map(|c| c.as_str()) == Some("cargo");
+
+    if !is_cargo_project {
+        return vec![base_layer];
+    }
+
+    let task_info = super::engine::load_task_package_info(workspace, task_id);
+    let test_refs = task_info
+        .as_ref()
+        .map(|t| t.test_refs.clone())
+        .unwrap_or_default();
+
+    let concrete_refs: Vec<String> = test_refs
+        .into_iter()
+        .filter(|r| !r.contains('*') && r.ends_with(".rs"))
+        .collect();
+
+    if !concrete_refs.is_empty() {
+        concrete_refs
+            .into_iter()
+            .map(|tr| {
+                let target = resolve_scoped_test_command(workspace, &tr);
+                LayerDefinition::new(format!("scoped-test:{tr}"), target.command().to_vec())
+            })
+            .collect()
+    } else {
+        vec![base_layer]
+    }
 }
 
 /// Executes pre-flight invariant verification for a designated TDD phase.
@@ -82,13 +243,17 @@ pub async fn run_preflight_check(options: &CheckpointOptions) -> Result<(), Chec
             Ok(())
         }
         CheckpointPhase::Red => {
-            let layer = resolve_test_layer(&options.workspace);
-            let res = execute_layer(&layer, &options.workspace).await;
-            if res.passed {
-                return Err(CheckpointError::RedPhaseUnmet {
-                    details: "Expected failing test assertions in RED phase, but tests passed"
-                        .to_string(),
-                });
+            let layers = resolve_preflight_test_layers(&options.workspace, &task_id);
+            for layer in layers {
+                let res = execute_layer(&layer, &options.workspace).await;
+                if res.passed {
+                    return Err(CheckpointError::RedPhaseUnmet {
+                        details: format!(
+                            "Expected failing test assertions in RED phase for '{}', but tests passed",
+                            layer.name
+                        ),
+                    });
+                }
             }
             Ok(())
         }
@@ -127,15 +292,18 @@ pub async fn run_preflight_check(options: &CheckpointOptions) -> Result<(), Chec
                 }
             }
 
-            let layer = resolve_test_layer(&options.workspace);
-            let res = execute_layer(&layer, &options.workspace).await;
-            if !res.passed {
-                return Err(CheckpointError::GreenPhaseUnmet {
-                    details: format!(
-                        "Expected passing tests in GREEN phase, but tests failed: {}",
-                        res.output.trim()
-                    ),
-                });
+            let layers = resolve_preflight_test_layers(&options.workspace, &task_id);
+            for layer in layers {
+                let res = execute_layer(&layer, &options.workspace).await;
+                if !res.passed {
+                    return Err(CheckpointError::GreenPhaseUnmet {
+                        details: format!(
+                            "Expected passing tests in GREEN phase for '{}', but tests failed: {}",
+                            layer.name,
+                            res.output.trim()
+                        ),
+                    });
+                }
             }
             Ok(())
         }
@@ -174,16 +342,19 @@ pub async fn run_preflight_check(options: &CheckpointOptions) -> Result<(), Chec
                 }
             }
 
-            let layer = resolve_test_layer(&options.workspace);
+            let layers = resolve_preflight_test_layers(&options.workspace, &task_id);
             let pre_manifest = compute_workspace_manifest(&options.workspace, None).ok();
-            let res = execute_layer(&layer, &options.workspace).await;
-            if !res.passed {
-                return Err(CheckpointError::RefactorPhaseUnmet {
-                    details: format!(
-                        "Expected passing tests in REFACTOR phase, but tests failed: {}",
-                        res.output.trim()
-                    ),
-                });
+            for layer in layers {
+                let res = execute_layer(&layer, &options.workspace).await;
+                if !res.passed {
+                    return Err(CheckpointError::RefactorPhaseUnmet {
+                        details: format!(
+                            "Expected passing tests in REFACTOR phase for '{}', but tests failed: {}",
+                            layer.name,
+                            res.output.trim()
+                        ),
+                    });
+                }
             }
             if let Some(pre) = pre_manifest {
                 if let Ok(post) = compute_workspace_manifest(&options.workspace, None) {

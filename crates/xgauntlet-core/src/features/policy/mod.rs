@@ -11,6 +11,25 @@ use crate::features::wasm::{WasmError, WasmRuntimeHost};
 pub mod path;
 pub use path::{PathSecurityError, WorkspaceRelativePath};
 
+/// Checks if a file path is within known agent harness configuration or skill directories.
+pub fn is_harness_whitelisted_path(path: &std::path::Path) -> bool {
+    let s = path.to_string_lossy().replace('\\', "/");
+    s.contains("/.gemini/config/plugins/")
+        || s.contains("/.gemini/antigravity/builtin/")
+        || s.contains("/.agents/")
+        || s.contains("/.claude/")
+        || s.contains("/.codex/")
+        || s.starts_with(".agents/")
+}
+
+/// Checks if a file path is within Antigravity session brain artifacts/scratch directory.
+pub fn is_session_brain_artifact_path(path: &std::path::Path) -> bool {
+    let s = path.to_string_lossy().replace('\\', "/");
+    s.contains("/.gemini/antigravity/brain/")
+        || s.contains("/antigravity-ide/brain/")
+        || s.contains("/antigravity/brain/")
+}
+
 pub const DEFAULT_POLICY_WASM: &[u8] = include_bytes!("../../../wasm/gauntlet_policy.wasm");
 
 #[derive(Debug, Error)]

@@ -815,9 +815,21 @@ async fn main() -> anyhow::Result<()> {
             std::io::stdin().read_to_string(&mut buffer)?;
 
             let (exit_code, output) = adapter.handle_hook(&canonical_ws, &buffer);
-            println!("{output}");
             if exit_code != 0 {
+                let err_msg = if let Ok(v) = serde_json::from_str::<serde_json::Value>(&output) {
+                    v.get("reason")
+                        .and_then(|r| r.as_str())
+                        .map(|s| s.to_string())
+                        .unwrap_or_else(|| output.clone())
+                } else {
+                    output.clone()
+                };
+                eprintln!("{err_msg}");
+                println!("{output}");
                 std::process::exit(exit_code);
+            }
+            if !output.trim().is_empty() {
+                println!("{output}");
             }
         }
         Some(Commands::ValidatePlugin {

@@ -29,4 +29,5 @@ Dette katalog indeholder Architecture Decision Records (ADR) for `xGauntlet`.
 | [ADR 0008](0008-sovereign-agentic-sdlc-task-scoping-and-design-tokens.md) | Sovereign Agentic SDLC & Task Scoping | `ACCEPTED` | 7-faset SDLC, suveræn skill suite, obligatorisk task scoping og tilgængelige design tokens. |
 | [ADR 0009](0009-autonomous-tdd-inner-loop-and-boundary-human-gates.md) | Autonomous TDD Inner Loop & Boundary Human Gates | `ACCEPTED` | Autonom overgang mellem RED og GREEN ved mekanisk verificeret test; bevarelse af menneskelige grænse-gates. |
 | [ADR 0010](0010-adr-bound-architectural-exemptions-and-monotonic-ratchets.md) | ADR-Bound Architectural Exemptions & Monotonic Ratchet Governance | `ACCEPTED` | Obligatorisk ADR-tilknytning for alle undtagelser; forbud mod autonom forøgelse af ratchet-lofter. |
+| [ADR 0011](0011-fast-track-worktree-inverse-proof-and-scoped-preflight.md) | Fast-Track Bugfix Protocol, Worktree Inverse Proof, and Scoped Preflight Execution | `ACCEPTED` | Scoped test eksekvering under TDD; Fast-Track 2-trins flow og isoleret worktree invers bevis for fejlrettelser. |
 

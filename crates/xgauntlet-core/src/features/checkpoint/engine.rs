@@ -41,11 +41,11 @@ fn matches_glob_pattern(path: &str, pattern: &str) -> bool {
     path == p
 }
 
-pub fn validate_staged_files_scope(
+/// Resolves and parses the TaskPackageInfo for a given task identifier.
+pub fn load_task_package_info(
     workspace: &std::path::Path,
     task_id: &str,
-    staged_files: &[String],
-) -> Result<(), CheckpointError> {
+) -> Option<crate::features::tasks::TaskPackageInfo> {
     let tasks_dir = workspace.join("tasks");
     let mut task_path = tasks_dir.join(format!("{task_id}.md"));
     if !task_path.is_file() {
@@ -62,14 +62,21 @@ pub fn validate_staged_files_scope(
             }
         }
     }
-
-    if !task_path.is_file() {
-        return Ok(());
+    if task_path.is_file() {
+        crate::features::tasks::parse_task_file(&task_path).ok()
+    } else {
+        None
     }
+}
 
-    let task_info = match crate::features::tasks::parse_task_file(&task_path) {
-        Ok(info) => info,
-        Err(_) => return Ok(()),
+pub fn validate_staged_files_scope(
+    workspace: &std::path::Path,
+    task_id: &str,
+    staged_files: &[String],
+) -> Result<(), CheckpointError> {
+    let task_info = match load_task_package_info(workspace, task_id) {
+        Some(info) => info,
+        None => return Ok(()),
     };
 
     if task_info.scope.is_empty() && task_info.test_refs.is_empty() {

@@ -86,16 +86,37 @@ fn install_into_directory(
     let mut files_written = Vec::new();
     let mut files_skipped = Vec::new();
 
+    let binary_path = if let Ok(exe) = std::env::current_exe() {
+        if exe.is_file() {
+            exe.to_string_lossy().to_string()
+        } else {
+            "xgauntlet".to_string()
+        }
+    } else {
+        "xgauntlet".to_string()
+    };
+
+    let hooks_content = if binary_path != "xgauntlet" {
+        get_embedded_hooks_manifest()
+            .replace(
+                "\"xgauntlet hook antigravity\"",
+                &format!("\"{} hook antigravity\"", binary_path),
+            )
+            .replace(
+                "\"xgauntlet telemetry --format antigravity-hook\"",
+                &format!("\"{} telemetry --format antigravity-hook\"", binary_path),
+            )
+    } else {
+        get_embedded_hooks_manifest().to_string()
+    };
+
     // Prepare list of relative paths and contents
     let mut assets: Vec<(PathBuf, String)> = Vec::new();
     assets.push((
         PathBuf::from("plugin.json"),
         get_embedded_plugin_manifest().to_string(),
     ));
-    assets.push((
-        PathBuf::from("hooks.json"),
-        get_embedded_hooks_manifest().to_string(),
-    ));
+    assets.push((PathBuf::from("hooks.json"), hooks_content));
 
     for skill in ALL_EMBEDDED_SKILLS {
         if let Some(skill_content) = get_embedded_skill(skill) {

@@ -56,8 +56,9 @@ Konkret målsætning og operationel afgrænsning.
 
 ## 🛡️ Arkitektoniske Invarianter i Spec
 1. **Deterministisk Scope:** Hver opgave SKAL deklarere `scope: [...]`. Agenter blokeres fysisk af WASM policy motoren, hvis de forsøger at skrive til filer uden for dette scope.
-2. **Anti-Monolit Test Refs:** Hver opgave SKAL have isolerede testfiler i `test_refs: [...]`. `check-spec` forbyder deklaration af testfiler over 1.000 linjer.
-3. **Design Tokens & WAI 2.0:** UI-komponenter må ALDRIG indeholde rå farveværdier eller ad-hoc styling. Alle farver, typografi og afstande skal referere til projektets design-tokens.
-4. **Shift-Left Gatekeeper:** Opgaven valideres altid med:
+2. **Anti-Monolit Test Refs:** Hver opgave SKAL have isolerede testfiler i `test_refs: [...]`. `check-spec` forbyder deklaration af testfiler over 1.000 linjer. For Rust-workspaces understøttes modul-baserede accepttests under én samlet harness (`tests/features.rs` / `tests/features/*.rs`).
+3. **Fast-Track Bugfix Bounding:** Opgaver med `intent: bug` kvalificerer til den accelererede Fast-Track Lane jf. ADR 0011, hvis `scope` indeholder højst 3 kildefiler (`scope.len() <= 3`) og ingen ADR- eller `gauntlet.toml`-filer berøres.
+4. **Design Tokens & WAI 2.0:** UI-komponenter må ALDRIG indeholde rå farveværdier eller ad-hoc styling. Alle farver, typografi og afstande skal referere til projektets design-tokens.
+5. **Shift-Left Gatekeeper:** Opgaven valideres altid med:
    `xgauntlet check-spec -t <id>`
    før der skrives produktionskode.

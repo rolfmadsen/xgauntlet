@@ -24,6 +24,42 @@ pub const CANONICAL_PRE_INVOCATION_CMD: &str = "xgauntlet telemetry --format ant
 /// Alias for the canonical Antigravity PreInvocation command.
 pub const ANTIGRAVITY_PRE_INVOCATION_CMD: &str = CANONICAL_PRE_INVOCATION_CMD;
 
+fn should_suppress_duplicate_telemetry(message: &str) -> bool {
+    use sha2::{Digest, Sha256};
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    let user = std::env::var("USER").unwrap_or_else(|_| "default".to_string());
+    let cache_file = std::env::temp_dir().join(format!("xgauntlet_telemetry_dedup_{user}.json"));
+
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_millis())
+        .unwrap_or(0);
+
+    let current_digest = format!("{:x}", Sha256::digest(message.as_bytes()));
+
+    if let Ok(content) = std::fs::read_to_string(&cache_file) {
+        if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
+            let last_digest = val.get("digest").and_then(|d| d.as_str()).unwrap_or("");
+            let last_ts = val
+                .get("timestamp_ms")
+                .and_then(|t| t.as_u64())
+                .unwrap_or(0) as u128;
+
+            if last_digest == current_digest && now.saturating_sub(last_ts) < 1500 {
+                return true;
+            }
+        }
+    }
+
+    let payload = serde_json::json!({
+        "digest": current_digest,
+        "timestamp_ms": now,
+    });
+    let _ = std::fs::write(&cache_file, payload.to_string());
+    false
+}
+
 #[derive(Debug, Default, Clone)]
 pub struct AntigravityAdapter;
 
@@ -42,6 +78,12 @@ impl AntigravityAdapter {
 
     /// Formats the canonical Google Antigravity PreInvocation JSON payload on stdout with injectSteps.
     pub fn format_pre_invocation_payload(ephemeral_message: &str) -> serde_json::Value {
+        if should_suppress_duplicate_telemetry(ephemeral_message) {
+            return serde_json::json!({
+                "injectSteps": []
+            });
+        }
+
         serde_json::json!({
             "injectSteps": [
                 {
@@ -596,10 +638,54 @@ impl HarnessAdapter for AntigravityAdapter {
             });
             (0, res.to_string())
         } else {
+            let tool_name = payload
+                .get("toolCall")
+                .and_then(|t| t.get("name"))
+                .or_else(|| payload.get("tool_name"))
+                .and_then(|n| n.as_str())
+                .unwrap_or("unknown");
+
+            let task_info =
+                crate::features::tasks::inspect_task_telemetry(&effective_ws, None).ok();
+            let task_id = task_info
+                .as_ref()
+                .map(|t| t.task_id.as_str())
+                .unwrap_or("NONE");
+            let phase = task_info
+                .as_ref()
+                .and_then(|t| t.phase.as_deref())
+                .unwrap_or("SPEC");
+
+            let recovery = if verdict.reason.contains("scope") || verdict.reason_code == Some(4037)
+            {
+                format!(
+                    "Add target path to 'scope: [...]' in tasks/{task_id}.md or restrict modifications to declared scope"
+                )
+            } else if verdict.reason.contains("push")
+                || verdict.reason.contains("hard")
+                || verdict.reason_code == Some(4038)
+                || verdict.reason_code == Some(4039)
+            {
+                "Destructive operations and remote push are strictly prohibited by ADR 0003"
+                    .to_string()
+            } else if verdict.reason.contains("read-only") {
+                "Mutations are prohibited during read-only phase".to_string()
+            } else {
+                "Inspect active task invariants in CONTEXT.md and spec.md before proceeding"
+                    .to_string()
+            };
+
+            let formatted_denial = format!(
+                "[XGAUNTLET POLICY BLOCKED] Tool: {tool_name} | Task: {task_id} (Phase: {phase}) | Reason: {} | Recovery: {recovery}",
+                verdict.reason
+            );
+
             let res = serde_json::json!({
                 "decision": "deny",
-                "reason": verdict.reason
+                "reason": formatted_denial,
+                "system_instruction": formatted_denial
             });
+
             (1, res.to_string())
         }
     }

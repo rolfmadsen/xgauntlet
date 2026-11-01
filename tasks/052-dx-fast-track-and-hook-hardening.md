@@ -6,10 +6,12 @@ status: active
 generated: { by: process:xgauntlet-task-init, at: "2026-11-01T18:25:00Z" }
 tags: [dx, performance, fast-track, inverse-proof, checkpoint, test-refs, hooks, antigravity, telemetry, migrate, rust-profile]
 scope:
-  - "crates/xgauntlet-core/src/**"
-  - "crates/xgauntlet-cli/src/**"
+  - "crates/xgauntlet-core/**"
+  - "crates/xgauntlet-cli/**"
   - "plugins/antigravity/**"
+  - ".agents/**"
   - "skills/**"
+  - "docs/adr/**"
 test_refs:
   - "crates/xgauntlet-core/tests/fast_track_and_scoped_checkpoint_test.rs"
   - "crates/xgauntlet-core/tests/hook_policy_and_telemetry_test.rs"

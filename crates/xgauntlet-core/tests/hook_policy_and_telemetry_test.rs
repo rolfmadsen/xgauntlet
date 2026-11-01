@@ -15,7 +15,9 @@ use xgauntlet_core::features::adapters::antigravity::AntigravityAdapter;
 use xgauntlet_core::features::adapters::models::HarnessAdapter;
 use xgauntlet_core::features::config::profiles::get_stack_profile;
 use xgauntlet_core::features::migration::modernize_rust_profile_layers;
-use xgauntlet_core::features::policy::{is_harness_whitelisted_path, is_session_brain_artifact_path};
+use xgauntlet_core::features::policy::{
+    is_harness_whitelisted_path, is_session_brain_artifact_path,
+};
 
 static TEST_COUNTER: AtomicU64 = AtomicU64::new(1);
 
@@ -68,8 +70,10 @@ impl Drop for TempWorkspace {
 fn test_harness_whitelist_paths() {
     // Harness configs and skill directories outside workspace must be whitelisted for reading
     let home = std::env::var("HOME").unwrap_or_else(|_| "/home/user".to_string());
-    let gemini_skill = PathBuf::from(&home).join(".gemini/config/plugins/xgauntlet/skills/tdd/SKILL.md");
-    let antigravity_skill = PathBuf::from(&home).join(".gemini/antigravity/builtin/skills/spec/SKILL.md");
+    let gemini_skill =
+        PathBuf::from(&home).join(".gemini/config/plugins/xgauntlet/skills/tdd/SKILL.md");
+    let antigravity_skill =
+        PathBuf::from(&home).join(".gemini/antigravity/builtin/skills/spec/SKILL.md");
     let agents_dir = PathBuf::from(&home).join(".agents/plugins/xgauntlet/skills/review/SKILL.md");
     let claude_skill = PathBuf::from(&home).join(".claude/skills/discover/SKILL.md");
 
@@ -142,7 +146,10 @@ fn test_hook_read_only_tools_allowed_in_spec_phase() {
     });
 
     let (code, output) = adapter.handle_hook(ws.path(), &payload.to_string());
-    assert_eq!(code, 0, "read_file must not be blocked in SPEC phase: {output}");
+    assert_eq!(
+        code, 0,
+        "read_file must not be blocked in SPEC phase: {output}"
+    );
 
     // Interactive planning tools must also be allowed
     let ask_payload = json!({
@@ -158,7 +165,11 @@ fn test_hook_read_only_tools_allowed_in_spec_phase() {
 fn test_rust_stack_profile_deduplication() {
     // 1. Check default Rust stack profile from init
     let profile = get_stack_profile("rust").expect("Rust profile must exist");
-    let layer_names: Vec<&str> = profile.default_layers.iter().map(|l| l.name.as_str()).collect();
+    let layer_names: Vec<&str> = profile
+        .default_layers
+        .iter()
+        .map(|l| l.name.as_str())
+        .collect();
 
     // Must NOT have redundant "types" layer when clippy is configured in "lint"
     assert!(
@@ -181,7 +192,8 @@ invariants = ["cargo", "test", "--", "proptest"]
         "Migration must remove redundant types layer: {modernized}"
     );
     assert!(
-        modernized.contains("tests/proptests.rs") || !modernized.contains("test\", \"--\", \"proptest"),
+        modernized.contains("tests/proptests.rs")
+            || !modernized.contains("test\", \"--\", \"proptest"),
         "Migration should optimize targeted invariant testing"
     );
 }

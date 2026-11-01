@@ -413,6 +413,58 @@ fn resolve_task_path(
     ))
 }
 
+/// Infers the active TDD phase by inspecting conventional commit markers for this task.
+pub fn infer_current_phase(workspace: &Path, task_id: &str) -> String {
+    let short_id = task_id.split('-').next().unwrap_or(task_id);
+    let output = std::process::Command::new("git")
+        .args(["log", "-n", "20", "--format=%s"])
+        .current_dir(workspace)
+        .output();
+
+    if let Ok(out) = output {
+        if out.status.success() {
+            let log = String::from_utf8_lossy(&out.stdout);
+            for line in log.lines() {
+                let trimmed = line.trim();
+                if trimmed.contains(&format!("({short_id})"))
+                    || trimmed.contains(&format!("({task_id})"))
+                    || trimmed.starts_with(&format!("task({short_id})"))
+                    || trimmed.starts_with(&format!("test({short_id})"))
+                    || trimmed.starts_with(&format!("feat({short_id})"))
+                    || trimmed.starts_with(&format!("refactor({short_id})"))
+                    || trimmed.starts_with(&format!("chore({short_id})"))
+                {
+                    if trimmed.contains("[DONE]")
+                        || trimmed.starts_with(&format!("chore({short_id})"))
+                    {
+                        return "DONE".to_string();
+                    }
+                    if trimmed.contains("[REFACTOR]")
+                        || trimmed.starts_with(&format!("refactor({short_id})"))
+                    {
+                        return "GAUNTLET".to_string();
+                    }
+                    if trimmed.contains("[GREEN]")
+                        || trimmed.starts_with(&format!("feat({short_id})"))
+                    {
+                        return "REFACTOR".to_string();
+                    }
+                    if trimmed.contains("[RED]")
+                        || trimmed.starts_with(&format!("test({short_id})"))
+                    {
+                        return "GREEN".to_string();
+                    }
+                    if trimmed.starts_with(&format!("task({short_id})")) {
+                        return "RED".to_string();
+                    }
+                }
+            }
+        }
+    }
+
+    "SPEC".to_string()
+}
+
 /// Inspects telemetry for an active or explicitly designated task.
 pub fn inspect_task_telemetry(
     workspace: &Path,
@@ -434,6 +486,8 @@ pub fn inspect_task_telemetry(
         .ok()
         .flatten();
 
+    let phase = infer_current_phase(workspace, &info.task_id);
+
     Ok(TaskTelemetry {
         task_id: info.task_id,
         title: info.title,
@@ -445,7 +499,7 @@ pub fn inspect_task_telemetry(
         scope: None,
         invariants: None,
         evidence: None,
-        phase: None,
+        phase: Some(phase),
         session_health,
     })
 }

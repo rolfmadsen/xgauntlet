@@ -50,3 +50,4 @@ Vi etablerer to komplementære verifikations- og optimeringsmekanismer:
 - Må ALDRIG udføre `git stash`, `git checkout` eller `git reset` i udviklerens aktive working tree under inverse proof.
 - Må ALDRIG slække på verifikationskravene ved `DONE`.
 - Må ALDRIG tillade Fast-Track for opgaver med `scope.len() > 3` eller opgaver der ændrer `docs/adr/` eller `gauntlet.toml`.
+
