@@ -383,11 +383,49 @@ fn scaffold_missing_adr_template(
 pub fn modernize_rust_profile_layers(toml_content: &str) -> String {
     let mut lines: Vec<String> = toml_content.lines().map(|s| s.to_string()).collect();
     let has_clippy = lines.iter().any(|l| l.contains("clippy"));
+
     if has_clippy {
+        // 1. Remove inline types layer (e.g. types = ["cargo", "check"])
         lines.retain(|l| {
             let t = l.trim_start();
             !t.starts_with("types =") && !t.starts_with("types=")
         });
+
+        // 2. Remove table block [[layers]] with name = "types" and cargo check
+        let mut filtered_lines = Vec::new();
+        let mut in_types_block = false;
+        let mut block_buffer = Vec::new();
+
+        for line in lines {
+            let trimmed = line.trim();
+            if trimmed == "[[layers]]" {
+                if !in_types_block {
+                    filtered_lines.append(&mut block_buffer);
+                } else {
+                    block_buffer.clear();
+                    in_types_block = false;
+                }
+                block_buffer.push(line);
+            } else if in_types_block {
+                if trimmed.starts_with('[') {
+                    in_types_block = false;
+                    filtered_lines.push(line);
+                }
+            } else if block_buffer.iter().any(|l| l.trim() == "[[layers]]") {
+                if trimmed == "name = \"types\"" || trimmed == "name = 'types'" {
+                    in_types_block = true;
+                    block_buffer.clear();
+                } else {
+                    block_buffer.push(line);
+                }
+            } else {
+                filtered_lines.push(line);
+            }
+        }
+        if !in_types_block {
+            filtered_lines.append(&mut block_buffer);
+        }
+        lines = filtered_lines;
     }
 
     for line in lines.iter_mut() {
