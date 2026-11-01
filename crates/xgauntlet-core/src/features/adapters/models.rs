@@ -164,6 +164,7 @@ pub trait HarnessAdapter: Send + Sync {
             } else if target_path
                 .components()
                 .any(|c| matches!(c, std::path::Component::ParentDir))
+                || crate::features::policy::has_path_traversal(&req.target_resource)
             {
                 return AdapterHookVerdict {
                     allowed: false,

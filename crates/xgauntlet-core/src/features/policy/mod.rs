@@ -11,36 +11,173 @@ use crate::features::wasm::{WasmError, WasmRuntimeHost};
 pub mod path;
 pub use path::{PathSecurityError, WorkspaceRelativePath};
 
-/// Checks if a file path is within known agent harness configuration or skill directories.
-pub fn is_harness_whitelisted_path(path: &std::path::Path) -> bool {
-    // 1. Must never allow directory traversal with '..'
+/// Returns true if a raw path string contains null bytes or any `..` traversal segment
+/// across both POSIX (`/`) and Windows (`\`) separators.
+pub fn has_path_traversal(raw: &str) -> bool {
+    if raw.contains('\0') {
+        return true;
+    }
+    raw.split(['/', '\\']).any(|seg| seg == "..")
+}
+
+fn normalize_lexical_path(raw: &str) -> String {
+    let mut s = raw.trim().replace('\\', "/");
+    if let Some(rest) = s.strip_prefix("//?/") {
+        let bytes = rest.as_bytes();
+        if bytes.len() >= 3
+            && bytes[0].is_ascii_alphabetic()
+            && bytes[1] == b':'
+            && bytes[2] == b'/'
+        {
+            s = rest.to_string();
+        }
+    }
+
+    let is_unc = s.starts_with("//");
+    let mut collapsed = String::with_capacity(s.len());
+    let mut prev_slash = false;
+    for (idx, ch) in s.chars().enumerate() {
+        if ch == '/' {
+            if prev_slash && !(is_unc && idx == 1) {
+                continue;
+            }
+            prev_slash = true;
+        } else {
+            prev_slash = false;
+        }
+        collapsed.push(ch);
+    }
+
+    let bytes = collapsed.as_bytes();
+    if bytes.len() >= 2 && bytes[0].is_ascii_alphabetic() && bytes[1] == b':' {
+        let mut chars = collapsed.chars();
+        if let Some(first) = chars.next() {
+            let mut upper = String::with_capacity(collapsed.len());
+            upper.push(first.to_ascii_uppercase());
+            upper.push_str(chars.as_str());
+            return upper;
+        }
+    }
+
+    collapsed
+}
+
+fn normalize_valid_home_anchor(raw_home: &str) -> Option<String> {
+    if has_path_traversal(raw_home) {
+        return None;
+    }
+    let norm = normalize_lexical_path(raw_home);
+    let trimmed = norm.trim_end_matches('/');
+    if trimmed.is_empty() {
+        return None;
+    }
+    let bytes = trimmed.as_bytes();
+    // Reject bare Windows drive root such as "C:" (from "C:\" or "C:/")
+    if bytes.len() == 2 && bytes[0].is_ascii_alphabetic() && bytes[1] == b':' {
+        return None;
+    }
+    let is_posix_abs = trimmed.starts_with('/') && !trimmed.starts_with("//");
+    let is_win_drive_abs =
+        bytes.len() >= 3 && bytes[0].is_ascii_alphabetic() && bytes[1] == b':' && bytes[2] == b'/';
+    if !is_posix_abs && !is_win_drive_abs {
+        return None;
+    }
+    Some(trimmed.to_string())
+}
+
+fn strip_home_prefix<'a>(norm_path: &'a str, home_anchor: &str) -> Option<&'a str> {
+    let rest = norm_path.strip_prefix(home_anchor)?;
+    rest.strip_prefix('/')
+}
+
+fn collect_env_homes() -> Vec<String> {
+    let mut homes = Vec::with_capacity(2);
+    if let Ok(h) = std::env::var("HOME") {
+        homes.push(h);
+    }
+    if let Ok(up) = std::env::var("USERPROFILE") {
+        if !homes.contains(&up) {
+            homes.push(up);
+        }
+    }
+    homes
+}
+
+/// Checks if a file path is within known agent harness configuration or skill directories
+/// against an explicit list of candidate user home directories.
+pub fn is_harness_whitelisted_path_with_homes<H: AsRef<str>>(
+    path: &std::path::Path,
+    homes: &[H],
+) -> bool {
+    let raw = path.to_string_lossy();
     if path
         .components()
         .any(|c| matches!(c, std::path::Component::ParentDir))
+        || has_path_traversal(&raw)
     {
         return false;
     }
 
-    // 2. Relative workspace agent directories
-    let clean = path.to_string_lossy().replace('\\', "/");
-    let norm = clean.trim_start_matches("./");
-    if norm.starts_with(".agents/") || norm.starts_with(".claude/") || norm.starts_with(".codex/") {
+    // Relative workspace agent directories
+    let norm_path = normalize_lexical_path(&raw);
+    let rel_norm = norm_path.trim_start_matches("./");
+    if rel_norm.starts_with(".agents/")
+        || rel_norm.starts_with(".claude/")
+        || rel_norm.starts_with(".codex/")
+    {
         return true;
     }
 
-    // 3. Absolute paths MUST be anchored to user's $HOME (or USERPROFILE on Windows)
-    let home_opt = std::env::var("HOME")
-        .ok()
-        .or_else(|| std::env::var("USERPROFILE").ok());
-    if let Some(home) = home_opt {
-        let home_path = std::path::Path::new(&home);
-        if let Ok(rel) = path.strip_prefix(home_path) {
-            let s = rel.to_string_lossy().replace('\\', "/");
-            return s.starts_with(".gemini/config/plugins/")
-                || s.starts_with(".gemini/antigravity/builtin/")
-                || s.starts_with(".agents/")
-                || s.starts_with(".claude/")
-                || s.starts_with(".codex/");
+    // Absolute paths MUST be anchored to a valid user home directory ($HOME or %USERPROFILE%)
+    for home in homes {
+        if let Some(anchor) = normalize_valid_home_anchor(home.as_ref()) {
+            if let Some(s) = strip_home_prefix(&norm_path, &anchor) {
+                if s.starts_with(".gemini/config/plugins/")
+                    || s.starts_with(".gemini/antigravity/builtin/")
+                    || s.starts_with(".agents/")
+                    || s.starts_with(".claude/")
+                    || s.starts_with(".codex/")
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    false
+}
+
+/// Checks if a file path is within known agent harness configuration or skill directories.
+pub fn is_harness_whitelisted_path(path: &std::path::Path) -> bool {
+    let homes = collect_env_homes();
+    is_harness_whitelisted_path_with_homes(path, &homes)
+}
+
+/// Checks if a file path is within Antigravity session brain artifacts/scratch directory
+/// against an explicit list of candidate user home directories.
+pub fn is_session_brain_artifact_path_with_homes<H: AsRef<str>>(
+    path: &std::path::Path,
+    homes: &[H],
+) -> bool {
+    let raw = path.to_string_lossy();
+    if path
+        .components()
+        .any(|c| matches!(c, std::path::Component::ParentDir))
+        || has_path_traversal(&raw)
+    {
+        return false;
+    }
+
+    let norm_path = normalize_lexical_path(&raw);
+    for home in homes {
+        if let Some(anchor) = normalize_valid_home_anchor(home.as_ref()) {
+            if let Some(s) = strip_home_prefix(&norm_path, &anchor) {
+                if s.starts_with(".gemini/antigravity/brain/")
+                    || s.starts_with(".gemini/antigravity-ide/brain/")
+                {
+                    return true;
+                }
+            }
         }
     }
 
@@ -49,28 +186,8 @@ pub fn is_harness_whitelisted_path(path: &std::path::Path) -> bool {
 
 /// Checks if a file path is within Antigravity session brain artifacts/scratch directory.
 pub fn is_session_brain_artifact_path(path: &std::path::Path) -> bool {
-    // 1. Must never allow directory traversal with '..'
-    if path
-        .components()
-        .any(|c| matches!(c, std::path::Component::ParentDir))
-    {
-        return false;
-    }
-
-    // 2. Must be anchored to user's $HOME under .gemini/antigravity/brain/ (or USERPROFILE on Windows)
-    let home_opt = std::env::var("HOME")
-        .ok()
-        .or_else(|| std::env::var("USERPROFILE").ok());
-    if let Some(home) = home_opt {
-        let home_path = std::path::Path::new(&home);
-        if let Ok(rel) = path.strip_prefix(home_path) {
-            let s = rel.to_string_lossy().replace('\\', "/");
-            return s.starts_with(".gemini/antigravity/brain/")
-                || s.starts_with(".gemini/antigravity-ide/brain/");
-        }
-    }
-
-    false
+    let homes = collect_env_homes();
+    is_session_brain_artifact_path_with_homes(path, &homes)
 }
 
 pub const DEFAULT_POLICY_WASM: &[u8] = include_bytes!("../../../wasm/gauntlet_policy.wasm");
