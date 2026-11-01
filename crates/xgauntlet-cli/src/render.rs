@@ -397,6 +397,10 @@ fn collect_candidate_files_for_backup(workspace: &std::path::Path) -> Vec<std::p
     if root_cargo.is_file() {
         files.push(root_cargo);
     }
+    let cargo_lock = workspace.join("Cargo.lock");
+    if cargo_lock.is_file() {
+        files.push(cargo_lock);
+    }
     let changelog = workspace.join("CHANGELOG.md");
     if changelog.is_file() {
         files.push(changelog);
@@ -580,6 +584,17 @@ pub fn execute_release_workflow(
                 })?;
 
                 modified.push("crates/xgauntlet-core/wasm/gauntlet_policy.wasm".to_string());
+            }
+
+            // Sync Cargo.lock with bumped manifests before computing pre-manifest digest
+            if workspace.join("Cargo.lock").is_file() {
+                let _ = std::process::Command::new("cargo")
+                    .arg("check")
+                    .current_dir(workspace)
+                    .status();
+                if !modified.iter().any(|f| f == "Cargo.lock") {
+                    modified.push("Cargo.lock".to_string());
+                }
             }
 
             // 6. Automatic verification and evidence sealing for the bumped release state
