@@ -280,6 +280,7 @@ fn test_antigravity_legacy_and_multiple_tools() {
     // Read tools
     for (tool, key) in [
         ("view_file", "AbsolutePath"),
+        ("read_file", "Path"),
         ("list_dir", "DirectoryPath"),
         ("grep_search", "SearchPath"),
         ("find_by_name", "SearchDirectory"),
@@ -294,6 +295,32 @@ fn test_antigravity_legacy_and_multiple_tools() {
         let n = adapter.normalize_tool_call(&payload);
         assert_eq!(n.action_type, ToolActionType::ReadFile);
         assert_eq!(n.target_resource, "/path/to/target");
+    }
+
+    // Antigravity 2.6 write tools
+    for (tool, key) in [("write_file", "Path"), ("edit_file", "Path")] {
+        let payload = serde_json::json!({
+            "toolCall": {
+                "name": tool,
+                "args": { key: "crates/xgauntlet-core/src/lib.rs" }
+            }
+        });
+        let n = adapter.normalize_tool_call(&payload);
+        assert_eq!(n.action_type, ToolActionType::WriteFile);
+        assert_eq!(n.target_resource, "crates/xgauntlet-core/src/lib.rs");
+    }
+
+    // Antigravity 2.6 interactive / meta tools
+    for tool in ["ask_question", "list_plugin_accounts", "manage_task"] {
+        let payload = serde_json::json!({
+            "toolCall": {
+                "name": tool,
+                "args": { "question": "Are you ready?" }
+            }
+        });
+        let n = adapter.normalize_tool_call(&payload);
+        assert_eq!(n.action_type, ToolActionType::ReadFile);
+        assert_eq!(n.target_resource, "");
     }
 }
 
@@ -315,6 +342,31 @@ fn test_antigravity_hook_handler_protocol() {
     let (code, out) = adapter.handle_hook(ws, &read_json);
     assert_eq!(code, 0);
     assert!(out.contains("\"decision\":\"allow\"") || out.contains("\"decision\": \"allow\""));
+
+    // Antigravity 2.6 read_file with absolute path inside workspace
+    let abs_read = ws.join("README.md").display().to_string();
+    let read_file_json = serde_json::json!({
+        "toolCall": {
+            "name": "read_file",
+            "args": { "Path": abs_read }
+        }
+    })
+    .to_string();
+    let (code_rf, out_rf) = adapter.handle_hook(ws, &read_file_json);
+    assert_eq!(code_rf, 0);
+    assert!(out_rf.contains("\"decision\":\"allow\"") || out_rf.contains("\"decision\": \"allow\""));
+
+    // Antigravity 2.6 interactive metadata tool (ask_question)
+    let ask_json = serde_json::json!({
+        "toolCall": {
+            "name": "ask_question",
+            "args": { "questions": [] }
+        }
+    })
+    .to_string();
+    let (code_ask, out_ask) = adapter.handle_hook(ws, &ask_json);
+    assert_eq!(code_ask, 0);
+    assert!(out_ask.contains("\"decision\":\"allow\"") || out_ask.contains("\"decision\": \"allow\""));
 
     // Denied git push invocation
     let push_json = serde_json::json!({

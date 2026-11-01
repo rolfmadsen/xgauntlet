@@ -35,7 +35,7 @@ pub struct WorkspaceRelativePath {
 
 impl WorkspaceRelativePath {
     /// Sanitizes an untrusted raw path string against the canonical workspace boundary.
-    pub fn sanitize(_workspace: &Path, raw: &str) -> Result<Self, PathSecurityError> {
+    pub fn sanitize(workspace: &Path, raw: &str) -> Result<Self, PathSecurityError> {
         let trimmed = raw.trim();
         if trimmed.is_empty() {
             return Err(PathSecurityError::EmptyPath);
@@ -46,7 +46,33 @@ impl WorkspaceRelativePath {
         }
 
         // Convert Windows backslashes to forward slashes for cross-platform lexical inspection
-        let normalized = trimmed.replace('\\', "/");
+        let mut normalized = trimmed.replace('\\', "/");
+
+        // If raw is an absolute path, check if it resides within the workspace and strip the workspace prefix
+        let ws_str = workspace.to_string_lossy().replace('\\', "/");
+        let ws_trimmed = ws_str.trim_end_matches('/');
+        if !ws_trimmed.is_empty() {
+            if normalized == ws_trimmed {
+                return Err(PathSecurityError::EmptyPath);
+            }
+            if normalized.starts_with(&format!("{ws_trimmed}/")) {
+                normalized = normalized[ws_trimmed.len() + 1..].to_string();
+            }
+        }
+
+        // Also check against canonicalized workspace path if available
+        if let Ok(canon_ws) = workspace.canonicalize() {
+            let canon_ws_str = canon_ws.to_string_lossy().replace('\\', "/");
+            let canon_ws_trimmed = canon_ws_str.trim_end_matches('/');
+            if !canon_ws_trimmed.is_empty() {
+                if normalized == canon_ws_trimmed {
+                    return Err(PathSecurityError::EmptyPath);
+                }
+                if normalized.starts_with(&format!("{canon_ws_trimmed}/")) {
+                    normalized = normalized[canon_ws_trimmed.len() + 1..].to_string();
+                }
+            }
+        }
 
         // Reject Windows UNC paths and drive letters (e.g. "\\server", "C:", "d:/")
         if normalized.starts_with("//") {
@@ -59,7 +85,7 @@ impl WorkspaceRelativePath {
             }
         }
 
-        // Reject absolute POSIX paths
+        // Reject absolute POSIX paths (paths outside workspace that could not be relativized)
         if normalized.starts_with('/') {
             return Err(PathSecurityError::AbsolutePath(raw.to_string()));
         }
@@ -149,6 +175,18 @@ mod tests {
                 .unwrap()
                 .as_str(),
             "src/models/mod.rs"
+        );
+        assert_eq!(
+            WorkspaceRelativePath::sanitize(ws, "/workspace/src/lib.rs")
+                .unwrap()
+                .as_str(),
+            "src/lib.rs"
+        );
+        assert_eq!(
+            WorkspaceRelativePath::sanitize(ws, "/workspace/tasks/001.md")
+                .unwrap()
+                .as_str(),
+            "tasks/001.md"
         );
     }
 

@@ -115,22 +115,26 @@ pub trait HarnessAdapter: Send + Sync {
             req.action_type,
             ToolActionType::WriteFile | ToolActionType::ReadFile
         ) {
-            match crate::features::policy::WorkspaceRelativePath::sanitize(
-                workspace,
-                &req.target_resource,
-            ) {
-                Ok(clean) => {
-                    req.target_resource = clean.into_inner();
-                }
-                Err(err) => {
-                    return AdapterHookVerdict {
-                        allowed: false,
-                        decision: "deny".to_string(),
-                        reason: format!(
-                            "Path traversal or workspace escape attempt detected: {err}"
-                        ),
-                        reason_code: Some(4036),
-                    };
+            if req.target_resource.is_empty() && req.action_type == ToolActionType::ReadFile {
+                // Non-filesystem read operations (such as interactive dialogues or metadata queries)
+            } else {
+                match crate::features::policy::WorkspaceRelativePath::sanitize(
+                    workspace,
+                    &req.target_resource,
+                ) {
+                    Ok(clean) => {
+                        req.target_resource = clean.into_inner();
+                    }
+                    Err(err) => {
+                        return AdapterHookVerdict {
+                            allowed: false,
+                            decision: "deny".to_string(),
+                            reason: format!(
+                                "Path traversal or workspace escape attempt detected: {err}"
+                            ),
+                            reason_code: Some(4036),
+                        };
+                    }
                 }
             }
         }

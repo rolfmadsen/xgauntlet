@@ -382,9 +382,16 @@ impl HarnessAdapter for AntigravityAdapter {
             }
         }
 
-        if tool_name == "run_command" {
+        let name_lower = tool_name.to_ascii_lowercase();
+
+        if matches!(
+            name_lower.as_str(),
+            "run_command" | "bash" | "exec" | "command" | "execute_command"
+        ) {
             let cmd = args
                 .get("CommandLine")
+                .or_else(|| args.get("command"))
+                .or_else(|| args.get("cmd"))
                 .and_then(|c| c.as_str())
                 .unwrap_or("")
                 .trim()
@@ -399,11 +406,20 @@ impl HarnessAdapter for AntigravityAdapter {
         }
 
         if matches!(
-            tool_name.as_str(),
-            "write_to_file" | "replace_file_content" | "multi_replace_file_content"
+            name_lower.as_str(),
+            "write_to_file"
+                | "replace_file_content"
+                | "multi_replace_file_content"
+                | "write_file"
+                | "edit_file"
+                | "create_file"
         ) {
             let target = args
                 .get("TargetFile")
+                .or_else(|| args.get("Path"))
+                .or_else(|| args.get("path"))
+                .or_else(|| args.get("file_path"))
+                .or_else(|| args.get("target_file"))
                 .and_then(|t| t.as_str())
                 .unwrap_or("")
                 .trim()
@@ -418,11 +434,19 @@ impl HarnessAdapter for AntigravityAdapter {
         }
 
         if matches!(
-            tool_name.as_str(),
-            "view_file" | "list_dir" | "grep_search" | "find_by_name" | "read_url_content"
+            name_lower.as_str(),
+            "view_file"
+                | "list_dir"
+                | "grep_search"
+                | "find_by_name"
+                | "read_url_content"
+                | "read_file"
         ) {
             let target = args
                 .get("AbsolutePath")
+                .or_else(|| args.get("Path"))
+                .or_else(|| args.get("path"))
+                .or_else(|| args.get("file_path"))
                 .or_else(|| args.get("SearchPath"))
                 .or_else(|| args.get("SearchDirectory"))
                 .or_else(|| args.get("DirectoryPath"))
@@ -435,6 +459,27 @@ impl HarnessAdapter for AntigravityAdapter {
             return NormalizedToolCall {
                 action_type: ToolActionType::ReadFile,
                 target_resource: target,
+                raw_tool_name: tool_name,
+                payload: args,
+            };
+        }
+
+        if matches!(
+            name_lower.as_str(),
+            "ask_question"
+                | "list_plugin_accounts"
+                | "manage_task"
+                | "invoke_subagent"
+                | "search_marketplace"
+                | "define_subagent"
+                | "manage_subagents"
+                | "schedule"
+                | "send_message"
+                | "search_web"
+        ) {
+            return NormalizedToolCall {
+                action_type: ToolActionType::ReadFile,
+                target_resource: String::new(),
                 raw_tool_name: tool_name,
                 payload: args,
             };
