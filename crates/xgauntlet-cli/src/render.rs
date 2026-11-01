@@ -654,6 +654,7 @@ pub fn execute_release_workflow(
                 workspace: workspace.to_path_buf(),
                 allow_unreleased: false,
                 strict: false,
+                in_flight_staging: false,
             };
             let report = xgauntlet_core::check_release_readiness(&release_options)?;
             if !report.is_ready {

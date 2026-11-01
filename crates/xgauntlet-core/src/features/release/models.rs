@@ -64,14 +64,19 @@ pub struct ReleaseFinding {
 }
 
 /// Options configuring the release readiness check.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReleaseReadinessOptions {
     /// Root directory of the repository workspace.
     pub workspace: PathBuf,
     /// If true, allows an `[Unreleased]` section in CHANGELOG.md instead of an exact version match.
+    #[serde(default)]
     pub allow_unreleased: bool,
     /// If true, enforces strict validation where any warning blocks release.
+    #[serde(default)]
     pub strict: bool,
+    /// If true, skips the dirty worktree check during transactional in-flight staging while maintaining all other strict checks.
+    #[serde(default)]
+    pub in_flight_staging: bool,
 }
 
 impl Default for ReleaseReadinessOptions {
@@ -80,6 +85,7 @@ impl Default for ReleaseReadinessOptions {
             workspace: PathBuf::from("."),
             allow_unreleased: false,
             strict: false,
+            in_flight_staging: false,
         }
     }
 }

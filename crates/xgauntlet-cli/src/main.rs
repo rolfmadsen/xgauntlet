@@ -1004,6 +1004,7 @@ async fn main() -> anyhow::Result<()> {
                 workspace: canonical_ws,
                 allow_unreleased: *allow_unreleased,
                 strict: *strict,
+                in_flight_staging: false,
             };
 
             let report = xgauntlet_core::check_release_readiness(&options)?;

@@ -149,6 +149,7 @@ version = "1.2.3"
         workspace: ws.clone(),
         allow_unreleased: false,
         strict: false,
+        in_flight_staging: false,
     };
 
     let report = check_release_readiness(&options).expect("release readiness evaluation failed");
@@ -210,6 +211,7 @@ version = "1.0.0"
         workspace: ws.clone(),
         allow_unreleased: false,
         strict: false,
+        in_flight_staging: false,
     };
 
     let report = check_release_readiness(&options).unwrap();
@@ -242,6 +244,7 @@ version = "0.5.0"
         workspace: ws.clone(),
         allow_unreleased: false,
         strict: false,
+        in_flight_staging: false,
     };
 
     let report = check_release_readiness(&options).unwrap();
@@ -284,6 +287,7 @@ version = "0.9.0"
         workspace: ws.clone(),
         allow_unreleased: false,
         strict: false,
+        in_flight_staging: false,
     };
     let report1 = check_release_readiness(&options_strict).unwrap();
     assert!(!report1.is_ready);
@@ -312,6 +316,7 @@ version = "0.9.0"
         workspace: ws.clone(),
         allow_unreleased: true,
         strict: false,
+        in_flight_staging: false,
     };
     let report3 = check_release_readiness(&options_allow).unwrap();
     assert!(report3.is_ready);
@@ -370,6 +375,7 @@ version = "1.0.0"
         workspace: ws.clone(),
         allow_unreleased: false,
         strict: false,
+        in_flight_staging: false,
     };
 
     let report = check_release_readiness(&options).unwrap();
@@ -444,6 +450,7 @@ fn test_real_workspace_release_readiness() {
         workspace: ws,
         allow_unreleased: false,
         strict: false,
+        in_flight_staging: false,
     };
 
     let report = check_release_readiness(&options).unwrap();
@@ -567,6 +574,7 @@ timeout_seconds = 10.0
         workspace: ws.clone(),
         allow_unreleased: false,
         strict: false,
+        in_flight_staging: false,
     };
 
     let report = check_release_readiness(&options).expect("evaluation failed");
@@ -613,6 +621,7 @@ edition = "2021"
         workspace: ws.clone(),
         allow_unreleased: false,
         strict: false,
+        in_flight_staging: false,
     };
 
     let report = check_release_readiness(&options).expect("evaluation failed");
@@ -660,6 +669,7 @@ timeout_seconds = 5.0
         workspace: ws.clone(),
         allow_unreleased: false,
         strict: false,
+        in_flight_staging: false,
     };
 
     let report = check_release_readiness(&options).expect("evaluation failed");
@@ -707,6 +717,7 @@ edition = "2021"
         workspace: ws.clone(),
         allow_unreleased: false,
         strict: false,
+        in_flight_staging: false,
     };
 
     let report = check_release_readiness(&options).expect("evaluation failed");
@@ -743,6 +754,7 @@ edition = "2021"
         workspace: ws.clone(),
         allow_unreleased: false,
         strict: true,
+        in_flight_staging: false,
     };
 
     let report = check_release_readiness(&options).expect("evaluation failed");
