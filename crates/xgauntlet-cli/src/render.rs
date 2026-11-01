@@ -588,10 +588,21 @@ pub fn execute_release_workflow(
 
             // Sync Cargo.lock with bumped manifests before computing pre-manifest digest
             if workspace.join("Cargo.lock").is_file() {
-                let _ = std::process::Command::new("cargo")
+                let status = std::process::Command::new("cargo")
                     .arg("check")
                     .current_dir(workspace)
-                    .status();
+                    .status()
+                    .map_err(|e| {
+                        anyhow::anyhow!(
+                            "Failed to execute cargo check during Cargo.lock synchronization: {e}"
+                        )
+                    })?;
+                if !status.success() {
+                    anyhow::bail!(
+                        "cargo check failed during Cargo.lock synchronization with exit code {:?}",
+                        status.code()
+                    );
+                }
                 if !modified.iter().any(|f| f == "Cargo.lock") {
                     modified.push("Cargo.lock".to_string());
                 }
@@ -653,8 +664,8 @@ pub fn execute_release_workflow(
             let release_options = xgauntlet_core::ReleaseReadinessOptions {
                 workspace: workspace.to_path_buf(),
                 allow_unreleased: false,
-                strict: false,
-                in_flight_staging: false,
+                strict: true,
+                in_flight_staging: true,
             };
             let report = xgauntlet_core::check_release_readiness(&release_options)?;
             if !report.is_ready {

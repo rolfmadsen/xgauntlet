@@ -43,7 +43,12 @@ fn test_antigravity_2_6_tools_normalization() {
     }
 
     // Truly passive/interactive read and dialog tools without file path -> ReadFile
-    for tool in ["ask_question", "list_plugin_accounts", "search_marketplace", "search_web"] {
+    for tool in [
+        "ask_question",
+        "list_plugin_accounts",
+        "search_marketplace",
+        "search_web",
+    ] {
         let payload = serde_json::json!({
             "toolCall": {
                 "name": tool,
@@ -51,7 +56,11 @@ fn test_antigravity_2_6_tools_normalization() {
             }
         });
         let n = adapter.normalize_tool_call(&payload);
-        assert_eq!(n.action_type, ToolActionType::ReadFile, "tool {tool} should map to ReadFile");
+        assert_eq!(
+            n.action_type,
+            ToolActionType::ReadFile,
+            "tool {tool} should map to ReadFile"
+        );
         assert_eq!(n.target_resource, "");
     }
 
@@ -64,7 +73,11 @@ fn test_antigravity_2_6_tools_normalization() {
             }
         });
         let n = adapter.normalize_tool_call(&payload);
-        assert_eq!(n.action_type, ToolActionType::ReadFile, "manage_task with action '{action}' should map to ReadFile");
+        assert_eq!(
+            n.action_type,
+            ToolActionType::ReadFile,
+            "manage_task with action '{action}' should map to ReadFile"
+        );
         assert_eq!(n.target_resource, "");
     }
 
@@ -83,7 +96,11 @@ fn test_antigravity_2_6_tools_normalization() {
             }
         });
         let n = adapter.normalize_tool_call(&payload);
-        assert_eq!(n.action_type, ToolActionType::Other, "tool {tool} must map to Other");
+        assert_eq!(
+            n.action_type,
+            ToolActionType::Other,
+            "tool {tool} must map to Other"
+        );
     }
 
     // manage_task with mutating or missing/unknown action -> Other
@@ -165,7 +182,8 @@ fn test_antigravity_resolve_effective_workspace_and_containment() {
     let payload_override = serde_json::json!({
         "workspacePaths": [empty_dir.to_str().unwrap()]
     });
-    let resolved_preserved = AntigravityAdapter::resolve_effective_workspace(&true_ws, &payload_override);
+    let resolved_preserved =
+        AntigravityAdapter::resolve_effective_workspace(&true_ws, &payload_override);
     assert_eq!(resolved_preserved, true_ws);
 
     // 3. toolCall Path traversal is REMOVED: does NOT change workspace
@@ -183,12 +201,17 @@ fn test_antigravity_resolve_effective_workspace_and_containment() {
             }
         }
     });
-    let resolved_no_traversal = AntigravityAdapter::resolve_effective_workspace(&true_ws, &payload_traversal);
-    assert_eq!(resolved_no_traversal, true_ws, "toolCall.args.Path must never override valid workspace");
+    let resolved_no_traversal =
+        AntigravityAdapter::resolve_effective_workspace(&true_ws, &payload_traversal);
+    assert_eq!(
+        resolved_no_traversal, true_ws,
+        "toolCall.args.Path must never override valid workspace"
+    );
 
     // 4. Fallback when no metadata present
     let payload_empty = serde_json::json!({});
-    let resolved_fallback = AntigravityAdapter::resolve_effective_workspace(&empty_dir, &payload_empty);
+    let resolved_fallback =
+        AntigravityAdapter::resolve_effective_workspace(&empty_dir, &payload_empty);
     assert_eq!(resolved_fallback, empty_dir);
 }
 
@@ -222,7 +245,10 @@ fn test_antigravity_workspace_containment_denies_outside_repo() {
     .to_string();
 
     let (code, output) = adapter.handle_hook(&repo_a, &write_payload);
-    assert_eq!(code, 1, "Attempt to write outside workspace repo must be denied");
+    assert_eq!(
+        code, 1,
+        "Attempt to write outside workspace repo must be denied"
+    );
     assert!(
         output.contains("\"decision\":\"deny\"") || output.contains("\"decision\": \"deny\""),
         "Expected deny decision, got: {output}"

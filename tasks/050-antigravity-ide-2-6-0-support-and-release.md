@@ -2,11 +2,13 @@
 type: Task Package
 title: "Task 050: Antigravity IDE 2.6.0 Support and Release"
 description: "Tilpasning af adapter og policy til Antigravity IDE 2.6.0 værktøjsskema og udgivelse af version 0.10.0"
-status: active
+status: done
 generated: { by: process:antigravity-task-init, at: "2026-11-01T12:03:00Z" }
 tags: [antigravity, release, semver, adapters, ide-2.6.0]
 scope:
   - "crates/xgauntlet-core/src/features/adapters/antigravity/**"
+  - "crates/xgauntlet-core/src/features/policy/path.rs"
+  - "crates/xgauntlet-core/src/features/adapters/models.rs"
   - "crates/xgauntlet-core/tests/harness_adapters_test.rs"
   - "crates/xgauntlet-core/tests/antigravity_adapter_test.rs"
   - "crates/xgauntlet-cli/src/main.rs"
@@ -15,6 +17,7 @@ scope:
   - "crates/xgauntlet-core/wasm/gauntlet_policy.wasm"
   - "Cargo.toml"
   - "Cargo.lock"
+  - "package.json"
   - "packages/cli/package.json"
   - "CHANGELOG.md"
   - "verification-report.json"
@@ -27,7 +30,7 @@ test_refs:
 
 # Task 050: Antigravity IDE 2.6.0 Support and Release
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-01`
 
@@ -39,7 +42,7 @@ Understøtte Google Antigravity IDE 2.6.0 opdaterede tool-skema og workspace-res
 - [x] AC2: Adapteren udleder det effektive workspace via `workspacePaths`, `cwd` og sti-traversering, og håndhæver fail-safe telemetri ved uoprettede opgaver.
 - [x] AC3: Hele kildekoden er formateret jf. `cargo fmt` og passerer samtlige release-invarianter i `release_engine_test`.
 - [x] AC4: Manifest-filer (`Cargo.toml`, `packages/cli/package.json`), `CHANGELOG.md` og WASM-bytecode synkroniseres til `0.10.0`, og evidens forsegles i `verification-report.json` og `evidence.md`.
-- [x] AC5: Opgaven forsegles som DONE med commit og release-tag `v0.10.0` klar til `git push` jf. ADR 0003.
+- [ ] AC5: Opgaven forsegles som DONE med commit og release-tag `v0.10.0` klar til `git push` jf. ADR 0003.
 
 ## 🚫 Must NOT
 - ALDRIG udføre remote publication (`git push`) jf. ADR 0003.
@@ -49,6 +52,7 @@ Understøtte Google Antigravity IDE 2.6.0 opdaterede tool-skema og workspace-res
 ## 📝 Revisions
 - 2026-11-01: Oprettet opgavepakke for Antigravity IDE 2.6.0 support og v0.10.0 release.
 - 2026-11-01: Afsluttet implementation, adapters, arkitektur-dekomposition, manifest-synkronisering og forsegling af evidens jf. v0.10.0.
+- 2026-11-01: Two-Axis Code Review identificerede 4 udeståender (workspace containment, single-agent tool gating, release strictness, task 050 scope). AC5 genåbnet og flyttet til udbedring i Task 051.
 
 ## 🧪 Verifikation
 - `cargo test -p xgauntlet-core --test harness_adapters_test`

@@ -225,7 +225,7 @@ impl ReleaseReadinessEngine {
 
         // 6. Strict mode validations: Clean worktree & sealed verification-report.json with 0 drift
         if options.strict {
-            if ws.join(".git").exists() {
+            if !options.in_flight_staging && ws.join(".git").exists() {
                 if let Ok(false) = crate::features::checkpoint::git::is_worktree_clean(ws) {
                     diagnostics.push(ReleaseFinding {
                         file_path: ".git".to_string(),

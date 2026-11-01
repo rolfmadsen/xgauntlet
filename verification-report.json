@@ -507,6 +507,14 @@
         "commit_oid": "d0428ec10011716330c30da52860242e46d223ab",
         "timestamp": "2026-10-25T20:29:20Z",
         "digest": "046220379cf1ed0ba50e4936875e2c607ecf1768429125086e94bac6c52b08ac"
+      },
+      {
+        "session_nonce": "sess-cb8a691b",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "cb8a691b27a9c1ea336a1607af2e633d7e75719f",
+        "timestamp": "2026-11-01T13:43:34Z",
+        "digest": "08e751dbd1a35be58bcfa819836ff2815207063158fa334859510174218544d5"
       }
     ]
   },
@@ -1084,6 +1092,139 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_antigravity_2_6_tools_normalization",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_antigravity_2_6_hook_handler_protocol",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_antigravity_resolve_effective_workspace_and_containment",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_antigravity_workspace_containment_denies_outside_repo",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_manifest_version_extraction_and_harmony",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_manifest_version_mismatch_detection",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_missing_changelog_detection",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_changelog_version_matching_and_allow_unreleased",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_adr_coverage_detection",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_changelog_parser_helper",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_real_workspace_release_readiness",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_cli_check_release_integration",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_unformatted_code_detection_in_release_gatekeeper",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_wasm_policy_version_mismatch_detection_in_release_gatekeeper",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_format_gate_fails_closed_when_formatter_missing",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_wasm_policy_fails_closed_on_corrupt_bytecode",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_strict_release_gate_fails_closed_when_evidence_report_missing",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_package_json_key_order_preservation_on_update",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_in_flight_staging_skips_dirty_worktree_but_enforces_strict_verification",
+      "failure_output": "Verified in RED checkpoint commit cb8a691",
+      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
+      "verified_at": "2026-11-01T14:43:34+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }

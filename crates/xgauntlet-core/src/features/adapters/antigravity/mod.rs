@@ -468,16 +468,7 @@ impl HarnessAdapter for AntigravityAdapter {
 
         if matches!(
             name_lower.as_str(),
-            "ask_question"
-                | "list_plugin_accounts"
-                | "manage_task"
-                | "invoke_subagent"
-                | "search_marketplace"
-                | "define_subagent"
-                | "manage_subagents"
-                | "schedule"
-                | "send_message"
-                | "search_web"
+            "ask_question" | "list_plugin_accounts" | "search_marketplace" | "search_web"
         ) {
             return NormalizedToolCall {
                 action_type: ToolActionType::ReadFile,
@@ -485,6 +476,25 @@ impl HarnessAdapter for AntigravityAdapter {
                 raw_tool_name: tool_name,
                 payload: args,
             };
+        }
+
+        if name_lower == "manage_task" {
+            let action = args
+                .get("Action")
+                .or_else(|| args.get("action"))
+                .and_then(|a| a.as_str())
+                .unwrap_or("")
+                .trim()
+                .to_ascii_lowercase();
+
+            if matches!(action.as_str(), "list" | "status") {
+                return NormalizedToolCall {
+                    action_type: ToolActionType::ReadFile,
+                    target_resource: String::new(),
+                    raw_tool_name: tool_name,
+                    payload: args,
+                };
+            }
         }
 
         NormalizedToolCall {

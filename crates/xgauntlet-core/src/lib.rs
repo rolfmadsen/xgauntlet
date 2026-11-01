@@ -1,10 +1,11 @@
 pub mod features;
 
 pub use features::adapters::{
-    format_post_tool_use_payload, format_post_tool_use_payload_with_directive, get_adapter,
-    merge_post_tool_use_hook, wrap_response_with_hud, AdapterHookVerdict, AdapterValidationResult,
-    AntigravityAdapter, ClaudeCodeAdapter, CodexAdapter, HarnessAdapter, HarnessKind,
-    MistralAdapter, NormalizedToolCall, ValidationIssue, ValidationSeverity, SUPPORTED_HARNESSES,
+    clean_stdin, format_post_tool_use_payload, format_post_tool_use_payload_with_directive,
+    get_adapter, merge_post_tool_use_hook, wrap_response_with_hud, AdapterHookVerdict,
+    AdapterValidationResult, AntigravityAdapter, ClaudeCodeAdapter, CodexAdapter, HarnessAdapter,
+    HarnessKind, MistralAdapter, NormalizedToolCall, ValidationIssue, ValidationSeverity,
+    SUPPORTED_HARNESSES,
 };
 pub use features::architecture::{
     run_architecture_check, ArchitectureConfig, ArchitectureExemption, ArchitectureFinding,

@@ -1101,23 +1101,6 @@ async fn main() -> anyhow::Result<()> {
                 std::env::current_dir()?.join(workspace)
             };
 
-            use std::io::IsTerminal;
-            if !std::io::stdin().is_terminal() {
-                use std::io::Read;
-                let mut stdin_buf = String::new();
-                if std::io::stdin().read_to_string(&mut stdin_buf).is_ok()
-                    && !stdin_buf.trim().is_empty()
-                {
-                    if let Ok(val) = serde_json::from_str::<serde_json::Value>(&stdin_buf) {
-                        canonical_ws =
-                            xgauntlet_core::AntigravityAdapter::resolve_effective_workspace(
-                                &canonical_ws,
-                                &val,
-                            );
-                    }
-                }
-            }
-
             let effective_format = format
                 .as_deref()
                 .or_else(|| {
@@ -1132,6 +1115,31 @@ async fn main() -> anyhow::Result<()> {
                         })
                 })
                 .unwrap_or("box");
+
+            let is_antigravity_hook = matches!(
+                effective_format.to_ascii_lowercase().as_str(),
+                "antigravity-hook" | "antigravity"
+            );
+
+            if is_antigravity_hook {
+                use std::io::IsTerminal;
+                if !std::io::stdin().is_terminal() {
+                    use std::io::Read;
+                    let mut stdin_buf = String::new();
+                    if std::io::stdin().read_to_string(&mut stdin_buf).is_ok() {
+                        let clean = xgauntlet_core::clean_stdin(&stdin_buf);
+                        if !clean.trim().is_empty() {
+                            if let Ok(val) = serde_json::from_str::<serde_json::Value>(clean) {
+                                canonical_ws =
+                                    xgauntlet_core::AntigravityAdapter::resolve_effective_workspace(
+                                        &canonical_ws,
+                                        &val,
+                                    );
+                            }
+                        }
+                    }
+                }
+            }
 
             let telemetry =
                 match xgauntlet_core::inspect_task_telemetry(&canonical_ws, task.as_deref()) {
