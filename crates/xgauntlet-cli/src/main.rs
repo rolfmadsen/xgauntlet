@@ -1092,13 +1092,22 @@ async fn main() -> anyhow::Result<()> {
             format,
             harness,
         }) => {
-            let canonical_ws = if workspace.is_absolute() {
+            let mut canonical_ws = if workspace.is_absolute() {
                 workspace.clone()
             } else {
                 std::env::current_dir()?.join(workspace)
             };
 
-            let telemetry = xgauntlet_core::inspect_task_telemetry(&canonical_ws, task.as_deref())?;
+            use std::io::IsTerminal;
+            if !std::io::stdin().is_terminal() {
+                use std::io::Read;
+                let mut stdin_buf = String::new();
+                if std::io::stdin().read_to_string(&mut stdin_buf).is_ok() && !stdin_buf.trim().is_empty() {
+                    if let Ok(val) = serde_json::from_str::<serde_json::Value>(&stdin_buf) {
+                        canonical_ws = xgauntlet_core::AntigravityAdapter::resolve_effective_workspace(&canonical_ws, &val);
+                    }
+                }
+            }
 
             let effective_format = format
                 .as_deref()
@@ -1114,6 +1123,19 @@ async fn main() -> anyhow::Result<()> {
                         })
                 })
                 .unwrap_or("box");
+
+            let telemetry = match xgauntlet_core::inspect_task_telemetry(&canonical_ws, task.as_deref()) {
+                Ok(t) => t,
+                Err(e) => {
+                    if effective_format.starts_with("antigravity") {
+                        let payload = serde_json::json!({ "injectSteps": [] });
+                        println!("{}", serde_json::to_string_pretty(&payload)?);
+                        return Ok(());
+                    } else {
+                        return Err(e.into());
+                    }
+                }
+            };
 
             match effective_format.to_ascii_lowercase().as_str() {
                 "antigravity-hook" | "antigravity" => {

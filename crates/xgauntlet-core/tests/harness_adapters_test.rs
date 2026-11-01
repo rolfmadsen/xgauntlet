@@ -386,6 +386,44 @@ fn test_antigravity_hook_handler_protocol() {
 }
 
 #[test]
+fn test_antigravity_resolve_effective_workspace() {
+    let temp = TempDir::new("effective_ws_test");
+    let fallback = temp.path.join("fallback");
+    let true_ws = temp.path.join("project");
+    fs::create_dir_all(&fallback).unwrap();
+    fs::create_dir_all(&true_ws).unwrap();
+
+    // 1. From workspacePaths payload field
+    let payload1 = serde_json::json!({
+        "workspacePaths": [true_ws.to_str().unwrap()]
+    });
+    let resolved = AntigravityAdapter::resolve_effective_workspace(&fallback, &payload1);
+    assert_eq!(resolved, true_ws);
+
+    // 2. From toolCall Path ancestor traversal
+    let subfile = true_ws.join("src").join("ui").join("app.rs");
+    fs::create_dir_all(subfile.parent().unwrap()).unwrap();
+    fs::write(&subfile, "// test").unwrap();
+    fs::create_dir_all(true_ws.join("tasks")).unwrap();
+
+    let payload2 = serde_json::json!({
+        "toolCall": {
+            "name": "edit_file",
+            "args": {
+                "Path": subfile.to_str().unwrap()
+            }
+        }
+    });
+    let resolved2 = AntigravityAdapter::resolve_effective_workspace(&fallback, &payload2);
+    assert_eq!(resolved2, true_ws);
+
+    // 3. Fallback when no metadata present
+    let payload3 = serde_json::json!({});
+    let resolved3 = AntigravityAdapter::resolve_effective_workspace(&fallback, &payload3);
+    assert_eq!(resolved3, fallback);
+}
+
+#[test]
 fn test_antigravity_plugin_validation() {
     let adapter = get_adapter("antigravity").expect("antigravity adapter");
     let temp = TempDir::new("antigravity_plugin");

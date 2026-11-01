@@ -38,6 +38,60 @@ impl AntigravityAdapter {
         Self
     }
 
+    /// Resolves the true workspace directory from stdin hook payload, falling back to workspace or path ancestor traversal.
+    pub fn resolve_effective_workspace(workspace: &Path, payload: &Value) -> std::path::PathBuf {
+        // 1. Antigravity common field: workspacePaths: ["/path/to/project"]
+        if let Some(arr) = payload.get("workspacePaths").and_then(|v| v.as_array()) {
+            for item in arr {
+                if let Some(ws_str) = item.as_str() {
+                    let p = std::path::PathBuf::from(ws_str);
+                    if p.is_dir() {
+                        return p;
+                    }
+                }
+            }
+        }
+
+        // 2. Antigravity / generic cwd field
+        if let Some(cwd_str) = payload.get("cwd").and_then(|v| v.as_str()) {
+            let p = std::path::PathBuf::from(cwd_str);
+            if p.is_dir() && (p.join("tasks").is_dir() || p.join("gauntlet.toml").is_file()) {
+                return p;
+            }
+        }
+
+        // 3. Fallback: inspect target_resource from toolCall if present
+        let target = payload
+            .get("toolCall")
+            .and_then(|t| t.get("args"))
+            .and_then(|args| {
+                args.get("Path")
+                    .or_else(|| args.get("path"))
+                    .or_else(|| args.get("file_path"))
+                    .or_else(|| args.get("filePath"))
+            })
+            .and_then(|v| v.as_str());
+
+        if let Some(target_path_str) = target {
+            let target_path = std::path::Path::new(target_path_str);
+            if target_path.is_absolute() {
+                let mut current = target_path.parent();
+                while let Some(parent) = current {
+                    if parent.join("tasks").is_dir()
+                        || parent.join("gauntlet.toml").is_file()
+                        || parent.join(".agents").is_dir()
+                        || parent.join(".git").is_dir()
+                    {
+                        return parent.to_path_buf();
+                    }
+                    current = parent.parent();
+                }
+            }
+        }
+
+        workspace.to_path_buf()
+    }
+
     /// Formats the canonical Google Antigravity PreInvocation JSON payload on stdout with injectSteps.
     pub fn format_pre_invocation_payload(ephemeral_message: &str) -> serde_json::Value {
         serde_json::json!({
@@ -724,7 +778,9 @@ impl HarnessAdapter for AntigravityAdapter {
             }
         };
 
-        let hooks_path = workspace.join(".agents").join("hooks.json");
+        let effective_ws = Self::resolve_effective_workspace(workspace, &payload);
+
+        let hooks_path = effective_ws.join(".agents").join("hooks.json");
         if hooks_path.is_file() {
             if let Ok(content) = fs::read_to_string(&hooks_path) {
                 if content.contains("\"agent-gauntlet-gatekeeper\"") {
@@ -750,7 +806,7 @@ impl HarnessAdapter for AntigravityAdapter {
                 .unwrap_or(false);
 
         if is_pre_invocation {
-            let telemetry = match crate::features::tasks::inspect_task_telemetry(workspace, None) {
+            let telemetry = match crate::features::tasks::inspect_task_telemetry(&effective_ws, None) {
                 Ok(t) => t,
                 Err(_) => crate::features::tasks::TaskTelemetry {
                     task_id: "NONE".to_string(),
@@ -764,7 +820,7 @@ impl HarnessAdapter for AntigravityAdapter {
                         percentage: 0,
                         bar: "[□□□□□]".to_string(),
                     },
-                    git: crate::features::tasks::collect_git_telemetry(workspace),
+                    git: crate::features::tasks::collect_git_telemetry(&effective_ws),
                     file_path: "tasks/".to_string(),
                     scope: None,
                     invariants: Some("14/14 PASS".to_string()),
@@ -780,7 +836,7 @@ impl HarnessAdapter for AntigravityAdapter {
             return (0, json_str);
         }
 
-        let verdict = self.evaluate_invocation(workspace, &payload);
+        let verdict = self.evaluate_invocation(&effective_ws, &payload);
         if verdict.allowed {
             let res = serde_json::json!({
                 "decision": "allow"
