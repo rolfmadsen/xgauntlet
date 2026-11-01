@@ -38,7 +38,7 @@
     "test": "node --test"
   },
   "type": "module",
-  "version": "0.11.1",
+  "version": "0.11.2",
   "dependencies": {
     "sigstore": "^3.1.0"
   }

@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 054: IsolatedWorktree Parallel Collision Fix & Local Cross-Platform CI Parity Suite (v0.11.2)"
 description: "Eliminerer parallel sti-kollision i IsolatedWorktree::create på macOS/Windows og indfører en lokal krydsplatform/concurrency CI-paritets-testsuite, så macOS/Windows-specifikke fejl fanges deterministisk lokalt før git push."
-status: active
+status: done
 intent: bug
 generated: { by: process:antigravity-task-init, at: "2026-11-01T22:44:00Z" }
 tags: [bugfix, macos, windows, ci-parity, concurrency, worktree, temp-dir, determinism, release]
@@ -23,7 +23,7 @@ test_refs:
 
 # Task 054: IsolatedWorktree Parallel Collision Fix & Local Cross-Platform CI Parity Suite (v0.11.2)
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🐛 BUG FIX`
 **Oprettet**: `2026-11-01`
 
