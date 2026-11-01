@@ -202,7 +202,16 @@ pub fn is_safe_command_segment(tokens: &[String]) -> bool {
             if tokens.len() > 1 {
                 matches!(
                     tokens[1].as_str(),
-                    "verify" | "doctor" | "check-evidence" | "check-spec"
+                    "verify"
+                        | "doctor"
+                        | "check-evidence"
+                        | "check-spec"
+                        | "check-release"
+                        | "check-adr"
+                        | "check-architecture"
+                        | "handoff"
+                        | "lineage"
+                        | "checkpoint"
                 )
             } else {
                 false
@@ -211,7 +220,16 @@ pub fn is_safe_command_segment(tokens: &[String]) -> bool {
         "npx" if tokens.len() > 2 && tokens[1] == "xgauntlet" => {
             matches!(
                 tokens[2].as_str(),
-                "verify" | "doctor" | "check-evidence" | "check-spec"
+                "verify"
+                    | "doctor"
+                    | "check-evidence"
+                    | "check-spec"
+                    | "check-release"
+                    | "check-adr"
+                    | "check-architecture"
+                    | "handoff"
+                    | "lineage"
+                    | "checkpoint"
             )
         }
         _ => false,

@@ -215,35 +215,6 @@ pub trait HarnessAdapter: Send + Sync {
             }
         }
 
-        if req.action_type == ToolActionType::ExecuteCommand {
-            let cmd = req.target_resource.trim();
-            let segments: Vec<&str> = cmd
-                .split("&&")
-                .flat_map(|s| s.split(';'))
-                .map(|s| s.trim())
-                .collect();
-            let all_safe_sealing = !segments.is_empty()
-                && segments.iter().all(|s| {
-                    (s.starts_with("git add")
-                        || s.starts_with("git commit")
-                        || s.starts_with("git status")
-                        || s.starts_with("git diff")
-                        || s.starts_with("xgauntlet checkpoint"))
-                        && !s.contains("git push")
-                        && !s.contains("--hard")
-                        && !s.contains("-f")
-                });
-            if all_safe_sealing {
-                return AdapterHookVerdict {
-                    allowed: true,
-                    decision: "allow".to_string(),
-                    reason: "Local non-destructive git commit or checkpoint operation allowed"
-                        .to_string(),
-                    reason_code: Some(2000),
-                };
-            }
-        }
-
         let ctx = EnforcementContext::from_workspace(workspace, false);
 
         // Execute deterministic WebAssembly policy engine in-memory (ADR 0007)

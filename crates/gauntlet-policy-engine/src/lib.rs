@@ -375,8 +375,18 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
                 };
             }
 
-            // Safe verification and inspection commands (only when not chained)
-            if !has_chaining && segments.len() == 1 && is_safe_command_segment(&segments[0]) {
+            let has_shell_metachars = cmd.contains('>')
+                || cmd.contains('<')
+                || cmd.contains("$(")
+                || cmd.contains('`')
+                || cmd.contains('&');
+
+            // Safe verification and inspection commands (only when not chained and free of shell redirection/substitution)
+            if !has_chaining
+                && !has_shell_metachars
+                && segments.len() == 1
+                && is_safe_command_segment(&segments[0])
+            {
                 return PolicyDecision {
                     verdict: DecisionVerdict::Allow,
                     reason: "Read-only or verification command is permitted.".into(),
@@ -406,7 +416,10 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
                 "xgauntlet check-evidence",
                 "xgauntlet check-spec",
             ];
-            if !has_chaining && safe_prefixes.iter().any(|prefix| cmd.starts_with(prefix)) {
+            if !has_chaining
+                && !has_shell_metachars
+                && safe_prefixes.iter().any(|prefix| cmd.starts_with(prefix))
+            {
                 return PolicyDecision {
                     verdict: DecisionVerdict::Allow,
                     reason: "Read-only or verification command is permitted.".into(),
@@ -726,6 +739,58 @@ mod tests {
             assert!(res_str.contains(r#""verdict":"deny""#));
             assert!(res_str.contains(r#""reason_code":4031"#));
             dealloc(ptr, out_len);
+        }
+    }
+
+    #[test]
+    fn test_shell_metachars_and_governance_commands_without_task() {
+        let ctx = EnforcementContext {
+            workspace_id: "ws-1".into(),
+            has_active_task: false,
+            active_task_id: "".into(),
+            read_only: false,
+            ..Default::default()
+        };
+
+        for blocked in [
+            "git diff > crates/lib.rs",
+            "git status & rm -r src",
+            "xgauntlet checkpoint -m \"$(whoami)\"",
+            "git commit -m \"unscoped\"",
+        ] {
+            let req = CapabilityRequest {
+                action_type: ToolActionType::ExecuteCommand,
+                raw_tool_name: "run_command".into(),
+                target_resource: blocked.into(),
+                payload_json: "{}".into(),
+            };
+            let dec = evaluate(&req, &ctx);
+            assert_eq!(
+                dec.verdict,
+                DecisionVerdict::Deny,
+                "Expected '{}' to be denied without active task",
+                blocked
+            );
+        }
+
+        for allowed in [
+            "xgauntlet check-release --strict",
+            "xgauntlet checkpoint --phase done -t 052",
+            "xgauntlet handoff",
+        ] {
+            let req = CapabilityRequest {
+                action_type: ToolActionType::ExecuteCommand,
+                raw_tool_name: "run_command".into(),
+                target_resource: allowed.into(),
+                payload_json: "{}".into(),
+            };
+            let dec = evaluate(&req, &ctx);
+            assert_eq!(
+                dec.verdict,
+                DecisionVerdict::Allow,
+                "Expected '{}' to be allowed without active task",
+                allowed
+            );
         }
     }
 }
