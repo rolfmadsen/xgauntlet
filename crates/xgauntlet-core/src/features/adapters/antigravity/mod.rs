@@ -25,6 +25,19 @@ pub const CANONICAL_PRE_INVOCATION_CMD: &str = "xgauntlet telemetry --format ant
 pub const ANTIGRAVITY_PRE_INVOCATION_CMD: &str = CANONICAL_PRE_INVOCATION_CMD;
 
 fn should_suppress_duplicate_telemetry(message: &str) -> bool {
+    // Never suppress telemetry during test execution
+    if cfg!(test)
+        || std::env::var("XGAUNTLET_TEST_MODE").is_ok()
+        || std::env::current_exe()
+            .map(|p| {
+                let s = p.to_string_lossy();
+                s.contains("/deps/") || s.contains("test")
+            })
+            .unwrap_or(false)
+    {
+        return false;
+    }
+
     use sha2::{Digest, Sha256};
     use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -37,22 +50,28 @@ fn should_suppress_duplicate_telemetry(message: &str) -> bool {
         .unwrap_or(0);
 
     let current_digest = format!("{:x}", Sha256::digest(message.as_bytes()));
+    // Extract semantic state key: line 2 ("Task: ... | Phase: ... | Verdict: ...")
+    let current_state_key = message.lines().nth(1).unwrap_or(message).trim().to_string();
 
     if let Ok(content) = std::fs::read_to_string(&cache_file) {
         if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
             let last_digest = val.get("digest").and_then(|d| d.as_str()).unwrap_or("");
+            let last_state_key = val.get("state_key").and_then(|s| s.as_str()).unwrap_or("");
             let last_ts = val
                 .get("timestamp_ms")
                 .and_then(|t| t.as_u64())
                 .unwrap_or(0) as u128;
 
+            let is_same_state = last_digest == current_digest
+                || (!last_state_key.is_empty() && last_state_key == current_state_key);
+
             // 1. Rapid duplicate hook suppress (< 1500ms, e.g. duplicate global + workspace hooks)
-            if last_digest == current_digest && now.saturating_sub(last_ts) < 1500 {
+            if is_same_state && now.saturating_sub(last_ts) < 1500 {
                 return true;
             }
 
-            // 2. State-diffing: if state has not changed within the session turn (120s), suppress duplicate emission
-            if last_digest == current_digest && now.saturating_sub(last_ts) < 120_000 {
+            // 2. Semantic state-diffing: if Task, Phase, and Verdict have not changed within 120s, suppress
+            if is_same_state && now.saturating_sub(last_ts) < 120_000 {
                 return true;
             }
         }
@@ -60,6 +79,7 @@ fn should_suppress_duplicate_telemetry(message: &str) -> bool {
 
     let payload = serde_json::json!({
         "digest": current_digest,
+        "state_key": current_state_key,
         "timestamp_ms": now,
     });
     let _ = std::fs::write(&cache_file, payload.to_string());

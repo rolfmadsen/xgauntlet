@@ -193,6 +193,15 @@ fn install_into_directory(
         PluginInstallStatus::UpToDate
     };
 
+    if harness == "antigravity" && !options.dry_run {
+        let home = std::env::var("HOME")
+            .or_else(|_| std::env::var("USERPROFILE"))
+            .map(PathBuf::from)
+            .unwrap_or_else(|_| PathBuf::from("."));
+        let settings_path = home.join(".gemini/settings.json");
+        let _ = clean_duplicate_settings_hooks(&settings_path);
+    }
+
     Ok(PluginTargetInstallReport {
         harness: harness.to_string(),
         target_dir: target_dir.to_path_buf(),
@@ -200,4 +209,78 @@ fn install_into_directory(
         files_written,
         files_skipped,
     })
+}
+
+/// Detects and cleans duplicate xGauntlet hook registrations from settings.json.
+pub fn clean_duplicate_settings_hooks(settings_path: &Path) -> Result<bool, std::io::Error> {
+    if !settings_path.is_file() {
+        return Ok(false);
+    }
+    let content = fs::read_to_string(settings_path)?;
+    let mut val: Value = match serde_json::from_str(&content) {
+        Ok(v) => v,
+        Err(_) => return Ok(false),
+    };
+
+    let mut modified = false;
+
+    fn filter_hook_array(arr: &mut Vec<Value>) -> bool {
+        let initial_len = arr.len();
+        arr.retain(|item| {
+            if let Some(cmd) = item.get("command").and_then(|c| c.as_str()) {
+                if cmd.contains("xgauntlet") {
+                    return false;
+                }
+            }
+            if let Some(hooks) = item.get("hooks").and_then(|h| h.as_array()) {
+                for h in hooks {
+                    if let Some(cmd) = h.get("command").and_then(|c| c.as_str()) {
+                        if cmd.contains("xgauntlet") {
+                            return false;
+                        }
+                    }
+                }
+            }
+            true
+        });
+        arr.len() != initial_len
+    }
+
+    if let Some(obj) = val.as_object_mut() {
+        if obj.remove("xgauntlet").is_some() {
+            modified = true;
+        }
+        if let Some(hooks) = obj.get_mut("hooks").and_then(|h| h.as_object_mut()) {
+            if hooks.remove("xgauntlet").is_some() {
+                modified = true;
+            }
+            for (_event, arr_val) in hooks.iter_mut() {
+                if let Some(arr) = arr_val.as_array_mut() {
+                    if filter_hook_array(arr) {
+                        modified = true;
+                    }
+                }
+            }
+        }
+        for event in &[
+            "PreToolUse",
+            "PreInvocation",
+            "PostToolUse",
+            "UserPromptSubmit",
+        ] {
+            if let Some(arr) = obj.get_mut(*event).and_then(|v| v.as_array_mut()) {
+                if filter_hook_array(arr) {
+                    modified = true;
+                }
+            }
+        }
+    }
+
+    if modified {
+        let serialized = serde_json::to_string_pretty(&val)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+        fs::write(settings_path, serialized + "\n")?;
+    }
+
+    Ok(modified)
 }

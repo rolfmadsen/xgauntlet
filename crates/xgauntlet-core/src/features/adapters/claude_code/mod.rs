@@ -232,9 +232,20 @@ impl HarnessAdapter for ClaudeCodeAdapter {
     fn handle_hook(&self, workspace: &Path, stdin_content: &str) -> (i32, String) {
         let content = crate::features::adapters::clean_stdin(stdin_content);
         if content.is_empty() {
+            let formatted_denial = crate::features::adapters::format_policy_denial(
+                "unknown",
+                "NONE",
+                "SPEC",
+                "Empty payload received on stdin",
+                "Provide valid hook JSON on stdin",
+            );
             let res = serde_json::json!({
-                "decision": "deny",
-                "reason": "Empty payload received on stdin."
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "permissionDecision": "deny",
+                    "permissionDecisionReason": formatted_denial
+                },
+                "reason": formatted_denial
             });
             return (1, res.to_string());
         }
@@ -242,9 +253,20 @@ impl HarnessAdapter for ClaudeCodeAdapter {
         let payload: Value = match serde_json::from_str(content) {
             Ok(v) => v,
             Err(e) => {
+                let formatted_denial = crate::features::adapters::format_policy_denial(
+                    "unknown",
+                    "NONE",
+                    "SPEC",
+                    &format!("Corrupt JSON payload on stdin: {e}"),
+                    "Provide valid hook JSON on stdin",
+                );
                 let res = serde_json::json!({
-                    "decision": "deny",
-                    "reason": format!("Corrupt JSON payload on stdin: {e}")
+                    "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
+                        "permissionDecision": "deny",
+                        "permissionDecisionReason": formatted_denial
+                    },
+                    "reason": formatted_denial
                 });
                 return (1, res.to_string());
             }
@@ -279,16 +301,20 @@ impl HarnessAdapter for ClaudeCodeAdapter {
             } else {
                 "Adhere to active task scope and invariants".to_string()
             };
-            let formatted_denial = format!(
-                "[XGAUNTLET POLICY BLOCKED] Tool: {tool_name} | Task: {task_id} (Phase: {phase}) | Reason: {} | Recovery: {recovery}",
-                verdict.reason
+            let formatted_denial = crate::features::adapters::format_policy_denial(
+                tool_name,
+                task_id,
+                phase,
+                &verdict.reason,
+                &recovery,
             );
             let res = serde_json::json!({
                 "hookSpecificOutput": {
                     "hookEventName": "PreToolUse",
                     "permissionDecision": "deny",
                     "permissionDecisionReason": formatted_denial
-                }
+                },
+                "reason": formatted_denial
             });
             (2, res.to_string())
         }

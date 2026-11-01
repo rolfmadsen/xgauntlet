@@ -187,6 +187,7 @@ pub async fn execute_gauntlet_pipeline(
 
     // 10. Fast-Track Worktree Inverse Proof evaluation
     let mut proof_mode = None;
+    let mut fast_track_evidences = None;
     if let Some(ref tc) = task_contract {
         if let Some(info) =
             crate::features::checkpoint::engine::load_task_package_info(workspace, &tc.task_id)
@@ -205,8 +206,9 @@ pub async fn execute_gauntlet_pipeline(
                         workspace,
                         &info.test_refs,
                     ) {
-                        Ok(_) => {
+                        Ok(evidences) => {
                             proof_mode = Some("worktree_inverse_proof".to_string());
+                            fast_track_evidences = Some(evidences);
                         }
                         Err(e) => {
                             all_findings.push(DiagnosticFinding::new(
@@ -219,6 +221,17 @@ pub async fn execute_gauntlet_pipeline(
                             ));
                         }
                     }
+                } else {
+                    all_findings.push(DiagnosticFinding::new(
+                        FindingType::InvariantViolation,
+                        "tdd-phase-provenance",
+                        "checkpoint",
+                        format!(
+                            "Task '{}' has no preceding RED commit and is not eligible for Fast-Track Bugfix Lane (intent: {:?}, scope.len(): {}).",
+                            tc.task_id, info.intent, info.scope.len()
+                        ),
+                        "Follow standard TDD protocol: commit failing acceptance test in RED phase ('xgauntlet checkpoint --phase red') before implementation.".to_string(),
+                    ));
                 }
             }
         }
@@ -286,6 +299,13 @@ pub async fn execute_gauntlet_pipeline(
                     for ex in existing {
                         if !list.iter().any(|p| p.test_identifier == ex.test_identifier) {
                             list.push(ex);
+                        }
+                    }
+                }
+                if let Some(ft_list) = fast_track_evidences {
+                    for ft in ft_list {
+                        if !list.iter().any(|p| p.test_identifier == ft.test_identifier) {
+                            list.push(ft);
                         }
                     }
                 }

@@ -10,7 +10,7 @@ pub use bundle::{
     list_embedded_skills, ALL_EMBEDDED_SKILLS,
 };
 pub use discovery::{discover_harnesses_in, discover_installed_harnesses};
-pub use installer::run_plugin_install;
+pub use installer::{clean_duplicate_settings_hooks, run_plugin_install};
 pub use models::{
     DiscoveredHarness, PlatformTarget, PluginError, PluginInstallOptions, PluginInstallReport,
     PluginInstallStatus, PluginTargetInstallReport,

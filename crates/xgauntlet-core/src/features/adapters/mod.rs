@@ -159,3 +159,16 @@ pub fn wrap_response_with_hud(hud_or_card: &str, body: &str) -> String {
 pub fn clean_stdin(raw: &str) -> &str {
     raw.trim().trim_start_matches('\u{feff}').trim()
 }
+
+/// Formats standard actionable denial message for stderr across all adapters (AC3, Must NOT #4).
+pub fn format_policy_denial(
+    tool_name: &str,
+    task_id: &str,
+    phase: &str,
+    reason: &str,
+    recovery: &str,
+) -> String {
+    format!(
+        "[XGAUNTLET POLICY BLOCKED] Tool: {tool_name} | Task: {task_id} (Phase: {phase}) | Reason: {reason} | Recovery: {recovery}"
+    )
+}

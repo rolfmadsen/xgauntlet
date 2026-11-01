@@ -260,9 +260,16 @@ impl HarnessAdapter for CodexAdapter {
     fn handle_hook(&self, workspace: &Path, stdin_content: &str) -> (i32, String) {
         let content = crate::features::adapters::clean_stdin(stdin_content);
         if content.is_empty() {
+            let formatted_denial = crate::features::adapters::format_policy_denial(
+                "unknown",
+                "NONE",
+                "SPEC",
+                "Empty payload received on stdin",
+                "Provide valid hook JSON on stdin",
+            );
             let res = serde_json::json!({
                 "decision": "deny",
-                "reason": "Empty payload received on stdin."
+                "reason": formatted_denial
             });
             return (1, res.to_string());
         }
@@ -270,9 +277,16 @@ impl HarnessAdapter for CodexAdapter {
         let payload: Value = match serde_json::from_str(content) {
             Ok(v) => v,
             Err(e) => {
+                let formatted_denial = crate::features::adapters::format_policy_denial(
+                    "unknown",
+                    "NONE",
+                    "SPEC",
+                    &format!("Corrupt JSON payload on stdin: {e}"),
+                    "Provide valid hook JSON on stdin",
+                );
                 let res = serde_json::json!({
                     "decision": "deny",
-                    "reason": format!("Corrupt JSON payload on stdin: {e}")
+                    "reason": formatted_denial
                 });
                 return (1, res.to_string());
             }
@@ -285,9 +299,35 @@ impl HarnessAdapter for CodexAdapter {
             });
             (0, res.to_string())
         } else {
+            let tool_name = payload
+                .get("tool_name")
+                .or_else(|| payload.get("name"))
+                .and_then(|n| n.as_str())
+                .unwrap_or("unknown");
+            let task_info = crate::features::tasks::inspect_task_telemetry(workspace, None).ok();
+            let task_id = task_info
+                .as_ref()
+                .map(|t| t.task_id.as_str())
+                .unwrap_or("NONE");
+            let phase = task_info
+                .as_ref()
+                .and_then(|t| t.phase.as_deref())
+                .unwrap_or("SPEC");
+            let recovery = if verdict.reason.contains("scope") {
+                format!("Add target path to 'scope: [...]' in tasks/{task_id}.md")
+            } else {
+                "Adhere to active task scope and invariants".to_string()
+            };
+            let formatted_denial = crate::features::adapters::format_policy_denial(
+                tool_name,
+                task_id,
+                phase,
+                &verdict.reason,
+                &recovery,
+            );
             let res = serde_json::json!({
                 "decision": "deny",
-                "reason": verdict.reason
+                "reason": formatted_denial
             });
             (1, res.to_string())
         }

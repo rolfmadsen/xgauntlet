@@ -448,5 +448,28 @@ pub fn check_governance(workspace: &Path) -> Vec<DoctorCheckItem> {
         });
     }
 
+    // 7. Rust Cargo.toml test harness consolidation check (AC5)
+    let cargo_path = workspace.join("Cargo.toml");
+    if cargo_path.is_file() {
+        if let Ok(content) = fs::read_to_string(&cargo_path) {
+            let test_binary_count = content.lines().filter(|l| l.trim() == "[[test]]").count();
+            if test_binary_count > 10 {
+                checks.push(DoctorCheckItem {
+                    name: "governance_cargo_test_harnesses".to_string(),
+                    category: DoctorCategory::Governance,
+                    status: DoctorCheckStatus::Warn,
+                    message: format!(
+                        "High count of separate test binaries detected in Cargo.toml ({test_binary_count} [[test]] sections)"
+                    ),
+                    detail: Some("Each [[test]] binary adds linker overhead (15-25s re-link in large workspaces).".to_string()),
+                    remediation: Some(
+                        "Consolidate feature tests into modules under a single harness (tests/features.rs) jf. ADR 0011 and tdd skill.".to_string(),
+                    ),
+                    duration_ms: 1,
+                });
+            }
+        }
+    }
+
     checks
 }

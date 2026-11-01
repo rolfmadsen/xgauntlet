@@ -317,6 +317,8 @@ pub fn resolve_task_contract(
         }
     } else if let Some(active_id) = resolve_active_task_id(workspace) {
         target_file = Some(tasks_dir.join(format!("{active_id}.md")));
+    } else if let Some(latest_done) = resolve_latest_done_task_id(workspace) {
+        target_file = Some(tasks_dir.join(format!("{latest_done}.md")));
     }
 
     let file_to_read = target_file

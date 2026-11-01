@@ -818,6 +818,11 @@ async fn main() -> anyhow::Result<()> {
             if exit_code != 0 {
                 let err_msg = if let Ok(v) = serde_json::from_str::<serde_json::Value>(&output) {
                     v.get("reason")
+                        .or_else(|| {
+                            v.get("hookSpecificOutput")
+                                .and_then(|h| h.get("permissionDecisionReason"))
+                        })
+                        .or_else(|| v.get("system_instruction"))
                         .and_then(|r| r.as_str())
                         .map(|s| s.to_string())
                         .unwrap_or_else(|| output.clone())

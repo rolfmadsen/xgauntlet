@@ -128,15 +128,35 @@ pub trait HarnessAdapter: Send + Sync {
             ToolActionType::WriteFile | ToolActionType::ReadFile
         ) {
             let target_path = Path::new(&req.target_resource);
-            if req.target_resource.is_empty() {
-                if matches!(
-                    req.raw_tool_name.as_str(),
-                    "read_file" | "read" | "write_file" | "write" | "edit_file"
-                ) {
+            if req.target_resource.trim().is_empty() {
+                if req.action_type == ToolActionType::WriteFile {
                     return AdapterHookVerdict {
                         allowed: false,
                         decision: "deny".to_string(),
-                        reason: format!("Empty target path provided for '{}'", req.raw_tool_name),
+                        reason: format!(
+                            "Empty target path provided for write operation '{}'",
+                            req.raw_tool_name
+                        ),
+                        reason_code: Some(4000),
+                    };
+                }
+                let raw_lower = req.raw_tool_name.to_ascii_lowercase();
+                let is_whitelisted_dialogue = matches!(
+                    raw_lower.as_str(),
+                    "ask_question"
+                        | "manage_task"
+                        | "search_web"
+                        | "search_marketplace"
+                        | "list_plugin_accounts"
+                );
+                if !is_whitelisted_dialogue {
+                    return AdapterHookVerdict {
+                        allowed: false,
+                        decision: "deny".to_string(),
+                        reason: format!(
+                            "Empty target path provided for read operation '{}'",
+                            req.raw_tool_name
+                        ),
                         reason_code: Some(4000),
                     };
                 }

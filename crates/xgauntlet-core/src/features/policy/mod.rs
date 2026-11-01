@@ -28,8 +28,11 @@ pub fn is_harness_whitelisted_path(path: &std::path::Path) -> bool {
         return true;
     }
 
-    // 3. Absolute paths MUST be anchored to user's $HOME
-    if let Ok(home) = std::env::var("HOME") {
+    // 3. Absolute paths MUST be anchored to user's $HOME (or USERPROFILE on Windows)
+    let home_opt = std::env::var("HOME")
+        .ok()
+        .or_else(|| std::env::var("USERPROFILE").ok());
+    if let Some(home) = home_opt {
         let home_path = std::path::Path::new(&home);
         if let Ok(rel) = path.strip_prefix(home_path) {
             let s = rel.to_string_lossy().replace('\\', "/");
@@ -54,8 +57,11 @@ pub fn is_session_brain_artifact_path(path: &std::path::Path) -> bool {
         return false;
     }
 
-    // 2. Must be anchored to user's $HOME under .gemini/antigravity/brain/
-    if let Ok(home) = std::env::var("HOME") {
+    // 2. Must be anchored to user's $HOME under .gemini/antigravity/brain/ (or USERPROFILE on Windows)
+    let home_opt = std::env::var("HOME")
+        .ok()
+        .or_else(|| std::env::var("USERPROFILE").ok());
+    if let Some(home) = home_opt {
         let home_path = std::path::Path::new(&home);
         if let Ok(rel) = path.strip_prefix(home_path) {
             let s = rel.to_string_lossy().replace('\\', "/");

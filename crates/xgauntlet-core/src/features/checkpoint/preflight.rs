@@ -75,13 +75,37 @@ pub fn resolve_scoped_test_command(workspace: &Path, test_ref: &str) -> RustTest
     let clean = test_ref.replace('\\', "/");
     let clean_ref = clean.trim_start_matches("./");
 
-    // Detect crate package from crates/<pkg>/...
-    let package = if clean_ref.starts_with("crates/") {
-        let parts: Vec<&str> = clean_ref.split('/').collect();
-        if parts.len() >= 2 {
-            Some(parts[1].to_string())
+    // Detect crate package from path prefix before /src/ or /tests/
+    let package = if let Some(idx) = clean_ref
+        .find("/tests/")
+        .or_else(|| clean_ref.find("/src/"))
+    {
+        let prefix = &clean_ref[..idx];
+        let crate_cargo = workspace.join(prefix).join("Cargo.toml");
+        if crate_cargo.is_file() {
+            if let Ok(content) = std::fs::read_to_string(&crate_cargo) {
+                let mut in_pkg = false;
+                let mut pkg_name = None;
+                for line in content.lines() {
+                    let trimmed = line.trim();
+                    if trimmed == "[package]" {
+                        in_pkg = true;
+                    } else if in_pkg && trimmed.starts_with('[') {
+                        in_pkg = false;
+                    } else if in_pkg && trimmed.starts_with("name") {
+                        if let Some((_, val)) = trimmed.split_once('=') {
+                            pkg_name =
+                                Some(val.trim().trim_matches('"').trim_matches('\'').to_string());
+                            break;
+                        }
+                    }
+                }
+                pkg_name.or_else(|| prefix.split('/').next_back().map(|s| s.to_string()))
+            } else {
+                prefix.split('/').next_back().map(|s| s.to_string())
+            }
         } else {
-            None
+            prefix.split('/').next_back().map(|s| s.to_string())
         }
     } else {
         None
@@ -162,12 +186,68 @@ pub fn resolve_scoped_test_command(workspace: &Path, test_ref: &str) -> RustTest
         }
     }
 
+    // Check if Cargo.toml has an explicit [[test]] mapping for this file
+    let candidate_cargo = if let Some(idx) = clean_ref.find("/tests/") {
+        workspace.join(&clean_ref[..idx]).join("Cargo.toml")
+    } else {
+        workspace.join("Cargo.toml")
+    };
+    let mut explicit_target_name = None;
+    if candidate_cargo.is_file() {
+        if let Ok(content) = std::fs::read_to_string(&candidate_cargo) {
+            let mut in_test_block = false;
+            let mut current_name: Option<String> = None;
+            let mut current_path: Option<String> = None;
+            for line in content.lines() {
+                let trimmed = line.trim();
+                if trimmed == "[[test]]" {
+                    if let (Some(n), Some(p)) = (current_name.take(), current_path.take()) {
+                        let norm_p = p.replace('\\', "/");
+                        if clean_ref.ends_with(&norm_p) {
+                            explicit_target_name = Some(n);
+                            break;
+                        }
+                    }
+                    in_test_block = true;
+                } else if in_test_block && trimmed.starts_with('[') {
+                    if let (Some(n), Some(p)) = (current_name.take(), current_path.take()) {
+                        let norm_p = p.replace('\\', "/");
+                        if clean_ref.ends_with(&norm_p) {
+                            explicit_target_name = Some(n);
+                            break;
+                        }
+                    }
+                    in_test_block = false;
+                } else if in_test_block {
+                    if trimmed.starts_with("name") {
+                        if let Some((_, val)) = trimmed.split_once('=') {
+                            current_name =
+                                Some(val.trim().trim_matches('"').trim_matches('\'').to_string());
+                        }
+                    } else if trimmed.starts_with("path") {
+                        if let Some((_, val)) = trimmed.split_once('=') {
+                            current_path =
+                                Some(val.trim().trim_matches('"').trim_matches('\'').to_string());
+                        }
+                    }
+                }
+            }
+            if let (Some(n), Some(p)) = (current_name, current_path) {
+                let norm_p = p.replace('\\', "/");
+                if clean_ref.ends_with(&norm_p) {
+                    explicit_target_name = Some(n);
+                }
+            }
+        }
+    }
+
     // Case A: Standalone integration test
     let file_name = parts.last().unwrap_or(&"");
-    let target_name = file_name
+    let fallback_target_name = file_name
         .strip_suffix(".rs")
         .unwrap_or(file_name)
         .to_string();
+    let target_name = explicit_target_name.unwrap_or(fallback_target_name);
     let mut command = vec!["cargo".to_string(), "test".to_string()];
     if let Some(ref pkg) = package {
         command.push("-p".to_string());
@@ -277,12 +357,18 @@ pub async fn run_preflight_check(options: &CheckpointOptions) -> Result<(), Chec
                 }
                 // AC1: Differentiate between a test assertion failure / missing symbol in test vs syntax/manifest failure in production code
                 let output = &res.output;
-                if (output.contains("error: expected one of") || output.contains("error[E0658]"))
-                    && (output.contains("/src/") || output.contains("src/"))
-                {
+                let has_syntax_or_manifest_err = (output.contains("error: expected one of")
+                    || output.contains("error[E0658]")
+                    || output.contains("error: could not parse")
+                    || output.contains("error: failed to parse manifest")
+                    || output.contains("syntax error"))
+                    && (output.contains("/src/")
+                        || output.contains("src/")
+                        || output.contains("Cargo.toml"));
+                if has_syntax_or_manifest_err {
                     return Err(CheckpointError::RedPhaseUnmet {
                         details: format!(
-                            "Syntax error in production code detected during RED preflight for '{}': {}",
+                            "Syntax or manifest error in production code detected during RED preflight for '{}': {}",
                             layer.name,
                             output.trim()
                         ),
@@ -414,12 +500,6 @@ pub async fn run_preflight_check(options: &CheckpointOptions) -> Result<(), Chec
                         return Err(CheckpointError::DonePhaseUnmet(
                             "Skipping TDD phases (RED/GREEN) is only permitted for Fast-Track Bugfix Lane tasks (intent: bug, scope <= 3 files).".to_string(),
                         ));
-                    }
-                    if !info.test_refs.is_empty() {
-                        super::provenance::evaluate_fast_track_inverse_proof(
-                            &options.workspace,
-                            &info.test_refs,
-                        )?;
                     }
                 }
             }

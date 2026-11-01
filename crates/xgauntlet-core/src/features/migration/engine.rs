@@ -54,6 +54,26 @@ pub fn run_migration(options: &MigrationOptions) -> Result<MigrationReport, Migr
         items.push(item);
     }
 
+    // 4. Recommendation for integration test harness consolidation if [[test]] count > 10
+    let cargo_path = ws.join("Cargo.toml");
+    if cargo_path.is_file() {
+        if let Ok(cargo_content) = fs::read_to_string(&cargo_path) {
+            let test_binary_count = cargo_content
+                .lines()
+                .filter(|l| l.trim() == "[[test]]")
+                .count();
+            if test_binary_count > 10 {
+                items.push(MigrationItem {
+                    file: PathBuf::from("Cargo.toml"),
+                    description: "Rust integration test harness linker optimization recommendation".to_string(),
+                    changes: vec![format!(
+                        "Notice: Found {test_binary_count} separate [[test]] binaries in Cargo.toml. Consider consolidating into module-based tests under tests/features.rs (ADR 0011) to eliminate linker overhead."
+                    )],
+                });
+            }
+        }
+    }
+
     Ok(MigrationReport {
         is_success: true,
         items,
@@ -324,7 +344,8 @@ fn migrate_gauntlet_toml(
     }
 
     // In-place modernization of redundant Rust layers
-    let modernized_rust = modernize_rust_profile_layers(&new_content);
+    let modernized_rust =
+        modernize_rust_profile_layers_with_workspace(&new_content, Some(workspace));
     if modernized_rust != new_content {
         new_content = modernized_rust;
         changes.push(
