@@ -16,16 +16,10 @@ use std::process::Command;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Barrier};
 
-use serde_json::json;
-use xgauntlet_core::features::adapters::antigravity::AntigravityAdapter;
-use xgauntlet_core::features::adapters::models::HarnessAdapter;
-use xgauntlet_core::features::checkpoint::engine::run_checkpoint;
-use xgauntlet_core::features::checkpoint::models::{CheckpointOptions, CheckpointPhase};
 use xgauntlet_core::features::checkpoint::provenance::{
     evaluate_fast_track_inverse_proof, verify_inverse_test_failure, TestProvenanceStatus,
 };
 use xgauntlet_core::features::evidence::lineage::generate_session_nonce;
-use xgauntlet_core::features::policy::WorkspaceRelativePath;
 
 static TEST_COUNTER: AtomicU64 = AtomicU64::new(1);
 
@@ -185,6 +179,13 @@ fn test_concurrent_worktree_inverse_preflight_and_nonce_uniqueness() {
 #[cfg(unix)]
 #[test]
 fn test_macos_style_symlinked_temp_and_workspace_parity() {
+    use serde_json::json;
+    use xgauntlet_core::features::adapters::antigravity::AntigravityAdapter;
+    use xgauntlet_core::features::adapters::models::HarnessAdapter;
+    use xgauntlet_core::features::checkpoint::engine::run_checkpoint;
+    use xgauntlet_core::features::checkpoint::models::{CheckpointOptions, CheckpointPhase};
+    use xgauntlet_core::features::policy::WorkspaceRelativePath;
+
     // On macOS, /var/folders -> /private/var/folders and /tmp -> /private/tmp.
     // A process often holds canonical `/private/...` as workspace while tools pass `/var/...` paths (or vice versa).
     let root = TempDir::new("macos_symlink_sim");
@@ -368,8 +369,14 @@ fn test_no_unguarded_top_level_imports_in_platform_gated_tests() {
     let crates_root = manifest_dir.parent().expect("crates/ directory");
 
     let mut rs_files = Vec::new();
-    collect_rs_files(&crates_root.join("xgauntlet-core").join("tests"), &mut rs_files);
-    collect_rs_files(&crates_root.join("xgauntlet-cli").join("tests"), &mut rs_files);
+    collect_rs_files(
+        &crates_root.join("xgauntlet-core").join("tests"),
+        &mut rs_files,
+    );
+    collect_rs_files(
+        &crates_root.join("xgauntlet-cli").join("tests"),
+        &mut rs_files,
+    );
     rs_files.sort();
 
     let mut violations = Vec::new();
@@ -425,7 +432,11 @@ fn test_no_unguarded_top_level_imports_in_platform_gated_tests() {
                 let prev_is_cfg_unix = idx > 0 && lines[idx - 1].trim().starts_with("#[cfg(unix)]");
                 if !prev_is_cfg_unix {
                     // Extract imported symbols (e.g. `use foo::{A, B};` or `use foo::Bar;`)
-                    let import_part = line.strip_prefix("use ").unwrap().strip_suffix(';').unwrap();
+                    let import_part = line
+                        .strip_prefix("use ")
+                        .unwrap()
+                        .strip_suffix(';')
+                        .unwrap();
                     if let Some(brace_idx) = import_part.find('{') {
                         let inner = &import_part[brace_idx + 1..import_part.len() - 1];
                         for item in inner.split(',') {
