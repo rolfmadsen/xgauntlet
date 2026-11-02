@@ -4,43 +4,42 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "054-isolated-worktree-concurrency-and-ci-parity",
-    "task_title": "Task 054: IsolatedWorktree Parallel Collision Fix & Local Cross-Platform CI Parity Suite (v0.11.2)",
-    "task_digest": "ef10ca8559b651e4d6adc9a742dff4c8ce32d6bff469fb3cb1d8f9bfbaa45eb6",
+    "task_id": "055-fix-windows-ci-unused-imports",
+    "task_title": "Task 055: Fix Windows CI Unused Imports in Parity Test Suite (v0.11.3)",
+    "task_digest": "70401ae0a3fb378752a83210b0aec14239f69bfcc186e68096474d96ca6b6679",
     "acceptance_criteria": [
-      "**AC1 — Kollisionsfri & Kanoniseret `IsolatedWorktree` (macOS + Windows + Parallelitet):**",
-      "**AC2 — Lokal Barriere-Synkroniseret Concurrency Stress-Test:**",
-      "**AC3 — Lokal macOS Symlink (`/var` -> `/private/var`) & Windows-Sti Simulering:**",
-      "**AC4 — Mekanisk Kildekode-Invariant mod fremtidige CI-Overraskelser & Release `v0.11.2`:**"
+      "**AC1 — Scope Unix-specifikke imports til Unix:**",
+      "**AC2 — Mekanisk Invariant 4 i CI Parity Suiten:**",
+      "**AC3 — Workspace Verifikation & Release `v0.11.3`:**"
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "811227b2f8900a095387ea7e0ddf6ff56f4f25fa653bb62e378a61d7de5b2f79",
-    "source_manifest_digest_pre": "11bc051f223b303b9b2eb5b5abc98aed804c51852d103e3f105023ce0702ec77",
-    "source_manifest_digest_post": "11bc051f223b303b9b2eb5b5abc98aed804c51852d103e3f105023ce0702ec77",
-    "config_digest": "8f04daf0b1b9b21299b2feb2b485cf0f83a6bf9791c539f9df682b954cbe9e7d",
-    "task_digest": "ef10ca8559b651e4d6adc9a742dff4c8ce32d6bff469fb3cb1d8f9bfbaa45eb6",
+    "source_content_digest": "a6c7a135c8d4826b73641edc9b3e9a6c621b052a013fc2ea30a163dfea35c0f8",
+    "source_manifest_digest_pre": "29ddf534a6eb281ec17179d89b3237a45fd2295ffbdcc9b219ddd37c9f5dd650",
+    "source_manifest_digest_post": "29ddf534a6eb281ec17179d89b3237a45fd2295ffbdcc9b219ddd37c9f5dd650",
+    "config_digest": "5dd401c8c225ca47c26bedaf6b4d010007218c434fe38a38199f6174e9aeedca",
+    "task_digest": "70401ae0a3fb378752a83210b0aec14239f69bfcc186e68096474d96ca6b6679",
     "policy_digest": "6d25e3bf7f842ae91276e967d62f18ec57f88292875d180a507541fded5cffc9",
     "check_definitions_digest": "82ec5871b5df6c01d5aaaf8e617d8149937bc8e255cbc5f3921229e44fec7e9d",
-    "included_files_count": 247,
+    "included_files_count": 248,
     "vcs": {
       "type": "git",
-      "head": "e31c1d7",
-      "commit": "e31c1d7",
+      "head": "e3fb756",
+      "commit": "e3fb756",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-01T21:57:05Z",
-    "finished_at": "2026-11-01T21:57:37Z",
-    "total_duration_seconds": 32.579540019,
+    "started_at": "2026-11-02T06:15:47Z",
+    "finished_at": "2026-11-02T06:16:20Z",
+    "total_duration_seconds": 33.581408611,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
       "platform": "linux",
-      "version": "0.11.2"
+      "version": "0.11.3"
     }
   },
   "checks": [
@@ -48,16 +47,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.067174494,
+      "duration_seconds": 0.111460406,
       "optional": false,
       "passed": true,
-      "log_digest": "6bf9658f0e81b45328dcbacd0c32b8cd7c52d39af56aee7d53823dba46fc9c5b"
+      "log_digest": "1d9a013efbfb4855d45d4ec86890b9618e7b9b15d7fe4f87215a73893415ac65"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.234282444,
+      "duration_seconds": 0.23696963,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -66,43 +65,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.10907486,
+      "duration_seconds": 0.135874601,
       "optional": false,
       "passed": true,
-      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
+      "log_digest": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 31.401990716,
+      "duration_seconds": 32.218213349,
       "optional": false,
       "passed": true,
-      "log_digest": "c86a9eb47dc6b35ac8122b029ee8277f867dd60c95fcab6559d9b69572c50f2b"
+      "log_digest": "4c8cdb388afc80e9c6a105cb018385730b9cd75d9761c802a40333e9601a6fd4"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.686333016,
+      "duration_seconds": 0.791783607,
       "optional": false,
       "passed": true,
-      "log_digest": "5998cdd6fb8c264d6c3fdf57ceae9f83e9e2b966f79f502bfd3965526d6cc3d9"
+      "log_digest": "6f6951265c482f1ac27311994862c5de98b7141dea558571d9b2f3362d3cbbd1"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.048997248,
+      "duration_seconds": 0.050731157,
       "optional": false,
       "passed": true,
-      "log_digest": "7e54b3486a137048c548db552866b806cd65109cca14f41035a2adb38e7e1989"
+      "log_digest": "30c155dd64229538d1786d2a76f9e99e72ece8b310b7aea7807c8942c3638afd"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.009439863,
+      "duration_seconds": 0.012789355,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -593,29 +592,52 @@
         "commit_oid": "23386a2d3fa7ec88a3e238b36f03677e3bfe50b0",
         "timestamp": "2026-11-02T06:04:32Z",
         "digest": "cab87a5154810be6c6b7b01e3381d50569fa1c7f6830a76ecac4f4403765109a"
+      },
+      {
+        "session_nonce": "sess-e3fb756b",
+        "role": "TDD Craftsman",
+        "phase": "REFACTOR",
+        "commit_oid": "e3fb756b53e91e3ed2b24411e32be4e25312b81f",
+        "timestamp": "2026-11-02T06:05:37Z",
+        "digest": "acbd8740057012bb2bf6840fb3a0458f6c4b0f57b16d05a3ba91b693e5fa9996"
+      },
+      {
+        "session_nonce": "sess-9630313f",
+        "role": "Software Engineer",
+        "phase": "DONE",
+        "commit_oid": "9630313f2aef360ee8cca851519998290e50b8d9",
+        "timestamp": "2026-11-02T06:16:21Z",
+        "digest": "99afc5ffdc9955ae01566a30661d09d535506e953e7a9acdf803703bc2902315"
       }
     ]
   },
   "test_provenance": [
     {
       "test_identifier": "test_concurrent_worktree_inverse_preflight_and_nonce_uniqueness",
-      "failure_output": "Verified in RED checkpoint commit 6830743",
-      "failure_digest": "144b13cb7c3d59c3d6a7b9d07a1bdcce1703839b04de395b2a64b537972536a9",
-      "verified_at": "2026-11-01T22:46:42+01:00",
+      "failure_output": "Verified in RED checkpoint commit 058933a",
+      "failure_digest": "1d6dcd40465bcc03c58648f89e0ab99be88083080bf5b19320e999d18ed2572f",
+      "verified_at": "2026-11-02T07:02:57+01:00",
       "status": "red_checkpoint_verified"
     },
     {
       "test_identifier": "test_macos_style_symlinked_temp_and_workspace_parity",
-      "failure_output": "Verified in RED checkpoint commit 6830743",
-      "failure_digest": "144b13cb7c3d59c3d6a7b9d07a1bdcce1703839b04de395b2a64b537972536a9",
-      "verified_at": "2026-11-01T22:46:42+01:00",
+      "failure_output": "Verified in RED checkpoint commit 058933a",
+      "failure_digest": "1d6dcd40465bcc03c58648f89e0ab99be88083080bf5b19320e999d18ed2572f",
+      "verified_at": "2026-11-02T07:02:57+01:00",
       "status": "red_checkpoint_verified"
     },
     {
       "test_identifier": "test_codebase_free_of_collision_prone_temp_paths_and_unix_only_env",
-      "failure_output": "Verified in RED checkpoint commit 6830743",
-      "failure_digest": "144b13cb7c3d59c3d6a7b9d07a1bdcce1703839b04de395b2a64b537972536a9",
-      "verified_at": "2026-11-01T22:46:42+01:00",
+      "failure_output": "Verified in RED checkpoint commit 058933a",
+      "failure_digest": "1d6dcd40465bcc03c58648f89e0ab99be88083080bf5b19320e999d18ed2572f",
+      "verified_at": "2026-11-02T07:02:57+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_no_unguarded_top_level_imports_in_platform_gated_tests",
+      "failure_output": "Verified in RED checkpoint commit 058933a",
+      "failure_digest": "1d6dcd40465bcc03c58648f89e0ab99be88083080bf5b19320e999d18ed2572f",
+      "verified_at": "2026-11-02T07:02:57+01:00",
       "status": "red_checkpoint_verified"
     },
     {
@@ -1436,13 +1458,6 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
-    },
-    {
-      "test_identifier": "test_no_unguarded_top_level_imports_in_platform_gated_tests",
-      "failure_output": "Verified in RED checkpoint commit 058933a",
-      "failure_digest": "1d6dcd40465bcc03c58648f89e0ab99be88083080bf5b19320e999d18ed2572f",
-      "verified_at": "2026-11-02T07:02:57+01:00",
-      "status": "red_checkpoint_verified"
     }
   ]
 }

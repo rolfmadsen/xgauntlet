@@ -49,11 +49,11 @@ Formålet er:
 
 ## 📋 Acceptance Criteria
 
-- [ ] **AC1 — Scope Unix-specifikke imports til Unix:**
+- [x] **AC1 — Scope Unix-specifikke imports til Unix:**
   - `crates/xgauntlet-core/tests/cross_platform_ci_parity_test.rs` flytter de 6 imports (`json`, `AntigravityAdapter`, `HarnessAdapter`, `run_checkpoint`, `CheckpointOptions`/`CheckpointPhase`, `WorkspaceRelativePath`) ind i `test_macos_style_symlinked_temp_and_workspace_parity` eller annoterer dem med `#[cfg(unix)]`.
-- [ ] **AC2 — Mekanisk Invariant 4 i CI Parity Suiten:**
+- [x] **AC2 — Mekanisk Invariant 4 i CI Parity Suiten:**
   - `test_codebase_free_of_collision_prone_temp_paths_and_unix_only_env` i `cross_platform_ci_parity_test.rs` udvides med Invariant 4, der scanner testfiler for `#[cfg(unix)]` og verificerer, at imports, som kun benyttes i Unix-gatede funktioner, ikke deklareres unguarded på filniveau.
-- [ ] **AC3 — Workspace Verifikation & Release `v0.11.3`:**
+- [x] **AC3 — Workspace Verifikation & Release `v0.11.3`:**
   - `cargo clippy --workspace --all-targets -- -D warnings` passerer rent lokalt og på tværs af targets.
   - Bump version til `v0.11.3`, forsegl evidens i `evidence.md` og opdater `CHANGELOG.md`.
 

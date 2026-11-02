@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.3] - 2026-11-02
+
+### 🐛 Fixed & Hardened
+- **Windows CI Parity & Scoped Platform-Conditional Imports (`Task 055`, `crates/xgauntlet-core`)**:
+  - Rettet `windows-latest` CI-fejl under `cargo clippy --workspace --all-targets -- -D warnings`, hvor ubenyttede imports i `crates/xgauntlet-core/tests/cross_platform_ci_parity_test.rs` fejlede med compiler-fejl, fordi symlink-testen var afgrænset med `#[cfg(unix)]`, mens tilhørende imports lå i toppen af filen.
+  - Flyttet Unix-specifikke symboler (`json`, `AntigravityAdapter`, `HarnessAdapter`, `run_checkpoint`, `CheckpointOptions`, `CheckpointPhase`, `WorkspaceRelativePath`) direkte ind i testfunktionen, så de udelukkende kompileres på Unix-mål.
+  - Etableret en ny mekanisk invariant-test (`test_no_unguarded_top_level_imports_in_platform_gated_tests`) i CI-paritetssuiten, som lokalt på Linux automatisk scanner alle integrationstests og forhindrer top-level imports, der kun refereres i platform-betingede funktioner.
+
 ## [0.11.2] - 2026-11-01
 
 ### 🐛 Fixed & Hardened
