@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 055: Fix Windows CI Unused Imports in Parity Test Suite (v0.11.3)"
 description: "Retter Windows CI-fejl i v0.11.2 ved ubenyttede imports i cross_platform_ci_parity_test.rs under Clippy -D warnings ved at afgrænse Unix-specifikke symboler og håndhæve mekanisk kildekode-audit lokalt på Linux."
-status: active
+status: done
 intent: bug
 generated: { by: process:antigravity-task-init, at: "2026-11-02T06:58:00Z" }
 tags: [bugfix, windows, ci-parity, clippy, cross-platform, release]
@@ -22,7 +22,7 @@ test_refs:
 
 # Task 055: Fix Windows CI Unused Imports in Parity Test Suite (v0.11.3)
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🐛 BUG FIX`
 **Oprettet**: `2026-11-02`
 
