@@ -361,3 +361,114 @@ fn test_codebase_free_of_collision_prone_temp_paths_and_unix_only_env() {
         violations.join("\n  - ")
     );
 }
+
+#[test]
+fn test_no_unguarded_top_level_imports_in_platform_gated_tests() {
+    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let crates_root = manifest_dir.parent().expect("crates/ directory");
+
+    let mut rs_files = Vec::new();
+    collect_rs_files(&crates_root.join("xgauntlet-core").join("tests"), &mut rs_files);
+    collect_rs_files(&crates_root.join("xgauntlet-cli").join("tests"), &mut rs_files);
+    rs_files.sort();
+
+    let mut violations = Vec::new();
+
+    for file in rs_files {
+        let content = fs::read_to_string(&file).unwrap_or_default();
+        // Specifically check files where whole test functions are gated on #[cfg(unix)]
+        let has_unix_gated_functions = content.contains("#[cfg(unix)]\n#[test]")
+            || content.contains("#[cfg(unix)]\r\n#[test]")
+            || content.contains("#[cfg(unix)]\nfn")
+            || content.contains("#[cfg(unix)]\r\nfn");
+
+        if !has_unix_gated_functions {
+            continue;
+        }
+
+        let rel = file
+            .strip_prefix(crates_root.parent().unwrap_or(crates_root))
+            .unwrap_or(&file)
+            .display()
+            .to_string();
+
+        // 1. Separate file into top-level unguarded imports and universal lines
+        let lines: Vec<&str> = content.lines().collect();
+        let mut unguarded_imports: Vec<String> = Vec::new();
+        let mut in_unix_block = false;
+        let mut unix_bracket_depth = 0;
+        let mut universal_body = String::new();
+
+        let mut idx = 0;
+        while idx < lines.len() {
+            let line = lines[idx].trim();
+
+            if line.starts_with("#[cfg(unix)]") {
+                in_unix_block = true;
+                unix_bracket_depth = 0;
+                idx += 1;
+                continue;
+            }
+
+            if in_unix_block {
+                unix_bracket_depth += line.chars().filter(|&c| c == '{').count();
+                unix_bracket_depth -= line.chars().filter(|&c| c == '}').count();
+                if unix_bracket_depth == 0 && line.contains('}') {
+                    in_unix_block = false;
+                }
+                idx += 1;
+                continue;
+            }
+
+            // Top-level imports outside any unix block
+            if line.starts_with("use ") && line.ends_with(';') {
+                let prev_is_cfg_unix = idx > 0 && lines[idx - 1].trim().starts_with("#[cfg(unix)]");
+                if !prev_is_cfg_unix {
+                    // Extract imported symbols (e.g. `use foo::{A, B};` or `use foo::Bar;`)
+                    let import_part = line.strip_prefix("use ").unwrap().strip_suffix(';').unwrap();
+                    if let Some(brace_idx) = import_part.find('{') {
+                        let inner = &import_part[brace_idx + 1..import_part.len() - 1];
+                        for item in inner.split(',') {
+                            let item = item.trim();
+                            if !item.is_empty() {
+                                let symbol = item.split_whitespace().last().unwrap_or(item);
+                                unguarded_imports.push(symbol.to_string());
+                            }
+                        }
+                    } else if let Some(last_seg) = import_part.split("::").last() {
+                        let symbol = last_seg.split_whitespace().last().unwrap_or(last_seg);
+                        unguarded_imports.push(symbol.to_string());
+                    }
+                }
+            } else {
+                universal_body.push_str(line);
+                universal_body.push('\n');
+            }
+
+            idx += 1;
+        }
+
+        // 2. Identify symbols not referenced in universal_body (will be unused on Windows CI)
+        let mut unix_only_top_level_imports = Vec::new();
+        for sym in unguarded_imports {
+            let in_universal = universal_body.contains(&sym);
+
+            if !in_universal {
+                unix_only_top_level_imports.push(sym);
+            }
+        }
+
+        if !unix_only_top_level_imports.is_empty() {
+            violations.push(format!(
+                "{rel}: top-level unguarded imports used ONLY in #[cfg(unix)] blocks (will fail Windows CI under -D warnings):\n    - {}",
+                unix_only_top_level_imports.join("\n    - ")
+            ));
+        }
+    }
+
+    assert!(
+        violations.is_empty(),
+        "Platform-conditional import violations detected (will fail on Windows CI):\n  - {}",
+        violations.join("\n  - ")
+    );
+}
