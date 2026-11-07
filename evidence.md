@@ -4,10 +4,10 @@
 **Task Title**: Task 058: Release Manifest Parity (.agents Plugin & Policy) and Global Distribution Clarity  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `1ae6699045b23ad4f358aea800916ba5c4e2160cfb9036a74a76577395a0273d`  
-**Timestamp**: `2026-11-07T20:34:42Z`  
-**Head**: `914e0f5`  
-**Commit**: `914e0f5`  
+**Source Manifest Digest**: `2576f89465ebcae144b6524e3a7065ebcf2155b6f55dca993370d9116b6a70ae`  
+**Timestamp**: `2026-11-07T20:37:41Z`  
+**Head**: `417039a`  
+**Commit**: `417039a`  
 
 ## Acceptance Criteria
 
@@ -22,13 +22,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.075s` |
-| `format` | `PASSED` | `0` | `0.232s` |
-| `lint` | `PASSED` | `0` | `0.107s` |
-| `unit` | `PASSED` | `0` | `31.500s` |
-| `npm` | `PASSED` | `0` | `0.728s` |
-| `invariants` | `PASSED` | `0` | `0.054s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.013s` |
+| `architecture` | `PASSED` | `0` | `4.103s` |
+| `format` | `PASSED` | `0` | `0.255s` |
+| `lint` | `PASSED` | `0` | `2.526s` |
+| `unit` | `PASSED` | `0` | `36.964s` |
+| `npm` | `PASSED` | `0` | `0.836s` |
+| `invariants` | `PASSED` | `0` | `0.091s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.026s` |
 
 ---
 

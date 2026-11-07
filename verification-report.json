@@ -17,25 +17,25 @@
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "15271e6be6a13cf7976d5d90bdf482c4e80d2cbb22702735aaa922f2507eb2fa",
-    "source_manifest_digest_pre": "1ae6699045b23ad4f358aea800916ba5c4e2160cfb9036a74a76577395a0273d",
-    "source_manifest_digest_post": "1ae6699045b23ad4f358aea800916ba5c4e2160cfb9036a74a76577395a0273d",
-    "config_digest": "0b362059da78123181c2fdcc2259e1d16fd403cea95cc8da8081c99e9573fc9e",
+    "source_content_digest": "d8148168f7806741598d154c0661d1402737a67bae82265b2ed168e6a7435821",
+    "source_manifest_digest_pre": "2576f89465ebcae144b6524e3a7065ebcf2155b6f55dca993370d9116b6a70ae",
+    "source_manifest_digest_post": "2576f89465ebcae144b6524e3a7065ebcf2155b6f55dca993370d9116b6a70ae",
+    "config_digest": "15af147cce3842678da88f588bfdce77b4566e004dac71dceaddc01b4bbcacf5",
     "task_digest": "91cfd77129622c958b249844ca64bd9fce4190bdbbb5ce7f340188254f01d211",
     "policy_digest": "9cd5a069526d80487625db326a518d07e2b65fddb8b1512b12b8a0043ffc4b74",
     "check_definitions_digest": "82ec5871b5df6c01d5aaaf8e617d8149937bc8e255cbc5f3921229e44fec7e9d",
     "included_files_count": 255,
     "vcs": {
       "type": "git",
-      "head": "914e0f5",
-      "commit": "914e0f5",
+      "head": "417039a",
+      "commit": "417039a",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-07T20:34:09Z",
-    "finished_at": "2026-11-07T20:34:42Z",
-    "total_duration_seconds": 32.902614468,
+    "started_at": "2026-11-07T20:36:56Z",
+    "finished_at": "2026-11-07T20:37:41Z",
+    "total_duration_seconds": 45.00867167,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -48,16 +48,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.074583982,
+      "duration_seconds": 4.103263159,
       "optional": false,
       "passed": true,
-      "log_digest": "0ad91129cfd68f7276b930a890f34441cd7d80e6f80c42cd1c00d1477deca773"
+      "log_digest": "24420f9e927b4ac36758535fa1ac83345ef0c7d4f28af2e5c494a1f08bafa1a5"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.232396291,
+      "duration_seconds": 0.255135743,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -66,43 +66,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.107265432,
+      "duration_seconds": 2.526147935,
       "optional": false,
       "passed": true,
-      "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
+      "log_digest": "4c9be3674f1bb522a73529d00fbed3ae47356f8b5d7d374386185f0cb0a2741a"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 31.50038656,
+      "duration_seconds": 36.963538647,
       "optional": false,
       "passed": true,
-      "log_digest": "4e4cdc630d3d4b5209c3b57864d30f8196ac26f8de2ced3631ea316f53773351"
+      "log_digest": "ab4a53b5f047394bb3f9c900d692df31f52f5bb93ae816fac113e5c95b61fa62"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.728176124,
+      "duration_seconds": 0.836394462,
       "optional": false,
       "passed": true,
-      "log_digest": "dd233af8dff01afc08555e2a8038553c7b1ca764da55af26a320bf7c95d41b72"
+      "log_digest": "667de010c89e8c54b030fa16576a2138d0f4147c950d1a694f530a7b03acc284"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.054000204,
+      "duration_seconds": 0.091498562,
       "optional": false,
       "passed": true,
-      "log_digest": "0c294f80b06124ac78839cf6a770a8a1755dfac037388f0988f70e3c781f89a0"
+      "log_digest": "f00299b3a251dbc5d92d50d2eaa94f49da9f8d4de45be4ef57f386220991fb6c"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.013115626,
+      "duration_seconds": 0.02617766,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
