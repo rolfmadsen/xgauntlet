@@ -37,11 +37,11 @@ Formålet med denne opgave er at udbygge afsnit 7.4 i både `README.md` og `pack
 
 ## 📋 Acceptance Criteria
 
-- [ ] **AC1 — 4-Trins Drejebog i GitHub `README.md`:**
+- [x] **AC1 — 4-Trins Drejebog i GitHub `README.md`:**
   - Udvid afsnit 7.4 i `README.md` med de 4 trin (Røntgenbillede/Audit, Baseline-exemptions, Gate C $\to$ B $\to$ A rækkefølge med lokale Actions, samt Slice-for-slice afvikling).
-- [ ] **AC2 — Paritet i npm `packages/cli/README.md`:**
+- [x] **AC2 — Paritet i npm `packages/cli/README.md`:**
   - Opdater afsnit 7.4 i `packages/cli/README.md` til fuld 100% paritet med `README.md`.
-- [ ] **AC3 — Automatisk Dokumentationstest:**
+- [x] **AC3 — Automatisk Dokumentationstest:**
   - Udvid `crates/xgauntlet-core/tests/architecture_scaffold_template_test.rs` med assertions, der validerer at begge README-filer indeholder drejebogens nøglebegreber (Røntgenbillede/Audit, Baseline-exemptions, Gate C, Gate B, Gate A, samt Action/Event mønstret).
 
 ---

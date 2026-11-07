@@ -4,42 +4,42 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "059-architecture-governance-docs-and-scaffold-template",
-    "task_title": "Task 059: Architecture Governance Documentation & Scaffold Template Hardening",
-    "task_digest": "dba4bf39e53dd63315c568db4ce783b83e0c72be801a48a3e422f11518d13d52",
+    "task_id": "060-brownfield-migration-blueprint-in-readme",
+    "task_title": "Task 060: Brownfield VSA Migration Blueprint in README Documentation",
+    "task_digest": "5a81922e125220a2f67ea833b24116f40a47143bff5f8ba3d7917f67447cd105",
     "acceptance_criteria": [
-      "**AC1 — Template Hardening i `xgauntlet init`:**",
-      "**AC2 — Pædagogisk Arkitektur-Dokumentation i README:**",
-      "**AC3 — Regressions- og Template-Test:**"
+      "**AC1 — 4-Trins Drejebog i GitHub `README.md`:**",
+      "**AC2 — Paritet i npm `packages/cli/README.md`:**",
+      "**AC3 — Automatisk Dokumentationstest:**"
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "66f72cef02bfa57ddc3c2e97946e5904533542691880eaa9df1ea6fc88c0d630",
-    "source_manifest_digest_pre": "dc2ce584d926e69d30245b203b46f1174a174f353546bbbfe0775f218a4557cb",
-    "source_manifest_digest_post": "dc2ce584d926e69d30245b203b46f1174a174f353546bbbfe0775f218a4557cb",
+    "source_content_digest": "67f32d15cc3dd09b6ff5c93a90c8f74edf6167e062356ef5f1a5e092d9b0d098",
+    "source_manifest_digest_pre": "bdf7a25377c9ee7ca2fd10f324b47f0adeea19dfe19ff2928350eeb8bc579553",
+    "source_manifest_digest_post": "bdf7a25377c9ee7ca2fd10f324b47f0adeea19dfe19ff2928350eeb8bc579553",
     "config_digest": "fbde4e7d8027153515476befc80b727458656ed60b47dc0efb0ef8cfbdb8daf1",
-    "task_digest": "dba4bf39e53dd63315c568db4ce783b83e0c72be801a48a3e422f11518d13d52",
+    "task_digest": "5a81922e125220a2f67ea833b24116f40a47143bff5f8ba3d7917f67447cd105",
     "policy_digest": "9cd5a069526d80487625db326a518d07e2b65fddb8b1512b12b8a0043ffc4b74",
     "check_definitions_digest": "82ec5871b5df6c01d5aaaf8e617d8149937bc8e255cbc5f3921229e44fec7e9d",
-    "included_files_count": 257,
+    "included_files_count": 258,
     "vcs": {
       "type": "git",
-      "head": "07ff69d",
-      "commit": "07ff69d",
+      "head": "b85f7aa",
+      "commit": "b85f7aa",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-07T21:11:42Z",
-    "finished_at": "2026-11-07T21:12:27Z",
-    "total_duration_seconds": 45.428605271,
+    "started_at": "2026-11-07T21:25:07Z",
+    "finished_at": "2026-11-07T21:25:40Z",
+    "total_duration_seconds": 32.944441008,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
       "platform": "linux",
-      "version": "0.12.1"
+      "version": "0.12.2"
     }
   },
   "checks": [
@@ -47,16 +47,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 4.134950295,
+      "duration_seconds": 0.079102683,
       "optional": false,
       "passed": true,
-      "log_digest": "d0be834a861c773d730591fff6ac38e4a8a9181935995db5c06f547b7374c8a3"
+      "log_digest": "9dbc695a653acee6b3498d309853a8c5e74139f5f65aa1923c086ec37942af6f"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.275975928,
+      "duration_seconds": 0.250730022,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -65,43 +65,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 2.511607936,
+      "duration_seconds": 0.10518068,
       "optional": false,
       "passed": true,
-      "log_digest": "cbb9afcd28c541672b9178f7989d2d5eb6c28302acfb318c83ac21ee1aa31268"
+      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 37.386806374,
+      "duration_seconds": 31.518710892,
       "optional": false,
       "passed": true,
-      "log_digest": "6a7f457b91960a5da8006bbab39ba9076e4f5c8efe374eedf8d5fcacc05c083a"
+      "log_digest": "31c00bd4434ca1258c6f162080c300f189170b297682e5cb8c7853b657ecde68"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.811360209,
+      "duration_seconds": 0.733744258,
       "optional": false,
       "passed": true,
-      "log_digest": "55fe3c9866712d9454892bdec3c30a3a3881c55107163af7af56ab7d082014ca"
+      "log_digest": "02ad2d72a2bbbf3eeab8a6543f4e4c2ffc1cccc733e992dcd087ef0f0ec49c43"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.077915777,
+      "duration_seconds": 0.056946863,
       "optional": false,
       "passed": true,
-      "log_digest": "40743d26f2667c90a36c2e16592317382bfbe37384527f5bd163c46f67000bd9"
+      "log_digest": "e23e3ad7835489151a452e49ee6c42b9df899464f619d1e76d71081dca08ad9a"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.01914306,
+      "duration_seconds": 0.010216811,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -728,22 +728,45 @@
         "commit_oid": "369239dc2a2a82ce5883144f713049e75ee98e08",
         "timestamp": "2026-11-07T21:24:12Z",
         "digest": "0559961812a2efe1247265c2062d1c1d4c048efca2386427fba482c55605402a"
+      },
+      {
+        "session_nonce": "sess-b85f7aa0",
+        "role": "TDD Craftsman",
+        "phase": "REFACTOR",
+        "commit_oid": "b85f7aa04d7737ced1f50843eb2b81e35ad329c5",
+        "timestamp": "2026-11-07T21:24:17Z",
+        "digest": "ba09cc41b287019f06deb918c7f0912b63cc22d53abf8fdf9c684667b5bd5930"
+      },
+      {
+        "session_nonce": "sess-3e6c2d6c",
+        "role": "Software Engineer",
+        "phase": "DONE",
+        "commit_oid": "3e6c2d6cffc93f69d8ce7e716038f11dbbe3639a",
+        "timestamp": "2026-11-07T21:25:40Z",
+        "digest": "172737d4007cb450c5d51652a388e6f54273f2c0279adf2399d1a87fa3dfb835"
       }
     ]
   },
   "test_provenance": [
     {
       "test_identifier": "test_scaffold_gauntlet_toml_contains_architecture_guidance",
-      "failure_output": "Verified in RED checkpoint commit 42338d0",
-      "failure_digest": "ea7e5f8752df823e8f3d0e1d0b93681c5a8f828452d257d5640b9ba1f190e07a",
-      "verified_at": "2026-11-07T22:07:20+01:00",
+      "failure_output": "Verified in RED checkpoint commit 9c6a3dd",
+      "failure_digest": "a4513418902ae375a8765340fb1c5bf4c2b8b4f93d45539f9b70017e73c03d8c",
+      "verified_at": "2026-11-07T22:23:30+01:00",
       "status": "red_checkpoint_verified"
     },
     {
       "test_identifier": "test_readme_documents_architecture_gates_and_safe_mode",
-      "failure_output": "Verified in RED checkpoint commit 42338d0",
-      "failure_digest": "ea7e5f8752df823e8f3d0e1d0b93681c5a8f828452d257d5640b9ba1f190e07a",
-      "verified_at": "2026-11-07T22:07:20+01:00",
+      "failure_output": "Verified in RED checkpoint commit 9c6a3dd",
+      "failure_digest": "a4513418902ae375a8765340fb1c5bf4c2b8b4f93d45539f9b70017e73c03d8c",
+      "verified_at": "2026-11-07T22:23:30+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_readme_documents_brownfield_migration_blueprint",
+      "failure_output": "Verified in RED checkpoint commit 9c6a3dd",
+      "failure_digest": "a4513418902ae375a8765340fb1c5bf4c2b8b4f93d45539f9b70017e73c03d8c",
+      "verified_at": "2026-11-07T22:23:30+01:00",
       "status": "red_checkpoint_verified"
     },
     {
@@ -1655,13 +1678,6 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
-    },
-    {
-      "test_identifier": "test_readme_documents_brownfield_migration_blueprint",
-      "failure_output": "Verified in RED checkpoint commit 9c6a3dd",
-      "failure_digest": "a4513418902ae375a8765340fb1c5bf4c2b8b4f93d45539f9b70017e73c03d8c",
-      "verified_at": "2026-11-07T22:23:30+01:00",
-      "status": "red_checkpoint_verified"
     }
   ]
 }

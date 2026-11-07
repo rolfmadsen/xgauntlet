@@ -1,19 +1,19 @@
 # Verification Report
 
-**Task ID**: `059-architecture-governance-docs-and-scaffold-template`  
-**Task Title**: Task 059: Architecture Governance Documentation & Scaffold Template Hardening  
+**Task ID**: `060-brownfield-migration-blueprint-in-readme`  
+**Task Title**: Task 060: Brownfield VSA Migration Blueprint in README Documentation  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `dc2ce584d926e69d30245b203b46f1174a174f353546bbbfe0775f218a4557cb`  
-**Timestamp**: `2026-11-07T21:12:27Z`  
-**Head**: `07ff69d`  
-**Commit**: `07ff69d`  
+**Source Manifest Digest**: `bdf7a25377c9ee7ca2fd10f324b47f0adeea19dfe19ff2928350eeb8bc579553`  
+**Timestamp**: `2026-11-07T21:25:40Z`  
+**Head**: `b85f7aa`  
+**Commit**: `b85f7aa`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 — Template Hardening i `xgauntlet init`:**
-- [x] **AC2 — Pædagogisk Arkitektur-Dokumentation i README:**
-- [x] **AC3 — Regressions- og Template-Test:**
+- [x] **AC1 — 4-Trins Drejebog i GitHub `README.md`:**
+- [x] **AC2 — Paritet i npm `packages/cli/README.md`:**
+- [x] **AC3 — Automatisk Dokumentationstest:**
 
 ---
 
@@ -21,13 +21,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `4.135s` |
-| `format` | `PASSED` | `0` | `0.276s` |
-| `lint` | `PASSED` | `0` | `2.512s` |
-| `unit` | `PASSED` | `0` | `37.387s` |
-| `npm` | `PASSED` | `0` | `0.811s` |
-| `invariants` | `PASSED` | `0` | `0.078s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.019s` |
+| `architecture` | `PASSED` | `0` | `0.079s` |
+| `format` | `PASSED` | `0` | `0.251s` |
+| `lint` | `PASSED` | `0` | `0.105s` |
+| `unit` | `PASSED` | `0` | `31.519s` |
+| `npm` | `PASSED` | `0` | `0.734s` |
+| `invariants` | `PASSED` | `0` | `0.057s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---
 
@@ -111,6 +111,8 @@
 | `sess-a9ab39e8` | `Software Engineer` | `DONE` | `a9ab39e` | `2026-11-07T21:10:12Z` | `VALID` |
 | `sess-9c6a3dd8` | `TDD Craftsman` | `RED` | `9c6a3dd` | `2026-11-07T21:23:30Z` | `VALID` |
 | `sess-369239dc` | `TDD Craftsman` | `GREEN` | `369239d` | `2026-11-07T21:24:12Z` | `VALID` |
+| `sess-b85f7aa0` | `TDD Craftsman` | `REFACTOR` | `b85f7aa` | `2026-11-07T21:24:17Z` | `VALID` |
+| `sess-3e6c2d6c` | `Software Engineer` | `DONE` | `3e6c2d6` | `2026-11-07T21:25:40Z` | `VALID` |
 
 ---
 
@@ -118,8 +120,9 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
-| `test_scaffold_gauntlet_toml_contains_architecture_guidance` | `RedCheckpointVerified` | `ea7e5f8752df823e...` | `2026-11-07T22:07:20+01:00` |
-| `test_readme_documents_architecture_gates_and_safe_mode` | `RedCheckpointVerified` | `ea7e5f8752df823e...` | `2026-11-07T22:07:20+01:00` |
+| `test_scaffold_gauntlet_toml_contains_architecture_guidance` | `RedCheckpointVerified` | `a4513418902ae375...` | `2026-11-07T22:23:30+01:00` |
+| `test_readme_documents_architecture_gates_and_safe_mode` | `RedCheckpointVerified` | `a4513418902ae375...` | `2026-11-07T22:23:30+01:00` |
+| `test_readme_documents_brownfield_migration_blueprint` | `RedCheckpointVerified` | `a4513418902ae375...` | `2026-11-07T22:23:30+01:00` |
 | `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `e82582c92b588673...` | `2026-11-07T21:27:43+01:00` |
 | `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `e82582c92b588673...` | `2026-11-07T21:27:43+01:00` |
 | `test_ac1_architecture_config_toml_roundtrip_for_layers_slices_and_exemptions` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
@@ -250,6 +253,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_readme_documents_brownfield_migration_blueprint` | `RedCheckpointVerified` | `a4513418902ae375...` | `2026-11-07T22:23:30+01:00` |
 
 ---
