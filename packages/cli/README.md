@@ -461,14 +461,33 @@ xGauntlet er designet til at beskytte **både** eksisterende produktionssystemer
    * Opretter og vedligeholder den levende slice-specifikation (`specs/auth/login.md`).
    * Forankrer opgavepakken med `domain`, `slice` og `spec_ref: "specs/auth/login.md"` i frontmatter.
 
-4. **Trinvis Brownfield-Migrering (`[[architecture.exemptions]]`):**  
-   Eksisterende systemer kan gradvist aktivere `layers` og `isolate_slices` modul for modul ved hjælp af `allow_imports`:
-   ```toml
-   [[architecture.exemptions]]
-   path = "src/features/legacy_module/**"
-   allow_imports = ["crate::app"]
-   reason = "Midlertidig overgang under refaktorisering jf. ADR 0012"
-   ```
+4. **Trinvis Brownfield-Migrering (Sikker Køreplan for Eksisterende Systemer):**  
+   Hvis du har et etableret system med mange opgaver og teknisk gæld (som f.eks. moduler, der importerer baglæns fra UI-monolitten), skal du **ikke** lave en risikabel "Big Bang"-omskrivning. Følg i stedet denne 4-trins køreplan jf. [ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md):
+
+   * **Trin A: Tag et risikofrit Røntgenbillede (Audit Baseline):**  
+     Aktivér gates midlertidigt i `gauntlet.toml` (`layers`, `isolate_slices = true`, `forbid_core_imports`) og kør:
+     ```bash
+     xgauntlet check-architecture
+     ```
+     Dette giver dig et komplet, prioriteret overblik over samtlige eksisterende import-overtrædelser uden at ændre kildekoden.
+
+   * **Trin B: Etablér en sikker baseline (Undgå Big-Bang fælden):**  
+     Frys status quo ved at tilføje en midlertidig exemption-regel i `gauntlet.toml`:
+     ```toml
+     [[architecture.exemptions]]
+     path = "src/features/**"
+     allow_imports = ["crate::ui::app", "crate::app"]
+     reason = "Legacy kobling under trinvis VSA-migrering jf. ADR 0012"
+     ```
+     Dette gør, at dit build og gauntlet forbliver **100% grønt**, mens alle *nye* moduler tvinges til at overholde de strenge arkitekturgrænser fra dag 1.
+
+   * **Trin C: Følg den optimale oprydningsrækkefølge (Gate C $\to$ Gate B $\to$ Gate A):**  
+     1. *Først: Rens domænekernen (Gate C):* Fjern framework-specifikke imports (f.eks. UI-pakker som `iced` eller `react`) fra `src/core/`.
+     2. *Dernæst: Isoler slices fra hinanden (Gate B):* Fjern direkte imports mellem søskende-features (`features/foo` $\to$ `features/bar`). Flyt delte forretningsmodeller til `core` eller `shared`.
+     3. *Til sidst: Afkobl fra UI-monolitten (Gate A):* Erstat prop-drilling med *Stateful UI-Slice* mønstret: Slicen indkapsler sin egen tilstand og returnerer et lokalt `enum Action` / `Event` opad til `app.rs`, i stedet for at importere appens globale `Message`.
+
+   * **Trin D: Slice-for-slice afvikling med AI-agenten:**  
+     Refaktorér ét modul ad gangen gennem isolerede opgaver (`tasks/`). Fjern modulet fra exemption-listen i `gauntlet.toml`, og lad `xgauntlet check-architecture` og `verify` bevise og forsegle, at modulet nu er en 100% uafhængig, ren Vertical Slice.
 
 ### 8. Transaktionel Versionsstyring (`release bump`)
 Udfører atomisk SemVer opgradering på tværs af manifests, kompilerer og synkroniserer WASM bytecode, roterer CHANGELOG.md og ruller automatisk tilbage ved fejl via disk-staging:

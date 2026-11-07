@@ -109,6 +109,7 @@
 | `sess-299280fb` | `TDD Craftsman` | `GREEN` | `299280f` | `2026-11-07T21:08:36Z` | `VALID` |
 | `sess-14cf3261` | `TDD Craftsman` | `REFACTOR` | `14cf326` | `2026-11-07T21:08:46Z` | `VALID` |
 | `sess-a9ab39e8` | `Software Engineer` | `DONE` | `a9ab39e` | `2026-11-07T21:10:12Z` | `VALID` |
+| `sess-9c6a3dd8` | `TDD Craftsman` | `RED` | `9c6a3dd` | `2026-11-07T21:23:30Z` | `VALID` |
 
 ---
 
@@ -248,5 +249,6 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_readme_documents_brownfield_migration_blueprint` | `RedCheckpointVerified` | `a4513418902ae375...` | `2026-11-07T22:23:30+01:00` |
 
 ---

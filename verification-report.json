@@ -712,6 +712,14 @@
         "commit_oid": "a9ab39e8064f2a8509a4bbc04008c4793d72ec33",
         "timestamp": "2026-11-07T21:10:12Z",
         "digest": "a2219cfbf1cdf0d12cd7161fb047b1139f6f40c6077048fab0e174e6fd3a5245"
+      },
+      {
+        "session_nonce": "sess-9c6a3dd8",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "9c6a3dd84b7368bc3f70c60d6c8d4ac18e55e392",
+        "timestamp": "2026-11-07T21:23:30Z",
+        "digest": "b11b301494e777e38fcfb3dbe1257a0c299ca80d6d7cca7a0ffc0eb897b7fd7b"
       }
     ]
   },
@@ -1639,6 +1647,13 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_readme_documents_brownfield_migration_blueprint",
+      "failure_output": "Verified in RED checkpoint commit 9c6a3dd",
+      "failure_digest": "a4513418902ae375a8765340fb1c5bf4c2b8b4f93d45539f9b70017e73c03d8c",
+      "verified_at": "2026-11-07T22:23:30+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }
