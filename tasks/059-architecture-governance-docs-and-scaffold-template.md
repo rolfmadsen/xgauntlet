@@ -39,15 +39,15 @@ For at brugere og AI-agenter kan udnytte dette optimalt, løser denne opgave to 
 
 ## 📋 Acceptance Criteria
 
-- [ ] **AC1 — Template Hardening i `xgauntlet init`:**
+- [x] **AC1 — Template Hardening i `xgauntlet init`:**
   - `render_gauntlet_toml` i `crates/xgauntlet-core/src/features/scaffold/templates.rs` (og/eller `render_toml`) skal inkludere udkommenterede, pædagogiske instruktioner og eksempler for `layers`, `slice_root`, `isolate_slices` og `forbid_core_imports`.
-- [ ] **AC2 — Pædagogisk Arkitektur-Dokumentation i README:**
+- [x] **AC2 — Pædagogisk Arkitektur-Dokumentation i README:**
   - Opdater både `README.md` (GitHub) og `packages/cli/README.md` (npm) med et dedikeret afsnit under `check-architecture`:
     - Skånsom Safe-Mode som default for brownfield.
     - Fuld Vertical Slice Architecture for greenfield (Gate A, B og C).
     - AI-drevet slice-lifecycle (hvordan LLM'en opretter `specs/<domain>/<slice>.md` og `tasks/` ud fra almindeligt menneskesprog).
     - Trinvis brownfield-migrering via `[[architecture.exemptions]]` med `allow_imports`.
-- [ ] **AC3 — Regressions- og Template-Test:**
+- [x] **AC3 — Regressions- og Template-Test:**
   - Opret `crates/xgauntlet-core/tests/architecture_scaffold_template_test.rs`, der beviser:
     - At `render_gauntlet_toml` genererer de pædagogiske eksempler for VSA og lag.
     - At den genererede template er gyldig syntax, som kan parses rent af `parse_toml` uden fejl.

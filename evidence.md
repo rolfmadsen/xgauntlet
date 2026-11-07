@@ -1,20 +1,19 @@
 # Verification Report
 
-**Task ID**: `058-release-manifest-parity-and-global-distribution-clarity`  
-**Task Title**: Task 058: Release Manifest Parity (.agents Plugin & Policy) and Global Distribution Clarity  
+**Task ID**: `059-architecture-governance-docs-and-scaffold-template`  
+**Task Title**: Task 059: Architecture Governance Documentation & Scaffold Template Hardening  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `2576f89465ebcae144b6524e3a7065ebcf2155b6f55dca993370d9116b6a70ae`  
-**Timestamp**: `2026-11-07T20:37:41Z`  
-**Head**: `417039a`  
-**Commit**: `417039a`  
+**Source Manifest Digest**: `d46fea855ad6ef0a4a7d1334a295a8e943916480f574a58979d3c52796481eb7`  
+**Timestamp**: `2026-11-07T21:10:12Z`  
+**Head**: `14cf326`  
+**Commit**: `14cf326`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 — Release Manifest Extraction & Version Bump Parity:**
-- [x] **AC2 — Manifest Harmony Gate Invariant:**
-- [x] **AC3 — Dokumentation i GitHub & npm README:**
-- [x] **AC4 — Regressions- og Enhedstest:**
+- [x] **AC1 — Template Hardening i `xgauntlet init`:**
+- [x] **AC2 — Pædagogisk Arkitektur-Dokumentation i README:**
+- [x] **AC3 — Regressions- og Template-Test:**
 
 ---
 
@@ -22,13 +21,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `4.103s` |
-| `format` | `PASSED` | `0` | `0.255s` |
-| `lint` | `PASSED` | `0` | `2.526s` |
-| `unit` | `PASSED` | `0` | `36.964s` |
-| `npm` | `PASSED` | `0` | `0.836s` |
-| `invariants` | `PASSED` | `0` | `0.091s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.026s` |
+| `architecture` | `PASSED` | `0` | `0.069s` |
+| `format` | `PASSED` | `0` | `0.230s` |
+| `lint` | `PASSED` | `0` | `0.112s` |
+| `unit` | `PASSED` | `0` | `31.909s` |
+| `npm` | `PASSED` | `0` | `0.748s` |
+| `invariants` | `PASSED` | `0` | `0.049s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.013s` |
 
 ---
 
@@ -108,6 +107,8 @@
 | `sess-4e1140b4` | `Software Engineer` | `DONE` | `4e1140b` | `2026-11-07T20:34:42Z` | `VALID` |
 | `sess-42338d07` | `TDD Craftsman` | `RED` | `42338d0` | `2026-11-07T21:07:20Z` | `VALID` |
 | `sess-299280fb` | `TDD Craftsman` | `GREEN` | `299280f` | `2026-11-07T21:08:36Z` | `VALID` |
+| `sess-14cf3261` | `TDD Craftsman` | `REFACTOR` | `14cf326` | `2026-11-07T21:08:46Z` | `VALID` |
+| `sess-a9ab39e8` | `Software Engineer` | `DONE` | `a9ab39e` | `2026-11-07T21:10:12Z` | `VALID` |
 
 ---
 
@@ -115,6 +116,8 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_scaffold_gauntlet_toml_contains_architecture_guidance` | `RedCheckpointVerified` | `ea7e5f8752df823e...` | `2026-11-07T22:07:20+01:00` |
+| `test_readme_documents_architecture_gates_and_safe_mode` | `RedCheckpointVerified` | `ea7e5f8752df823e...` | `2026-11-07T22:07:20+01:00` |
 | `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `e82582c92b588673...` | `2026-11-07T21:27:43+01:00` |
 | `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `e82582c92b588673...` | `2026-11-07T21:27:43+01:00` |
 | `test_ac1_architecture_config_toml_roundtrip_for_layers_slices_and_exemptions` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
@@ -245,7 +248,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_scaffold_gauntlet_toml_contains_architecture_guidance` | `RedCheckpointVerified` | `ea7e5f8752df823e...` | `2026-11-07T22:07:20+01:00` |
-| `test_readme_documents_architecture_gates_and_safe_mode` | `RedCheckpointVerified` | `ea7e5f8752df823e...` | `2026-11-07T22:07:20+01:00` |
 
 ---
