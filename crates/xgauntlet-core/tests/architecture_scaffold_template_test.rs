@@ -79,3 +79,40 @@ fn test_readme_documents_architecture_gates_and_safe_mode() {
         );
     }
 }
+
+#[test]
+fn test_readme_documents_brownfield_migration_blueprint() {
+    let repo_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap();
+
+    let root_readme =
+        fs::read_to_string(repo_root.join("README.md")).expect("README.md must exist");
+    let cli_readme = fs::read_to_string(repo_root.join("packages/cli/README.md"))
+        .expect("cli README must exist");
+
+    for (name, content) in [
+        ("README.md", &root_readme),
+        ("packages/cli/README.md", &cli_readme),
+    ] {
+        assert!(
+            content.contains("Røntgenbillede") || content.contains("røntgenbillede"),
+            "{} should document the audit röntgen baseline step",
+            name
+        );
+        assert!(
+            content.contains("Big-Bang")
+                || content.contains("Big Bang")
+                || content.contains("big-bang"),
+            "{} should document avoiding the big-bang trap via baseline exemptions",
+            name
+        );
+        assert!(
+            content.contains("Action") || content.contains("Action/Event"),
+            "{} should document decoupling features via local Action/Event enums",
+            name
+        );
+    }
+}
