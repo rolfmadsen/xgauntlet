@@ -74,6 +74,13 @@ pub fn check_adr_coverage(workspace: &Path) -> Result<AdrCoverageSummary, Releas
             .unwrap_or(&adr_path)
             .to_string_lossy()
             .replace('\\', "/");
+
+        if let Ok(adr_content) = fs::read_to_string(&adr_path) {
+            if !is_adr_requiring_release_reference(&adr_content) {
+                continue;
+            }
+        }
+
         inspected_adrs.push(rel_adr.clone());
 
         let stem = adr_path
@@ -125,4 +132,46 @@ pub fn check_adr_coverage(workspace: &Path) -> Result<AdrCoverageSummary, Releas
         inspected_adrs,
         unreferenced_adrs,
     })
+}
+
+/// Returns true only if the ADR is in `accepted` (or legacy `stable` without body override) status.
+/// ADRs with status `proposed`, `draft`, `superseded`, or `deprecated` are excluded from mandatory release references.
+fn is_adr_requiring_release_reference(content: &str) -> bool {
+    let mut frontmatter_status: Option<String> = None;
+    let mut body_status: Option<String> = None;
+
+    if let Ok((Some(meta), body)) = crate::features::tasks::okf::parse_frontmatter(content) {
+        frontmatter_status = meta.status.map(|s| s.trim().to_ascii_lowercase());
+        for line in body.lines() {
+            let trimmed = line.trim();
+            if let Some(rest) = trimmed.strip_prefix("**Status**:") {
+                body_status = Some(rest.trim().to_ascii_lowercase());
+                break;
+            }
+        }
+    } else {
+        for line in content.lines() {
+            let trimmed = line.trim();
+            if let Some(rest) = trimmed.strip_prefix("**Status**:") {
+                body_status = Some(rest.trim().to_ascii_lowercase());
+                break;
+            }
+        }
+    }
+
+    if let Some(ref b) = body_status {
+        if b.contains("superseded")
+            || b.contains("deprecated")
+            || b.contains("proposed")
+            || b.contains("draft")
+        {
+            return false;
+        }
+    }
+
+    match frontmatter_status.as_deref() {
+        Some("proposed") | Some("draft") | Some("superseded") | Some("deprecated") => false,
+        Some("accepted") | Some("stable") | None => true,
+        Some(_) => false,
+    }
 }

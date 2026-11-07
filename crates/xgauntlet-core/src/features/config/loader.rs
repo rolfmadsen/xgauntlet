@@ -126,6 +126,7 @@ pub fn parse_toml(content: &str) -> Result<GauntletConfig, ConfigError> {
                         "reason" => ex.reason = parse_str_val(val),
                         "adr" => ex.adr = parse_str_val(val),
                         "max_lines" => ex.max_lines = Some(parse_usize_val(val)),
+                        "allow_imports" => ex.allow_imports = parse_str_list(val),
                         _ => {}
                     }
                 }
@@ -142,6 +143,12 @@ pub fn parse_toml(content: &str) -> Result<GauntletConfig, ConfigError> {
                     }
                     "forbidden_imports" => {
                         config.architecture.forbidden_imports = parse_str_list(val)
+                    }
+                    "layers" => config.architecture.layers = parse_str_list(val),
+                    "slice_root" => config.architecture.slice_root = parse_str_val(val),
+                    "isolate_slices" => config.architecture.isolate_slices = parse_bool_val(val),
+                    "forbid_core_imports" => {
+                        config.architecture.forbid_core_imports = parse_str_list(val)
                     }
                     _ => {}
                 }
@@ -235,6 +242,40 @@ pub fn render_toml(config: &GauntletConfig) -> String {
             imports_fmt.join(", ")
         ));
     }
+    if !config.architecture.layers.is_empty() {
+        let layers_fmt: Vec<String> = config
+            .architecture
+            .layers
+            .iter()
+            .map(|l| format!("\"{}\"", l.replace('\"', "\\\"")))
+            .collect();
+        out.push_str(&format!("layers = [{}]\n", layers_fmt.join(", ")));
+    }
+    if !config.architecture.slice_root.is_empty()
+        && (config.architecture.slice_root != "src/features"
+            || config.architecture.isolate_slices
+            || !config.architecture.layers.is_empty())
+    {
+        out.push_str(&format!(
+            "slice_root = \"{}\"\n",
+            config.architecture.slice_root
+        ));
+    }
+    if config.architecture.isolate_slices {
+        out.push_str("isolate_slices = true\n");
+    }
+    if !config.architecture.forbid_core_imports.is_empty() {
+        let core_fmt: Vec<String> = config
+            .architecture
+            .forbid_core_imports
+            .iter()
+            .map(|i| format!("\"{}\"", i.replace('\"', "\\\"")))
+            .collect();
+        out.push_str(&format!(
+            "forbid_core_imports = [{}]\n",
+            core_fmt.join(", ")
+        ));
+    }
     out.push('\n');
 
     for ex in &config.architecture.exemptions {
@@ -246,6 +287,14 @@ pub fn render_toml(config: &GauntletConfig) -> String {
         }
         if let Some(ml) = ex.max_lines {
             out.push_str(&format!("max_lines = {}\n", ml));
+        }
+        if !ex.allow_imports.is_empty() {
+            let allow_fmt: Vec<String> = ex
+                .allow_imports
+                .iter()
+                .map(|a| format!("\"{}\"", a.replace('\"', "\\\"")))
+                .collect();
+            out.push_str(&format!("allow_imports = [{}]\n", allow_fmt.join(", ")));
         }
         out.push('\n');
     }

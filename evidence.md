@@ -97,6 +97,7 @@
 | `sess-e3fb756b` | `TDD Craftsman` | `REFACTOR` | `e3fb756` | `2026-11-02T06:05:37Z` | `VALID` |
 | `sess-9630313f` | `Software Engineer` | `DONE` | `9630313` | `2026-11-02T06:16:21Z` | `VALID` |
 | `sess-3c8efbb5` | `System Architect` | `SPEC` | `3c8efbb` | `2026-11-07T16:30:08Z` | `VALID` |
+| `sess-c1b1ac18` | `TDD Craftsman` | `RED` | `c1b1ac1` | `2026-11-07T16:57:31Z` | `VALID` |
 
 ---
 
@@ -225,5 +226,12 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_ac1_architecture_config_toml_roundtrip_for_layers_slices_and_exemptions` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
+| `test_ac2_gate_a_layer_direction_violations_across_rust_ts_and_java` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
+| `test_ac2_gate_b_cross_slice_isolation_and_internal_slice_freedom` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
+| `test_ac2_gate_c_clean_core_forbids_ui_framework_imports` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
+| `test_ac3_domain_slice_task_spec_ref_validation_and_done_exemption` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
+| `test_ac4_adr_lifecycle_statuses_and_release_coverage_filtering` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
+| `test_ac5_sovereign_skills_and_coding_standards_document_slice_taxonomy_and_polyglot_examples` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
 
 ---

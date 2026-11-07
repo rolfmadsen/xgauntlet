@@ -20,7 +20,7 @@ xgauntlet check-release --strict
 ```
 Validerer:
 - **CHANGELOG.md:** Er de udførte ændringer dokumenteret under den korrekte sektion jf. Keep a Changelog standarden?
-- **ADR Reference Dækning:** Er samtlige ADRs i `docs/adr/` refereret i `README.md` eller `spec.md`?
+- **ADR Reference Dækning & Livscyklus (`proposed | accepted | superseded | deprecated`):** Er samtlige gældende `accepted` ADRs i `docs/adr/` refereret i `README.md` eller `spec.md`? Pensionerede eller afløste ADRs markeres med `status: deprecated` eller `status: superseded` (med `superseded_by: "<ny-adr.md>"`) og kræves ikke længere i `README.md`/`spec.md`.
 - **Manifest Integritet:** Stemmer `Cargo.toml` / `package.json` versioner overens på tværs af biblioteker?
 - **Drift- og Evidensvalidering:** Sikrer rent worktree og 0 drift mod committed `verification-report.json`.
 

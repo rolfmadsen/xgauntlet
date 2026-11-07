@@ -506,6 +506,14 @@ enum TaskCommands {
         #[arg(short, long)]
         purpose: Option<String>,
 
+        /// Functional domain name (e.g. 'diagram')
+        #[arg(long)]
+        domain: Option<String>,
+
+        /// Vertical slice name within the domain (e.g. 'canvas')
+        #[arg(long)]
+        slice: Option<String>,
+
         /// Path to repository workspace root
         #[arg(short, long, default_value = ".")]
         workspace: std::path::PathBuf,
@@ -1042,6 +1050,8 @@ async fn main() -> anyhow::Result<()> {
                 title,
                 intent,
                 purpose,
+                domain,
+                slice,
                 workspace,
                 force,
                 json,
@@ -1061,7 +1071,11 @@ async fn main() -> anyhow::Result<()> {
                     force: *force,
                 };
 
-                let res = xgauntlet_core::TaskScaffolder::scaffold(&options)?;
+                let res = xgauntlet_core::TaskScaffolder::scaffold_slice(
+                    &options,
+                    domain.as_deref(),
+                    slice.as_deref(),
+                )?;
 
                 if *json {
                     println!("{}", serde_json::to_string_pretty(&res)?);

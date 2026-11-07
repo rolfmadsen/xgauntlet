@@ -33,7 +33,18 @@ Denne skill forvandler agenten fra en passiv "yes-man" til en proaktiv, intellek
 
 ---
 
+## 🧭 DDD & Vertical Slice Taksonomi (Hvad, Hvorfor & Hvordan)
+Under discovery placeres opgaven i `xGauntlet`s 4-niveaus domæne- og slice-taksonomi:
+1. **Bounded Context (`CONTEXT.md`):** Den sproglige og arkitektoniske systemgrænse i løsningsrummet, hvor hvert begreb har én entydig betydning (*Aristoteles' genus et differentiam*).
+2. **Domain (`src/features/<domain>/`):** Et fagligt delområde inden for konteksten (f.eks. `diagram`, `billing`, `export`).
+3. **Slice (`src/features/<domain>/<slice>/`):** Den konkrete, autonome funktionelle kapabilitet (*Stateful UI-Slice* eller *Stateless Pipeline-Slice*) med Black-Box indkapsling (egen offentlig facade og nul direkte kobling til andre slices).
+4. **ADR Gatekeeper-reglen (`docs/adr/` vs. `specs/<domain>/<slice>.md`):**
+   - **Levende Slice-Specifikation (`specs/<domain>/<slice>.md`):** Beskriver *funktionel adfærd, UI-state, input og udgående Actions* for en konkret slice.
+   - **ADR (`docs/adr/`):** Er **kun** for tværgående, irreversible arkitekturbeslutninger med reelle trade-offs. Skriv ALDRIG almindelige feature-krav som en ADR.
+
+---
+
 ## 🏁 Output fra Discover
 Når der er opnået enighed og fælles forståelse:
 1. `CONTEXT.md` er opdateret med de nye domænebegreber.
-2. Der er formuleret et præcist grundlag for `spec`-skillen, som kan syntetisere en formel `tasks/<id>.md` opgavepakke.
+2. Target `Domain` og `Slice` (`specs/<domain>/<slice>.md`) er identificeret som grundlag for `spec`-skillen, der syntetiserer en formel `tasks/<id>.md` opgavepakke.

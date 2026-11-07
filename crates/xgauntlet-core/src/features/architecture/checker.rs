@@ -441,10 +441,13 @@ fn scan_dir(
             let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
             if matches!(
                 ext,
-                "rs" | "ts" | "tsx" | "js" | "jsx" | "py" | "go" | "toml" | "json"
+                "rs" | "ts" | "tsx" | "js" | "jsx" | "py" | "go" | "java" | "toml" | "json"
             ) {
                 // Only inspect code/config files
-                if matches!(ext, "rs" | "ts" | "tsx" | "js" | "jsx" | "py" | "go") {
+                if matches!(
+                    ext,
+                    "rs" | "ts" | "tsx" | "js" | "jsx" | "py" | "go" | "java"
+                ) {
                     inspect_file(root, &path, config, report)?;
                 }
             }
@@ -477,11 +480,13 @@ fn inspect_file(
     let is_test_file = rel_path.starts_with("tests/")
         || rel_path.contains("/tests/")
         || rel_path.contains("__tests__")
+        || rel_path.contains("/src/test/")
         || rel_path.ends_with("_test.rs")
         || rel_path.ends_with(".test.ts")
         || rel_path.ends_with(".spec.ts")
         || rel_path.ends_with("_test.py")
-        || rel_path.ends_with("_test.go");
+        || rel_path.ends_with("_test.go")
+        || rel_path.ends_with("Test.java");
 
     // 1. Line count evaluation with exemptions
     let exemption = config
@@ -582,6 +587,9 @@ fn inspect_file(
                 }
             }
         }
+
+        // 3. Deterministic Layer & Slice Boundary Gates (ADR 0012: Gate A, Gate B, Gate C)
+        super::boundaries::evaluate_file_boundaries(&rel_path, &content, config, exemption, report);
     }
 
     Ok(())

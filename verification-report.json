@@ -616,6 +616,14 @@
         "commit_oid": "3c8efbb5d12484d713a46b324978572687b4e4bd",
         "timestamp": "2026-11-07T16:30:08Z",
         "digest": "97ce71d5d912c832d56991e4a95d249b2ba226827481f957f444dc0a273c70cb"
+      },
+      {
+        "session_nonce": "sess-c1b1ac18",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "c1b1ac181ee1fcededf03004759fc99c0270ac19",
+        "timestamp": "2026-11-07T16:57:31Z",
+        "digest": "3790832689d08345380c127acfe99aae8513ac1e8736aeb4ce046ddbc9f2cc5a"
       }
     ]
   },
@@ -1466,6 +1474,55 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_ac1_architecture_config_toml_roundtrip_for_layers_slices_and_exemptions",
+      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
+      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
+      "verified_at": "2026-11-07T17:57:31+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac2_gate_a_layer_direction_violations_across_rust_ts_and_java",
+      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
+      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
+      "verified_at": "2026-11-07T17:57:31+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac2_gate_b_cross_slice_isolation_and_internal_slice_freedom",
+      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
+      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
+      "verified_at": "2026-11-07T17:57:31+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac2_gate_c_clean_core_forbids_ui_framework_imports",
+      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
+      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
+      "verified_at": "2026-11-07T17:57:31+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac3_domain_slice_task_spec_ref_validation_and_done_exemption",
+      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
+      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
+      "verified_at": "2026-11-07T17:57:31+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac4_adr_lifecycle_statuses_and_release_coverage_filtering",
+      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
+      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
+      "verified_at": "2026-11-07T17:57:31+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac5_sovereign_skills_and_coding_standards_document_slice_taxonomy_and_polyglot_examples",
+      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
+      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
+      "verified_at": "2026-11-07T17:57:31+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }

@@ -138,6 +138,16 @@ pub struct OkfMetadata {
     #[serde(default)]
     pub test_refs: Vec<String>,
     #[serde(default)]
+    pub intent: Option<String>,
+    #[serde(default)]
+    pub domain: Option<String>,
+    #[serde(default)]
+    pub slice: Option<String>,
+    #[serde(default)]
+    pub spec_ref: Option<String>,
+    #[serde(default)]
+    pub superseded_by: Option<String>,
+    #[serde(default)]
     pub has_verified: bool,
 }
 
@@ -274,6 +284,11 @@ fn parse_yaml_metadata(lines: &[&str]) -> Result<OkfMetadata, OkfError> {
     let mut tags: Vec<String> = Vec::new();
     let mut scope: Vec<String> = Vec::new();
     let mut test_refs: Vec<String> = Vec::new();
+    let mut intent: Option<String> = None;
+    let mut domain: Option<String> = None;
+    let mut slice: Option<String> = None;
+    let mut spec_ref: Option<String> = None;
+    let mut superseded_by: Option<String> = None;
     let mut generated: Option<GeneratedEntry> = None;
     let mut verified: Vec<VerifiedEntry> = Vec::new();
     let mut has_verified = false;
@@ -307,6 +322,36 @@ fn parse_yaml_metadata(lines: &[&str]) -> Result<OkfMetadata, OkfError> {
                 }
                 "status" => {
                     status = Some(strip_quotes(val).to_string());
+                }
+                "intent" => {
+                    let s = strip_quotes(val);
+                    if !s.is_empty() {
+                        intent = Some(s.to_string());
+                    }
+                }
+                "domain" => {
+                    let s = strip_quotes(val);
+                    if !s.is_empty() {
+                        domain = Some(s.to_string());
+                    }
+                }
+                "slice" => {
+                    let s = strip_quotes(val);
+                    if !s.is_empty() {
+                        slice = Some(s.to_string());
+                    }
+                }
+                "spec_ref" => {
+                    let s = strip_quotes(val);
+                    if !s.is_empty() {
+                        spec_ref = Some(s.to_string());
+                    }
+                }
+                "superseded_by" => {
+                    let s = strip_quotes(val);
+                    if !s.is_empty() {
+                        superseded_by = Some(s.to_string());
+                    }
                 }
                 "stale_after" => {
                     let s = strip_quotes(val);
@@ -442,6 +487,11 @@ fn parse_yaml_metadata(lines: &[&str]) -> Result<OkfMetadata, OkfError> {
         stale_after,
         scope,
         test_refs,
+        intent,
+        domain,
+        slice,
+        spec_ref,
+        superseded_by,
         has_verified,
     })
 }

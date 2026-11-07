@@ -88,6 +88,8 @@ pub fn validate_staged_files_scope(
         let norm_file = file.replace('\\', "/");
 
         if norm_file.starts_with("tasks/")
+            || norm_file.starts_with("specs/")
+            || norm_file.starts_with("docs/")
             || norm_file == "spec.md"
             || norm_file == "CONTEXT.md"
             || norm_file == "CODING_STANDARDS.md"

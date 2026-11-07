@@ -14,11 +14,32 @@ Create the `docs/adr/` directory lazily: only when the first ADR is needed.
 
 That's it. An ADR can be a single paragraph. The value is in recording *that* a decision was made and *why*, not in filling out sections.
 
+## ADR Lifecycle & Frontmatter (`check-adr` & `check-release`)
+
+Every ADR in `docs/adr/` uses OKF v0.2 YAML frontmatter with a deterministic 4-state lifecycle:
+- `status: proposed` — Under discussion; not yet enforced or required in release docs.
+- `status: accepted` — Active architectural decision; **must** be referenced in `README.md` or `spec.md` (`xgauntlet check-release`).
+- `status: superseded` — Replaced by a newer ADR; **must** specify `superseded_by: "<new-adr-file.md>"` in frontmatter (`MISSING_ADR_SUPERSEDED_BY` if omitted). Exempt from `README.md`/`spec.md` release coverage.
+- `status: deprecated` — Retired decision no longer applicable; exempt from `README.md`/`spec.md` release coverage.
+
+```yaml
+---
+type: Architectural Decision Record
+title: "ADR 0012: Example Decision"
+status: superseded
+superseded_by: "0015-new-decision.md"
+generated: { by: human:architect, at: "2026-11-07T10:00:00Z" }
+tags: [architecture]
+---
+```
+
+> **ADR Gatekeeper Rule:** Functional feature specifications belong in `specs/<domain>/<slice>.md`, never in `docs/adr/`.
+
 ## Optional sections
 
 Only include these when they add genuine value. Most ADRs won't need them.
 
-- **Status** frontmatter (`proposed | accepted | deprecated | superseded by ADR-NNNN`): useful when decisions are revisited
+- **Status** frontmatter (`proposed | accepted | deprecated | superseded` with `superseded_by`): useful when decisions are revisited
 - **Considered Options**: only when the rejected alternatives are worth remembering
 - **Consequences**: only when non-obvious downstream effects need to be called out
 

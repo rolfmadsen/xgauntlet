@@ -192,6 +192,8 @@ pub struct ArchitectureExemption {
     pub adr: String,
     #[serde(default)]
     pub max_lines: Option<usize>,
+    #[serde(default)]
+    pub allow_imports: Vec<String>,
 }
 
 /// Declarative architectural governance and quality gate configuration.
@@ -206,6 +208,14 @@ pub struct ArchitectureConfig {
     #[serde(default)]
     pub forbidden_imports: Vec<String>,
     #[serde(default)]
+    pub layers: Vec<String>,
+    #[serde(default = "default_slice_root")]
+    pub slice_root: String,
+    #[serde(default)]
+    pub isolate_slices: bool,
+    #[serde(default)]
+    pub forbid_core_imports: Vec<String>,
+    #[serde(default)]
     pub exemptions: Vec<ArchitectureExemption>,
 }
 
@@ -217,6 +227,10 @@ fn default_max_test_file_lines() -> Option<usize> {
     Some(1000)
 }
 
+fn default_slice_root() -> String {
+    "src/features".to_string()
+}
+
 impl Default for ArchitectureConfig {
     fn default() -> Self {
         Self {
@@ -224,6 +238,10 @@ impl Default for ArchitectureConfig {
             max_test_file_lines: default_max_test_file_lines(),
             forbidden_tokens: Vec::new(),
             forbidden_imports: Vec::new(),
+            layers: Vec::new(),
+            slice_root: default_slice_root(),
+            isolate_slices: false,
+            forbid_core_imports: Vec::new(),
             exemptions: Vec::new(),
         }
     }

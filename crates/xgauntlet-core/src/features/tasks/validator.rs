@@ -281,6 +281,9 @@ pub fn check_task_specification(task_path: &Path, workspace: &Path) -> SpecReadi
                 }
             }
         }
+
+        // 6b. Deterministic Domain -> Slice -> Task (spec_ref) Validation (ADR 0012)
+        validate_task_slice_mapping(&task_info, &rel_task, workspace, &mut report);
     }
 
     // 7. Validate CONTEXT.md Glossary Format
@@ -445,16 +448,52 @@ pub fn check_adr_frontmatter(adr_path: &Path) -> AdrReadinessReport {
         }
     }
 
-    // 3. Validate status
+    // 3. Validate status & ADR lifecycle (proposed | accepted | superseded | deprecated, plus OKF aliases draft/stable)
     match meta.status.as_deref() {
-        Some(s) if !s.trim().is_empty() => {}
+        Some(s) if !s.trim().is_empty() => {
+            let status_lower = s.trim().to_ascii_lowercase();
+            let valid_statuses = [
+                "proposed",
+                "accepted",
+                "superseded",
+                "deprecated",
+                "draft",
+                "stable",
+            ];
+            if !valid_statuses.contains(&status_lower.as_str()) {
+                report.diagnostics.push(DiagnosticFinding::new(
+                    FindingType::GeneralError,
+                    "INVALID_ADR_STATUS",
+                    &rel_adr,
+                    format!(
+                        "Invalid ADR status '{}'. Must be one of: proposed | accepted | superseded | deprecated (or OKF aliases draft | stable).",
+                        s.trim()
+                    ),
+                    "Set 'status: proposed | accepted | superseded | deprecated' in ADR frontmatter.",
+                ));
+            } else if status_lower == "superseded" {
+                let has_target = meta
+                    .superseded_by
+                    .as_deref()
+                    .is_some_and(|target| !target.trim().is_empty());
+                if !has_target {
+                    report.diagnostics.push(DiagnosticFinding::new(
+                        FindingType::GeneralError,
+                        "MISSING_ADR_SUPERSEDED_BY",
+                        &rel_adr,
+                        "ADR with 'status: superseded' is missing required 'superseded_by' field in frontmatter.",
+                        "Add 'superseded_by: \"<replacement-adr-file-or-id>\"' to frontmatter when marking an ADR as superseded.",
+                    ));
+                }
+            }
+        }
         _ => {
             report.diagnostics.push(DiagnosticFinding::new(
                 FindingType::GeneralError,
                 "MISSING_STATUS",
                 &rel_adr,
                 "ADR is missing required 'status' field in frontmatter.",
-                "Add 'status: draft | accepted | deprecated | superseded' to frontmatter.",
+                "Add 'status: proposed | accepted | superseded | deprecated' to frontmatter.",
             ));
         }
     }
@@ -544,4 +583,84 @@ pub fn check_all_adrs(workspace: &Path) -> Vec<AdrReadinessReport> {
         .into_iter()
         .map(|p| check_adr_frontmatter(&p))
         .collect()
+}
+
+fn validate_task_slice_mapping(
+    task_info: &crate::features::tasks::models::TaskPackageInfo,
+    rel_task: &str,
+    workspace: &Path,
+    report: &mut SpecReadinessReport,
+) {
+    let has_any_slice_field =
+        task_info.domain.is_some() || task_info.slice.is_some() || task_info.spec_ref.is_some();
+
+    let intent_lower = task_info
+        .intent
+        .as_deref()
+        .unwrap_or("")
+        .to_ascii_lowercase();
+    let is_slice_intent = intent_lower.contains("feature")
+        || intent_lower.contains("enhancement")
+        || intent_lower.contains("bug");
+
+    let workspace_uses_slices = workspace.join("specs").is_dir()
+        || crate::features::config::GauntletConfig::load(workspace)
+            .map(|c| c.architecture.isolate_slices)
+            .unwrap_or(false);
+
+    if !has_any_slice_field && !(is_slice_intent && workspace_uses_slices) {
+        return;
+    }
+
+    let domain = task_info.domain.as_deref().unwrap_or("").trim();
+    let slice = task_info.slice.as_deref().unwrap_or("").trim();
+    let spec_ref = task_info
+        .spec_ref
+        .as_deref()
+        .unwrap_or("")
+        .trim()
+        .replace('\\', "/");
+
+    if domain.is_empty() || slice.is_empty() || spec_ref.is_empty() {
+        report.diagnostics.push(DiagnosticFinding::new(
+            FindingType::GeneralError,
+            "MISSING_TASK_SLICE_MAPPING",
+            rel_task,
+            "Active task is missing required Domain -> Slice -> Spec mapping ('domain', 'slice', and 'spec_ref' in frontmatter).",
+            "Add 'domain: <domain>', 'slice: <slice>', and 'spec_ref: \"specs/<domain>/<slice>.md\"' to task frontmatter.",
+        ));
+        return;
+    }
+
+    let expected_spec_ref = format!("specs/{domain}/{slice}.md");
+    if spec_ref != expected_spec_ref {
+        report.diagnostics.push(DiagnosticFinding::new(
+            FindingType::GeneralError,
+            "INVALID_TASK_SPEC_REF",
+            rel_task,
+            format!(
+                "Task 'spec_ref' ('{spec_ref}') does not match canonical slice path '{expected_spec_ref}'."
+            ),
+            format!("Set 'spec_ref: \"{expected_spec_ref}\"' in task frontmatter."),
+        ));
+        return;
+    }
+
+    let spec_file_path = workspace.join(&spec_ref);
+    let is_non_empty_file = fs::read_to_string(&spec_file_path)
+        .map(|c| !c.trim().is_empty())
+        .unwrap_or(false);
+    if !is_non_empty_file {
+        report.diagnostics.push(DiagnosticFinding::new(
+            FindingType::GeneralError,
+            "MISSING_SLICE_SPEC_FILE",
+            rel_task,
+            format!(
+                "Referenced living slice specification '{spec_ref}' does not exist or is empty."
+            ),
+            format!(
+                "Create or update '{spec_ref}' documenting the slice's capabilities and invariants before executing the task."
+            ),
+        ));
+    }
 }

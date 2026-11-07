@@ -83,6 +83,43 @@ I større Rust-workspaces fører snesevis af separate `[[test]]`-binarier til vo
 
 ---
 
+## 🧱 Black-Box Vertical Slice Indkapsling (Polyglot: Rust/Iced, TS/React, Java)
+
+Under `GREEN` og `REFACTOR` overholdes de deterministiske grænse-gates i `xgauntlet check-architecture` (`app -> features -> core -> shared`, 0% intern mappestruktur-rigiditet indeni slicen):
+- **Stateful UI-Slice (`features/<domain>/<slice>/`):** Ejer sin egen tilstand (`State`), sine egne interne beskeder/events (`Message`) og eksponerer en eksplicit udgående `Action`/callback til `app`-orchestratoren. Importerer **aldrig** `crate::app::Message` eller global app-store baglæns.
+- **Stateless Pipeline-Slice (`features/<domain>/<slice>/`):** Ren funktionel transformation med eksplicit `Command`/`Input` og `Result`/`Output` over domænetyper fra `core`.
+
+### Polyglot Eksempler (Rust/Iced, TypeScript/React, Java)
+- **Rust / Iced (`src/features/diagram/canvas/mod.rs`):**
+  ```rust
+  pub struct CanvasState { pub zoom: f32 }
+  #[derive(Clone, Debug)]
+  pub enum CanvasMessage { ZoomChanged(f32), NodeClicked(NodeId) }
+  pub enum CanvasAction { None, InspectNode(NodeId) }
+  pub fn update(state: &mut CanvasState, msg: CanvasMessage) -> CanvasAction { ... }
+  ```
+- **TypeScript / React (`src/features/diagram/canvas/CanvasSlice.tsx`):**
+  ```tsx
+  import type { DiagramNode } from '@/core/diagram';
+  export interface CanvasSliceProps {
+    nodes: readonly DiagramNode[];
+    onAction: (action: { type: 'INSPECT_NODE'; nodeId: string }) => void;
+  }
+  export function CanvasSlice({ nodes, onAction }: CanvasSliceProps) { ... }
+  ```
+- **Java (`com.acme.features.billing.invoice.InvoiceSlice`):**
+  ```java
+  package com.acme.features.billing.invoice;
+  import com.acme.core.money.Money;
+  public final class InvoiceSlice {
+      public record IssueInvoiceCommand(String customerId, Money total) {}
+      public record InvoiceIssuedEvent(String invoiceId) {}
+      public InvoiceIssuedEvent issue(IssueInvoiceCommand cmd) { ... }
+  }
+  ```
+
+---
+
 ## 🚫 TDD Invarianter
 - Skriv ALDRIG produktionskode før en fejlet test har påvist behovet (RED-first).
 - Tilføj ALDRIG tests til monolitiske testfiler over 1.000 linjer.

@@ -71,6 +71,7 @@ pub fn scan_workspace_topology(options: &TopologyOptions) -> Result<TopologyGrap
             }
             "py" => parse_python_file(root, file_path, options, &mut graph)?,
             "go" => parse_go_file(root, file_path, options, &mut graph)?,
+            "java" => parse_java_file(root, file_path, options, &mut graph)?,
             _ => {}
         }
     }
@@ -445,6 +446,65 @@ fn parse_go_file(
                 let sym_id = format!("{node_id}::{fn_name}");
                 let sym_node = TopologyNode::new(&sym_id, &fn_name, NodeType::Function, &rel_path);
                 graph.add_node(sym_node);
+                graph.add_edge(TopologyEdge::new(&node_id, &sym_id, EdgeType::Defines));
+            }
+        }
+    }
+
+    Ok(())
+}
+
+fn parse_java_file(
+    root: &Path,
+    file_path: &Path,
+    options: &TopologyOptions,
+    graph: &mut TopologyGraph,
+) -> Result<(), TopologyError> {
+    let rel_path = path_to_rel_str(root, file_path);
+    let node_id = format!("java::{rel_path}");
+    let file_name = file_path
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or(&rel_path)
+        .to_string();
+
+    graph.add_node(
+        TopologyNode::new(&node_id, file_name, NodeType::File, &rel_path)
+            .with_metadata("lang", "java"),
+    );
+
+    let content = match fs::read_to_string(file_path) {
+        Ok(c) => c,
+        Err(_) => return Ok(()),
+    };
+
+    for line in content.lines() {
+        let trimmed = line.trim();
+        if let Some(rest) = trimmed.strip_prefix("import ") {
+            let target = rest
+                .strip_prefix("static ")
+                .unwrap_or(rest)
+                .trim_end_matches(';')
+                .trim();
+            if !target.is_empty() {
+                graph.add_edge(TopologyEdge::new(&node_id, target, EdgeType::Imports));
+            }
+        }
+        if options.detect_symbols && (trimmed.contains("class ") || trimmed.contains("interface "))
+        {
+            let kw = if trimmed.contains("interface ") {
+                "interface "
+            } else {
+                "class "
+            };
+            if let Some(cls_name) = extract_identifier_after_keyword(trimmed, kw) {
+                let sym_id = format!("{node_id}::{cls_name}");
+                let ntype = if kw == "interface " {
+                    NodeType::Interface
+                } else {
+                    NodeType::Class
+                };
+                graph.add_node(TopologyNode::new(&sym_id, &cls_name, ntype, &rel_path));
                 graph.add_edge(TopologyEdge::new(&node_id, &sym_id, EdgeType::Defines));
             }
         }

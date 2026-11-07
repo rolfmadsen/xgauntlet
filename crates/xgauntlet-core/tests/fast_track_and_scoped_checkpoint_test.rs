@@ -242,6 +242,9 @@ fn test_fast_track_eligibility_criteria() {
         must_not: vec!["Must not regress".to_string()],
         scope: vec!["src/parser.rs".to_string()],
         test_refs: vec!["tests/parser_test.rs".to_string()],
+        domain: None,
+        slice: None,
+        spec_ref: None,
         metadata: None,
     };
 

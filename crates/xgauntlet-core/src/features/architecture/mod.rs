@@ -4,6 +4,7 @@
 //! (Ratchet-model), forbidden tokens (e.g. raw styling bypassing Design Tokens),
 //! and forbidden cross-boundary module imports.
 
+pub mod boundaries;
 pub mod checker;
 pub mod models;
 

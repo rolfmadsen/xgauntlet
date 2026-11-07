@@ -44,7 +44,7 @@ Reviewet udføres altid mod opgavens specifikke **Git diff** (`git diff HEAD~1..
 - [ ] **Scope Integritet:** Blev ændringerne holdt strengt inden for opgavens deklarerede `scope` uden utilsigtet drift?
 
 ### Akse 2: Kodestandarder, Fowler Smells & Arkitekturgrænser
-- [ ] **Arkitekturgrænser:** Overholder kildekoden `[architecture]` i `gauntlet.toml`? (`xgauntlet check-architecture`).
+- [ ] **Arkitektur- & Slice-grænser (`app -> features -> core -> shared`):** Overholder kildekoden `[architecture]` i `gauntlet.toml` (`xgauntlet check-architecture`) med `0` brud på `LayerDirectionViolation` (ingen baglæns imports fra `features` til `app`), `CrossSliceImportViolation` (ingen direkte imports mellem søskende-slices) og `ForbiddenCoreImportViolation` (ingen UI-pakker i `core`)? Afvis prop-drilling med `#[allow(clippy::too_many_arguments)]` og verificér at `specs/<domain>/<slice>.md` (`spec_ref`) er opdateret.
 - [ ] **Design Tokens & WAI 2.0:** Er alle UI-elementer fri for rå farver/størrelser, og overholder de tilgængelighedsstandarder?
 - [ ] **Fowler Code Smells:**
   - *Large Class / Long Method:* Filer $\le 800$ linjer, metoder $\le 100$ linjer.

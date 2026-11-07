@@ -632,6 +632,9 @@ tags: [legacy]
 
 # Task 001: Legacy Done Task
 
+## 🎯 Formål
+Historical purpose.
+
 ## 📋 Acceptance Criteria
 - [x] AC1: Historical criterion.
 

@@ -138,13 +138,34 @@ impl TaskScaffolder {
             .join(" ")
     }
 
+    /// Extracts optional `(domain, slice)` prefix if `name` uses `<domain>/<slice>:<slug>` syntax.
+    pub fn split_slice_prefix(raw_name: &str) -> (Option<(String, String)>, &str) {
+        if let Some((prefix, rest)) = raw_name.split_once(':') {
+            if let Some((d, s)) = prefix.split_once('/') {
+                let domain = Self::slugify(d);
+                let slice = Self::slugify(s);
+                if !domain.is_empty() && !slice.is_empty() {
+                    return (Some((domain, slice)), rest);
+                }
+            }
+        }
+        (None, raw_name)
+    }
+
     /// Generates markdown content for a new task file adhering to OKF v0.2 and check-spec.
     pub fn generate_task_content(options: &ScaffoldTaskOptions, task_number: u32) -> String {
         let padded_num = Self::format_task_number(task_number);
-        let raw_slug = Self::slugify(&options.name);
+        let (slice_info, clean_name) = Self::split_slice_prefix(&options.name);
+        let raw_slug = Self::slugify(clean_name);
         let (_, slug) = Self::extract_slug_and_number(&raw_slug);
         let title = Self::format_title(&slug, options.title.as_deref());
         let intent_str = Self::format_intent(options.intent.as_deref());
+        let raw_intent = options
+            .intent
+            .as_deref()
+            .map(|s| s.trim())
+            .filter(|s| !s.is_empty())
+            .unwrap_or("feature");
         let now_iso = current_iso_utc();
         let today = if now_iso.len() >= 10 {
             &now_iso[0..10]
@@ -157,16 +178,31 @@ impl TaskScaffolder {
             _ => format!("Etablere {title} jf. spec.md og CONTEXT.md"),
         };
 
+        let (slice_yaml, scope_yaml) = if let Some((ref d, ref s)) = slice_info {
+            (
+                format!(
+                    "intent: {raw_intent}\ndomain: {d}\nslice: {s}\nspec_ref: \"specs/{d}/{s}.md\"\n"
+                ),
+                format!(
+                    "scope:\n  - \"src/features/{d}/{s}/**\"\n  - \"specs/{d}/{s}.md\""
+                ),
+            )
+        } else {
+            (
+                format!("intent: {raw_intent}\n"),
+                "scope:\n  - \"src/**\"".to_string(),
+            )
+        };
+
         format!(
             r#"---
 type: Task Package
 title: "Task {padded_num}: {title}"
 description: "{purpose}"
 status: active
-generated: {{ by: process:xgauntlet-task-init, at: "{now_iso}" }}
+{slice_yaml}generated: {{ by: process:xgauntlet-task-init, at: "{now_iso}" }}
 tags: [task-lifecycle, intent, scaffolding, rust]
-scope:
-  - "src/**"
+{scope_yaml}
 test_refs:
   - "tests/**"
 ---
@@ -214,12 +250,28 @@ test_refs:
         }
     }
 
+    /// Scaffolds a new task package in `tasks/`, with optional explicit `(domain, slice)` binding.
+    pub fn scaffold_slice(
+        options: &ScaffoldTaskOptions,
+        domain: Option<&str>,
+        slice: Option<&str>,
+    ) -> Result<TaskScaffoldResult, TaskError> {
+        let mut effective = options.clone();
+        if let (Some(d), Some(s)) = (domain, slice) {
+            if !d.trim().is_empty() && !s.trim().is_empty() && !effective.name.contains(':') {
+                effective.name = format!("{}/{}:{}", d.trim(), s.trim(), effective.name);
+            }
+        }
+        Self::scaffold(&effective)
+    }
+
     /// Scaffolds a new task package in `tasks/`.
     pub fn scaffold(options: &ScaffoldTaskOptions) -> Result<TaskScaffoldResult, TaskError> {
         let tasks_dir = options.workspace.join("tasks");
         fs::create_dir_all(&tasks_dir)?;
 
-        let raw_slug = Self::slugify(&options.name);
+        let (slice_info, clean_name) = Self::split_slice_prefix(&options.name);
+        let raw_slug = Self::slugify(clean_name);
         let (specified_num, slug) = Self::extract_slug_and_number(&raw_slug);
 
         // Check if a task with this slug already exists in tasks/
@@ -278,6 +330,23 @@ test_refs:
 
         let content = Self::generate_task_content(options, task_number);
         fs::write(&file_path, content)?;
+
+        if let Some((ref d, ref s)) = slice_info {
+            let spec_path = options
+                .workspace
+                .join("specs")
+                .join(d)
+                .join(format!("{s}.md"));
+            if !spec_path.exists() {
+                if let Some(parent) = spec_path.parent() {
+                    fs::create_dir_all(parent)?;
+                }
+                let slice_spec_template = format!(
+                    "# Living Slice Specification: {d} / {s}\n\n## 🎯 Capability & Facade Contract\n- **Domain**: `{d}`\n- **Slice**: `{s}`\n- **Layer**: `features/{d}/{s}`\n\n## 🔌 Public Input / Action Contract\n- Dokumenter slicens offentlige state/input og udgående `Action`/event/result her.\n\n## 🛡️ Slice Invariants\n- Må IKKE importere opad fra `app`.\n- Må IKKE importere direkte fra andre slices i `features/`.\n"
+                );
+                fs::write(&spec_path, slice_spec_template)?;
+            }
+        }
 
         let title = Self::format_title(&slug, options.title.as_deref());
         let padded_num = Self::format_task_number(task_number);

@@ -59,6 +59,9 @@ Konkret målsætning og operationel afgrænsning.
 2. **Anti-Monolit Test Refs:** Hver opgave SKAL have isolerede testfiler i `test_refs: [...]`. `check-spec` forbyder deklaration af testfiler over 1.000 linjer. For Rust-workspaces understøttes modul-baserede accepttests under én samlet harness (`tests/features.rs` / `tests/features/*.rs`).
 3. **Fast-Track Bugfix Bounding:** Opgaver med `intent: bug` kvalificerer til den accelererede Fast-Track Lane jf. ADR 0011, hvis `scope` indeholder højst 3 kildefiler (`scope.len() <= 3`) og ingen ADR- eller `gauntlet.toml`-filer berøres.
 4. **Design Tokens & WAI 2.0:** UI-komponenter må ALDRIG indeholde rå farveværdier eller ad-hoc styling. Alle farver, typografi og afstande skal referere til projektets design-tokens.
-5. **Shift-Left Gatekeeper:** Opgaven valideres altid med:
+5. **De 4 Universelle Lag & Levende Slice-Specifikationer (`app -> features -> core -> shared` & `spec_ref`):**
+   - **De 4 Lag (`app -> features -> core -> shared`):** Top-down envejs-imports håndhæves af `xgauntlet check-architecture` (`LayerDirectionViolation`, `CrossSliceImportViolation`, `ForbiddenCoreImportViolation`).
+   - **Domain -> Slice -> Task (`spec_ref`):** Aktive feature/enhancement/bug tasks i slice-baserede projekter binder til deres levende slice-specifikation (`specs/<domain>/<slice>.md`) via `domain`, `slice` og `spec_ref` i frontmatter (`xgauntlet task new <slug> --domain <domain> --slice <slice>`).
+6. **Shift-Left Gatekeeper:** Opgaven valideres altid med:
    `xgauntlet check-spec -t <id>`
    før der skrives produktionskode.

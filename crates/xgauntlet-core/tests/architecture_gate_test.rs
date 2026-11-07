@@ -95,6 +95,7 @@ fn test_architecture_check_passes_on_compliant_workspace() {
         forbidden_tokens: vec!["Color::from_rgb".into()],
         forbidden_imports: vec!["crate::ui::app".into()],
         exemptions: vec![],
+        ..Default::default()
     };
 
     let report = run_architecture_check(ws, &cfg).expect("run architecture check");
@@ -123,6 +124,7 @@ fn test_architecture_check_fails_on_monolithic_production_file() {
         forbidden_tokens: vec![],
         forbidden_imports: vec![],
         exemptions: vec![],
+        ..Default::default()
     };
 
     let report = run_architecture_check(ws, &cfg).expect("run architecture check");
@@ -154,6 +156,7 @@ fn test_architecture_check_fails_on_monolithic_test_file() {
         forbidden_tokens: vec![],
         forbidden_imports: vec![],
         exemptions: vec![],
+        ..Default::default()
     };
 
     let report = run_architecture_check(ws, &cfg).expect("run architecture check");
@@ -198,7 +201,9 @@ fn test_architecture_check_honors_explicit_exemption() {
             reason: "Complex grammar table jf. ADR 0009".into(),
             adr: "docs/adr/0009-parser.md".into(),
             max_lines: Some(1200),
+            ..Default::default()
         }],
+        ..Default::default()
     };
 
     let report = run_architecture_check(ws, &cfg).expect("run architecture check");
@@ -242,7 +247,9 @@ fn test_architecture_check_fails_if_exemption_ceiling_exceeded() {
             reason: "Complex grammar table jf. ADR 0009".into(),
             adr: "docs/adr/0009-parser.md".into(),
             max_lines: Some(1200),
+            ..Default::default()
         }],
+        ..Default::default()
     };
 
     let report = run_architecture_check(ws, &cfg).expect("run architecture check");
@@ -274,6 +281,7 @@ pub fn make_color() {
         forbidden_tokens: vec!["Color::from_rgb".into()],
         forbidden_imports: vec![],
         exemptions: vec![],
+        ..Default::default()
     };
 
     let report = run_architecture_check(ws, &cfg).expect("run architecture check");
@@ -305,6 +313,7 @@ pub fn render() {}
         forbidden_tokens: vec![],
         forbidden_imports: vec!["crate::ui::app".into()],
         exemptions: vec![],
+        ..Default::default()
     };
 
     let report = run_architecture_check(ws, &cfg).expect("run architecture check");
@@ -334,7 +343,9 @@ fn test_architecture_check_fails_when_exemption_lacks_adr() {
             reason: "Legacy parser without ADR".into(),
             adr: "".into(),
             max_lines: Some(1200),
+            ..Default::default()
         }],
+        ..Default::default()
     };
 
     let report = run_architecture_check(ws, &cfg).expect("run architecture check");
@@ -371,7 +382,9 @@ fn test_architecture_check_fails_when_exemption_adr_not_found() {
             reason: "Non-existent ADR".into(),
             adr: "docs/adr/0999-does-not-exist.md".into(),
             max_lines: Some(1200),
+            ..Default::default()
         }],
+        ..Default::default()
     };
 
     let report = run_architecture_check(ws, &cfg).expect("run architecture check");
@@ -416,7 +429,9 @@ fn test_architecture_check_fails_when_exemption_adr_is_not_accepted() {
             reason: "Draft ADR not accepted yet".into(),
             adr: "docs/adr/0099-draft-decision.md".into(),
             max_lines: Some(1200),
+            ..Default::default()
         }],
+        ..Default::default()
     };
 
     let report = run_architecture_check(ws, &cfg).expect("run architecture check");

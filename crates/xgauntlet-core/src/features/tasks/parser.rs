@@ -242,6 +242,9 @@ pub fn parse_task_content(content: &str, task_id: &str) -> Result<TaskPackageInf
         }
     }
 
+    if intent.is_none() {
+        intent = metadata.as_ref().and_then(|m| m.intent.clone());
+    }
     let scope = metadata
         .as_ref()
         .map(|m| m.scope.clone())
@@ -250,6 +253,9 @@ pub fn parse_task_content(content: &str, task_id: &str) -> Result<TaskPackageInf
         .as_ref()
         .map(|m| m.test_refs.clone())
         .unwrap_or_default();
+    let domain = metadata.as_ref().and_then(|m| m.domain.clone());
+    let slice = metadata.as_ref().and_then(|m| m.slice.clone());
+    let spec_ref = metadata.as_ref().and_then(|m| m.spec_ref.clone());
 
     Ok(TaskPackageInfo {
         task_id: task_id.to_string(),
@@ -262,6 +268,9 @@ pub fn parse_task_content(content: &str, task_id: &str) -> Result<TaskPackageInf
         must_not,
         scope,
         test_refs,
+        domain,
+        slice,
+        spec_ref,
         metadata,
     })
 }
