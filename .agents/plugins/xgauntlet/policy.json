@@ -1,6 +1,6 @@
 {
   "project_name": "xgauntlet",
-  "version": "0.12.1",
+  "version": "0.12.2",
   "layers": [
     {
       "name": "core",

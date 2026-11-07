@@ -4,10 +4,10 @@
 **Task Title**: Task 059: Architecture Governance Documentation & Scaffold Template Hardening  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `d46fea855ad6ef0a4a7d1334a295a8e943916480f574a58979d3c52796481eb7`  
-**Timestamp**: `2026-11-07T21:10:12Z`  
-**Head**: `14cf326`  
-**Commit**: `14cf326`  
+**Source Manifest Digest**: `dc2ce584d926e69d30245b203b46f1174a174f353546bbbfe0775f218a4557cb`  
+**Timestamp**: `2026-11-07T21:12:27Z`  
+**Head**: `07ff69d`  
+**Commit**: `07ff69d`  
 
 ## Acceptance Criteria
 
@@ -21,13 +21,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.069s` |
-| `format` | `PASSED` | `0` | `0.230s` |
-| `lint` | `PASSED` | `0` | `0.112s` |
-| `unit` | `PASSED` | `0` | `31.909s` |
-| `npm` | `PASSED` | `0` | `0.748s` |
-| `invariants` | `PASSED` | `0` | `0.049s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.013s` |
+| `architecture` | `PASSED` | `0` | `4.135s` |
+| `format` | `PASSED` | `0` | `0.276s` |
+| `lint` | `PASSED` | `0` | `2.512s` |
+| `unit` | `PASSED` | `0` | `37.387s` |
+| `npm` | `PASSED` | `0` | `0.811s` |
+| `invariants` | `PASSED` | `0` | `0.078s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.019s` |
 
 ---
 
