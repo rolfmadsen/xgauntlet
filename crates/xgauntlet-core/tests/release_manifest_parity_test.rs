@@ -1,8 +1,6 @@
 use std::fs;
 use std::path::{Path, PathBuf};
-use xgauntlet_core::features::release::{
-    extract_declared_versions, update_manifest_versions,
-};
+use xgauntlet_core::features::release::{extract_declared_versions, update_manifest_versions};
 
 static TEST_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
 
@@ -85,22 +83,30 @@ version = "0.12.0"
     let summary = extract_declared_versions(&ws).expect("extraction should succeed");
 
     assert!(
-        summary.inspected_files.contains(&".agents/plugins/xgauntlet/plugin.json".to_string()),
+        summary
+            .inspected_files
+            .contains(&".agents/plugins/xgauntlet/plugin.json".to_string()),
         "inspected_files should include .agents/plugins/xgauntlet/plugin.json, got: {:?}",
         summary.inspected_files
     );
     assert_eq!(
-        summary.versions_by_source.get(".agents/plugins/xgauntlet/plugin.json"),
+        summary
+            .versions_by_source
+            .get(".agents/plugins/xgauntlet/plugin.json"),
         Some(&"0.12.0".to_string())
     );
 
     assert!(
-        summary.inspected_files.contains(&".agents/plugins/xgauntlet/policy.json".to_string()),
+        summary
+            .inspected_files
+            .contains(&".agents/plugins/xgauntlet/policy.json".to_string()),
         "inspected_files should include .agents/plugins/xgauntlet/policy.json, got: {:?}",
         summary.inspected_files
     );
     assert_eq!(
-        summary.versions_by_source.get(".agents/plugins/xgauntlet/policy.json"),
+        summary
+            .versions_by_source
+            .get(".agents/plugins/xgauntlet/policy.json"),
         Some(&"0.12.0".to_string())
     );
 }
@@ -159,17 +165,11 @@ version = "0.12.0"
         &fs::read_to_string(ws.join(".agents/plugins/xgauntlet/plugin.json")).unwrap(),
     )
     .unwrap();
-    assert_eq!(
-        updated_plugin["version"].as_str(),
-        Some("0.13.0")
-    );
+    assert_eq!(updated_plugin["version"].as_str(), Some("0.13.0"));
 
     let updated_policy: serde_json::Value = serde_json::from_str(
         &fs::read_to_string(ws.join(".agents/plugins/xgauntlet/policy.json")).unwrap(),
     )
     .unwrap();
-    assert_eq!(
-        updated_policy["version"].as_str(),
-        Some("0.13.0")
-    );
+    assert_eq!(updated_policy["version"].as_str(), Some("0.13.0"));
 }

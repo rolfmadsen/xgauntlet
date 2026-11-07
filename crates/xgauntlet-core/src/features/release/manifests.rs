@@ -208,6 +208,37 @@ pub fn extract_declared_versions(workspace: &Path) -> Result<ManifestVersionSumm
         }
     }
 
+    // 6. Agent plugin & policy manifests (.agents/plugins/xgauntlet/plugin.json & policy.json)
+    let agent_plugin = workspace.join(".agents/plugins/xgauntlet/plugin.json");
+    if agent_plugin.is_file() {
+        let rel_path = ".agents/plugins/xgauntlet/plugin.json".to_string();
+        inspected_files.push(rel_path.clone());
+        if let Ok(content) = fs::read_to_string(&agent_plugin) {
+            if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
+                if let Some(v) = val.get("version").and_then(|v| v.as_str()) {
+                    if !v.trim().is_empty() {
+                        versions_by_source.insert(rel_path, v.trim().to_string());
+                    }
+                }
+            }
+        }
+    }
+
+    let agent_policy = workspace.join(".agents/plugins/xgauntlet/policy.json");
+    if agent_policy.is_file() {
+        let rel_path = ".agents/plugins/xgauntlet/policy.json".to_string();
+        inspected_files.push(rel_path.clone());
+        if let Ok(content) = fs::read_to_string(&agent_policy) {
+            if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
+                if let Some(v) = val.get("version").and_then(|v| v.as_str()) {
+                    if !v.trim().is_empty() {
+                        versions_by_source.insert(rel_path, v.trim().to_string());
+                    }
+                }
+            }
+        }
+    }
+
     Ok(ManifestVersionSummary {
         versions_by_source,
         inspected_files,
@@ -401,6 +432,36 @@ pub fn update_manifest_versions(
         if modified {
             fs::write(&pyproject, new_lines.join("\n") + "\n")?;
             updated_files.push("pyproject.toml".to_string());
+        }
+    }
+
+    // 5. Agent plugin & policy manifests (.agents/plugins/xgauntlet/plugin.json & policy.json)
+    let agent_manifest_targets = [
+        workspace.join(".agents/plugins/xgauntlet/plugin.json"),
+        workspace.join(".agents/plugins/xgauntlet/policy.json"),
+    ];
+
+    for target in agent_manifest_targets {
+        if target.is_file() {
+            let content = fs::read_to_string(&target)?;
+            if let Ok(mut val) = serde_json::from_str::<serde_json::Value>(&content) {
+                if let Some(obj) = val.as_object_mut() {
+                    if obj.contains_key("version") {
+                        obj.insert(
+                            "version".to_string(),
+                            serde_json::Value::String(clean_version.to_string()),
+                        );
+                        let formatted = serde_json::to_string_pretty(&val)?;
+                        fs::write(&target, formatted + "\n")?;
+                        let rel = target
+                            .strip_prefix(workspace)
+                            .unwrap_or(&target)
+                            .to_string_lossy()
+                            .replace('\\', "/");
+                        updated_files.push(rel);
+                    }
+                }
+            }
         }
     }
 

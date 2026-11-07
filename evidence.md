@@ -103,6 +103,7 @@
 | `sess-e89a848e` | `TDD Craftsman` | `GREEN` | `e89a848` | `2026-11-07T17:10:39Z` | `VALID` |
 | `sess-a99fddcc` | `TDD Craftsman` | `REFACTOR` | `a99fddc` | `2026-11-07T17:12:33Z` | `VALID` |
 | `sess-04f946ba` | `Software Engineer` | `DONE` | `04f946b` | `2026-11-07T17:14:37Z` | `VALID` |
+| `sess-9864551f` | `TDD Craftsman` | `RED` | `9864551` | `2026-11-07T20:27:43Z` | `VALID` |
 
 ---
 
@@ -238,5 +239,7 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `e82582c92b588673...` | `2026-11-07T21:27:43+01:00` |
+| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `e82582c92b588673...` | `2026-11-07T21:27:43+01:00` |
 
 ---
