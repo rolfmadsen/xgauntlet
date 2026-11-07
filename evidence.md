@@ -1,21 +1,20 @@
 # Verification Report
 
-**Task ID**: `057-slice-architecture-gates-and-adr-lifecycle`  
-**Task Title**: Task 057: Deterministic Slice Architecture Gates, Living Slice Specs & ADR Lifecycle  
+**Task ID**: `058-release-manifest-parity-and-global-distribution-clarity`  
+**Task Title**: Task 058: Release Manifest Parity (.agents Plugin & Policy) and Global Distribution Clarity  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `7fdfe3e27b6563079fa5a4e80867c1606024898927403aaa2976416f1e74cdb0`  
-**Timestamp**: `2026-11-07T17:37:49Z`  
-**Head**: `04f946b`  
-**Commit**: `04f946b`  
+**Source Manifest Digest**: `1ae6699045b23ad4f358aea800916ba5c4e2160cfb9036a74a76577395a0273d`  
+**Timestamp**: `2026-11-07T20:34:42Z`  
+**Head**: `914e0f5`  
+**Commit**: `914e0f5`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 — Konfiguration af Arkitektur-Gates i `gauntlet.toml` (`[architecture]`):**
-- [x] **AC2 — Deterministiske Grænse-Gates (Gate A, B, C) i `xgauntlet check-architecture`:**
-- [x] **AC3 — Deterministisk `Domain -> Slice -> Task` Mapning i `check-spec` og `task new`:**
-- [x] **AC4 — ADR-livscyklus i `check-adr` og `check-release`:**
-- [x] **AC5 — Pædagogisk Polyglot Dokumentation & Opdatering af Sovereign Skills:**
+- [x] **AC1 — Release Manifest Extraction & Version Bump Parity:**
+- [x] **AC2 — Manifest Harmony Gate Invariant:**
+- [x] **AC3 — Dokumentation i GitHub & npm README:**
+- [x] **AC4 — Regressions- og Enhedstest:**
 
 ---
 
@@ -23,13 +22,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.102s` |
-| `format` | `PASSED` | `0` | `0.247s` |
-| `lint` | `PASSED` | `0` | `0.104s` |
-| `unit` | `PASSED` | `0` | `31.428s` |
-| `npm` | `PASSED` | `0` | `0.714s` |
-| `invariants` | `PASSED` | `0` | `0.057s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
+| `architecture` | `PASSED` | `0` | `0.075s` |
+| `format` | `PASSED` | `0` | `0.232s` |
+| `lint` | `PASSED` | `0` | `0.107s` |
+| `unit` | `PASSED` | `0` | `31.500s` |
+| `npm` | `PASSED` | `0` | `0.728s` |
+| `invariants` | `PASSED` | `0` | `0.054s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.013s` |
 
 ---
 
@@ -105,6 +104,8 @@
 | `sess-04f946ba` | `Software Engineer` | `DONE` | `04f946b` | `2026-11-07T17:14:37Z` | `VALID` |
 | `sess-9864551f` | `TDD Craftsman` | `RED` | `9864551` | `2026-11-07T20:27:43Z` | `VALID` |
 | `sess-6392a887` | `TDD Craftsman` | `GREEN` | `6392a88` | `2026-11-07T20:30:02Z` | `VALID` |
+| `sess-914e0f56` | `TDD Craftsman` | `REFACTOR` | `914e0f5` | `2026-11-07T20:30:43Z` | `VALID` |
+| `sess-4e1140b4` | `Software Engineer` | `DONE` | `4e1140b` | `2026-11-07T20:34:42Z` | `VALID` |
 
 ---
 
@@ -112,6 +113,8 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `e82582c92b588673...` | `2026-11-07T21:27:43+01:00` |
+| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `e82582c92b588673...` | `2026-11-07T21:27:43+01:00` |
 | `test_ac1_architecture_config_toml_roundtrip_for_layers_slices_and_exemptions` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
 | `test_ac2_gate_a_layer_direction_violations_across_rust_ts_and_java` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
 | `test_ac2_gate_b_cross_slice_isolation_and_internal_slice_freedom` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
@@ -240,7 +243,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `e82582c92b588673...` | `2026-11-07T21:27:43+01:00` |
-| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `e82582c92b588673...` | `2026-11-07T21:27:43+01:00` |
 
 ---

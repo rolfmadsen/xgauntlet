@@ -39,18 +39,18 @@ Audit af installationen og udrulningen af version `0.12.0` afslørede to væsent
 
 ## 📋 Acceptance Criteria
 
-- [ ] **AC1 — Release Manifest Extraction & Version Bump Parity:**
+- [x] **AC1 — Release Manifest Extraction & Version Bump Parity:**
   - `extract_declared_versions` og `update_manifest_versions` i `crates/xgauntlet-core/src/features/release/manifests.rs` skal inkludere:
     - `.agents/plugins/xgauntlet/plugin.json` (nøglen `"version"`)
     - `.agents/plugins/xgauntlet/policy.json` (nøglen `"version"`)
   - Både kildekoden i `.agents/plugins/xgauntlet/plugin.json` og `policy.json` opdateres til `"0.12.0"`.
-- [ ] **AC2 — Manifest Harmony Gate Invariant:**
+- [x] **AC2 — Manifest Harmony Gate Invariant:**
   - `xgauntlet check-release` og versionsvalidering skal håndhæve paritet, så enhver fremtidig release-drift mellem Cargo, npm og `.agents/plugins/xgauntlet/plugin.json` fejler lukket (fail-closed).
-- [ ] **AC3 — Dokumentation i GitHub & npm README:**
+- [x] **AC3 — Dokumentation i GitHub & npm README:**
   - Opdater både `README.md` og `packages/cli/README.md` med:
     - Eksplicit forklaring af opgraderingsproceduren (`xgauntlet plugin install --global --force`), herunder hvorfor `--force` kræves for at overskrive eksisterende skills.
     - Klar sondring mellem globale agent-skills (`~/.gemini/config/plugins/xgauntlet/`, `~/.claude/` osv.) og projekt-lokal styring via `xgauntlet init` (`gauntlet.toml`, `CONTEXT.md`, `spec.md`), så det fremgår, at projekter ikke skal indeholde egne skill-kopier.
-- [ ] **AC4 — Regressions- og Enhedstest:**
+- [x] **AC4 — Regressions- og Enhedstest:**
   - Opret `crates/xgauntlet-core/tests/release_manifest_parity_test.rs`, der beviser at `plugin.json` og `policy.json` ekstraheres, harmoniseres og opdateres korrekt af manifest-motoren.
 
 ---
