@@ -59,7 +59,16 @@ xgauntlet status
 
 # Trin 1c: Installer de 6 suveræne agent-skills i dine AI-harnesses (Antigravity, Claude Code, Codex, Mistral):
 xgauntlet plugin install --global
+
+# (Ved efterfølgende opgradering til en ny version af xgauntlet tilføjes --force for at overskrive):
+# xgauntlet plugin install --global --force
 ```
+
+> [!TIP]
+> **🔄 Opgradering til ny version:**  
+> Når du opdaterer `xgauntlet` via `npm install -g xgauntlet`, opdateres CLI-motoren. For at overskrive og synkronisere dine eksisterende globale agent-skills med den nye versions opdateringer tilføjes `--force`:  
+> `xgauntlet plugin install --global --force`  
+> *(Uden `--force` beskytter xGauntlets ikke-destruktive garanti dine eksisterende filer mod utilsigtet overskrivning).*
 
 > [!NOTE]
 > **⚡ Hvordan fungerer den automatiske bootstrapper & cache?**  
@@ -106,6 +115,11 @@ xgauntlet init
 | [`.agents/AGENTS.md`](.agents/AGENTS.md) | **Antigravity / Gemini** | Retningslinjer for AI-agenter, Response HUD og task-management |
 | [`.agents/hooks.json`](.agents/hooks.json) | **Antigravity / Gemini** | PreToolUse gatekeeper hook konfiguration |
 | [`CLAUDE.md`](CLAUDE.md) | **Claude Code** | Retningslinjer og sikkerhedsinvarianter for Anthropic Claude Code |
+
+> [!IMPORTANT]
+> **🧠 Globale Agent-Skills vs. In-Repo Governance:**  
+> Bemærk, at `xgauntlet init` **ikke** opretter eller kopierer agent-skills ind i dit projekts undermapper. AI-agenterne (Antigravity, Claude Code, OpenAI Codex, Mistral Vibe) indlæser altid de 6 suveræne skills globalt fra deres respektive harness-mapper (`~/.gemini/config/plugins/xgauntlet/`, `~/.claude/` osv.), som administreres centralt med `xgauntlet plugin install --global`.  
+> Projekt-repoet indeholder udelukkende in-repo governance (regelsæt, specifikationer, opgavepakker og ADRs). Dette forhindrer redundante skill-kopier og sikrer, at dit projekt altid anvender de nyeste globale skills uden lokal konfigurationsdrift.
 
 > [!NOTE]
 > **🤝 Poly-Harness Sameksistens:**  

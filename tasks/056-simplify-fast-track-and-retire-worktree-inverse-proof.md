@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 056: Simplify Fast-Track Protocol & Retire Ephemeral Worktree Inverse Proof"
 description: "Forenkler Fast-Track bugfix-protokollen til et rent 2-trins RED -> DONE flow, udfaser det skrøbelige 1-trins Worktree Inverse Proof og eliminerer cold-cache compilat-overhead og krydsplatform filsystemsårbarheder."
-status: active
+status: draft
 intent: refactor
 generated: { by: process:antigravity-task-init, at: "2026-11-02T07:58:00Z" }
 tags: [fast-track, dx, simplification, tdd, provenance, adr-0011, refactor]
@@ -19,7 +19,7 @@ test_refs:
 
 # Task 056: Simplify Fast-Track Protocol & Retire Ephemeral Worktree Inverse Proof
 
-**Status**: `ACTIVE`
+**Status**: `DRAFT`
 **Intent**: `🔄 REFACTOR`
 **Oprettet**: `2026-11-02`
 
