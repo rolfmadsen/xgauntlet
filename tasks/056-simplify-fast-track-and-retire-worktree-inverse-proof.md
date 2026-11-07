@@ -79,3 +79,4 @@ Formålet med Task 056 er at forenkle Fast-Track Bugfix Lane til det transparent
 - `cargo test -p xgauntlet-core --test fast_track_and_scoped_checkpoint_test`
 - `cargo test --workspace`
 - `cargo clippy --workspace --all-targets -- -D warnings`
+

@@ -1,7 +1,8 @@
 ---
 type: Architectural Decision Record
 title: 'ADR 0002: Cryptographic Evidence Authority'
-status: stable
+status: superseded
+superseded_by: '0005-two-tier-verification-and-attestation-model.md'
 tags:
 - architecture
 - adr

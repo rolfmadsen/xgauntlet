@@ -301,8 +301,9 @@ For at undgå uendelige review-loops (*bikeshedding*) og bevare et skarpt kontek
 
 1. **Uncle Bob Clean Architecture & TDD:**
    * Forankret i de 3 Love for TDD, Transformation Priority Premise (TPP) og Single Responsibility Principle (SRP).
-2. **Package-by-Feature Struktur (Screaming Architecture):**
+2. **Package-by-Feature & Vertical Slice Struktur (Screaming Architecture):**
    * Hver komponent er isoleret i en feature-underpakke under `crates/xgauntlet-core/src/features/` med høj sammenhørighed og lav kobling ([ADR 0001](docs/adr/0001-package-by-feature-architecture.md)).
+   * Deterministiske grænse-gates i `xgauntlet check-architecture` håndhæver de 4 universelle lag (`app -> features -> core -> shared`), Black-Box slice-isolation (`isolate_slices = true`), ren domænekerne (`forbid_core_imports`), levende slice-specifikationer (`specs/<domain>/<slice>.md`) og en 4-trins ADR-livscyklus ([ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md)).
 3. **Zero-Daemon & Sub-3ms Koldstart:**
    * Pure native **Rust** eksekverbar binær. Ingen baggrundsdæmoner, ingen `systemd`/`launchd` services, ingen socket-nedbrud. Hver kommando udføres lynhurtigt in-process.
 4. **Nul Ambient Authority WebAssembly Policy Kerne ([ADR 0007](docs/adr/0007-local-transparent-supervisor-and-wasm-verifier.md)):**

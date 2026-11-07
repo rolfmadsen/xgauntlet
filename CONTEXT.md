@@ -195,6 +195,31 @@ _Avoid_: Shortcut fix, unverified patch, bypass lane, quick fix.
 A mechanical single-step inverse verification protocol, executed in an isolated temporary Git worktree against unchanged HEAD to prove that a regression test fails before accepting a concurrent production bugfix.
 _Avoid_: In-place rollback, stash test, manual checkout, dirty test.
 
+**Bounded Context**:
+An explicit linguistic and architectural system boundary in the solution space, within which every domain term in `CONTEXT.md` carries a single unambiguous meaning without implicit translation.
+_Avoid_: System scope, global namespace, monolith boundary, module group.
+
+**Domain**:
+A cohesive functional subject area (`features/<domain>/`) within a Bounded Context, that groups related business capabilities under shared domain concepts.
+_Avoid_: Technical layer, utility folder, dump directory, generic category.
+
+**Vertical Slice**:
+An autonomous, black-box encapsulated functional capability (`features/<domain>/<slice>/`), that exposes a narrow public facade with explicit input state and output actions (`Stateful UI-Slice` or `Stateless Pipeline-Slice`) without importing upward or across peer slices.
+_Avoid_: Horizontal layer, prop-drilled view helper, god-component fragment, leaky submodule.
+
+**Universal Layer Model**:
+A four-tier top-down architectural dependency hierarchy (`app -> features -> core -> shared`), that enforces strict one-way downward imports and prohibits framework leakage into the domain core.
+_Avoid_: Bidirectional modules, circular package graph, spaghetti imports.
+
+**Living Slice Specification**:
+A persistent capability contract (`specs/<domain>/<slice>.md`), that maintains the authoritative current invariants and behavior of a single Vertical Slice across multiple incremental task deltas (`spec_ref`).
+_Avoid_: Ephemeral task note, frozen history doc, feature ADR.
+
+**ADR Lifecycle**:
+A four-state governance state machine (`proposed | accepted | superseded | deprecated`), that tracks the validity of cross-cutting architectural decisions and requires explicit `superseded_by` lineage when retiring obsolete records.
+_Avoid_: Zombie ADR, permanent draft, feature changelog.
+
+
 
 
 
