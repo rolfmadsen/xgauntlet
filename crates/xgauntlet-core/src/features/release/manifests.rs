@@ -209,30 +209,20 @@ pub fn extract_declared_versions(workspace: &Path) -> Result<ManifestVersionSumm
     }
 
     // 6. Agent plugin & policy manifests (.agents/plugins/xgauntlet/plugin.json & policy.json)
-    let agent_plugin = workspace.join(".agents/plugins/xgauntlet/plugin.json");
-    if agent_plugin.is_file() {
-        let rel_path = ".agents/plugins/xgauntlet/plugin.json".to_string();
-        inspected_files.push(rel_path.clone());
-        if let Ok(content) = fs::read_to_string(&agent_plugin) {
-            if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
-                if let Some(v) = val.get("version").and_then(|v| v.as_str()) {
-                    if !v.trim().is_empty() {
-                        versions_by_source.insert(rel_path, v.trim().to_string());
-                    }
-                }
-            }
-        }
-    }
-
-    let agent_policy = workspace.join(".agents/plugins/xgauntlet/policy.json");
-    if agent_policy.is_file() {
-        let rel_path = ".agents/plugins/xgauntlet/policy.json".to_string();
-        inspected_files.push(rel_path.clone());
-        if let Ok(content) = fs::read_to_string(&agent_policy) {
-            if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
-                if let Some(v) = val.get("version").and_then(|v| v.as_str()) {
-                    if !v.trim().is_empty() {
-                        versions_by_source.insert(rel_path, v.trim().to_string());
+    let agent_targets = [
+        ".agents/plugins/xgauntlet/plugin.json",
+        ".agents/plugins/xgauntlet/policy.json",
+    ];
+    for rel_path in agent_targets {
+        let manifest_path = workspace.join(rel_path);
+        if manifest_path.is_file() {
+            inspected_files.push(rel_path.to_string());
+            if let Ok(content) = fs::read_to_string(&manifest_path) {
+                if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
+                    if let Some(v) = val.get("version").and_then(|v| v.as_str()) {
+                        if !v.trim().is_empty() {
+                            versions_by_source.insert(rel_path.to_string(), v.trim().to_string());
+                        }
                     }
                 }
             }
