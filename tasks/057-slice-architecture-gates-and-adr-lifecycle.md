@@ -46,20 +46,20 @@ På baggrund af arkitekturanalysen af et 128-tasks produktionsprojekt (`kant`) l
 
 ## 📋 Acceptance Criteria
 
-- [ ] **AC1 — Konfiguration af Arkitektur-Gates i `gauntlet.toml` (`[architecture]`):**
+- [x] **AC1 — Konfiguration af Arkitektur-Gates i `gauntlet.toml` (`[architecture]`):**
   - Udvid `ArchitectureConfig` og `ArchitectureExemption` i `crates/xgauntlet-core/src/features/config/` (inkl. custom TOML parser/renderer i `loader.rs`) med:
     - `layers: Vec<String>` (f.eks. `["app", "features", "core", "shared"]`, default tom = inaktiv).
     - `slice_root: String` (f.eks. `"src/features"`, default `"src/features"`).
     - `isolate_slices: bool` (default `false`).
     - `forbid_core_imports: Vec<String>` (f.eks. `["iced", "react", "javafx"]`, default tom).
     - `allow_imports: Vec<String>` på `[[architecture.exemptions]]` til eksplicit, begrundet fritagelse ved gradvis migrering.
-- [ ] **AC2 — Deterministiske Grænse-Gates (Gate A, B, C) i `xgauntlet check-architecture`:**
+- [x] **AC2 — Deterministiske Grænse-Gates (Gate A, B, C) i `xgauntlet check-architecture`:**
   - Udvid `topology/parser.rs` med `SourceLanguage::Java` (`import ...;`) ved siden af Rust, TypeScript/JS, Python og Go.
   - Implementér `crates/xgauntlet-core/src/features/architecture/boundaries.rs`:
     - **Gate A (`LayerDirectionViolation`):** Fejler når et lavere lag i `layers` importerer fra et højere lag (f.eks. `features -> app` eller `core -> features/app`).
     - **Gate B (`CrossSliceImportViolation`):** Fejler når `isolate_slices = true` og en fil i `<slice_root>/<d1>/<slice_a>` importerer direkte fra `<slice_root>/<d2>/<slice_b>` (hvor `(d1, slice_a) != (d2, slice_b)`), mens interne imports indeni samme slice er 100% frie.
     - **Gate C (`ForbiddenCoreImportViolation`):** Fejler når en fil i `core`-laget importerer en pakke opført i `forbid_core_imports`.
-- [ ] **AC3 — Deterministisk `Domain -> Slice -> Task` Mapning i `check-spec` og `task new`:**
+- [x] **AC3 — Deterministisk `Domain -> Slice -> Task` Mapning i `check-spec` og `task new`:**
   - Udvid `OkfMetadata` og `TaskPackageInfo` med `domain`, `slice` og `spec_ref`.
   - For aktive tasks (`status: active` med `intent: feature | enhancement | bug`) hvor enten (a) et af felterne `domain`/`slice`/`spec_ref` er sat, (b) `specs/`-mappen findes i workspacet, eller (c) `isolate_slices = true` i `gauntlet.toml`, validerer `check-spec`:
     1. At `domain`, `slice` og `spec_ref` alle er til stede (`MISSING_TASK_SLICE_MAPPING`).
@@ -68,12 +68,12 @@ På baggrund af arkitekturanalysen af et 128-tasks produktionsprojekt (`kant`) l
   - Tasks med `status: done` (samt `draft`, `deprecated`, `superseded`) er 100% fritaget (fuld bagudkompatibilitet).
   - Udvid `xgauntlet task new` med `--domain <domain>` og `--slice <slice>`, som automatisk sætter `domain`, `slice`, `spec_ref: "specs/<domain>/<slice>.md"`, tilføjer `specs/<domain>/<slice>.md` til `scope:`, og scaffolder slice-specifikationen hvis den ikke findes.
   - Tillad `specs/` og `docs/` under `validate_staged_files_scope` i `checkpoint/engine.rs`.
-- [ ] **AC4 — ADR-livscyklus i `check-adr` og `check-release`:**
+- [x] **AC4 — ADR-livscyklus i `check-adr` og `check-release`:**
   - `check-adr` validerer, at ADR `status` er en af `proposed | accepted | superseded | deprecated` (samt OKF-aliasserne `draft` og `stable`) og afviser ugyldige statusser med `INVALID_ADR_STATUS`.
   - Når en ADR har `status: superseded`, kræver `check-adr` et ikke-tomt `superseded_by`-felt i frontmatter (`MISSING_ADR_SUPERSEDED_BY`).
   - Opdater `docs/adr/0002-cryptographic-evidence-authority.md` til `status: superseded` med `superseded_by: '0005-two-tier-verification-and-attestation-model.md'`, og opret [ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md).
   - `check_adr_coverage` i `release/adr.rs` kræver kun, at `accepted` (og legacy `stable`) ADRs er refereret i `README.md` og `spec.md`, og fritager `proposed`, `draft`, `superseded` og `deprecated` ADRs.
-- [ ] **AC5 — Pædagogisk Polyglot Dokumentation & Opdatering af Sovereign Skills:**
+- [x] **AC5 — Pædagogisk Polyglot Dokumentation & Opdatering af Sovereign Skills:**
   - Opdater `discover`, `spec`, `tdd`, `review` og `release` i `.agents/plugins/xgauntlet/skills/` samt `ADR-FORMAT.md`, `CODING_STANDARDS.md`, `CONTEXT.md` og `spec.md` med pædagogisk forklaring (Hvad, Hvorfor, Hvordan) og eksempler for Rust/Iced, TypeScript/React og Java.
 
 ---
