@@ -1,19 +1,21 @@
 # Verification Report
 
-**Task ID**: `055-fix-windows-ci-unused-imports`  
-**Task Title**: Task 055: Fix Windows CI Unused Imports in Parity Test Suite (v0.11.3)  
+**Task ID**: `057-slice-architecture-gates-and-adr-lifecycle`  
+**Task Title**: Task 057: Deterministic Slice Architecture Gates, Living Slice Specs & ADR Lifecycle  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `29ddf534a6eb281ec17179d89b3237a45fd2295ffbdcc9b219ddd37c9f5dd650`  
-**Timestamp**: `2026-11-02T06:16:20Z`  
-**Head**: `e3fb756`  
-**Commit**: `e3fb756`  
+**Source Manifest Digest**: `959065b17e126d385a11feefb1ec202ad6cb54197282a7d81a5841a0022fac6c`  
+**Timestamp**: `2026-11-07T17:14:37Z`  
+**Head**: `a99fddc`  
+**Commit**: `a99fddc`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 — Scope Unix-specifikke imports til Unix:**
-- [x] **AC2 — Mekanisk Invariant 4 i CI Parity Suiten:**
-- [x] **AC3 — Workspace Verifikation & Release `v0.11.3`:**
+- [x] **AC1 — Konfiguration af Arkitektur-Gates i `gauntlet.toml` (`[architecture]`):**
+- [x] **AC2 — Deterministiske Grænse-Gates (Gate A, B, C) i `xgauntlet check-architecture`:**
+- [x] **AC3 — Deterministisk `Domain -> Slice -> Task` Mapning i `check-spec` og `task new`:**
+- [x] **AC4 — ADR-livscyklus i `check-adr` og `check-release`:**
+- [x] **AC5 — Pædagogisk Polyglot Dokumentation & Opdatering af Sovereign Skills:**
 
 ---
 
@@ -21,13 +23,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.111s` |
-| `format` | `PASSED` | `0` | `0.237s` |
-| `lint` | `PASSED` | `0` | `0.136s` |
-| `unit` | `PASSED` | `0` | `32.218s` |
-| `npm` | `PASSED` | `0` | `0.792s` |
-| `invariants` | `PASSED` | `0` | `0.051s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.013s` |
+| `architecture` | `PASSED` | `0` | `0.079s` |
+| `format` | `PASSED` | `0` | `0.224s` |
+| `lint` | `PASSED` | `0` | `0.109s` |
+| `unit` | `PASSED` | `0` | `31.325s` |
+| `npm` | `PASSED` | `0` | `0.839s` |
+| `invariants` | `PASSED` | `0` | `0.056s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.015s` |
 
 ---
 
@@ -99,6 +101,7 @@
 | `sess-3c8efbb5` | `System Architect` | `SPEC` | `3c8efbb` | `2026-11-07T16:30:08Z` | `VALID` |
 | `sess-c1b1ac18` | `TDD Craftsman` | `RED` | `c1b1ac1` | `2026-11-07T16:57:31Z` | `VALID` |
 | `sess-e89a848e` | `TDD Craftsman` | `GREEN` | `e89a848` | `2026-11-07T17:10:39Z` | `VALID` |
+| `sess-a99fddcc` | `TDD Craftsman` | `REFACTOR` | `a99fddc` | `2026-11-07T17:12:33Z` | `VALID` |
 
 ---
 
@@ -106,6 +109,13 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_ac1_architecture_config_toml_roundtrip_for_layers_slices_and_exemptions` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
+| `test_ac2_gate_a_layer_direction_violations_across_rust_ts_and_java` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
+| `test_ac2_gate_b_cross_slice_isolation_and_internal_slice_freedom` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
+| `test_ac2_gate_c_clean_core_forbids_ui_framework_imports` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
+| `test_ac3_domain_slice_task_spec_ref_validation_and_done_exemption` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
+| `test_ac4_adr_lifecycle_statuses_and_release_coverage_filtering` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
+| `test_ac5_sovereign_skills_and_coding_standards_document_slice_taxonomy_and_polyglot_examples` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
 | `test_concurrent_worktree_inverse_preflight_and_nonce_uniqueness` | `RedCheckpointVerified` | `1d6dcd40465bcc03...` | `2026-11-02T07:02:57+01:00` |
 | `test_macos_style_symlinked_temp_and_workspace_parity` | `RedCheckpointVerified` | `1d6dcd40465bcc03...` | `2026-11-02T07:02:57+01:00` |
 | `test_codebase_free_of_collision_prone_temp_paths_and_unix_only_env` | `RedCheckpointVerified` | `1d6dcd40465bcc03...` | `2026-11-02T07:02:57+01:00` |
@@ -227,12 +237,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_ac1_architecture_config_toml_roundtrip_for_layers_slices_and_exemptions` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
-| `test_ac2_gate_a_layer_direction_violations_across_rust_ts_and_java` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
-| `test_ac2_gate_b_cross_slice_isolation_and_internal_slice_freedom` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
-| `test_ac2_gate_c_clean_core_forbids_ui_framework_imports` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
-| `test_ac3_domain_slice_task_spec_ref_validation_and_done_exemption` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
-| `test_ac4_adr_lifecycle_statuses_and_release_coverage_filtering` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
-| `test_ac5_sovereign_skills_and_coding_standards_document_slice_taxonomy_and_polyglot_examples` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
 
 ---

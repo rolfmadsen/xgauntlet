@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 057: Deterministic Slice Architecture Gates, Living Slice Specs & ADR Lifecycle"
 description: "Indfører de 4 universelle arkitekturlag (app -> features -> core -> shared), deterministiske grænse-gates (Gate A/B/C) i check-architecture, Domain -> Slice -> Task spec_ref mapning i check-spec/task new, 4-trins ADR-livscyklus i check-adr/check-release samt polyglot dokumentation i de suveræne skills."
-status: active
+status: done
 intent: feature
 generated: { by: process:antigravity-task-init, at: "2026-11-07T17:24:00Z" }
 tags: [architecture, vsa, ddd, slice, layers, adr-lifecycle, check-spec, polyglot]
@@ -28,7 +28,7 @@ test_refs:
 
 # Task 057: Deterministic Slice Architecture Gates, Living Slice Specs & ADR Lifecycle
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-11-07`
 

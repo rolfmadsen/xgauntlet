@@ -4,37 +4,39 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "055-fix-windows-ci-unused-imports",
-    "task_title": "Task 055: Fix Windows CI Unused Imports in Parity Test Suite (v0.11.3)",
-    "task_digest": "70401ae0a3fb378752a83210b0aec14239f69bfcc186e68096474d96ca6b6679",
+    "task_id": "057-slice-architecture-gates-and-adr-lifecycle",
+    "task_title": "Task 057: Deterministic Slice Architecture Gates, Living Slice Specs & ADR Lifecycle",
+    "task_digest": "232133f68febfad2ce71cfbc1e1ad2de09c79bc91988a1005a1265a72e357268",
     "acceptance_criteria": [
-      "**AC1 — Scope Unix-specifikke imports til Unix:**",
-      "**AC2 — Mekanisk Invariant 4 i CI Parity Suiten:**",
-      "**AC3 — Workspace Verifikation & Release `v0.11.3`:**"
+      "**AC1 — Konfiguration af Arkitektur-Gates i `gauntlet.toml` (`[architecture]`):**",
+      "**AC2 — Deterministiske Grænse-Gates (Gate A, B, C) i `xgauntlet check-architecture`:**",
+      "**AC3 — Deterministisk `Domain -> Slice -> Task` Mapning i `check-spec` og `task new`:**",
+      "**AC4 — ADR-livscyklus i `check-adr` og `check-release`:**",
+      "**AC5 — Pædagogisk Polyglot Dokumentation & Opdatering af Sovereign Skills:**"
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "a6c7a135c8d4826b73641edc9b3e9a6c621b052a013fc2ea30a163dfea35c0f8",
-    "source_manifest_digest_pre": "29ddf534a6eb281ec17179d89b3237a45fd2295ffbdcc9b219ddd37c9f5dd650",
-    "source_manifest_digest_post": "29ddf534a6eb281ec17179d89b3237a45fd2295ffbdcc9b219ddd37c9f5dd650",
+    "source_content_digest": "fc66e57312070511ac46a7253d6c03d8d2c2ce5afbe23dd9d2936214ef9c8cf7",
+    "source_manifest_digest_pre": "959065b17e126d385a11feefb1ec202ad6cb54197282a7d81a5841a0022fac6c",
+    "source_manifest_digest_post": "959065b17e126d385a11feefb1ec202ad6cb54197282a7d81a5841a0022fac6c",
     "config_digest": "5dd401c8c225ca47c26bedaf6b4d010007218c434fe38a38199f6174e9aeedca",
-    "task_digest": "70401ae0a3fb378752a83210b0aec14239f69bfcc186e68096474d96ca6b6679",
-    "policy_digest": "6d25e3bf7f842ae91276e967d62f18ec57f88292875d180a507541fded5cffc9",
+    "task_digest": "232133f68febfad2ce71cfbc1e1ad2de09c79bc91988a1005a1265a72e357268",
+    "policy_digest": "9cd5a069526d80487625db326a518d07e2b65fddb8b1512b12b8a0043ffc4b74",
     "check_definitions_digest": "82ec5871b5df6c01d5aaaf8e617d8149937bc8e255cbc5f3921229e44fec7e9d",
-    "included_files_count": 248,
+    "included_files_count": 253,
     "vcs": {
       "type": "git",
-      "head": "e3fb756",
-      "commit": "e3fb756",
+      "head": "a99fddc",
+      "commit": "a99fddc",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-02T06:15:47Z",
-    "finished_at": "2026-11-02T06:16:20Z",
-    "total_duration_seconds": 33.581408611,
+    "started_at": "2026-11-07T17:14:04Z",
+    "finished_at": "2026-11-07T17:14:37Z",
+    "total_duration_seconds": 32.668639747,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -47,16 +49,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.111460406,
+      "duration_seconds": 0.07946413,
       "optional": false,
       "passed": true,
-      "log_digest": "1d9a013efbfb4855d45d4ec86890b9618e7b9b15d7fe4f87215a73893415ac65"
+      "log_digest": "6308cee1430982cefa048a868af3e1d5dfb3ac5c38a50967e13eed44ff1b4095"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.23696963,
+      "duration_seconds": 0.22407127,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -65,43 +67,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.135874601,
+      "duration_seconds": 0.108757983,
       "optional": false,
       "passed": true,
-      "log_digest": "c92508a29848820f033cd2ea015c85dde0953c88b07cc967ce34b7c08f610549"
+      "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 32.218213349,
+      "duration_seconds": 31.324683146,
       "optional": false,
       "passed": true,
-      "log_digest": "4c8cdb388afc80e9c6a105cb018385730b9cd75d9761c802a40333e9601a6fd4"
+      "log_digest": "e6febc66be21c7df97bf53d4ab40966eff2ea26ec8ad57c00e87efb67423f126"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.791783607,
+      "duration_seconds": 0.839101131,
       "optional": false,
       "passed": true,
-      "log_digest": "6f6951265c482f1ac27311994862c5de98b7141dea558571d9b2f3362d3cbbd1"
+      "log_digest": "28e6f9ded149fe0d38d31124ecedf59a2c7e489e878f5d1619a3ffabf26b6b27"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.050731157,
+      "duration_seconds": 0.056194981,
       "optional": false,
       "passed": true,
-      "log_digest": "30c155dd64229538d1786d2a76f9e99e72ece8b310b7aea7807c8942c3638afd"
+      "log_digest": "685bc6604c5a273e549148f0f824e211d03b3ea92af1d9384c4ca02562f4c641"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.012789355,
+      "duration_seconds": 0.014715757,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -632,10 +634,67 @@
         "commit_oid": "e89a848e3d16117a559b4427ed9bdda760b07080",
         "timestamp": "2026-11-07T17:10:39Z",
         "digest": "3e0b18b51e5711024e64248c7b23a908f73bf4ae62fdb8f9a9dc0865af2f5cb7"
+      },
+      {
+        "session_nonce": "sess-a99fddcc",
+        "role": "TDD Craftsman",
+        "phase": "REFACTOR",
+        "commit_oid": "a99fddcc9e15af80e6bb18e9dc683b257304b8a0",
+        "timestamp": "2026-11-07T17:12:33Z",
+        "digest": "b1324df7bf3b16e67bad2df82f729f5bda8ef3e09f0a83681b879fdcfc3eaff0"
       }
     ]
   },
   "test_provenance": [
+    {
+      "test_identifier": "test_ac1_architecture_config_toml_roundtrip_for_layers_slices_and_exemptions",
+      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
+      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
+      "verified_at": "2026-11-07T17:57:31+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac2_gate_a_layer_direction_violations_across_rust_ts_and_java",
+      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
+      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
+      "verified_at": "2026-11-07T17:57:31+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac2_gate_b_cross_slice_isolation_and_internal_slice_freedom",
+      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
+      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
+      "verified_at": "2026-11-07T17:57:31+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac2_gate_c_clean_core_forbids_ui_framework_imports",
+      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
+      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
+      "verified_at": "2026-11-07T17:57:31+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac3_domain_slice_task_spec_ref_validation_and_done_exemption",
+      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
+      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
+      "verified_at": "2026-11-07T17:57:31+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac4_adr_lifecycle_statuses_and_release_coverage_filtering",
+      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
+      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
+      "verified_at": "2026-11-07T17:57:31+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac5_sovereign_skills_and_coding_standards_document_slice_taxonomy_and_polyglot_examples",
+      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
+      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
+      "verified_at": "2026-11-07T17:57:31+01:00",
+      "status": "red_checkpoint_verified"
+    },
     {
       "test_identifier": "test_concurrent_worktree_inverse_preflight_and_nonce_uniqueness",
       "failure_output": "Verified in RED checkpoint commit 058933a",
@@ -1482,55 +1541,6 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
-    },
-    {
-      "test_identifier": "test_ac1_architecture_config_toml_roundtrip_for_layers_slices_and_exemptions",
-      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
-      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
-      "verified_at": "2026-11-07T17:57:31+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ac2_gate_a_layer_direction_violations_across_rust_ts_and_java",
-      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
-      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
-      "verified_at": "2026-11-07T17:57:31+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ac2_gate_b_cross_slice_isolation_and_internal_slice_freedom",
-      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
-      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
-      "verified_at": "2026-11-07T17:57:31+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ac2_gate_c_clean_core_forbids_ui_framework_imports",
-      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
-      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
-      "verified_at": "2026-11-07T17:57:31+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ac3_domain_slice_task_spec_ref_validation_and_done_exemption",
-      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
-      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
-      "verified_at": "2026-11-07T17:57:31+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ac4_adr_lifecycle_statuses_and_release_coverage_filtering",
-      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
-      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
-      "verified_at": "2026-11-07T17:57:31+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ac5_sovereign_skills_and_coding_standards_document_slice_taxonomy_and_polyglot_examples",
-      "failure_output": "Verified in RED checkpoint commit c1b1ac1",
-      "failure_digest": "046a1345f774cbaec66fa971b9149e6a36957182ebcac5f527a4cb1c8a71229b",
-      "verified_at": "2026-11-07T17:57:31+01:00",
-      "status": "red_checkpoint_verified"
     }
   ]
 }
