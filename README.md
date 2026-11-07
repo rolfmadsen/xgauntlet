@@ -427,10 +427,53 @@ xgauntlet check-attestation --remote-tag v0.8.4
 ```
 
 ### 7. Deklarativ Arkitekturkontrol (`check-architecture`)
-Håndhæver kodestruktur, filstørrelsesgrænser (kildekode max 800 linjer, tests max 1.000 linjer) og forbudte API-tokens:
+Håndhæver kodestruktur, filstørrelsesgrænser (kildekode max 800 linjer, tests max 1.000 linjer), forbudte API-tokens samt deterministiske Vertical Slice Architecture-gates jf. [ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md):
 ```bash
 xgauntlet check-architecture
 ```
+
+#### 🏛️ Fra Skånsom Safe-Mode (Brownfield) til Fuld Vertical Slice Governance (Greenfield)
+
+xGauntlet er designet til at beskytte **både** eksisterende produktionssystemer (brownfield-projekter) og nye systemer (greenfield-projekter), der ønsker deterministisk arkitekturdisciplin:
+
+1. **Skånsom Safe-Mode by Default (Brownfield-beskyttelse):**  
+   Når du initialiserer et projekt med `xgauntlet init`, er de avancerede arkitektur-gates inaktive (`layers = []`, `isolate_slices = false`). xGauntlet validerer udelukkende fil-størrelseslofter og forbudte tokens. Eksisterende kodebaser og moduler bryder ikke sammen ved installation.
+
+2. **Den Fulde Vertical Slice Oplevelse (Greenfield & Modne Projekter):**  
+   I `gauntlet.toml` kan du aktivere tre deterministiske grænse-gates på tværs af Rust, TypeScript/React, Java, Python og Go:
+   ```toml
+   [architecture]
+   max_file_lines = 800
+   max_test_file_lines = 1000
+
+   # Gate A: Håndhæv streng envejs-afhængighed oppefra og ned (app -> features -> core -> shared):
+   layers = ["app", "features", "core", "shared"]
+
+   # Gate B: Black-Box Slice Isolation (forhindrer uautoriserede imports på tværs af features):
+   slice_root = "src/features"
+   isolate_slices = true
+
+   # Gate C: Forbyd UI- og framework-lækage ind i forretningskernen:
+   forbid_core_imports = ["iced", "react", "javafx"]
+   ```
+   * **Gate A (`LayerDirectionViolation`):** Forhindrer at lavere lag (f.eks. `features` eller `core`) importerer baglæns fra højere lag som `app`.
+   * **Gate B (`CrossSliceImportViolation`):** Sikrer at en feature-slice (`src/features/auth/login`) ikke kobler direkte til en søskende-slice (`src/features/billing/checkout`). Kommunikation på tværs koordineres i `app` via Actions/Events eller flyttes til `core`.
+   * **Gate C (`ForbiddenCoreImportViolation`):** Sikrer at forretningslogik i `core` forbliver 100% ren og framework-uafhængig.
+
+3. **AI-Drevet Slice Lifecycle (Ingen Manuel Bruger-Toil):**  
+   Når de nye arkitektur-gates er aktive, behøver brugeren ikke at taste CLI-kommandoer eller skrive YAML. Brugeren beskriver blot featuren på almindeligt sprog i chatten (f.eks. *"Byg Google OAuth2 login"*), hvorefter AI-agenten automatisk:
+   * Identificerer domænet (`auth`) og slicen (`login`).
+   * Opretter og vedligeholder den levende slice-specifikation (`specs/auth/login.md`).
+   * Forankrer opgavepakken med `domain`, `slice` og `spec_ref: "specs/auth/login.md"` i frontmatter.
+
+4. **Trinvis Brownfield-Migrering (`[[architecture.exemptions]]`):**  
+   Eksisterende systemer kan gradvist aktivere `layers` og `isolate_slices` modul for modul ved hjælp af `allow_imports`:
+   ```toml
+   [[architecture.exemptions]]
+   path = "src/features/legacy_module/**"
+   allow_imports = ["crate::app"]
+   reason = "Midlertidig overgang under refaktorisering jf. ADR 0012"
+   ```
 
 ### 8. Transaktionel Versionsstyring (`release bump`)
 Udfører atomisk SemVer opgradering på tværs af manifests, kompilerer og synkroniserer WASM bytecode, roterer CHANGELOG.md og ruller automatisk tilbage ved fejl via disk-staging:

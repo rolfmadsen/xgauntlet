@@ -65,7 +65,26 @@ pub fn generate_templates_for_workspace(
 
 fn render_gauntlet_toml(stack: &str, workspace: Option<&Path>) -> String {
     let config = default_config_for_stack_and_workspace(stack, workspace);
-    config.render_toml()
+    let base_toml = config.render_toml();
+
+    let arch_target = "[architecture]\nmax_file_lines = 800\nmax_test_file_lines = 1000\n";
+    let arch_replacement = r#"[architecture]
+max_file_lines = 800
+max_test_file_lines = 1000
+
+# --- Valgfrit: Vertical Slice & Layer Boundary Gates (ADR 0012) ---
+# Fjern udkommenteringen herunder for at aktivere deterministisk arkitekturkontrol:
+# layers = ["app", "features", "core", "shared"]
+# slice_root = "src/features"
+# isolate_slices = true
+# forbid_core_imports = ["iced", "react", "javafx"]
+"#;
+
+    if base_toml.contains(arch_target) {
+        base_toml.replace(arch_target, arch_replacement)
+    } else {
+        base_toml
+    }
 }
 
 fn render_context_md(project_name: &str, timestamp: &str) -> String {

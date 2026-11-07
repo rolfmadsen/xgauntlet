@@ -681,6 +681,14 @@
         "commit_oid": "4e1140b45da8b42cbce9733690dff77d98cd2c94",
         "timestamp": "2026-11-07T20:34:42Z",
         "digest": "d5041cb3467da6f88f36d294a0b71c74e4de430e9aa82e7b64f5098f785bb208"
+      },
+      {
+        "session_nonce": "sess-42338d07",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "42338d070b88764df168d64d6057c1812eab70f4",
+        "timestamp": "2026-11-07T21:07:20Z",
+        "digest": "f5ea4777f0fa8e2cdc4da3e9c03c93600ff7b148db0467a7e4bb4d216ce723aa"
       }
     ]
   },
@@ -1594,6 +1602,20 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_scaffold_gauntlet_toml_contains_architecture_guidance",
+      "failure_output": "Verified in RED checkpoint commit 42338d0",
+      "failure_digest": "ea7e5f8752df823e8f3d0e1d0b93681c5a8f828452d257d5640b9ba1f190e07a",
+      "verified_at": "2026-11-07T22:07:20+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_readme_documents_architecture_gates_and_safe_mode",
+      "failure_output": "Verified in RED checkpoint commit 42338d0",
+      "failure_digest": "ea7e5f8752df823e8f3d0e1d0b93681c5a8f828452d257d5640b9ba1f190e07a",
+      "verified_at": "2026-11-07T22:07:20+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }

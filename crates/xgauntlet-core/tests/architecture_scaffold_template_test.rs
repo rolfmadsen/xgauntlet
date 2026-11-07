@@ -12,11 +12,15 @@ fn test_scaffold_gauntlet_toml_contains_architecture_guidance() {
         .expect("gauntlet.toml should be in scaffold templates");
 
     assert!(
-        gauntlet_toml.content.contains("# layers = [\"app\", \"features\", \"core\", \"shared\"]"),
+        gauntlet_toml
+            .content
+            .contains("# layers = [\"app\", \"features\", \"core\", \"shared\"]"),
         "scaffolded gauntlet.toml should contain commented example for layers"
     );
     assert!(
-        gauntlet_toml.content.contains("# slice_root = \"src/features\""),
+        gauntlet_toml
+            .content
+            .contains("# slice_root = \"src/features\""),
         "scaffolded gauntlet.toml should contain commented example for slice_root"
     );
     assert!(
@@ -30,8 +34,15 @@ fn test_scaffold_gauntlet_toml_contains_architecture_guidance() {
 
     // Verify it still parses cleanly
     let parsed = parse_toml(&gauntlet_toml.content).expect("scaffolded TOML must parse cleanly");
-    assert_eq!(parsed.architecture.layers.len(), 0, "layers must remain unconfigured/empty by default");
-    assert!(!parsed.architecture.isolate_slices, "isolate_slices must remain false by default");
+    assert_eq!(
+        parsed.architecture.layers.len(),
+        0,
+        "layers must remain unconfigured/empty by default"
+    );
+    assert!(
+        !parsed.architecture.isolate_slices,
+        "isolate_slices must remain false by default"
+    );
 }
 
 #[test]
@@ -42,10 +53,15 @@ fn test_readme_documents_architecture_gates_and_safe_mode() {
         .parent()
         .unwrap();
 
-    let root_readme = fs::read_to_string(repo_root.join("README.md")).expect("README.md must exist");
-    let cli_readme = fs::read_to_string(repo_root.join("packages/cli/README.md")).expect("cli README must exist");
+    let root_readme =
+        fs::read_to_string(repo_root.join("README.md")).expect("README.md must exist");
+    let cli_readme = fs::read_to_string(repo_root.join("packages/cli/README.md"))
+        .expect("cli README must exist");
 
-    for (name, content) in [("README.md", &root_readme), ("packages/cli/README.md", &cli_readme)] {
+    for (name, content) in [
+        ("README.md", &root_readme),
+        ("packages/cli/README.md", &cli_readme),
+    ] {
         assert!(
             content.contains("Safe-Mode") || content.contains("safe-mode"),
             "{} should document safe-mode for brownfield compatibility",
