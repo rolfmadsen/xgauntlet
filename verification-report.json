@@ -18,30 +18,30 @@
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "fc66e57312070511ac46a7253d6c03d8d2c2ce5afbe23dd9d2936214ef9c8cf7",
-    "source_manifest_digest_pre": "959065b17e126d385a11feefb1ec202ad6cb54197282a7d81a5841a0022fac6c",
-    "source_manifest_digest_post": "959065b17e126d385a11feefb1ec202ad6cb54197282a7d81a5841a0022fac6c",
-    "config_digest": "5dd401c8c225ca47c26bedaf6b4d010007218c434fe38a38199f6174e9aeedca",
+    "source_content_digest": "a9c1d8a5fe3ada0fc22ad5f2d71285b7e9238822c56cb90b2a171c7d65b1421f",
+    "source_manifest_digest_pre": "7fdfe3e27b6563079fa5a4e80867c1606024898927403aaa2976416f1e74cdb0",
+    "source_manifest_digest_post": "7fdfe3e27b6563079fa5a4e80867c1606024898927403aaa2976416f1e74cdb0",
+    "config_digest": "0b362059da78123181c2fdcc2259e1d16fd403cea95cc8da8081c99e9573fc9e",
     "task_digest": "232133f68febfad2ce71cfbc1e1ad2de09c79bc91988a1005a1265a72e357268",
     "policy_digest": "9cd5a069526d80487625db326a518d07e2b65fddb8b1512b12b8a0043ffc4b74",
     "check_definitions_digest": "82ec5871b5df6c01d5aaaf8e617d8149937bc8e255cbc5f3921229e44fec7e9d",
     "included_files_count": 253,
     "vcs": {
       "type": "git",
-      "head": "a99fddc",
-      "commit": "a99fddc",
+      "head": "04f946b",
+      "commit": "04f946b",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-07T17:14:04Z",
-    "finished_at": "2026-11-07T17:14:37Z",
-    "total_duration_seconds": 32.668639747,
+    "started_at": "2026-11-07T17:37:17Z",
+    "finished_at": "2026-11-07T17:37:49Z",
+    "total_duration_seconds": 32.865609099,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
       "platform": "linux",
-      "version": "0.11.3"
+      "version": "0.12.0"
     }
   },
   "checks": [
@@ -49,7 +49,7 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.07946413,
+      "duration_seconds": 0.101764594,
       "optional": false,
       "passed": true,
       "log_digest": "6308cee1430982cefa048a868af3e1d5dfb3ac5c38a50967e13eed44ff1b4095"
@@ -58,7 +58,7 @@
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.22407127,
+      "duration_seconds": 0.247251861,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -67,7 +67,7 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.108757983,
+      "duration_seconds": 0.103963171,
       "optional": false,
       "passed": true,
       "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
@@ -76,25 +76,25 @@
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 31.324683146,
+      "duration_seconds": 31.428232633,
       "optional": false,
       "passed": true,
-      "log_digest": "e6febc66be21c7df97bf53d4ab40966eff2ea26ec8ad57c00e87efb67423f126"
+      "log_digest": "134d857ead95847e11c9b6772025bb0ed6333a2a047a3a4884a06b4f11506d9a"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.839101131,
+      "duration_seconds": 0.713720878,
       "optional": false,
       "passed": true,
-      "log_digest": "28e6f9ded149fe0d38d31124ecedf59a2c7e489e878f5d1619a3ffabf26b6b27"
+      "log_digest": "fca2e1b532ed15478ee4933efe783dde744c067661a5912b321ba42ae735c038"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.056194981,
+      "duration_seconds": 0.057125778,
       "optional": false,
       "passed": true,
       "log_digest": "685bc6604c5a273e549148f0f824e211d03b3ea92af1d9384c4ca02562f4c641"
@@ -103,7 +103,7 @@
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.014715757,
+      "duration_seconds": 0.012272661,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -642,6 +642,14 @@
         "commit_oid": "a99fddcc9e15af80e6bb18e9dc683b257304b8a0",
         "timestamp": "2026-11-07T17:12:33Z",
         "digest": "b1324df7bf3b16e67bad2df82f729f5bda8ef3e09f0a83681b879fdcfc3eaff0"
+      },
+      {
+        "session_nonce": "sess-04f946ba",
+        "role": "Software Engineer",
+        "phase": "DONE",
+        "commit_oid": "04f946ba78008c599a352411202baa0b5c79ad2c",
+        "timestamp": "2026-11-07T17:14:37Z",
+        "digest": "3ae1945da234e6569611abc522a94aa3fa1f237813b14873e07fc3583e492a8a"
       }
     ]
   },

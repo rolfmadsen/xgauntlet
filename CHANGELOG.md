@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-11-07
+
+### 🚀 Added & Hardened
+- **Deterministic Vertical Slice & 4-Layer Architecture Gates (`Task 057`, `ADR 0012`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`)**:
+  - Udvidet `[architecture]` i `gauntlet.toml` med `layers` (`["app", "features", "core", "shared"]`), `slice_root` (`"src/features"`), `isolate_slices`, `forbid_core_imports` og `allow_imports` på `[[architecture.exemptions]]`.
+  - Implementeret tre deterministiske grænse-gates i `xgauntlet check-architecture` (`boundaries.rs`) på tværs af Rust, TypeScript/React, Java, Python og Go:
+    - **Gate A (`LayerDirectionViolation`):** Forhindrer baglæns imports fra lavere lag (`features`, `core`, `shared`) til højere lag (`app`).
+    - **Gate B (`CrossSliceImportViolation`):** Sikrer Black-Box Vertical Slice-isolation (`<slice_root>/<domain>/<slice>`) uden at påtvinge intern mappestruktur-rigiditet indeni slicen.
+    - **Gate C (`ForbiddenCoreImportViolation`):** Beskytter `core`-laget mod UI- og framework-lækage (`forbid_core_imports`).
+- **Deterministic `Domain -> Slice -> Task` Mapping & Living Slice Specifications (`Task 057`, `ADR 0012`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`)**:
+  - Udvidet OKF v0.2 task-frontmatter (`check-spec` og `xgauntlet task new --domain <domain> --slice <slice>`) med `domain`, `slice` og `spec_ref: "specs/<domain>/<slice>.md"` samt automatisk scaffolding af levende slice-specifikationer med 100% bagudkompatibilitet for eksisterende `status: done` tasks.
+- **4-State ADR Lifecycle Governance (`Task 057`, `ADR 0012`, `crates/xgauntlet-core`)**:
+  - Udvidet `xgauntlet check-adr` og `xgauntlet check-release` med 4-trins ADR-livscyklus (`proposed | accepted | superseded | deprecated`) og krav om `superseded_by` ved `status: superseded`, så kun gældende `accepted` ADRs kræves refereret i `README.md` og `spec.md`.
+- **Polyglot Vertical Slice Guidance in Sovereign Skills (`Task 057`, `.agents/plugins/xgauntlet/skills/`)**:
+  - Opdateret `discover`, `spec`, `tdd`, `review`, `release`, `ADR-FORMAT.md` og `CODING_STANDARDS.md` med pædagogiske mønstre (*Stateful UI-Slice* og *Stateless Pipeline-Slice*) for Rust/Iced, TypeScript/React og Java.
+
 ## [0.11.3] - 2026-11-02
 
 ### 🐛 Fixed & Hardened
