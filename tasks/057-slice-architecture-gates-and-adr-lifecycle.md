@@ -24,7 +24,6 @@ scope:
   - "tasks/057-slice-architecture-gates-and-adr-lifecycle.md"
 test_refs:
   - "crates/xgauntlet-core/tests/slice_architecture_and_adr_lifecycle_test.rs"
-  - "crates/xgauntlet-core/tests/adr_validation_test.rs"
 ---
 
 # Task 057: Deterministic Slice Architecture Gates, Living Slice Specs & ADR Lifecycle
