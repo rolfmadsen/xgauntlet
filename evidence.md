@@ -1,29 +1,27 @@
 # Verification Report
 
-**Task ID**: `075-domain-orphan-resolution-and-ast-symbol-unification`  
-**Task Title**: Task 075: Domain Orphan Resolution & AST Symbol Unification  
+**Task ID**: `076-release-v0-14-0`  
+**Task Title**: Task 076: Release v0.14.0 Preparation & Manifest Bump  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `1fd92b9c47bb7b8c5b9b8a4674614b856f65d11aa6daeaa7d05b347a0600a9f5`  
-**Timestamp**: `2026-11-08T21:24:20Z`  
-**Head**: `c1e6353`  
-**Commit**: `c1e6353`  
+**Source Manifest Digest**: `0a5d83dbd549b063af8d8b2f65ca0ff1c5485f54b25b0a185e0e97488a93b1b9`  
+**Timestamp**: `2026-11-08T21:31:29Z`  
+**Head**: `3aa0594`  
+**Commit**: `3aa0594`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (Symbol Table Shadowing Elimination):**
-- [x] AST-scanneren i `parser.rs` prioriterer produktionsfiler (`src/`) og domænemodeller (`is_domain_model = true`) frem for test-filer (`tests/`), så mock-modeller aldrig skygger for ægte typer.
-- [x] `VerificationReport *-- TaskContract : task_contract` og `DoctorCheckItem *-- DoctorCategory : category` renderes automatisk i `architecture.mermaid`.
-- [x] **AC2 (Policy Modeller & Hook/Adapter Forbindelse):**
-- [x] `features/policy/models.rs` definerer eller re-eksporterer de kanoniske policy-modeller.
-- [x] `PolicyDecision *-- DecisionVerdict : verdict` og `CapabilityRequest *-- ToolActionType : action_type` renderes.
-- [x] `AdapterHookVerdict *-- DecisionVerdict : decision` og `NormalizedToolCall *-- ToolActionType : action_type` renderes.
-- [x] **AC3 (Attestation Forældre/Børn Relationer):**
-- [x] `AttestationReport` renderes i konceptuelt diagram med relationer til `AttestationStatus` og `TrustDecision`.
-- [x] **AC4 (Analyse DTO Integration):**
-- [x] `BlastRadiusReport` og `DiscoveredHarness` er ikke længere isolerede øer i det konceptuelle klassediagram.
-- [x] **AC5 (Multi-Layer Verifikation & Invariant Kontrol):**
-- [x] `cargo test` og `xgauntlet verify --task 075 --save` passerer uden fejl eller regressionsbrud.
+- [x] **Acceptance Test for Version 0.14.0 (RED phase)**:
+- [x] `crates/xgauntlet-core/tests/release_manifest_parity_test.rs` opdateres til at kræve version `0.14.0` på tværs af alle manifester og bevises rød før ændringer.
+- [x] **Manifest-opgradering til 0.14.0**:
+- [x] Opdatere alle 8 manifester til `0.14.0`.
+- [x] **WASM Policy Bytecode Rebuild**:
+- [x] Genkompilere `gauntlet-policy-engine` til version `0.14.0` og opdatere `crates/xgauntlet-core/wasm/gauntlet_policy.wasm`.
+- [x] **Changelog Rotation**:
+- [x] `CHANGELOG.md` opdateres med `[0.14.0] - 2026-11-08` dækkende Tasks 071-075.
+- [x] **Release Gatekeeper & Verifikation**:
+- [x] `xgauntlet check-release` rapporterer fuld release-paritet og 100% ADR dækning for `0.14.0`.
+- [x] `target/debug/xgauntlet verify --task 076 --save` passerer med `Self-mutation status: CLEAN`.
 
 ---
 
@@ -31,13 +29,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.087s` |
-| `format` | `PASSED` | `0` | `0.261s` |
-| `lint` | `PASSED` | `0` | `0.112s` |
-| `unit` | `PASSED` | `0` | `31.948s` |
-| `npm` | `PASSED` | `0` | `0.756s` |
-| `invariants` | `PASSED` | `0` | `0.067s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
+| `architecture` | `PASSED` | `0` | `0.097s` |
+| `format` | `PASSED` | `0` | `0.267s` |
+| `lint` | `PASSED` | `0` | `0.132s` |
+| `unit` | `PASSED` | `0` | `32.358s` |
+| `npm` | `PASSED` | `0` | `0.799s` |
+| `invariants` | `PASSED` | `0` | `0.082s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.020s` |
 
 ---
 
@@ -193,6 +191,7 @@
 | `sess-0edf7cc0` | `System Architect` | `SPEC` | `0edf7cc` | `2026-11-08T21:27:06Z` | `VALID` |
 | `sess-7b20cbd9` | `TDD Craftsman` | `RED` | `7b20cbd` | `2026-11-08T21:27:21Z` | `VALID` |
 | `sess-ba5f3e27` | `TDD Craftsman` | `GREEN` | `ba5f3e2` | `2026-11-08T21:29:54Z` | `VALID` |
+| `sess-3aa0594a` | `TDD Craftsman` | `REFACTOR` | `3aa0594` | `2026-11-08T21:29:57Z` | `VALID` |
 
 ---
 
@@ -200,16 +199,17 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `8b1172de0151fbec...` | `2026-11-08T22:27:21+01:00` |
+| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `8b1172de0151fbec...` | `2026-11-08T22:27:21+01:00` |
+| `test_workspace_manifests_synchronized_to_version_0_14_0` | `RedCheckpointVerified` | `8b1172de0151fbec...` | `2026-11-08T22:27:21+01:00` |
+| `test_npm_cli_readme_identical_to_root_readme` | `RedCheckpointVerified` | `8b1172de0151fbec...` | `2026-11-08T22:27:21+01:00` |
 | `test_ast_scans_struct_fields_enum_variants_and_relationships` | `RedCheckpointVerified` | `9b8cab0c4e31c6b7...` | `2026-11-08T22:15:10+01:00` |
 | `test_ast_scans_doc_commented_struct_fields_enum_variants_and_relationships` | `RedCheckpointVerified` | `9b8cab0c4e31c6b7...` | `2026-11-08T22:15:10+01:00` |
 | `test_conceptual_mermaid_filters_errors_and_options_while_detailed_keeps_them` | `RedCheckpointVerified` | `9b8cab0c4e31c6b7...` | `2026-11-08T22:15:10+01:00` |
 | `test_ast_scans_trait_implementation_realization_and_strong_enums` | `RedCheckpointVerified` | `9b8cab0c4e31c6b7...` | `2026-11-08T22:15:10+01:00` |
 | `test_ast_shadowing_immunity_prevents_test_mocks_from_overwriting_domain_models` | `RedCheckpointVerified` | `9b8cab0c4e31c6b7...` | `2026-11-08T22:15:10+01:00` |
 | `test_xgauntlet_repo_conceptual_domain_model_relationships` | `RedCheckpointVerified` | `9b8cab0c4e31c6b7...` | `2026-11-08T22:15:10+01:00` |
-| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `24d16e87708d41a2...` | `2026-11-08T15:19:13+01:00` |
-| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `24d16e87708d41a2...` | `2026-11-08T15:19:13+01:00` |
 | `test_workspace_manifests_synchronized_to_version_0_13_2` | `RedCheckpointVerified` | `24d16e87708d41a2...` | `2026-11-08T15:19:13+01:00` |
-| `test_npm_cli_readme_identical_to_root_readme` | `RedCheckpointVerified` | `24d16e87708d41a2...` | `2026-11-08T15:19:13+01:00` |
 | `test_architecture_config_parsing_from_toml` | `RedCheckpointVerified` | `6dfbcc2100981406...` | `2026-11-08T14:57:50+01:00` |
 | `test_architecture_check_passes_on_compliant_workspace` | `RedCheckpointVerified` | `6dfbcc2100981406...` | `2026-11-08T14:57:50+01:00` |
 | `test_architecture_check_fails_on_monolithic_production_file` | `RedCheckpointVerified` | `6dfbcc2100981406...` | `2026-11-08T14:57:50+01:00` |
@@ -363,6 +363,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_workspace_manifests_synchronized_to_version_0_14_0` | `RedCheckpointVerified` | `8b1172de0151fbec...` | `2026-11-08T22:27:21+01:00` |
 
 ---

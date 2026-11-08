@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 076: Release v0.14.0 Preparation & Manifest Bump"
 description: "Opgradere samtlige versionsmanifester til v0.14.0, genkompilere WebAssembly policy bytecode, rotere CHANGELOG.md for Tasks 071-075 og forsegle release-readiness via xgauntlet check-release."
-status: active
+status: done
 intent: enhancement
 slice: release
 spec_ref: "specs/release.md"
@@ -30,7 +30,7 @@ test_refs:
 
 # Task 076: Release v0.14.0 Preparation & Manifest Bump
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-08`
 
