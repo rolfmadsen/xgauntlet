@@ -3,6 +3,8 @@
 //! - Gate B (`CrossSliceImportViolation`): Black-box Vertical Slice isolation (`<slice_root>/<domain>/<slice>`).
 //! - Gate C (`ForbiddenCoreImportViolation`): Clean Core protection against UI/framework leakage.
 
+use std::path::Path;
+
 use super::models::{
     ArchitectureConfig, ArchitectureExemption, ArchitectureFinding, ArchitectureFindingCategory,
     ArchitectureReport,
@@ -10,6 +12,7 @@ use super::models::{
 
 /// Evaluates Gate A (Layer Direction), Gate B (Slice Isolation), and Gate C (Clean Core) for a single source file.
 pub fn evaluate_file_boundaries(
+    workspace_root: &Path,
     rel_path: &str,
     content: &str,
     config: &ArchitectureConfig,
@@ -26,7 +29,7 @@ pub fn evaluate_file_boundaries(
     }
 
     let src_layer = classify_path_layer(rel_path, &config.layers);
-    let src_slice = extract_slice_identity(rel_path, &config.slice_root);
+    let src_slice = extract_slice_identity(workspace_root, rel_path, &config.slice_root);
     let is_in_core = src_layer
         .as_ref()
         .is_some_and(|(_, name)| name.eq_ignore_ascii_case("core"))
@@ -88,24 +91,38 @@ pub fn evaluate_file_boundaries(
             }
         }
 
-        // Gate B: Cross-Slice Isolation (<slice_root>/<domain>/<slice>)
+        // Gate B: Cross-Slice Isolation (<slice_root>/<slice> or <slice_root>/<subdomain>/<slice>)
         if config.isolate_slices {
             if let Some((ref s_domain, ref s_slice)) = src_slice {
-                if let Some((t_domain, t_slice)) =
-                    extract_import_slice_identity(&resolved_target, &raw_import, &config.slice_root)
-                {
+                let is_one_level = s_domain.is_empty();
+                if let Some((t_domain, t_slice)) = extract_import_slice_identity(
+                    &resolved_target,
+                    &raw_import,
+                    &config.slice_root,
+                    is_one_level,
+                ) {
                     if s_domain != &t_domain || s_slice != &t_slice {
+                        let src_label = if is_one_level {
+                            s_slice.clone()
+                        } else {
+                            format!("{s_domain}/{s_slice}")
+                        };
+                        let dst_label = if t_domain.is_empty() {
+                            t_slice.clone()
+                        } else {
+                            format!("{t_domain}/{t_slice}")
+                        };
                         report.add_finding(ArchitectureFinding {
                             file_path: rel_path.to_string(),
                             line_number: Some(line_num),
                             category: ArchitectureFindingCategory::ForbiddenImportDetected,
                             message: format!(
-                                "[CrossSliceImportViolation] Slice '{}/{}' in '{}' must not import directly from peer slice '{}/{}' (via '{}') at line {}",
-                                s_domain, s_slice, rel_path, t_domain, t_slice, raw_import, line_num
+                                "[CrossSliceImportViolation] Slice '{}' in '{}' must not import directly from peer slice '{}' (via '{}') at line {}",
+                                src_label, rel_path, dst_label, raw_import, line_num
                             ),
                             remediation_hint: format!(
-                                "Keep slice '{}/{}' black-box isolated. Coordinate across slices in the 'app' orchestrator via Actions/Events or extract shared domain types into 'core'.",
-                                s_domain, s_slice
+                                "Keep slice '{}' black-box isolated. Coordinate across slices in the 'app' orchestrator via Actions/Events or extract shared domain types into 'core'.",
+                                src_label
                             ),
                         });
                     }
@@ -123,6 +140,55 @@ fn is_import_exempted(import_spec: &str, exemption: Option<&ArchitectureExemptio
         let a = allowed.trim();
         !a.is_empty() && (import_spec == a || import_spec.starts_with(a) || import_spec.contains(a))
     })
+}
+
+/// Checks if an `[[architecture.exemptions]]` path (exact or `/**` glob) matches `rel_path`.
+pub fn exemption_matches_path(ex_path: &str, rel_path: &str) -> bool {
+    let norm_ex = ex_path.trim().replace('\\', "/");
+    if let Some(prefix) = norm_ex.strip_suffix("/**") {
+        let p = prefix.trim_end_matches('/');
+        rel_path.starts_with(&format!("{p}/")) || rel_path.contains(&format!("/{p}/"))
+    } else {
+        norm_ex == rel_path || rel_path.ends_with(&norm_ex)
+    }
+}
+
+/// Resolves the line-ceiling exemption and merged `allow_imports` exemption for `rel_path`.
+pub fn resolve_file_exemptions<'a>(
+    exemptions: &'a [ArchitectureExemption],
+    rel_path: &str,
+) -> (
+    Option<&'a ArchitectureExemption>,
+    Option<ArchitectureExemption>,
+) {
+    let matching: Vec<&'a ArchitectureExemption> = exemptions
+        .iter()
+        .filter(|ex| exemption_matches_path(&ex.path, rel_path))
+        .collect();
+    let line_ex = matching
+        .iter()
+        .copied()
+        .find(|ex| ex.max_lines.is_some())
+        .or_else(|| {
+            matching
+                .iter()
+                .copied()
+                .find(|ex| !ex.path.ends_with("/**"))
+        });
+    let merged = if matching.is_empty() {
+        None
+    } else {
+        let mut combined = matching[0].clone();
+        for ex in &matching[1..] {
+            for imp in &ex.allow_imports {
+                if !combined.allow_imports.contains(imp) {
+                    combined.allow_imports.push(imp.clone());
+                }
+            }
+        }
+        Some(combined)
+    };
+    (line_ex, merged)
 }
 
 fn match_forbidden_core_import<'a>(
@@ -204,53 +270,131 @@ fn classify_import_layer(
     None
 }
 
-/// Extracts `(domain, slice)` if `rel_path` resides under `<slice_root>/<domain>/<slice>/...`
-fn extract_slice_identity(rel_path: &str, slice_root: &str) -> Option<(String, String)> {
+/// Extracts `(subdomain, slice)` for a source file on disk:
+/// - 1-level directory (`<slice_root>/<slice>/<file>.rs` or internal subfolder of a 1-level slice) -> `("", "<slice>")`
+/// - 2-level directory (`<slice_root>/<subdomain>/<slice>/<file>.rs`) -> `("<subdomain>", "<slice>")`
+fn extract_slice_identity(
+    workspace_root: &Path,
+    rel_path: &str,
+    slice_root: &str,
+) -> Option<(String, String)> {
     let norm_path = rel_path.replace('\\', "/");
     let norm_root = slice_root.trim().trim_matches('/').replace('\\', "/");
 
     if !norm_root.is_empty() {
         if let Some(rest) = norm_path.strip_prefix(&format!("{norm_root}/")) {
             let parts: Vec<&str> = rest.split('/').filter(|s| !s.is_empty()).collect();
-            if parts.len() >= 2 {
-                let domain = parts[0].to_string();
-                let slice = parts[1]
-                    .strip_suffix(".rs")
-                    .or_else(|| parts[1].strip_suffix(".ts"))
-                    .or_else(|| parts[1].strip_suffix(".tsx"))
-                    .or_else(|| parts[1].strip_suffix(".java"))
-                    .unwrap_or(parts[1])
-                    .to_string();
-                return Some((domain, slice));
+            if parts.len() == 2 {
+                return Some((String::new(), parts[0].to_string()));
+            } else if parts.len() >= 3 {
+                let candidate_dir = workspace_root.join(&norm_root).join(parts[0]);
+                if dir_has_direct_source_files(&candidate_dir) {
+                    return Some((String::new(), parts[0].to_string()));
+                }
+                return Some((parts[0].to_string(), parts[1].to_string()));
             }
         }
     }
 
-    // Fallback: locate 'features/<domain>/<slice>' segment sequence
+    // Fallback: locate 'features/...' segment sequence
     let segments: Vec<&str> = norm_path.split('/').filter(|s| !s.is_empty()).collect();
     for (i, seg) in segments.iter().enumerate() {
-        if *seg == "features" && i + 2 < segments.len() {
-            let domain = segments[i + 1].to_string();
-            let slice = segments[i + 2]
-                .strip_suffix(".rs")
-                .or_else(|| segments[i + 2].strip_suffix(".ts"))
-                .or_else(|| segments[i + 2].strip_suffix(".tsx"))
-                .or_else(|| segments[i + 2].strip_suffix(".java"))
-                .unwrap_or(segments[i + 2])
-                .to_string();
-            return Some((domain, slice));
+        if *seg == "features" {
+            let rem = segments.len().saturating_sub(i + 1);
+            if rem == 2 {
+                return Some((String::new(), segments[i + 1].to_string()));
+            } else if rem >= 3 {
+                let prefix_rel = segments[..=i + 1].join("/");
+                if dir_has_direct_source_files(&workspace_root.join(prefix_rel)) {
+                    return Some((String::new(), segments[i + 1].to_string()));
+                }
+                return Some((segments[i + 1].to_string(), segments[i + 2].to_string()));
+            }
         }
     }
     None
+}
+
+fn dir_has_direct_source_files(dir: &Path) -> bool {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return false;
+    };
+    for entry in entries.flatten() {
+        let p = entry.path();
+        if p.is_file() {
+            if let Some(ext) = p.extension().and_then(|e| e.to_str()) {
+                if matches!(
+                    ext,
+                    "rs" | "ts" | "tsx" | "js" | "jsx" | "java" | "py" | "go"
+                ) {
+                    return true;
+                }
+            }
+        }
+    }
+    false
 }
 
 fn extract_import_slice_identity(
     resolved_target: &str,
     raw_import: &str,
     slice_root: &str,
+    is_one_level: bool,
 ) -> Option<(String, String)> {
-    if let Some(found) = extract_slice_identity(resolved_target, slice_root) {
-        return Some(found);
+    let raw =
+        extract_import_slice_identity_inner(resolved_target, raw_import, slice_root, is_one_level)?;
+    if raw.0 == "*" || raw.1 == "*" || raw.1.is_empty() {
+        return None;
+    }
+    Some(raw)
+}
+
+fn extract_import_slice_identity_inner(
+    resolved_target: &str,
+    raw_import: &str,
+    slice_root: &str,
+    is_one_level: bool,
+) -> Option<(String, String)> {
+    let norm_target = resolved_target.replace('\\', "/");
+    let norm_root = slice_root.trim().trim_matches('/').replace('\\', "/");
+
+    if !norm_root.is_empty() {
+        if let Some(rest) = norm_target.strip_prefix(&format!("{norm_root}/")) {
+            let parts: Vec<&str> = rest
+                .split('/')
+                .filter(|s| !s.is_empty() && *s != "_target")
+                .collect();
+            if is_one_level {
+                if !parts.is_empty() {
+                    let s = strip_code_ext(parts[0]).to_string();
+                    return Some((String::new(), s));
+                }
+            } else if parts.len() >= 2 {
+                let d = parts[0].to_string();
+                let s = strip_code_ext(parts[1]).to_string();
+                return Some((d, s));
+            }
+        }
+    }
+
+    let target_segs: Vec<&str> = norm_target
+        .split('/')
+        .filter(|s| !s.is_empty() && *s != "_target")
+        .collect();
+    for (i, seg) in target_segs.iter().enumerate() {
+        if *seg == "features" {
+            if is_one_level && i + 1 < target_segs.len() {
+                return Some((
+                    String::new(),
+                    strip_code_ext(target_segs[i + 1]).to_string(),
+                ));
+            } else if !is_one_level && i + 2 < target_segs.len() {
+                return Some((
+                    target_segs[i + 1].to_string(),
+                    strip_code_ext(target_segs[i + 2]).to_string(),
+                ));
+            }
+        }
     }
 
     let tokens: Vec<&str> = raw_import
@@ -258,11 +402,24 @@ fn extract_import_slice_identity(
         .filter(|s| !s.is_empty())
         .collect();
     for (i, tok) in tokens.iter().enumerate() {
-        if *tok == "features" && i + 2 < tokens.len() {
-            return Some((tokens[i + 1].to_string(), tokens[i + 2].to_string()));
+        if *tok == "features" {
+            if is_one_level && i + 1 < tokens.len() {
+                return Some((String::new(), tokens[i + 1].to_string()));
+            } else if !is_one_level && i + 2 < tokens.len() {
+                return Some((tokens[i + 1].to_string(), tokens[i + 2].to_string()));
+            }
         }
     }
     None
+}
+
+fn strip_code_ext(segment: &str) -> &str {
+    segment
+        .strip_suffix(".rs")
+        .or_else(|| segment.strip_suffix(".ts"))
+        .or_else(|| segment.strip_suffix(".tsx"))
+        .or_else(|| segment.strip_suffix(".java"))
+        .unwrap_or(segment)
 }
 
 /// Resolves Rust (`crate::`, `super::`, `self::`), TS/JS relative (`./`, `../`, `@/`), and Java package imports

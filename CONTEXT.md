@@ -25,7 +25,7 @@ _Avoid_: Stage, build-step, check-item.
 
 **Gauntlet**:
 A sequential verification pipeline, that executes verification layers with fail-closed semantics and halts on the first mandatory failure.
-_Avoid_: Test runner, CI script, harness.
+_Avoid_: Test runner, CI script, test-suite-wrapper.
 
 **Two-Tier Trust Boundary**:
 A derived classification model, that categorizes verification records across two progressive trust boundaries: local cooperative drift detection (`LOCAL_UNSUPERVISED`) and cryptographically attested CI provenance (`CI_ATTESTED`).
@@ -63,7 +63,7 @@ _Avoid_: Git commit, workspace hash, checksum.
 An unsigned data record, that binds verification layer outcomes, diagnostic findings, and task contracts to the workspace manifest digests.
 _Avoid_: Proof report, receipt, certification.
 
-**Attestation Bundle**:
+**Attestation Bundle (AttestationStatus)**:
 A detached cryptographic statement, that binds an authenticated, independent CI identity to verification reports and source digests via keyless OIDC and DSSE/in-toto envelopes.
 _Avoid_: Local signature, HMAC receipt, inline certificate.
 
@@ -131,7 +131,7 @@ _Avoid_: Ticket workflow, task pipeline, sprint state.
 A directed graph model, that maps workspace packages, modules, files, and symbols along with their deterministic import and call dependencies.
 _Avoid_: Dependency tree, code map, syntax graph.
 
-**Blast Radius Analysis**:
+**Blast Radius Analysis (BlastRadiusReport)**:
 A deterministic traversal query, that calculates the transitive downstream components affected by modifications to a specific module or symbol within bounded traversal depth.
 _Avoid_: Impact assessment, regression check, ripple effect.
 

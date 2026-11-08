@@ -104,16 +104,20 @@ pub fn validate_glossary_drift(
         }
     }
 
-    // Normalized terms list
-    let norm_terms: Vec<String> = glossary_terms
-        .iter()
-        .map(|(t, _)| {
-            t.chars()
+    // Normalized terms list (includes primary concept and parenthetical `/` or `,` separated model aliases)
+    let mut norm_terms: Vec<String> = Vec::new();
+    for (t, _) in &glossary_terms {
+        for part in t.split(['(', ')', '/', ',']) {
+            let norm: String = part
+                .chars()
                 .filter(|c| c.is_alphanumeric())
                 .collect::<String>()
-                .to_ascii_lowercase()
-        })
-        .collect();
+                .to_ascii_lowercase();
+            if !norm.is_empty() && !norm_terms.contains(&norm) {
+                norm_terms.push(norm);
+            }
+        }
+    }
 
     // Find model files
     let mut model_files = Vec::new();

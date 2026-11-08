@@ -138,7 +138,7 @@ impl TaskScaffolder {
             .join(" ")
     }
 
-    /// Extracts optional `(domain, slice)` prefix if `name` uses `<domain>/<slice>:<slug>` syntax.
+    /// Extracts optional `(subdomain, slice)` prefix if `name` uses `<subdomain>/<slice>:<slug>` or `<slice>:<slug>` syntax.
     pub fn split_slice_prefix(raw_name: &str) -> (Option<(String, String)>, &str) {
         if let Some((prefix, rest)) = raw_name.split_once(':') {
             if let Some((d, s)) = prefix.split_once('/') {
@@ -146,6 +146,11 @@ impl TaskScaffolder {
                 let slice = Self::slugify(s);
                 if !domain.is_empty() && !slice.is_empty() {
                     return (Some((domain, slice)), rest);
+                }
+            } else {
+                let slice = Self::slugify(prefix);
+                if !slice.is_empty() {
+                    return (Some((String::new(), slice)), rest);
                 }
             }
         }
@@ -179,14 +184,21 @@ impl TaskScaffolder {
         };
 
         let (slice_yaml, scope_yaml) = if let Some((ref d, ref s)) = slice_info {
-            (
-                format!(
-                    "intent: {raw_intent}\ndomain: {d}\nslice: {s}\nspec_ref: \"specs/{d}/{s}.md\"\n"
-                ),
-                format!(
-                    "scope:\n  - \"src/features/{d}/{s}/**\"\n  - \"specs/{d}/{s}.md\""
-                ),
-            )
+            if d.is_empty() {
+                (
+                    format!("intent: {raw_intent}\nslice: {s}\nspec_ref: \"specs/{s}.md\"\n"),
+                    format!("scope:\n  - \"src/features/{s}/**\"\n  - \"specs/{s}.md\""),
+                )
+            } else {
+                (
+                    format!(
+                        "intent: {raw_intent}\ndomain: {d}\nslice: {s}\nspec_ref: \"specs/{d}/{s}.md\"\n"
+                    ),
+                    format!(
+                        "scope:\n  - \"src/features/{d}/{s}/**\"\n  - \"specs/{d}/{s}.md\""
+                    ),
+                )
+            }
         } else {
             (
                 format!("intent: {raw_intent}\n"),
@@ -250,16 +262,20 @@ test_refs:
         }
     }
 
-    /// Scaffolds a new task package in `tasks/`, with optional explicit `(domain, slice)` binding.
+    /// Scaffolds a new task package in `tasks/`, with optional explicit `(subdomain/domain, slice)` binding.
     pub fn scaffold_slice(
         options: &ScaffoldTaskOptions,
         domain: Option<&str>,
         slice: Option<&str>,
     ) -> Result<TaskScaffoldResult, TaskError> {
         let mut effective = options.clone();
-        if let (Some(d), Some(s)) = (domain, slice) {
-            if !d.trim().is_empty() && !s.trim().is_empty() && !effective.name.contains(':') {
-                effective.name = format!("{}/{}:{}", d.trim(), s.trim(), effective.name);
+        if let Some(s) = slice.map(|s| s.trim()).filter(|s| !s.is_empty()) {
+            if !effective.name.contains(':') {
+                if let Some(d) = domain.map(|d| d.trim()).filter(|d| !d.is_empty()) {
+                    effective.name = format!("{d}/{s}:{}", effective.name);
+                } else {
+                    effective.name = format!("{s}:{}", effective.name);
+                }
             }
         }
         Self::scaffold(&effective)
@@ -332,18 +348,28 @@ test_refs:
         fs::write(&file_path, content)?;
 
         if let Some((ref d, ref s)) = slice_info {
-            let spec_path = options
-                .workspace
-                .join("specs")
-                .join(d)
-                .join(format!("{s}.md"));
+            let spec_path = if d.is_empty() {
+                options.workspace.join("specs").join(format!("{s}.md"))
+            } else {
+                options
+                    .workspace
+                    .join("specs")
+                    .join(d)
+                    .join(format!("{s}.md"))
+            };
             if !spec_path.exists() {
                 if let Some(parent) = spec_path.parent() {
                     fs::create_dir_all(parent)?;
                 }
-                let slice_spec_template = format!(
-                    "# Living Slice Specification: {d} / {s}\n\n## 🎯 Capability & Facade Contract\n- **Domain**: `{d}`\n- **Slice**: `{s}`\n- **Layer**: `features/{d}/{s}`\n\n## 🔌 Public Input / Action Contract\n- Dokumenter slicens offentlige state/input og udgående `Action`/event/result her.\n\n## 🛡️ Slice Invariants\n- Må IKKE importere opad fra `app`.\n- Må IKKE importere direkte fra andre slices i `features/`.\n"
-                );
+                let slice_spec_template = if d.is_empty() {
+                    format!(
+                        "# Living Slice Specification: {s}\n\n## 🎯 Capability & Facade Contract\n- **Slice**: `{s}`\n- **Layer**: `features/{s}`\n\n## 🔌 Public Input / Action Contract\n- Dokumenter slicens offentlige state/input og udgående `Action`/event/result her.\n\n## 🛡️ Slice Invariants\n- Må IKKE importere opad fra `app`.\n- Må IKKE importere direkte fra andre slices i `features/`.\n"
+                    )
+                } else {
+                    format!(
+                        "# Living Slice Specification: {d} / {s}\n\n## 🎯 Capability & Facade Contract\n- **Subdomain**: `{d}`\n- **Slice**: `{s}`\n- **Layer**: `features/{d}/{s}`\n\n## 🔌 Public Input / Action Contract\n- Dokumenter slicens offentlige state/input og udgående `Action`/event/result her.\n\n## 🛡️ Slice Invariants\n- Må IKKE importere opad fra `app`.\n- Må IKKE importere direkte fra andre slices i `features/`.\n"
+                    )
+                };
                 fs::write(&spec_path, slice_spec_template)?;
             }
         }

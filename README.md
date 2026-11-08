@@ -329,8 +329,8 @@ forbid_core_imports = ["iced", "react", "javafx"]
 ```
 
 * **Gate A (`LayerDirectionViolation`):** Forhindrer at lavere lag (f.eks. `features` eller `core`) importerer baglæns fra højere lag som `app` (omvendte/opadgående afhængigheder).
-* **Gate B (`CrossSliceImportViolation`):** Sikrer at en feature-slice (`src/features/auth/login`) ikke kobler direkte til en peer-slice (`src/features/billing/checkout`). Kommunikation på tværs koordineres i `app` via Actions/Events eller flyttes til `core`.
-* **Gate C (`ForbiddenCoreImportViolation`):** Sikrer at forretningslogik i `core` forbliver 100% ren og framework-uafhængig.
+* **Gate B (`CrossSliceImportViolation`):** Auto-detekterer både 1-niveau (`src/features/<slice>/`) og 2-niveau (`src/features/<subdomain>/<slice>/`) slice-mapper og sikrer, at en feature-slice ikke kobler direkte til en peer-slice. Kommunikation på tværs koordineres i `app` via Actions/Events eller flyttes til `core` (`Shared Kernel`).
+* **Gate C (`ForbiddenCoreImportViolation`):** Sikrer at forretningslogik i `core` (`Shared Kernel`) forbliver 100% ren og framework-uafhængig.
 
 #### 🏛️ Trinvis Brownfield-Migrering (Sikker Køreplan for Eksisterende Systemer)
 Hvis du har et etableret system med teknisk gæld, skal du **ikke** lave en risikabel "Big Bang"-omskrivning. Følg denne 4-trins køreplan:

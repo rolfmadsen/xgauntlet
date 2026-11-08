@@ -61,7 +61,5 @@ Konkret målsætning og operationel afgrænsning.
 4. **Design Tokens & WAI 2.0:** UI-komponenter må ALDRIG indeholde rå farveværdier eller ad-hoc styling. Alle farver, typografi og afstande skal referere til projektets design-tokens.
 5. **De 4 Universelle Lag & Levende Slice-Specifikationer (`app -> features -> core -> shared` & `spec_ref`):**
    - **De 4 Lag (`app -> features -> core -> shared`):** Top-down envejs-imports håndhæves af `xgauntlet check-architecture` (`LayerDirectionViolation`, `CrossSliceImportViolation`, `ForbiddenCoreImportViolation`).
-   - **Domain -> Slice -> Task (`spec_ref`):** Aktive feature/enhancement/bug tasks i slice-baserede projekter binder til deres levende slice-specifikation (`specs/<domain>/<slice>.md`) via `domain`, `slice` og `spec_ref` i frontmatter (`xgauntlet task new <slug> --domain <domain> --slice <slice>`).
-6. **Shift-Left Gatekeeper:** Opgaven valideres altid med:
-   `xgauntlet check-spec -t <id>`
-   før der skrives produktionskode.
+   - **Slice -> Task (`spec_ref` — 1- eller 2-niveau):** Aktive feature/enhancement/bug tasks i slice-baserede projekter binder til deres levende slice-specifikation i enten 1-niveau (`specs/<slice>.md` via `slice` og `spec_ref`) eller 2-niveau (`specs/<domain>/<slice>.md` via `subdomain`/`domain`, `slice` og `spec_ref`, f.eks. `xgauntlet task new <slug> --slice <slice> [--subdomain <domain>]`).
+6. **Shift-Left & Post-Implementation Gatekeeper:** Opgaven valideres før kodning med `xgauntlet check-spec -t <id>`, og efter `GREEN` verificeres kildemodeller mod `CONTEXT.md` med `xgauntlet check-spec --context`.

@@ -524,8 +524,8 @@ enum TaskCommands {
         #[arg(short, long)]
         purpose: Option<String>,
 
-        /// Functional domain name (e.g. 'diagram')
-        #[arg(long)]
+        /// Functional subdomain/domain name (e.g. 'diagram')
+        #[arg(long, alias = "subdomain")]
         domain: Option<String>,
 
         /// Vertical slice name within the domain (e.g. 'canvas')
@@ -647,20 +647,23 @@ async fn main() -> anyhow::Result<()> {
             all,
             json,
         }) => {
-            if *context {
-                if !run_check_spec_context(workspace, *json)? {
+            if *context && *json {
+                if !run_check_spec_context(workspace, true)? {
                     std::process::exit(1);
                 }
                 return Ok(());
             }
 
             let reports = run_check_spec(workspace, task.as_deref(), *all)?;
-            let all_valid = reports.iter().all(|r| r.is_valid);
+            let mut all_valid = reports.iter().all(|r| r.is_valid);
 
             if *json {
                 println!("{}", serde_json::to_string_pretty(&reports)?);
             } else {
                 render_check_spec_summary(&reports);
+                if *context && !run_check_spec_context(workspace, false)? {
+                    all_valid = false;
+                }
             }
 
             if !all_valid {

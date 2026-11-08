@@ -423,7 +423,6 @@ _Avoid_: ad-hoc lint.
     assert!(
         repo_report.is_valid,
         "xgauntlet's own workspace must pass glossary drift check, orphans: {:?}, avoid: {:?}",
-        repo_report.orphan_models,
-        repo_report.avoid_violations
+        repo_report.orphan_models, repo_report.avoid_violations
     );
 }

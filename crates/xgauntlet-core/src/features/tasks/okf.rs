@@ -329,7 +329,7 @@ fn parse_yaml_metadata(lines: &[&str]) -> Result<OkfMetadata, OkfError> {
                         intent = Some(s.to_string());
                     }
                 }
-                "domain" => {
+                "domain" | "subdomain" => {
                     let s = strip_quotes(val);
                     if !s.is_empty() {
                         domain = Some(s.to_string());

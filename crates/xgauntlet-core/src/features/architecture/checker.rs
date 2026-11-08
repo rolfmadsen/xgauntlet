@@ -489,12 +489,10 @@ fn inspect_file(
         || rel_path.ends_with("Test.java");
 
     // 1. Line count evaluation with exemptions
-    let exemption = config
-        .exemptions
-        .iter()
-        .find(|ex| ex.path == rel_path || rel_path.ends_with(&ex.path));
+    let (line_exemption, merged_exemption) =
+        super::boundaries::resolve_file_exemptions(&config.exemptions, &rel_path);
 
-    match exemption {
+    match line_exemption {
         Some(ex) => {
             if let Some(ceiling) = ex.max_lines {
                 if line_count > ceiling {
@@ -589,7 +587,14 @@ fn inspect_file(
         }
 
         // 3. Deterministic Layer & Slice Boundary Gates (ADR 0012: Gate A, Gate B, Gate C)
-        super::boundaries::evaluate_file_boundaries(&rel_path, &content, config, exemption, report);
+        super::boundaries::evaluate_file_boundaries(
+            root,
+            &rel_path,
+            &content,
+            config,
+            merged_exemption.as_ref(),
+            report,
+        );
     }
 
     Ok(())

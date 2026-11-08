@@ -157,6 +157,7 @@
 | `sess-170f6508` | `TDD Craftsman` | `REFACTOR` | `170f650` | `2026-11-08T12:01:52Z` | `VALID` |
 | `sess-42745d1f` | `Software Engineer` | `DONE` | `42745d1` | `2026-11-08T12:02:51Z` | `VALID` |
 | `sess-5efbd3f5` | `System Architect` | `SPEC` | `5efbd3f` | `2026-11-08T13:55:22Z` | `VALID` |
+| `sess-8abd7c6f` | `TDD Craftsman` | `RED` | `8abd7c6` | `2026-11-08T13:57:50Z` | `VALID` |
 
 ---
 
@@ -317,5 +318,8 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_gate_b_1_level_slice_sibling_and_glob_exemption` | `RedCheckpointVerified` | `6dfbcc2100981406...` | `2026-11-08T14:57:50+01:00` |
+| `test_check_spec_supports_1_level_slice_without_subdomain` | `RedCheckpointVerified` | `6dfbcc2100981406...` | `2026-11-08T14:57:50+01:00` |
+| `test_glossary_drift_supports_parenthetical_aliases_and_dogfoods_workspace` | `RedCheckpointVerified` | `6dfbcc2100981406...` | `2026-11-08T14:57:50+01:00` |
 
 ---

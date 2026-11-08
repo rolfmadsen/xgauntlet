@@ -621,18 +621,22 @@ fn validate_task_slice_mapping(
         .trim()
         .replace('\\', "/");
 
-    if domain.is_empty() || slice.is_empty() || spec_ref.is_empty() {
+    if slice.is_empty() || spec_ref.is_empty() {
         report.diagnostics.push(DiagnosticFinding::new(
             FindingType::GeneralError,
             "MISSING_TASK_SLICE_MAPPING",
             rel_task,
-            "Active task is missing required Domain -> Slice -> Spec mapping ('domain', 'slice', and 'spec_ref' in frontmatter).",
-            "Add 'domain: <domain>', 'slice: <slice>', and 'spec_ref: \"specs/<domain>/<slice>.md\"' to task frontmatter.",
+            "Active task is missing required Slice -> Spec mapping ('slice' and 'spec_ref', plus optional 'subdomain'/'domain' in frontmatter).",
+            "Add 'slice: <slice>' and 'spec_ref: \"specs/<slice>.md\"' (or 'subdomain: <sd>' and 'spec_ref: \"specs/<sd>/<slice>.md\"') to task frontmatter.",
         ));
         return;
     }
 
-    let expected_spec_ref = format!("specs/{domain}/{slice}.md");
+    let expected_spec_ref = if domain.is_empty() {
+        format!("specs/{slice}.md")
+    } else {
+        format!("specs/{domain}/{slice}.md")
+    };
     if spec_ref != expected_spec_ref {
         report.diagnostics.push(DiagnosticFinding::new(
             FindingType::GeneralError,

@@ -85,9 +85,10 @@ I større Rust-workspaces fører snesevis af separate `[[test]]`-binarier til vo
 
 ## 🧱 Black-Box Vertical Slice Indkapsling (Polyglot: Rust/Iced, TS/React, Java)
 
-Under `GREEN` og `REFACTOR` overholdes de deterministiske grænse-gates i `xgauntlet check-architecture` (`app -> features -> core -> shared`, 0% intern mappestruktur-rigiditet indeni slicen):
-- **Stateful UI-Slice (`features/<domain>/<slice>/`):** Ejer sin egen tilstand (`State`), sine egne interne beskeder/events (`Message`) og eksponerer en eksplicit udgående `Action`/callback til `app`-orchestratoren. Importerer **aldrig** `crate::app::Message` eller global app-store baglæns.
-- **Stateless Pipeline-Slice (`features/<domain>/<slice>/`):** Ren funktionel transformation med eksplicit `Command`/`Input` og `Result`/`Output` over domænetyper fra `core`.
+Under `GREEN` og `REFACTOR` overholdes de deterministiske grænse-gates i `xgauntlet check-architecture` (`app -> features -> core -> shared`, 0% intern mappestruktur-rigiditet indeni slicen, med auto-detektion af både 1-niveau `features/<slice>/` og 2-niveau `features/<subdomain>/<slice>/`):
+- **Stateful UI-Slice (`features/<slice>/` eller `features/<domain>/<slice>/`):** Ejer sin egen tilstand (`State`), sine egne interne beskeder/events (`Message`) og eksponerer en eksplicit udgående `Action`/callback til `app`-orchestratoren. Importerer **aldrig** `crate::app::Message` eller global app-store baglæns.
+- **Stateless Pipeline-Slice (`features/<slice>/` eller `features/<domain>/<slice>/`):** Ren funktionel transformation med eksplicit `Command`/`Input` og `Result`/`Output` over domænetyper fra `core` (`Shared Kernel`).
+- **To-Trins `CONTEXT.md` Verifikation (`check-spec --context`):** Når nye offentlige domænemodeller (`pub struct` / `pub enum` i `models.rs`) introduceres under `GREEN`/`REFACTOR`, registreres de i `CONTEXT.md` (gerne som parentetiske model-aliaser under deres domænebegreb, f.eks. `**Architecture Gate (ArchitectureConfig / ArchitectureReport)**:`), så `xgauntlet check-spec --context` består i `GAUNTLET`-fasen.
 
 ### Polyglot Eksempler (Rust/Iced, TypeScript/React, Java)
 - **Rust / Iced (`src/features/diagram/canvas/mod.rs`):**
