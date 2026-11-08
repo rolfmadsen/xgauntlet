@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.1] - 2026-11-08
+
+### 🚀 Added
+- **Automatic Architecture Mermaid Diagram Synchronization (`Task 066`, `crates/xgauntlet-core`)**:
+  - `xgauntlet verify --save` automatically generates and updates `architecture.mermaid` in the repository root from AST domain models.
+  - Added declarative `[paths] diagram_file = "architecture.mermaid"` configuration in `gauntlet.toml`.
+  - Linked `architecture.mermaid` directly from `spec.md` as the visual domain model reference.
+  - Extended Rust AST topology parser to detect and extract `enum` and `pub enum` variants (`<<enumeration>>`).
+- **NPM Package README Parity Gate & Regression Test (`Task 067`, `crates/xgauntlet-core`, `packages/cli`)**:
+  - Synchronized `packages/cli/README.md` to be byte-for-byte identical with root `README.md` to ensure the NPM registry displays the modernized documentation.
+  - Added mechanical parity test `test_npm_cli_readme_identical_to_root_readme` in `release_manifest_parity_test.rs`.
+  - Added automated README parity validation in `ReleaseReadinessEngine` (`xgauntlet check-release`).
+
 ## [0.13.0] - 2026-11-08
 
 ### 🚀 Added
