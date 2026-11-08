@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 060: Brownfield VSA Migration Blueprint in README Documentation"
 description: "Udvidet afsnit 7.4 i README.md og packages/cli/README.md med en detaljeret 4-trins køreplan for brownfield-migrering: Audit-røntgenbillede, Baseline-exemptions, rækkefølge (Gate C -> B -> A) samt Stateful UI-Slice mønstret."
-status: active
+status: done
 intent: enhancement
 generated: { by: process:antigravity-task-init, at: "2026-11-07T21:23:00Z" }
 tags: [documentation, brownfield, migration, vsa, architecture, blueprint]
@@ -17,7 +17,7 @@ test_refs:
 
 # Task 060: Brownfield VSA Migration Blueprint in README Documentation
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-07`
 
