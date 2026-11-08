@@ -1,26 +1,20 @@
 # Verification Report
 
-**Task ID**: `062-deterministic-mermaid-and-glossary-drift-gate`  
-**Task Title**: Task 062: Deterministic Mermaid Class Diagram & Glossary Drift Gate  
+**Task ID**: `063-architecture-baseline-audit-terminology`  
+**Task Title**: Task 063: Architecture Baseline Audit Terminology  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `433d39dd37a84274bf59bf349fe69d14347afd14b27f181c31bef366b2d29826`  
-**Timestamp**: `2026-11-08T10:54:41Z`  
-**Head**: `b98d084`  
-**Commit**: `b98d084`  
+**Source Manifest Digest**: `fdb421f8901f7fb829df10a97ed64eaa42000e13eac803831d0654d3ef771926`  
+**Timestamp**: `2026-11-08T11:00:39Z`  
+**Head**: `7b9886b`  
+**Commit**: `7b9886b`  
 
 ## Acceptance Criteria
 
-- [x] **Deterministisk AST Mermaid Eksport (`xgauntlet topology export --format mermaid`)**:
-- [x] Traverserer og udtrækker structs, enums, traits/interfaces samt deres felter, varianter og indbyrdes relationer (`*--`, `o--`, `<|--`) fra domænemodeller i `src/features/**/models.rs` (eller typer med `/// @domain`).
-- [x] Adskiller konceptuelle domænemodeller fra tekniske infrastrukturelementer (`engine.rs`, `git.rs`, `render.rs`, serializers som `$schema`), så diagrammet forbliver en ren forretnings- og informationsmodel.
-- [x] Emitterer 100% syntaktisk validt Mermaid `classDiagram` output med sorterede entiteter for deterministisk reproducerbarhed.
-- [x] **To-vejs Glossary Drift Gate (`xgauntlet check-spec --context`)**:
-- [x] **Orphan Model Detection (Code -> Context)**: Emitterer en blokerende `DiagnosticFinding`, hvis en `pub struct` eller `pub enum` i en `models.rs`-fil mangler en tilsvarende Aristoteles-definition i `CONTEXT.md`.
-- [x] **Phantom Term Detection (Context -> Code)**: Advarer hvis et domænebegreb i `CONTEXT.md` er defineret som en datamodel-entitet, men ikke eksisterer i koden.
-- [x] **Synonym Guard**: Validerer at felter og typer ikke anvender forbudte synonymer defineret under `_Avoid_:` i `CONTEXT.md`.
-- [x] **Dokumentations-opdatering**:
-- [x] Opdatere `README.md` (og eventuelt `README2.md`) med CLI-eksempler, output-formater og anvendelse af `xgauntlet topology export --format mermaid` samt `xgauntlet check-spec --context`.
+- [x] Erstatte overskriften og omtalen af "risikofrit Røntgenbillede (Audit Baseline)" i `README.md` med "risikofri Architecture Baseline Audit (Status Quo Snapshot)".
+- [x] Erstatte overskriften og omtalen i `packages/cli/README.md` tilsvarende for fuld konsistens.
+- [x] Opdatere `crates/xgauntlet-core/tests/architecture_scaffold_template_test.rs` til at validere forekomsten af "Architecture Baseline Audit" eller "Baseline Audit" i stedet for strengt at kræve "Røntgenbillede".
+- [x] Køre `cargo test -p xgauntlet-core --test architecture_scaffold_template_test` og verificere at testen passerer.
 
 ---
 
@@ -28,13 +22,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.076s` |
-| `format` | `PASSED` | `0` | `0.234s` |
-| `lint` | `PASSED` | `0` | `0.095s` |
-| `unit` | `PASSED` | `0` | `32.060s` |
-| `npm` | `PASSED` | `0` | `0.792s` |
-| `invariants` | `PASSED` | `0` | `0.056s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
+| `architecture` | `PASSED` | `0` | `0.073s` |
+| `format` | `PASSED` | `0` | `0.257s` |
+| `lint` | `PASSED` | `0` | `0.126s` |
+| `unit` | `PASSED` | `0` | `32.603s` |
+| `npm` | `PASSED` | `0` | `0.779s` |
+| `invariants` | `PASSED` | `0` | `0.052s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.013s` |
 
 ---
 
@@ -128,6 +122,7 @@
 | `sess-c66898cd` | `System Architect` | `SPEC` | `c66898c` | `2026-11-08T10:58:26Z` | `VALID` |
 | `sess-2fbdfbf9` | `TDD Craftsman` | `RED` | `2fbdfbf` | `2026-11-08T10:58:40Z` | `VALID` |
 | `sess-f1cc49de` | `TDD Craftsman` | `GREEN` | `f1cc49d` | `2026-11-08T10:59:08Z` | `VALID` |
+| `sess-7b9886b9` | `TDD Craftsman` | `REFACTOR` | `7b9886b` | `2026-11-08T10:59:15Z` | `VALID` |
 
 ---
 
@@ -135,14 +130,14 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_scaffold_gauntlet_toml_contains_architecture_guidance` | `RedCheckpointVerified` | `6c0e45497d42950a...` | `2026-11-08T11:58:40+01:00` |
+| `test_readme_documents_architecture_gates_and_safe_mode` | `RedCheckpointVerified` | `6c0e45497d42950a...` | `2026-11-08T11:58:40+01:00` |
+| `test_readme_documents_brownfield_migration_blueprint` | `RedCheckpointVerified` | `6c0e45497d42950a...` | `2026-11-08T11:58:40+01:00` |
 | `test_mermaid_class_diagram_generation_conceptual` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
 | `test_mermaid_class_diagram_detailed_includes_technical_structs` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
 | `test_glossary_drift_detects_orphan_models_missing_in_context` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
 | `test_glossary_drift_passes_when_all_models_defined_in_context` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
 | `test_glossary_drift_detects_prohibited_avoid_synonyms_in_fields` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
-| `test_scaffold_gauntlet_toml_contains_architecture_guidance` | `RedCheckpointVerified` | `a4513418902ae375...` | `2026-11-07T22:23:30+01:00` |
-| `test_readme_documents_architecture_gates_and_safe_mode` | `RedCheckpointVerified` | `a4513418902ae375...` | `2026-11-07T22:23:30+01:00` |
-| `test_readme_documents_brownfield_migration_blueprint` | `RedCheckpointVerified` | `a4513418902ae375...` | `2026-11-07T22:23:30+01:00` |
 | `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `e82582c92b588673...` | `2026-11-07T21:27:43+01:00` |
 | `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `e82582c92b588673...` | `2026-11-07T21:27:43+01:00` |
 | `test_ac1_architecture_config_toml_roundtrip_for_layers_slices_and_exemptions` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |

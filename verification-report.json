@@ -4,44 +4,38 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "062-deterministic-mermaid-and-glossary-drift-gate",
-    "task_title": "Task 062: Deterministic Mermaid Class Diagram & Glossary Drift Gate",
-    "task_digest": "d7c8aba96a19aa933fab7e4e0b7e3988f1c47be53fd923a4cbce339ac039b458",
+    "task_id": "063-architecture-baseline-audit-terminology",
+    "task_title": "Task 063: Architecture Baseline Audit Terminology",
+    "task_digest": "0c4efb991042cda9564c152627968ad3c307e0c3420f099ff251d2a52c714261",
     "acceptance_criteria": [
-      "**Deterministisk AST Mermaid Eksport (`xgauntlet topology export --format mermaid`)**:",
-      "Traverserer og udtrækker structs, enums, traits/interfaces samt deres felter, varianter og indbyrdes relationer (`*--`, `o--`, `<|--`) fra domænemodeller i `src/features/**/models.rs` (eller typer med `/// @domain`).",
-      "Adskiller konceptuelle domænemodeller fra tekniske infrastrukturelementer (`engine.rs`, `git.rs`, `render.rs`, serializers som `$schema`), så diagrammet forbliver en ren forretnings- og informationsmodel.",
-      "Emitterer 100% syntaktisk validt Mermaid `classDiagram` output med sorterede entiteter for deterministisk reproducerbarhed.",
-      "**To-vejs Glossary Drift Gate (`xgauntlet check-spec --context`)**:",
-      "**Orphan Model Detection (Code -> Context)**: Emitterer en blokerende `DiagnosticFinding`, hvis en `pub struct` eller `pub enum` i en `models.rs`-fil mangler en tilsvarende Aristoteles-definition i `CONTEXT.md`.",
-      "**Phantom Term Detection (Context -> Code)**: Advarer hvis et domænebegreb i `CONTEXT.md` er defineret som en datamodel-entitet, men ikke eksisterer i koden.",
-      "**Synonym Guard**: Validerer at felter og typer ikke anvender forbudte synonymer defineret under `_Avoid_:` i `CONTEXT.md`.",
-      "**Dokumentations-opdatering**:",
-      "Opdatere `README.md` (og eventuelt `README2.md`) med CLI-eksempler, output-formater og anvendelse af `xgauntlet topology export --format mermaid` samt `xgauntlet check-spec --context`."
+      "Erstatte overskriften og omtalen af \"risikofrit Røntgenbillede (Audit Baseline)\" i `README.md` med \"risikofri Architecture Baseline Audit (Status Quo Snapshot)\".",
+      "Erstatte overskriften og omtalen i `packages/cli/README.md` tilsvarende for fuld konsistens.",
+      "Opdatere `crates/xgauntlet-core/tests/architecture_scaffold_template_test.rs` til at validere forekomsten af \"Architecture Baseline Audit\" eller \"Baseline Audit\" i stedet for strengt at kræve \"Røntgenbillede\".",
+      "Køre `cargo test -p xgauntlet-core --test architecture_scaffold_template_test` og verificere at testen passerer."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "d01e75bd820bef8dd0712377035efe27619eb27ecb834b10669917b937f1aae3",
-    "source_manifest_digest_pre": "433d39dd37a84274bf59bf349fe69d14347afd14b27f181c31bef366b2d29826",
-    "source_manifest_digest_post": "433d39dd37a84274bf59bf349fe69d14347afd14b27f181c31bef366b2d29826",
+    "source_content_digest": "6bedf5b8f167b17471da8ca5103e67ee4c5c8f4636663e216dab2562d3f3af25",
+    "source_manifest_digest_pre": "fdb421f8901f7fb829df10a97ed64eaa42000e13eac803831d0654d3ef771926",
+    "source_manifest_digest_post": "fdb421f8901f7fb829df10a97ed64eaa42000e13eac803831d0654d3ef771926",
     "config_digest": "fbde4e7d8027153515476befc80b727458656ed60b47dc0efb0ef8cfbdb8daf1",
-    "task_digest": "d7c8aba96a19aa933fab7e4e0b7e3988f1c47be53fd923a4cbce339ac039b458",
+    "task_digest": "0c4efb991042cda9564c152627968ad3c307e0c3420f099ff251d2a52c714261",
     "policy_digest": "9cd5a069526d80487625db326a518d07e2b65fddb8b1512b12b8a0043ffc4b74",
     "check_definitions_digest": "82ec5871b5df6c01d5aaaf8e617d8149937bc8e255cbc5f3921229e44fec7e9d",
-    "included_files_count": 264,
+    "included_files_count": 265,
     "vcs": {
       "type": "git",
-      "head": "b98d084",
-      "commit": "b98d084",
+      "head": "7b9886b",
+      "commit": "7b9886b",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-08T10:54:08Z",
-    "finished_at": "2026-11-08T10:54:41Z",
-    "total_duration_seconds": 33.526964437,
+    "started_at": "2026-11-08T11:00:05Z",
+    "finished_at": "2026-11-08T11:00:39Z",
+    "total_duration_seconds": 34.109305468,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -54,7 +48,7 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.075651807,
+      "duration_seconds": 0.072529684,
       "optional": false,
       "passed": true,
       "log_digest": "3ae76576c33d055fbfce3ed6ece9598051fe792234a77790b772978c3c8d80b4"
@@ -63,7 +57,7 @@
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.234189883,
+      "duration_seconds": 0.257263501,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -72,43 +66,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.095399991,
+      "duration_seconds": 0.125782203,
       "optional": false,
       "passed": true,
-      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
+      "log_digest": "a5f4c585ee974ca44916ac30a98bbc189e067a7e0a6bc6d2e8d6bc525be724af"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 32.060005209,
+      "duration_seconds": 32.602534422,
       "optional": false,
       "passed": true,
-      "log_digest": "47e95e95ac5a62e2d1b9826dd815df5191b924f302a9079e0cc30b486a2278bd"
+      "log_digest": "de005795a931ad93007994a414bb017597f841c85cce945412fdeb00701742f8"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.792198936,
+      "duration_seconds": 0.779346216,
       "optional": false,
       "passed": true,
-      "log_digest": "352f5a4ea966295a3eb5019c9597c96f8405e366e87cf61d00878ec180441b00"
+      "log_digest": "c5793e6cc5595a50b43454f0e87156c2be0b19470b92c9580428d86612d35385"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.055681207,
+      "duration_seconds": 0.052416591,
       "optional": false,
       "passed": true,
-      "log_digest": "fa8be7c03b526b505f2ae952543fb99d7427fd7e588b2bb9d4abf5879ba324ae"
+      "log_digest": "868e722bd2d232c694b920cc532ef0238fe8b797eb6e09cea37efd490479b7de"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.009748755,
+      "duration_seconds": 0.012665596,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -815,10 +809,39 @@
         "commit_oid": "f1cc49deb77b5ab0f8620dfff80635a098cec3eb",
         "timestamp": "2026-11-08T10:59:08Z",
         "digest": "d8f5f06e57795ac7a66310c6d2d3d46693d53112cb3aeb969cab427f64e2c005"
+      },
+      {
+        "session_nonce": "sess-7b9886b9",
+        "role": "TDD Craftsman",
+        "phase": "REFACTOR",
+        "commit_oid": "7b9886b98b8677ce6d458018a4768de014b01fee",
+        "timestamp": "2026-11-08T10:59:15Z",
+        "digest": "df5e18291c13e7f61d4577db3eeaac282dc923283e1ae827dfc12f2aee6aecc0"
       }
     ]
   },
   "test_provenance": [
+    {
+      "test_identifier": "test_scaffold_gauntlet_toml_contains_architecture_guidance",
+      "failure_output": "Verified in RED checkpoint commit 2fbdfbf",
+      "failure_digest": "6c0e45497d42950aa1d488be7102b7e19d1943b7d277cd3ba0f38b098b31d78b",
+      "verified_at": "2026-11-08T11:58:40+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_readme_documents_architecture_gates_and_safe_mode",
+      "failure_output": "Verified in RED checkpoint commit 2fbdfbf",
+      "failure_digest": "6c0e45497d42950aa1d488be7102b7e19d1943b7d277cd3ba0f38b098b31d78b",
+      "verified_at": "2026-11-08T11:58:40+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_readme_documents_brownfield_migration_blueprint",
+      "failure_output": "Verified in RED checkpoint commit 2fbdfbf",
+      "failure_digest": "6c0e45497d42950aa1d488be7102b7e19d1943b7d277cd3ba0f38b098b31d78b",
+      "verified_at": "2026-11-08T11:58:40+01:00",
+      "status": "red_checkpoint_verified"
+    },
     {
       "test_identifier": "test_mermaid_class_diagram_generation_conceptual",
       "failure_output": "Verified in RED checkpoint commit 83796de",
@@ -852,27 +875,6 @@
       "failure_output": "Verified in RED checkpoint commit 83796de",
       "failure_digest": "fc50f555532c4175576b8bf36aca15a5b9a88d76255a015cf1825435bd15c425",
       "verified_at": "2026-11-08T11:38:43+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_scaffold_gauntlet_toml_contains_architecture_guidance",
-      "failure_output": "Verified in RED checkpoint commit 9c6a3dd",
-      "failure_digest": "a4513418902ae375a8765340fb1c5bf4c2b8b4f93d45539f9b70017e73c03d8c",
-      "verified_at": "2026-11-07T22:23:30+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_readme_documents_architecture_gates_and_safe_mode",
-      "failure_output": "Verified in RED checkpoint commit 9c6a3dd",
-      "failure_digest": "a4513418902ae375a8765340fb1c5bf4c2b8b4f93d45539f9b70017e73c03d8c",
-      "verified_at": "2026-11-07T22:23:30+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_readme_documents_brownfield_migration_blueprint",
-      "failure_output": "Verified in RED checkpoint commit 9c6a3dd",
-      "failure_digest": "a4513418902ae375a8765340fb1c5bf4c2b8b4f93d45539f9b70017e73c03d8c",
-      "verified_at": "2026-11-07T22:23:30+01:00",
       "status": "red_checkpoint_verified"
     },
     {

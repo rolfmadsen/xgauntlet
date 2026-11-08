@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 063: Architecture Baseline Audit Terminology"
 description: "Erstatte den klodsede metafor 'røntgenbillede' med den etablerede fagterm 'Architecture Baseline Audit' i README, CLI README og regressionstest."
-status: active
+status: done
 intent: enhancement
 generated: { by: process:antigravity-task-init, at: "2026-11-08T11:58:00Z" }
 tags: [documentation, terminology, architecture, baseline-audit]
@@ -17,7 +17,7 @@ test_refs:
 
 # Task 063: Architecture Baseline Audit Terminology
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-08`
 
