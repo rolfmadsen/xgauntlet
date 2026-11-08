@@ -4,18 +4,13 @@ use super::models::{NodeType, TopologyGraph, TopologyNode};
 use std::collections::{BTreeMap, BTreeSet};
 
 /// Level of detail for Mermaid class diagram generation.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum MermaidLevel {
     /// Conceptual domain view: only core entities and business relations.
+    #[default]
     Conceptual,
     /// Detailed view: includes all fields, methods and technical structs.
     Detailed,
-}
-
-impl Default for MermaidLevel {
-    fn default() -> Self {
-        Self::Conceptual
-    }
 }
 
 /// Options configuring Mermaid class diagram generation.
@@ -111,7 +106,7 @@ pub fn export_mermaid_class_diagram(
                 let f = field.trim();
                 if !f.is_empty() {
                     // Replace < and > with ~ for Mermaid generics
-                    let sanitized = f.replace('<', "~").replace('>', "~");
+                    let sanitized = f.replace(['<', '>'], "~");
                     out.push_str(&format!("        +{sanitized}\n"));
                 }
             }

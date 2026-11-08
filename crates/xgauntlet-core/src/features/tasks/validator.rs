@@ -794,13 +794,10 @@ pub fn validate_glossary_drift(
             let trimmed = line.trim();
 
             // Struct or enum detection
-            let struct_or_enum = if trimmed.starts_with("pub struct ") {
-                Some(trimmed["pub struct ".len()..].trim())
-            } else if trimmed.starts_with("pub enum ") {
-                Some(trimmed["pub enum ".len()..].trim())
-            } else {
-                None
-            };
+            let struct_or_enum = trimmed
+                .strip_prefix("pub struct ")
+                .or_else(|| trimmed.strip_prefix("pub enum "))
+                .map(|rest| rest.trim());
 
             if let Some(raw_decl) = struct_or_enum {
                 let ident = raw_decl
@@ -837,7 +834,6 @@ pub fn validate_glossary_drift(
 
             // Avoid synonyms check
             if options.check_avoid
-                && trimmed.starts_with("pub ")
                 && !trimmed.starts_with("pub fn ")
                 && !trimmed.starts_with("pub async fn ")
                 && !trimmed.starts_with("pub const ")
@@ -849,25 +845,26 @@ pub fn validate_glossary_drift(
                 && !trimmed.starts_with("pub trait ")
                 && trimmed.contains(':')
             {
-                let field_decl = trimmed["pub ".len()..].trim();
-                let field_name = field_decl.split(':').next().unwrap_or("").trim();
+                if let Some(field_decl) = trimmed.strip_prefix("pub ") {
+                    let field_name = field_decl.split(':').next().unwrap_or("").trim();
 
-                let field_lower = field_name.to_ascii_lowercase();
-                for avoid in &avoid_words {
-                    if field_lower == *avoid
-                        || field_lower.contains(&format!("{avoid}_"))
-                        || field_lower.contains(&format!("_{avoid}"))
-                    {
-                        let finding = DiagnosticFinding::new(
-                            FindingType::InvariantViolation,
-                            "PROHIBITED_SYNONYM_USED",
-                            &rel_path,
-                            format!("Field '{field_name}' in '{rel_path}' uses prohibited synonym '{avoid}' forbidden by CONTEXT.md."),
-                            format!("Rename field '{field_name}' to align with ubiquitous domain terms in CONTEXT.md."),
-                        )
-                        .with_line(line_idx + 1);
-                        report.avoid_violations.push(finding.clone());
-                        report.diagnostics.push(finding);
+                    let field_lower = field_name.to_ascii_lowercase();
+                    for avoid in &avoid_words {
+                        if field_lower == *avoid
+                            || field_lower.contains(&format!("{avoid}_"))
+                            || field_lower.contains(&format!("_{avoid}"))
+                        {
+                            let finding = DiagnosticFinding::new(
+                                FindingType::InvariantViolation,
+                                "PROHIBITED_SYNONYM_USED",
+                                &rel_path,
+                                format!("Field '{field_name}' in '{rel_path}' uses prohibited synonym '{avoid}' forbidden by CONTEXT.md."),
+                                format!("Rename field '{field_name}' to align with ubiquitous domain terms in CONTEXT.md."),
+                            )
+                            .with_line(line_idx + 1);
+                            report.avoid_violations.push(finding.clone());
+                            report.diagnostics.push(finding);
+                        }
                     }
                 }
             }

@@ -1843,7 +1843,7 @@ async fn main() -> anyhow::Result<()> {
                         if fmt == "json" {
                             println!("{}", graph.export_json()?);
                         } else {
-                            let mermaid_level = if level.trim().to_ascii_lowercase() == "detailed" {
+                            let mermaid_level = if level.trim().eq_ignore_ascii_case("detailed") {
                                 xgauntlet_core::MermaidLevel::Detailed
                             } else {
                                 xgauntlet_core::MermaidLevel::Conceptual
