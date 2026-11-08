@@ -437,3 +437,134 @@ impl PaymentGateway for StripeGateway {
         "Conceptual diagram must contain composition relationship:\n{mermaid}"
     );
 }
+
+#[test]
+fn test_ast_shadowing_immunity_prevents_test_mocks_from_overwriting_domain_models() {
+    let ws = TempWorkspace::new("shadowing_immunity");
+    let ws_path = ws.path();
+
+    fs::write(
+        ws_path.join("Cargo.toml"),
+        r#"[package]
+name = "core-engine"
+version = "0.1.0"
+edition = "2021"
+"#,
+    )
+    .unwrap();
+
+    let models_dir = ws_path.join("src").join("features").join("diagnostics");
+    fs::create_dir_all(&models_dir).unwrap();
+
+    let models_rs = models_dir.join("models.rs");
+    fs::write(
+        &models_rs,
+        r#"//! Diagnostics models.
+
+pub enum Category {
+    Host,
+    Git,
+}
+
+pub struct CheckItem {
+    pub name: String,
+    pub category: Category,
+}
+"#,
+    )
+    .unwrap();
+
+    // A test file defining a mock struct with the identical name Category
+    let tests_dir = ws_path.join("tests");
+    fs::create_dir_all(&tests_dir).unwrap();
+    let test_rs = tests_dir.join("check_test.rs");
+    fs::write(
+        &test_rs,
+        r#"//! Integration test with local mock struct.
+
+struct Category {
+    dummy: u32,
+}
+"#,
+    )
+    .unwrap();
+
+    let topology_opts = TopologyOptions {
+        workspace_root: ws_path.to_path_buf(),
+        detect_symbols: true,
+        ..Default::default()
+    };
+
+    let graph = scan_workspace_topology(&topology_opts).unwrap();
+
+    let export_opts = MermaidExportOptions {
+        direction: "TB".to_string(),
+        level: MermaidLevel::Conceptual,
+        domain_only: true,
+    };
+    let mermaid = export_mermaid_class_diagram(&graph, &export_opts);
+
+    // Assert that CheckItem *-- Category : category is present and NOT shadowed/dropped!
+    assert!(
+        mermaid.contains("CheckItem *-- Category : category"),
+        "Conceptual diagram must retain relationship 'CheckItem *-- Category : category' despite test mock:\n{mermaid}"
+    );
+}
+
+#[test]
+fn test_xgauntlet_repo_conceptual_domain_model_relationships() {
+    let repo_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap();
+
+    let topology_opts = TopologyOptions {
+        workspace_root: repo_root.to_path_buf(),
+        detect_symbols: true,
+        ..Default::default()
+    };
+
+    let graph = scan_workspace_topology(&topology_opts).unwrap();
+
+    let export_opts = MermaidExportOptions {
+        direction: "TB".to_string(),
+        level: MermaidLevel::Conceptual,
+        domain_only: true,
+    };
+    let mermaid = export_mermaid_class_diagram(&graph, &export_opts);
+
+    // Verify formerly orphaned relationships are present
+    assert!(
+        mermaid.contains("VerificationReport *-- TaskContract : task_contract"),
+        "Missing VerificationReport *-- TaskContract in:\n{mermaid}"
+    );
+    assert!(
+        mermaid.contains("DoctorCheckItem *-- DoctorCategory : category"),
+        "Missing DoctorCheckItem *-- DoctorCategory in:\n{mermaid}"
+    );
+    assert!(
+        mermaid.contains("PolicyDecision *-- DecisionVerdict : verdict"),
+        "Missing PolicyDecision *-- DecisionVerdict in:\n{mermaid}"
+    );
+    assert!(
+        mermaid.contains("CapabilityRequest *-- ToolActionType : action_type"),
+        "Missing CapabilityRequest *-- ToolActionType in:\n{mermaid}"
+    );
+    assert!(
+        mermaid.contains("AdapterHookVerdict *-- DecisionVerdict : decision"),
+        "Missing AdapterHookVerdict *-- DecisionVerdict in:\n{mermaid}"
+    );
+    assert!(
+        mermaid.contains("NormalizedToolCall *-- ToolActionType : action_type"),
+        "Missing NormalizedToolCall *-- ToolActionType in:\n{mermaid}"
+    );
+    assert!(
+        mermaid.contains("AttestationReport *-- AttestationStatus : attestation_status"),
+        "Missing AttestationReport *-- AttestationStatus in:\n{mermaid}"
+    );
+    assert!(
+        mermaid.contains("AttestationReport *-- TrustDecision : trust_decision"),
+        "Missing AttestationReport *-- TrustDecision in:\n{mermaid}"
+    );
+}
