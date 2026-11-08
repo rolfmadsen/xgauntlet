@@ -841,6 +841,14 @@
         "commit_oid": "9cb0fc683e5c6c0e03524bd66ae5b0eb4807ed73",
         "timestamp": "2026-11-08T11:08:23Z",
         "digest": "e2927f856ab28be718ac61fc1fd587b19ae7f8c5bc5c27d59c596caa2a791cd6"
+      },
+      {
+        "session_nonce": "sess-f91e9316",
+        "role": "TDD Craftsman",
+        "phase": "GREEN",
+        "commit_oid": "f91e9316e7ba314153036d7d82b23cdc292be686",
+        "timestamp": "2026-11-08T11:10:00Z",
+        "digest": "89aebfff18e567beffeef7f410a69d9647e4e6e70f1f15003cda5c72a1f90c86"
       }
     ]
   },
