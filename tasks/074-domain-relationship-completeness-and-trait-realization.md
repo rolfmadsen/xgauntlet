@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 074: Domain Relationship Completeness & AST Trait Realization"
 description: "Eliminere forældreløse domæne-typer i Mermaid-diagrammet ved at tilføje AST trait-realization (<|..), udrydde Primitive Obsession med stærke enums, og konsolidere TaskContract-modellen."
-status: active
+status: done
 intent: enhancement
 slice: topology
 spec_ref: "specs/topology.md"
@@ -40,7 +40,7 @@ test_refs:
 
 # Task 074: Domain Relationship Completeness & AST Trait Realization
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-08`
 
