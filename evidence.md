@@ -1,28 +1,25 @@
 # Verification Report
 
-**Task ID**: `066-automatic-architecture-mermaid-sync`  
-**Task Title**: Task 066: Automatic Architecture Mermaid Diagram Synchronization  
+**Task ID**: `067-sync-npm-package-readme-and-parity-gate`  
+**Task Title**: Task 067: Synchronize NPM Package README & Add Parity Test Gate  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `ed5435660992c54f7bb323e49d29af510d65e8436378e1d3d454a96a5229bd53`  
-**Timestamp**: `2026-11-08T11:51:59Z`  
-**Head**: `8a7c7d0`  
-**Commit**: `8a7c7d0`  
+**Source Manifest Digest**: `044f853b965a7d2bbf5d8d216c4c226ee472bef9fdb35c06aab3b3ae8d057480`  
+**Timestamp**: `2026-11-08T11:58:44Z`  
+**Head**: `7a9bd92`  
+**Commit**: `7a9bd92`  
 
 ## Acceptance Criteria
 
-- [x] **Deklarativ Konfiguration (`gauntlet.toml`)**:
-- [x] `PathsConfig` udvides med `diagram_file: String` (default `"architecture.mermaid"`).
-- [x] Hvis `diagram_file` er sat til en tom streng, springes automatisk diagram-generering over.
-- [x] **Automatisk Persistens under `verify --save`**:
-- [x] Ved kørsel af verifikationspipelinen med `save_evidence = true` genereres det deterministiske Mermaid `classDiagram` via AST-traverseringen fra Task 062 og skrives til den konfigurerede `diagram_file`.
-- [x] Filen genereres uden at udløse selvmutation (`verify_self_mutation`), og tilføjes til `EXCLUDED_FILES` i workspace-manifestet.
-- [x] **Scope- og Policy-Godkendelse**:
-- [x] Checkpoint-motorens scope-validering (`validate_staged_files_scope`) tillader `architecture.mermaid` som en gyldig governance-artefakt.
-- [x] Policy-engine tillader skrivning til `architecture.mermaid` analogt med `spec.md` og `evidence.md`.
-- [x] **Specifikation & Dokumentation**:
-- [x] `spec.md` indeholder et direkte, klikbart link til `architecture.mermaid`.
-- [x] Repositoryets egen `architecture.mermaid` genereres og forsegles.
+- [x] **Acceptance Test for README Paritet**:
+- [x] En test i `release_manifest_parity_test.rs` verificerer, at `packages/cli/README.md` er 100% identisk med rod-`README.md`.
+- [x] **Synkronisering af `packages/cli/README.md`**:
+- [x] `packages/cli/README.md` opdateres, så den matcher rod-`README.md` byte-for-byte.
+- [x] **Release Gatekeeper Enforcement**:
+- [x] `xgauntlet check-release` (`ReleaseReadinessEngine`) validerer, at `packages/cli/README.md` matcher rod-`README.md`, og rapporterer en blokerende `ReleaseFinding`, hvis der detekteres drift.
+- [x] **Verifikation**:
+- [x] `cargo test -p xgauntlet-core --test release_manifest_parity_test` passerer.
+- [x] `xgauntlet check-release` rapporterer fuld release-paritet.
 
 ---
 
@@ -30,13 +27,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.067s` |
-| `format` | `PASSED` | `0` | `0.265s` |
-| `lint` | `PASSED` | `0` | `0.110s` |
-| `unit` | `PASSED` | `0` | `32.249s` |
-| `npm` | `PASSED` | `0` | `0.803s` |
-| `invariants` | `PASSED` | `0` | `0.058s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.015s` |
+| `architecture` | `PASSED` | `0` | `0.068s` |
+| `format` | `PASSED` | `0` | `0.255s` |
+| `lint` | `PASSED` | `0` | `0.119s` |
+| `unit` | `PASSED` | `0` | `35.647s` |
+| `npm` | `PASSED` | `0` | `0.789s` |
+| `invariants` | `PASSED` | `0` | `0.062s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
 
 ---
 
@@ -150,6 +147,7 @@
 | `sess-73ccd57c` | `System Architect` | `SPEC` | `73ccd57` | `2026-11-08T11:55:44Z` | `VALID` |
 | `sess-b4e22626` | `TDD Craftsman` | `RED` | `b4e2262` | `2026-11-08T11:56:25Z` | `VALID` |
 | `sess-1045ab7b` | `TDD Craftsman` | `GREEN` | `1045ab7` | `2026-11-08T11:57:32Z` | `VALID` |
+| `sess-7a9bd92a` | `TDD Craftsman` | `REFACTOR` | `7a9bd92` | `2026-11-08T11:57:46Z` | `VALID` |
 
 ---
 
@@ -157,12 +155,13 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `13b3f4cc8f63845d...` | `2026-11-08T12:56:25+01:00` |
+| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `13b3f4cc8f63845d...` | `2026-11-08T12:56:25+01:00` |
+| `test_workspace_manifests_synchronized_to_version_0_13_0` | `RedCheckpointVerified` | `13b3f4cc8f63845d...` | `2026-11-08T12:56:25+01:00` |
+| `test_npm_cli_readme_identical_to_root_readme` | `RedCheckpointVerified` | `13b3f4cc8f63845d...` | `2026-11-08T12:56:25+01:00` |
 | `test_paths_config_default_diagram_file` | `RedCheckpointVerified` | `a00ae1cd4b5d35aa...` | `2026-11-08T12:45:47+01:00` |
 | `test_verify_save_generates_architecture_mermaid` | `RedCheckpointVerified` | `a00ae1cd4b5d35aa...` | `2026-11-08T12:45:47+01:00` |
 | `test_verify_save_skips_when_diagram_file_empty` | `RedCheckpointVerified` | `a00ae1cd4b5d35aa...` | `2026-11-08T12:45:47+01:00` |
-| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `6d875a00c0609a11...` | `2026-11-08T12:22:33+01:00` |
-| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `6d875a00c0609a11...` | `2026-11-08T12:22:33+01:00` |
-| `test_workspace_manifests_synchronized_to_version_0_13_0` | `RedCheckpointVerified` | `6d875a00c0609a11...` | `2026-11-08T12:22:33+01:00` |
 | `test_safe_non_destructive_guarantee_preserves_existing_files` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
 | `test_force_flag_overwrites_existing_files` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
 | `test_dry_run_does_not_modify_disk` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
@@ -308,6 +307,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_npm_cli_readme_identical_to_root_readme` | `RedCheckpointVerified` | `13b3f4cc8f63845d...` | `2026-11-08T12:56:25+01:00` |
 
 ---
