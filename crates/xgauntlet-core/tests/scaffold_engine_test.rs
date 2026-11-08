@@ -450,6 +450,14 @@ fn test_scaffold_agents_md_contains_dynamic_cockpit_hud_and_checkpoint_protocol(
         "agents.md must include DONE checkpoint conventional commit format"
     );
     assert!(
+        agents_md.contains("xgauntlet checkpoint --phase spec")
+            && agents_md.contains("xgauntlet checkpoint --phase red")
+            && agents_md.contains("xgauntlet checkpoint --phase green")
+            && agents_md.contains("xgauntlet checkpoint --phase refactor")
+            && agents_md.contains("xgauntlet checkpoint --phase done"),
+        "agents.md must instruct static checkpoint commands across all 5 phases"
+    );
+    assert!(
         agents_md.contains("git push"),
         "agents.md must explicitly forbid git push jf. ADR 0003"
     );

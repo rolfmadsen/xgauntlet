@@ -8,6 +8,7 @@ generated: { by: process:antigravity-task-init, at: "2026-11-08T12:08:00Z" }
 tags: [scaffold, templates, skills, checkpoint, harness, auto-approval, antigravity]
 scope:
   - "crates/xgauntlet-core/src/features/scaffold/templates.rs"
+  - "crates/xgauntlet-core/tests/scaffold_engine_test.rs"
   - "crates/xgauntlet-cli/src/main.rs"
   - ".agents/AGENTS.md"
   - ".agents/plugins/xgauntlet/skills/release/SKILL.md"
