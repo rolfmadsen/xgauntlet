@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 068: Release v0.13.1 Preparation & Manifest Bump"
 description: "Opgradere samtlige versionsmanifester til 0.13.1, genkompilere WebAssembly policy bytecode, rotere CHANGELOG.md og forsegle release-readiness."
-status: active
+status: done
 intent: enhancement
 generated: { by: process:antigravity-task-init, at: "2026-11-08T13:00:00Z" }
 tags: [release, semver, bump, changelog, wasm, manifests]
@@ -28,7 +28,7 @@ test_refs:
 
 # Task 068: Release v0.13.1 Preparation & Manifest Bump
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-08`
 
@@ -36,17 +36,17 @@ test_refs:
 Forberede udgivelse af version `0.13.1` (patch bump) for at muliggøre publicering til NPM Registry, synkronisere samtlige 8 manifester, genkompilere WebAssembly policy engine til `0.13.1`, opdatere `CHANGELOG.md` og validere 100% release readiness via `xgauntlet check-release`.
 
 ## 📋 Acceptance Criteria
-- [ ] **Acceptance Test for Version 0.13.1**:
-  - [ ] `release_manifest_parity_test.rs` opdateres til at kræve version `0.13.1` på tværs af alle manifester.
-- [ ] **Manifest-opgradering til 0.13.1**:
-  - [ ] Opdatere alle 8 manifester til `0.13.1` (`Cargo.toml`, `package.json`, `packages/cli/package.json`, `plugin.json`, `policy.json` mv.).
-- [ ] **WASM Policy Bytecode Rebuild**:
-  - [ ] Genkompilere `gauntlet-policy-engine` til version `0.13.1` og opdatere `crates/xgauntlet-core/wasm/gauntlet_policy.wasm`.
-- [ ] **Changelog Rotation**:
-  - [ ] `CHANGELOG.md` opdateres med `[0.13.1] - 2026-11-08` dækkende Task 066 (`architecture.mermaid` sync) og Task 067 (NPM README paritet).
-- [ ] **Release Gatekeeper & Verifikation**:
-  - [ ] `xgauntlet check-release` rapporterer fuld release-paritet og 100% ADR dækning for `0.13.1`.
-  - [ ] Fuld gauntlet-verifikation `xgauntlet verify --task 068 --save` passerer.
+- [x] **Acceptance Test for Version 0.13.1**:
+  - [x] `release_manifest_parity_test.rs` opdateres til at kræve version `0.13.1` på tværs af alle manifester.
+- [x] **Manifest-opgradering til 0.13.1**:
+  - [x] Opdatere alle 8 manifester til `0.13.1` (`Cargo.toml`, `package.json`, `packages/cli/package.json`, `plugin.json`, `policy.json` mv.).
+- [x] **WASM Policy Bytecode Rebuild**:
+  - [x] Genkompilere `gauntlet-policy-engine` til version `0.13.1` og opdatere `crates/xgauntlet-core/wasm/gauntlet_policy.wasm`.
+- [x] **Changelog Rotation**:
+  - [x] `CHANGELOG.md` opdateres med `[0.13.1] - 2026-11-08` dækkende Task 066 (`architecture.mermaid` sync) og Task 067 (NPM README paritet).
+- [x] **Release Gatekeeper & Verifikation**:
+  - [x] `xgauntlet check-release` rapporterer fuld release-paritet og 100% ADR dækning for `0.13.1`.
+  - [x] Fuld gauntlet-verifikation `xgauntlet verify --task 068 --save` passerer.
 
 ## 🚫 Must NOT
 - Må IKKE udføre remote publication (`git push`) jf. ADR 0003.

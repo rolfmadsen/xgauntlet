@@ -1,25 +1,27 @@
 # Verification Report
 
-**Task ID**: `067-sync-npm-package-readme-and-parity-gate`  
-**Task Title**: Task 067: Synchronize NPM Package README & Add Parity Test Gate  
+**Task ID**: `068-release-v0-13-1`  
+**Task Title**: Task 068: Release v0.13.1 Preparation & Manifest Bump  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `044f853b965a7d2bbf5d8d216c4c226ee472bef9fdb35c06aab3b3ae8d057480`  
-**Timestamp**: `2026-11-08T11:58:44Z`  
-**Head**: `7a9bd92`  
-**Commit**: `7a9bd92`  
+**Source Manifest Digest**: `db741cc175e5328738d095057cd4fa3e03ff619073e5b583b5ab306cd91a64d8`  
+**Timestamp**: `2026-11-08T12:02:51Z`  
+**Head**: `170f650`  
+**Commit**: `170f650`  
 
 ## Acceptance Criteria
 
-- [x] **Acceptance Test for README Paritet**:
-- [x] En test i `release_manifest_parity_test.rs` verificerer, at `packages/cli/README.md` er 100% identisk med rod-`README.md`.
-- [x] **Synkronisering af `packages/cli/README.md`**:
-- [x] `packages/cli/README.md` opdateres, så den matcher rod-`README.md` byte-for-byte.
-- [x] **Release Gatekeeper Enforcement**:
-- [x] `xgauntlet check-release` (`ReleaseReadinessEngine`) validerer, at `packages/cli/README.md` matcher rod-`README.md`, og rapporterer en blokerende `ReleaseFinding`, hvis der detekteres drift.
-- [x] **Verifikation**:
-- [x] `cargo test -p xgauntlet-core --test release_manifest_parity_test` passerer.
-- [x] `xgauntlet check-release` rapporterer fuld release-paritet.
+- [x] **Acceptance Test for Version 0.13.1**:
+- [x] `release_manifest_parity_test.rs` opdateres til at kræve version `0.13.1` på tværs af alle manifester.
+- [x] **Manifest-opgradering til 0.13.1**:
+- [x] Opdatere alle 8 manifester til `0.13.1` (`Cargo.toml`, `package.json`, `packages/cli/package.json`, `plugin.json`, `policy.json` mv.).
+- [x] **WASM Policy Bytecode Rebuild**:
+- [x] Genkompilere `gauntlet-policy-engine` til version `0.13.1` og opdatere `crates/xgauntlet-core/wasm/gauntlet_policy.wasm`.
+- [x] **Changelog Rotation**:
+- [x] `CHANGELOG.md` opdateres med `[0.13.1] - 2026-11-08` dækkende Task 066 (`architecture.mermaid` sync) og Task 067 (NPM README paritet).
+- [x] **Release Gatekeeper & Verifikation**:
+- [x] `xgauntlet check-release` rapporterer fuld release-paritet og 100% ADR dækning for `0.13.1`.
+- [x] Fuld gauntlet-verifikation `xgauntlet verify --task 068 --save` passerer.
 
 ---
 
@@ -27,13 +29,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.068s` |
-| `format` | `PASSED` | `0` | `0.255s` |
-| `lint` | `PASSED` | `0` | `0.119s` |
-| `unit` | `PASSED` | `0` | `35.647s` |
-| `npm` | `PASSED` | `0` | `0.789s` |
-| `invariants` | `PASSED` | `0` | `0.062s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
+| `architecture` | `PASSED` | `0` | `0.075s` |
+| `format` | `PASSED` | `0` | `0.270s` |
+| `lint` | `PASSED` | `0` | `0.125s` |
+| `unit` | `PASSED` | `0` | `36.395s` |
+| `npm` | `PASSED` | `0` | `0.812s` |
+| `invariants` | `PASSED` | `0` | `0.076s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---
 
@@ -152,6 +154,7 @@
 | `sess-ac4b1ae4` | `System Architect` | `SPEC` | `ac4b1ae` | `2026-11-08T12:00:08Z` | `VALID` |
 | `sess-f06083ce` | `TDD Craftsman` | `RED` | `f06083c` | `2026-11-08T12:00:26Z` | `VALID` |
 | `sess-09e1fde6` | `TDD Craftsman` | `GREEN` | `09e1fde` | `2026-11-08T12:01:28Z` | `VALID` |
+| `sess-170f6508` | `TDD Craftsman` | `REFACTOR` | `170f650` | `2026-11-08T12:01:52Z` | `VALID` |
 
 ---
 
@@ -159,10 +162,11 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
-| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `13b3f4cc8f63845d...` | `2026-11-08T12:56:25+01:00` |
-| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `13b3f4cc8f63845d...` | `2026-11-08T12:56:25+01:00` |
+| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `df6785ad3278087b...` | `2026-11-08T13:00:26+01:00` |
+| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `df6785ad3278087b...` | `2026-11-08T13:00:26+01:00` |
+| `test_workspace_manifests_synchronized_to_version_0_13_1` | `RedCheckpointVerified` | `df6785ad3278087b...` | `2026-11-08T13:00:26+01:00` |
+| `test_npm_cli_readme_identical_to_root_readme` | `RedCheckpointVerified` | `df6785ad3278087b...` | `2026-11-08T13:00:26+01:00` |
 | `test_workspace_manifests_synchronized_to_version_0_13_0` | `RedCheckpointVerified` | `13b3f4cc8f63845d...` | `2026-11-08T12:56:25+01:00` |
-| `test_npm_cli_readme_identical_to_root_readme` | `RedCheckpointVerified` | `13b3f4cc8f63845d...` | `2026-11-08T12:56:25+01:00` |
 | `test_paths_config_default_diagram_file` | `RedCheckpointVerified` | `a00ae1cd4b5d35aa...` | `2026-11-08T12:45:47+01:00` |
 | `test_verify_save_generates_architecture_mermaid` | `RedCheckpointVerified` | `a00ae1cd4b5d35aa...` | `2026-11-08T12:45:47+01:00` |
 | `test_verify_save_skips_when_diagram_file_empty` | `RedCheckpointVerified` | `a00ae1cd4b5d35aa...` | `2026-11-08T12:45:47+01:00` |
@@ -311,6 +315,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_workspace_manifests_synchronized_to_version_0_13_1` | `RedCheckpointVerified` | `df6785ad3278087b...` | `2026-11-08T13:00:26+01:00` |
 
 ---
