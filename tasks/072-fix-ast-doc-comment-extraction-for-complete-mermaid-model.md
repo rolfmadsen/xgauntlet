@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 072: Fix AST Doc-Comment Parsing for Complete Mermaid Data Model"
 description: "Rette linjeskifts-håndtering i extract_brace_body så doc-kommentarer ikke kasserer struct-felter og enum-varianter, og genskabe den fulde datamodel i architecture.mermaid."
-status: active
+status: done
 intent: bug_fix
 slice: topology
 spec_ref: "specs/topology.md"
@@ -22,7 +22,7 @@ test_refs:
 
 # Task 072: Fix AST Doc-Comment Parsing for Complete Mermaid Data Model
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🐛 BUG FIX`
 **Oprettet**: `2026-11-08`
 
@@ -32,17 +32,17 @@ Løse defekten i `extract_brace_body` i `crates/xgauntlet-core/src/features/topo
 Efter rettelsen skal `architecture.mermaid` regenereres, så samtlige domænemodeller fremstår med deres reelle felter, enum-varianter og indbyrdes kompositionsrelationer.
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Bevaring af linjeskift i `extract_brace_body`):**
-  - [ ] `extract_brace_body` i `rust_ast.rs` sammenkæder udtrukne linjer med `\n` i stedet for `' '`.
-- [ ] **AC2 (Robust linje-for-linje kommentar-stripping):**
-  - [ ] `parse_struct_fields` og `parse_enum_variants` fjerner kommentarer linje for linje uden at klippe efterfølgende felter/varianter af.
-- [ ] **AC3 (Fuld ekstraktion af felter, varianter og relationer):**
-  - [ ] `DoctorCategory` udtrækker alle 6 varianter (`Host`, `Git`, `Governance`, `Toolchains`, `Engine`, `Harnesses`).
-  - [ ] `DoctorCheckItem` udtrækker samtlige felter, herunder `category: DoctorCategory` og `status: DoctorCheckStatus`.
-  - [ ] `DoctorCheckItem *-- DoctorCategory : category` og `DoctorCheckItem *-- DoctorCheckStatus : status` genereres som relationer i `architecture.mermaid`.
-- [ ] **AC4 (Regressionstest & Multi-Layer Verifikation):**
-  - [ ] En regressionstest i `crates/xgauntlet-core/tests/mermaid_field_and_relation_extraction_test.rs` beviser at doc-kommenterede modeller udtrækkes komplet med felter og varianter.
-  - [ ] `target/debug/xgauntlet verify --task 072 --save` kører rent uden selvmutation, og `architecture.mermaid` opdateres med den fulde datamodel.
+- [x] **AC1 (Bevaring af linjeskift i `extract_brace_body`):**
+  - [x] `extract_brace_body` i `rust_ast.rs` sammenkæder udtrukne linjer med `\n` i stedet for `' '`.
+- [x] **AC2 (Robust linje-for-linje kommentar-stripping):**
+  - [x] `parse_struct_fields` og `parse_enum_variants` fjerner kommentarer linje for linje uden at klippe efterfølgende felter/varianter af.
+- [x] **AC3 (Fuld ekstraktion af felter, varianter og relationer):**
+  - [x] `DoctorCategory` udtrækker alle 6 varianter (`Host`, `Git`, `Governance`, `Toolchains`, `Engine`, `Harnesses`).
+  - [x] `DoctorCheckItem` udtrækker samtlige felter, herunder `category: DoctorCategory` og `status: DoctorCheckStatus`.
+  - [x] `DoctorCheckItem *-- DoctorCategory : category` og `DoctorCheckItem *-- DoctorCheckStatus : status` genereres som relationer i `architecture.mermaid`.
+- [x] **AC4 (Regressionstest & Multi-Layer Verifikation):**
+  - [x] En regressionstest i `crates/xgauntlet-core/tests/mermaid_field_and_relation_extraction_test.rs` beviser at doc-kommenterede modeller udtrækkes komplet med felter og varianter.
+  - [x] `target/debug/xgauntlet verify --task 072 --save` kører rent uden selvmutation, og `architecture.mermaid` opdateres med den fulde datamodel.
 
 ## 🚫 Must NOT
 - Må IKKE ændre eksisterende relationstyper eller indføre eksterne parsere/dæmoner (Zero-Daemon Invariant).

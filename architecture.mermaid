@@ -50,6 +50,16 @@ classDiagram
 
     class ArchitectureFindingCategory {
         <<enumeration>>
+        FileExceedsMaxLines
+        TestFileExceedsMaxLines
+        ExemptionCeilingExceeded
+        ForbiddenTokenDetected
+        ForbiddenImportDetected
+        ExemptionMissingAdr
+        ExemptionAdrNotFound
+        ExemptionAdrNotAccepted
+        RatchetCeilingInflated
+        RatchetBaselineUnreadable
     }
 
     class ArchitectureReport {
@@ -124,6 +134,14 @@ classDiagram
     }
 
     class CheckpointOptions {
+        +phase: CheckpointPhase
+        +task_id: Option~String~
+        +message: Option~String~
+        +workspace: PathBuf
+        +skip_verify: bool
+        +allow_empty: bool
+        +strict_provenance: bool
+        +allow_born_green: bool
     }
 
     class CheckpointPhase {
@@ -136,6 +154,16 @@ classDiagram
     }
 
     class CheckpointResult {
+        +phase: CheckpointPhase
+        +task_id: String
+        +commit_oid: Option~String~
+        +commit_message: String
+        +staged_files: Vec~String~
+        +preflight_passed: bool
+        +details: Option~String~
+        +handoff: Option~SessionHandoff~
+        +next_phase: Option~String~
+        +autonomous_transition: bool
     }
 
     class ConfigError {
@@ -204,13 +232,30 @@ classDiagram
 
     class DoctorCategory {
         <<enumeration>>
+        Host
+        Git
+        Governance
+        Toolchains
+        Engine
+        Harnesses
     }
 
     class DoctorCheckItem {
+        +name: String
+        +category: DoctorCategory
+        +status: DoctorCheckStatus
+        +message: String
+        +detail: Option~String~
+        +remediation: Option~String~
+        +duration_ms: u64
     }
 
     class DoctorCheckStatus {
         <<enumeration>>
+        Pass
+        Warn
+        Fail
+        Info
     }
 
     class DoctorError {
@@ -223,13 +268,32 @@ classDiagram
     }
 
     class DoctorOptions {
+        +workspace: PathBuf
+        +verbose: bool
+        +strict: bool
+        +category: Option~DoctorCategory~
+        +fix: bool
     }
 
     class DoctorReport {
+        +workspace: PathBuf
+        +timestamp: String
+        +engine_version: String
+        +target_platform: String
+        +checks: Vec~DoctorCheckItem~
+        +passed_count: usize
+        +warn_count: usize
+        +failed_count: usize
+        +info_count: usize
+        +duration_total_ms: u64
+        +verdict: DoctorVerdict
     }
 
     class DoctorVerdict {
         <<enumeration>>
+        Healthy
+        Degraded
+        Critical
     }
 
     class EdgeType {
@@ -364,12 +428,20 @@ classDiagram
     }
 
     class MigrationItem {
+        +file: PathBuf
+        +description: String
+        +changes: Vec~String~
     }
 
     class MigrationOptions {
+        +workspace: PathBuf
+        +dry_run: bool
     }
 
     class MigrationReport {
+        +is_success: bool
+        +items: Vec~MigrationItem~
+        +files_modified: Vec~PathBuf~
     }
 
     class NodeType {
@@ -461,20 +533,51 @@ classDiagram
     }
 
     class ReleaseFinding {
+        +file_path: String
+        +category: ReleaseFindingCategory
+        +message: String
+        +remediation_hint: String
     }
 
     class ReleaseFindingCategory {
         <<enumeration>>
+        ConfigVersionMismatch
+        MissingChangelog
+        ChangelogVersionMismatch
+        UnreferencedAdr
+        MissingManifest
+        DirtyWorktree
+        UnformattedCode
+        GeneralError
     }
 
     class ReleaseReadinessOptions {
+        +workspace: PathBuf
+        +allow_unreleased: bool
+        +strict: bool
+        +in_flight_staging: bool
     }
 
     class ReleaseReadinessReport {
+        +is_ready: bool
+        +declared_version: String
+        +versions_by_source: BTreeMap~String
+        +String~
+        +inspected_files: Vec~String~
+        +changelog_versions: Vec~String~
+        +unreferenced_adrs: Vec~String~
+        +diagnostics: Vec~ReleaseFinding~
+        +duration_ms: u64
     }
 
     class ScaffoldAction {
         <<enumeration>>
+        Created
+        Skipped
+        Overwritten
+        WouldCreate
+        WouldSkip
+        WouldOverwrite
     }
 
     class ScaffoldError {
@@ -491,6 +594,11 @@ classDiagram
     }
 
     class ScaffoldOptions {
+        +workspace: PathBuf
+        +stack: Option~String~
+        +force: bool
+        +dry_run: bool
+        +project_name: Option~String~
     }
 
     class ScaffoldResult {
@@ -695,42 +803,48 @@ classDiagram
         +vcs: Option~VcsMetadata~
     }
 
-    GauntletReport *-- LayerResult : layers
-    ScaffoldFileReport *-- ScaffoldAction : action
-    CapabilityRequest *-- ToolActionType : action_type
-    ScaffoldResult *-- ScaffoldFileReport : files
-    ConfigValidationReport *-- ConfigValidationIssue : issues
-    ArchitectureFinding *-- ArchitectureFindingCategory : category
-    NormalizedToolCall *-- ToolActionType : action_type
-    SpecReadinessReport *-- DiagnosticFinding : diagnostics
-    PluginInstallReport *-- PluginTargetInstallReport : targets
-    GauntletConfig *-- PathsConfig : paths
-    GauntletConfig *-- ArchitectureConfig : architecture
-    GauntletConfig *-- CheckpointConfig : checkpoint
-    GauntletConfig *-- LayerConfig : layers
-    TaskPackageInfo *-- TaskStatus : status
-    GlossaryDriftReport *-- DiagnosticFinding : avoid_violations
-    GlossaryDriftReport *-- DiagnosticFinding : diagnostics
-    TopologyEdge *-- EdgeType : edge_type
-    ArchitectureConfig *-- ArchitectureExemption : exemptions
-    AdapterValidationResult *-- ValidationIssue : issues
-    PluginTargetInstallReport *-- PluginInstallStatus : status
-    ArchitectureReport *-- ArchitectureFinding : findings
-    ValidationIssue *-- ValidationSeverity : severity
-    AdrReadinessReport *-- DiagnosticFinding : diagnostics
-    WorkspaceState *-- VcsMetadata : vcs
+    StackProfile *-- LayerConfig : default_layers
+    DoctorReport *-- DoctorVerdict : verdict
     ConfigValidationIssue *-- ValidationSeverity : severity
-    LayerResult *-- LayerExecutionStatus : status
-    LayerResult *-- LayerRequirement : requirement
-    LayerDefinition *-- LayerRequirement : requirement
+    ScaffoldFileReport *-- ScaffoldAction : action
+    AdrReadinessReport *-- DiagnosticFinding : diagnostics
+    TopologyGraph *-- TopologyEdge : edges
+    PluginTargetInstallReport *-- PluginInstallStatus : status
+    DiagnosticReport *-- DiagnosticFinding : findings
+    TopologyEdge *-- EdgeType : edge_type
+    CheckpointResult *-- CheckpointPhase : phase
+    CheckpointResult *-- SessionHandoff : handoff
+    ArchitectureConfig *-- ArchitectureExemption : exemptions
+    SpecReadinessReport *-- DiagnosticFinding : diagnostics
+    ValidationIssue *-- ValidationSeverity : severity
+    NormalizedToolCall *-- ToolActionType : action_type
     VerificationReport *-- TaskContractSummary : task_contract
     VerificationReport *-- WorkspaceState : workspace_state
     VerificationReport *-- ExecutionMetadata : execution_metadata
     VerificationReport *-- CheckSummary : checks
     VerificationReport *-- DiagnosticFinding : diagnostics
-    PolicyDecision *-- DecisionVerdict : verdict
-    DiagnosticFinding *-- FindingType : finding_type
-    DiagnosticReport *-- DiagnosticFinding : findings
-    StackProfile *-- LayerConfig : default_layers
-    TopologyGraph *-- TopologyEdge : edges
+    GauntletReport *-- LayerResult : layers
+    TaskPackageInfo *-- TaskStatus : status
+    CheckpointOptions *-- CheckpointPhase : phase
+    ConfigValidationReport *-- ConfigValidationIssue : issues
     TopologyNode *-- NodeType : node_type
+    ReleaseFinding *-- ReleaseFindingCategory : category
+    GlossaryDriftReport *-- DiagnosticFinding : avoid_violations
+    GlossaryDriftReport *-- DiagnosticFinding : diagnostics
+    WorkspaceState *-- VcsMetadata : vcs
+    PluginInstallReport *-- PluginTargetInstallReport : targets
+    ReleaseReadinessReport *-- ReleaseFinding : diagnostics
+    ScaffoldResult *-- ScaffoldFileReport : files
+    MigrationReport *-- MigrationItem : items
+    LayerResult *-- LayerExecutionStatus : status
+    LayerResult *-- LayerRequirement : requirement
+    ArchitectureReport *-- ArchitectureFinding : findings
+    CapabilityRequest *-- ToolActionType : action_type
+    ArchitectureFinding *-- ArchitectureFindingCategory : category
+    GauntletConfig *-- PathsConfig : paths
+    GauntletConfig *-- ArchitectureConfig : architecture
+    GauntletConfig *-- CheckpointConfig : checkpoint
+    GauntletConfig *-- LayerConfig : layers
+    DiagnosticFinding *-- FindingType : finding_type
+    LayerDefinition *-- LayerRequirement : requirement
+    AdapterValidationResult *-- ValidationIssue : issues
