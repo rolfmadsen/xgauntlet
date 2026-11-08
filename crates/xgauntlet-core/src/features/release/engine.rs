@@ -223,6 +223,26 @@ impl ReleaseReadinessEngine {
             }
         }
 
+        // 5b. Validate NPM CLI README parity with root README
+        let root_readme = ws.join("README.md");
+        let cli_readme = ws.join("packages/cli/README.md");
+        if root_readme.is_file() && cli_readme.is_file() {
+            inspected_files.push("packages/cli/README.md".to_string());
+            if let (Ok(root_c), Ok(cli_c)) = (
+                std::fs::read_to_string(&root_readme),
+                std::fs::read_to_string(&cli_readme),
+            ) {
+                if root_c != cli_c {
+                    diagnostics.push(ReleaseFinding {
+                        file_path: "packages/cli/README.md".to_string(),
+                        category: ReleaseFindingCategory::ConfigVersionMismatch,
+                        message: "packages/cli/README.md is not in sync with root README.md; npm package documentation drift detected.".to_string(),
+                        remediation_hint: "Synchronize packages/cli/README.md with root README.md before releasing.".to_string(),
+                    });
+                }
+            }
+        }
+
         // 6. Strict mode validations: Clean worktree & sealed verification-report.json with 0 drift
         if options.strict {
             if !options.in_flight_staging && ws.join(".git").exists() {

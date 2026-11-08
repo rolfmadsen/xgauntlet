@@ -1,12 +1,9 @@
 <p align="center">
-  <a href="#-hurtig-start--installation"><b>🚀 Hurtig Start & Installation</b></a> •
-  <a href="#-pipeline-og-gates-sådan-virker-det"><b>🧭 Pipeline & Gates</b></a> •
-  <a href="#-arkitektur--designprincipper"><b>🎯 Arkitektur</b></a> •
-  <a href="#️-mappestruktur-package-by-feature"><b>🏗️ Mappestruktur</b></a> •
-  <a href="#️-fuld-cli-reference"><b>🛠️ CLI Reference</b></a> •
-  <a href="#-rust-api"><b>🦀 Rust API</b></a> •
-  <a href="#️-arkitektur-adrs"><b>🏛️ ADRs</b></a> •
-  <a href="#-licens"><b>📄 Licens</b></a>
+  <a href="#-motivation-hvorfor-xgauntlet"><b>🎯 Motivation</b></a> •
+  <a href="#️-arkitektur--de-3-søjler"><b>🏗️ Arkitektur</b></a> •
+  <a href="#-sådan-virker-det-udviklingsflowet"><b>🧭 Udviklingsflow</b></a> •
+  <a href="#-hurtig-start--installation"><b>🚀 Hurtig Start</b></a> •
+  <a href="#️-cli-reference--arkitektur-gates"><b>🛠️ CLI Reference</b></a>
 </p>
 
 ---
@@ -30,117 +27,232 @@
 
 ---
 
-**Dokumentation**: [Makro-Spec](spec.md) • [Domæne-Glossary](CONTEXT.md) • [Kodestandarder](CODING_STANDARDS.md) • [Arkitektur (ADRs)](docs/adr/)
-
+**Dokumentation**: [Makro-Spec](spec.md) • [Domæne-Glossary](CONTEXT.md) • [Kodestandarder](CODING_STANDARDS.md) • [Arkitektur (ADRs)](docs/adr/) • [Agent-Skills](.agents/plugins/xgauntlet/skills/)  
 **Kildekode & Pakker**: [GitHub](https://github.com/rolfmadsen/xgauntlet) • [NPM Pakke](packages/cli)
 
 ---
 
-**xGauntlet** omgiver AI-genereret kode med et kompromisløst verifikations-gauntlet (Linters, Type-checkere, Unit tests, Invariant-tests og Mutationsafprøvning), håndhæver en deterministisk **Zero Ambient Authority WebAssembly policy-kerne** (`wit/gauntlet_policy.wit`) og oversætter rå fejludskrifter til **Actionable Diagnostics** i et feedback-loop, som AI-agenter kan handle direkte på.
+## 🎯 Motivation: Hvorfor xGauntlet?
 
-Bygget i **Rust** for lynhurtig sub-3ms koldstart uden baggrundsdæmoner, og distribueret via **NPM** og **Cargo** for øjeblikkelig brug på tværs af **Linux**, **macOS** og **Windows 11**.
+### 🛑 Problemet med udisciplineret AI-kodning (Unconstrained AI)
+Moderne AI-kodningsassistenter (som Claude Code, Google Antigravity, Cursor, Mistral Vibe og OpenAI Codex) er fabelagtigt hurtige til at generere kode. Men overladt til sig selv mangler de softwareingeniørens håndværksmæssige grænser:
+* **De sletter eller udvander tests**, når assertions fejler, blot for at opnå grønne checks.
+* **De laver "scope drift"** og modificerer utilsigtede konfigurationsfiler, hjælpepakker eller scripts langt uden for opgavens grænser.
+* **De hallucinerer arkitektur**, bryder modulære grænser og glemmer domænets regler, så snart kontekstvinduet presses.
+* **De efterlader tavs teknisk gæld**, fordi compiler-fejl og advarsler ikke systematisk oversættes til disciplinerede modtræk.
+
+Kort sagt: *Fri og ubegrænset AI-kodning mangler deterministiske guardrails og ingeniørmæssig disciplin.*
+
+### 🛡️ Hensigten: Clean Craftsmanship for Agentic Coding
+**xGauntlet** løser dette ved at omslutte AI-agenten med et deterministisk **verification harness** baseret på principperne fra Robert C. Martin ("Uncle Bob"):
+
+1. **Ingen kode uden forudgående test (Strict TDD):** Agenten kan ikke blot tilføje produktionskode; enhver adfærdsændring skal bevises gennem en forudgående, fejlet accepttest (*Red $\to$ Green $\to$ Refactor*).
+2. **Nul utilsigtet autoritet (Zero Ambient Authority):** Agentens værktøjskald (tool calls) overvåges af en lynhurtig WebAssembly-motor, der fysisk forhindrer skrivning uden for opgavens erklærede `scope`.
+3. **Matematisk forsegling (Evidence-First):** En opgave er først færdig, når hele verifikationskæden (linters, typer, tests og mutationer) er kørt og kryptografisk forseglet mod utilsigtet selvmutation.
+
+---
+
+## 🏗️ Arkitektur & De 3 Søjler
+
+xGauntlet er ikke en tung cloud-service eller en baggrundsdæmon. Systemet er opbygget som et gennemskueligt samspil mellem tre uafhængige søjler:
+
+```text
+┌────────────────────────────────────────────────────────────────────────┐
+│ 1. IN-REPO GOVERNANCE (Projektets deklarative sandhed i Git)           │
+│    spec.md • CONTEXT.md • gauntlet.toml • tasks/*.md • docs/adr/       │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ styrer & begrænser
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ 2. SOVEREIGN AGENT SKILLS (Autonome proces-skills til AI-agenten)      │
+│    discover • spec • tdd • review • diagnose • release                 │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ håndhæves mekanisk af
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ 3. THE GATEKEEPER (Deterministisk Native Rust + In-Memory WASM Motor)  │
+│    xgauntlet CLI • gauntlet_policy.wasm (<3ms cold start, Zero-Daemon) │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+### 1. In-Repo Governance (Single Source of Truth)
+Alt hvad der styrer projektet ligger som almindelige, versionsstyrede tekstfiler direkte i dit repository. Når du kører `xgauntlet init`, oprettes følgende deklarative fundament:
+
+| Fil / Mappe | Type | Formål |
+|---|---|---|
+| [`gauntlet.toml`](gauntlet.toml) | **Fælles** | Deklarativ konfiguration af lintere, typer, tests og verifikationslag. |
+| [`CONTEXT.md`](CONTEXT.md) | **Fælles** | Domæne-glossary for projektet baseret på Aristoteles' *definitio per genus et differentiam*. |
+| [`CODING_STANDARDS.md`](CODING_STANDARDS.md) | **Fælles** | Multi-stack kodestandarder og arkitekturinvarianter. |
+| [`spec.md`](spec.md) | **Fælles** | Makro-specifikation og globale system-invarianter. |
+| [`tasks/001-bootstrap.md`](tasks/) | **Fælles** | Opgavemappe til håndhævelse af task-kontrakter, acceptkriterier og scope. |
+| [`docs/adr/`](docs/adr/) | **Fælles** | Architecture Decision Records (ADR) til projekt-specifikke beslutninger. |
+| [`.agents/AGENTS.md`](.agents/AGENTS.md) | **Antigravity / Gemini** | Retningslinjer for AI-agenter, Response HUD og task-management. |
+| [`.agents/hooks.json`](.agents/hooks.json) | **Antigravity / Gemini** | PreToolUse gatekeeper hook konfiguration. |
+| [`CLAUDE.md`](CLAUDE.md) | **Claude Code** | Retningslinjer og sikkerhedsinvarianter for Anthropic Claude Code. |
+
+*Bemærk:* De 7 øverste filer er universelle for både mennesker og alle AI-agenter. De to harness-specifikke sæt (`CLAUDE.md` og `.agents/`) sameksisterer uden konflikter, så du frit kan skifte mellem f.eks. Google Antigravity og Claude Code på det samme projekt.
+
+### 2. Sovereign Agent Skills (Proces & Roller)
+De 6 sovereign agent-skills installeres én gang globalt på maskinen via `xgauntlet plugin install --global` (og findes i repoet under [`.agents/plugins/xgauntlet/skills/`](.agents/plugins/xgauntlet/skills/)). De fungerer som agentens kognitive kompas:
+* [**`discover`**](.agents/plugins/xgauntlet/skills/discover/SKILL.md): Sokratisk sparring, udfordring af antagelser og opdatering af `CONTEXT.md` før kodning.
+* [**`spec`**](.agents/plugins/xgauntlet/skills/spec/SKILL.md): Nedbrydning af krav i isolerede opgavepakker (`tasks/<id>-<slug>.md`) med skarpt `scope`.
+* [**`tdd`**](.agents/plugins/xgauntlet/skills/tdd/SKILL.md): Streng Red-Green-Refactor udvikling med lokale Git-checkpoints.
+* [**`review`**](.agents/plugins/xgauntlet/skills/review/SKILL.md): To-akset audit (Standarder vs. Krav) med Fowler code smells baseline.
+* [**`diagnose`**](.agents/plugins/xgauntlet/skills/diagnose/SKILL.md): Disciplineret fejldiagnose-løkke (*Reproduce $\to$ Minimize $\to$ Hypothesize $\to$ Fix*).
+* [**`release`**](.agents/plugins/xgauntlet/skills/release/SKILL.md): Release-readiness audit, changelog-verifikation og multi-digest integritetsforsegling.
+
+### 3. The Gatekeeper (Runtime Policy Enforcement)
+* **Zero-Daemon Arkitektur**: Bygget i ren **Rust** for lynhurtig sub-3ms opstartstid (*cold start*). Ingen baggrundstjenester, ingen dæmoner og ingen socket-nedbrud.
+* **Zero Ambient Authority WASM Kerne ([ADR 0007](docs/adr/0007-local-transparent-supervisor-and-wasm-verifier.md))**: Indlejret Wasmtime policy-motor (`wit/gauntlet_policy.wit`), som evaluerer hvert værktøjskald in-memory uden adgang til eksterne ressourcer.
+* **Matematisk Anti-Tamper Manifest (Self-Mutation Invariant)**: Beregner Git-tree/blob OID-hashes før og efter testkørsler; hvis agenten forsøger at mutere kildekode eller testassertions undervejs, afvises kørslen øjeblikkeligt (`verify_self_mutation`).
+
+---
+
+## 🧭 Sådan virker det: Udviklingsflowet
+
+Udviklingsflowet i xGauntlet følger en fast, disciplineret livscyklus fra uformel idé til forseglet release:
+
+```mermaid
+flowchart TD
+    %% SUBGRAPH 1: Intent & Scope
+    subgraph S1["1. Intent & Scope Triage"]
+        Prompt(["Bruger Henvendelse"]) --> Intent{"Klassificér Intent"}
+        Intent -->|"🔍 QUERY"| QFlow["Read-Only Søgning<br/>(Ingen kode berøres)"]
+        Intent -->|"🐛 BUG FIX"| BugTriage{"Scope <= 3 filer?"}
+        Intent -->|"🔄 REFACTOR"| Refactor["Omstrukturering<br/>(Adfærd er frosset)"]
+        Intent -->|"🚀 FEATURE"| SpecTask["Opret Opgavepakke<br/>(tasks/*.md & check-spec)"]
+    end
+
+    %% SUBGRAPH 2: Sikkerheds-Gatekeeperen
+    subgraph S2["2. The WASM Gatekeeper (PreToolUse)"]
+        SpecTask --> WasmGate{"WASM Policy Engine<br/>(wit/gauntlet_policy.wit)"}
+        Refactor --> WasmGate
+        BugTriage -->|"Nej: Scope > 3"| WasmGate
+        
+        WasmGate -->|"Fil uden for scope"| Deny["🛑 4037: Scope Afvist"]
+        WasmGate -->|"Fil i declared scope"| Allow["✅ 2002: Tilladt"]
+    end
+
+    %% SUBGRAPH 3: TDD & Fast-Track
+    subgraph S3["3. TDD Inner Loop & Fast-Track"]
+        Allow --> TDDLoop["Autonom TDD Løkke<br/>(RED ➔ GREEN ➔ REFACTOR)"]
+        
+        BugTriage -->|"Ja: Fast-Track"| FastTrackLane["Fast-Track Bugfix Lane<br/>(Atomisk Worktree Inverse Proof)"]
+    end
+
+    %% SUBGRAPH 4: Verifikation & Evidens
+    subgraph S4["4. Multi-Layer Gauntlet & Evidens"]
+        TDDLoop --> Verify["xgauntlet verify<br/>(Linters, Typer, Tests & Mutationer)"]
+        FastTrackLane --> Verify
+        
+        Verify --> AntiTamper{"Self-Mutation Check<br/>(Pre/Post Git OID manifest)"}
+        AntiTamper -->|"Kode muteret under test"| RejectTamper["🛑 Afvis: Selvmutation detekteret"]
+        AntiTamper -->|"Integritet intakt"| EvidenceSealed["🏆 Evidens forseglet i<br/>verification-report.json & Session Handoff"]
+    end
+
+    QFlow --> DoneQ(["Afslut uden ændringer"])
+    EvidenceSealed --> DoneAll(["Opgave Færdig & Forseglet"])
+```
+
+### Pipelinen trin for trin
+
+#### 1. Idé- og Kontekstafklaring (Sparring)
+* **Type:** Metodisk proces (`discover` skill).
+* **Hvad der sker:** Før der skrives specifikationer eller kode, interviewer agenten brugeren. Antagelser udfordres, begreber afstemmes i `CONTEXT.md`, og eventuelle arkitektoniske trade-offs dokumenteres i `docs/adr/`.
+* **Kontrolpunkt:** Udvikleren godkender i direkte dialog. WASM-kernen tillader skrivning til dokumentationsfiler (`tasks/`, `spec.md`, `CONTEXT.md`, `docs/`) uanset opgavestatus.
+
+#### 2. Specifikation & Task Scoping
+* **Type:** Hård software-gate (`xgauntlet check-spec`).
+* **Hvad der sker:** Opgaven defineres formelt i `tasks/<id>-<slug>.md` jf. OKF v0.2 med eksplicitte acceptkriterier (`- [ ]`), negative begrænsninger (`## 🚫 Must NOT`) og et erklæret `scope: [...]`.
+* **Håndhævelse i koden:** `check-spec` parser opgaven og afviser med exit-kode 1, hvis formatering, kriterier eller Aristoteles-definitioner overtrædes.
+
+#### 3. TDD Inner Loop under WASM Policy
+* **Type:** Metodisk TDD + Hård runtime-beskyttelse (`xgauntlet hook <harness>`).
+* **Hvad der sker:** Koden implementeres efter TDD-princippet med lokale Git-checkpoints:
+  * `RED`: Skriv en fejlende accepttest (`checkpoint --phase red`).
+  * `GREEN`: Skriv minimal kode for at få den til at passere (`checkpoint --phase green`).
+  * `REFACTOR`: Ryd op i koden uden at ændre adfærd (`checkpoint --phase refactor`).
+* **Håndhævelse i koden:**
+  * **Fail-Closed Task Scope:** Skrivehandlinger (`WriteFile`) uden for opgavens erklærede `scope` blokeres øjeblikkeligt med `reason_code: 4037`.
+  * **Destruktiv Beskyttelse:** Farlige kommandoer (`git push`, `git reset --hard`, `git clean -f`, `rm -rf /`) og wrapper-binærer (`sudo`, `eval`, `bash -c`) afvises fail-closed (`reason_code: 4039`).
+  * **Fast-Track Bugfix Lane:** For små fejlrettelser (`intent: bug` og `scope <= 3` filer) tillader motoren, at separate RED/GREEN commits springes over via et automatisk **Worktree Inverse Proof** jf. [ADR 0011](docs/adr/0011-fast-track-worktree-inverse-proof-and-scoped-preflight.md).
+
+#### 4. Multi-Layer Gauntlet (Flerlags Verifikation)
+* **Type:** Hård software-gate (`xgauntlet verify`).
+* **Hvad der sker:** Fuld automatisk eksekvering af alle lag defineret i `gauntlet.toml` (Linters, Typer, Tests, Invarianter, Mutationer).
+* **Håndhævelse i koden:** Runneren beregner arbejdstræets Git-blob OID-digests før og efter kørslen. Muteres kode eller assertions undervejs, fejler kørslen straks (`verify_self_mutation`). Ved succes forsegles `verification-report.json` og `evidence.md`.
+
+#### 5. Review mod Kodestandarder (To-akset Audit)
+* **Type:** Hybrid gate (`review` skill + udvikleraccept).
+* **Hvad der sker:** Agenten gennemgår diff'en langs to akser: **Akse A** (Overholdelse af `CODING_STANDARDS.md` og Fowler code smells) og **Akse B** (Opfyldelse af specifikationen i `spec.md` og `tasks/`).
+
+#### 6. Drift Detection & Attestation (Two-Tier Model)
+* **Type:** Hård software-gate (`check-evidence` & `check-attestation`).
+* **Hvad der sker:** Verificering af, at kildekoden ikke er manipuleret eller er driftet efter testkørslen jf. [ADR 0005](docs/adr/0005-two-tier-verification-and-attestation-model.md):
+  * **Tier 1 (Lokal Drift Detection):** `xgauntlet check-evidence` genberegner arbejdstræets Git OID-manifest. Hvis blot én byte er ændret, kastes en `DriftViolation`. Beregningen er immun over for Windows CRLF-linjeskift.
+  * **Tier 2 (Kryptografisk Attestation i CI):** I beskyttede CI-miljøer udstedes en kryptografisk Sigstore in-toto/DSSE-attest (`attestation.bundle`), som forsegler kildens herkomst.
+
+#### 7. Release Readiness
+* **Type:** Hård software-gate (`xgauntlet check-release` & `release bump`).
+* **Hvad der sker:** Koden klargøres til release: Versionsnumre synkroniseres på tværs af manifests (`Cargo.toml`, `package.json`), WASM-bytecode paritet kontrolleres, og `CHANGELOG.md` valideres.
+
+---
+
+### 👥 De 4 AI-roller & Session Handoff
+
+For at modvirke uendelige review-loops og beskytte mod kontekstforurening (*context rot*), udleder xGauntlet automatisk den næste ingeniør-rolle:
+
+1. **`System Architect (Requirements & Invariants)`**: Aktiveres ved nye opgaver. Etablerer definitioner i `CONTEXT.md` og eksekverbare kriterier i `tasks/`.
+2. **`TDD Craftsman (Feature Implementation & Testing)`**: Aktiveres ved `ACTIVE`-opgaver. Driver Red-Green-Refactor løkken under WASM-scopebeskyttelse.
+3. **`Code Reviewer (Independent Audit)`**: Tager over i en frisk session. Udfører to-akset audit mod `CODING_STANDARDS.md` og specifikationen.
+4. **`Release Engineer (Attestation & Deployment)`**: Tager over ved afslutning. Kører `check-release`, synkroniserer versioner og forsegler releasen.
+
+> **🛡️ Single-Agent Governance & Human-in-the-Loop:**  
+> xGauntlet anvender en transparent enkelt-agent model under direkte menneskeligt opsyn. Kontekst-renhed opnås via mekaniske Session Handoffs, ikke via uigennemskuelige baggrunds-subagenter. Udvikleren bevarer hermed fuld kontrol over hver eneste sessionsovergang.
 
 ---
 
 ## 🚀 Hurtig Start & Installation
 
-xGauntlet følger samme enkle model som `git`: Værktøjet installeres én gang globalt på maskinen, hvorefter du initialiserer det lokalt i de repositories, du ønsker at sætte under governance.
+Installation og ibrugtagning følger samme enkle model som `git`: Værktøjet installeres én gang globalt på maskinen, hvorefter du initialiserer det lokalt i de projekter, du ønsker at sætte under governance.
 
 ### 1. Installer xGauntlet (én gang på din maskine)
 
-Kør følgende tre trin for at installere CLI-motoren globalt, hente den verificerede native engine og aktivere de 6 suveræne agent-skills:
-
 ```bash
-# Trin 1a: Installer CLI-motoren og gatekeeperen globalt i dit system ($PATH):
+# Installer CLI-motoren globalt i dit systems $PATH:
 npm install -g xgauntlet
 
-# Trin 1b: Fetch og verificer native engine via Sigstore i ~/.cache/xgauntlet/
+# Hent og verificer den native motor via Sigstore (~/.cache/xgauntlet/):
 xgauntlet status
 
-# Trin 1c: Installer de 6 suveræne agent-skills i dine AI-harnesses (Antigravity, Claude Code, Codex, Mistral):
+# Installer de 6 sovereign agent-skills i dine AI-miljøer (Antigravity, Claude, Codex m.fl.):
 xgauntlet plugin install --global
-
-# (Ved efterfølgende opgradering til en ny version af xgauntlet tilføjes --force for at overskrive):
-# xgauntlet plugin install --global --force
 ```
-
-> [!TIP]
-> **🔄 Opgradering til ny version:**  
-> Når du opdaterer `xgauntlet` via `npm install -g xgauntlet`, opdateres CLI-motoren. For at overskrive og synkronisere dine eksisterende globale agent-skills med den nye versions opdateringer tilføjes `--force`:  
-> `xgauntlet plugin install --global --force`  
-> *(Uden `--force` beskytter xGauntlets ikke-destruktive garanti dine eksisterende filer mod utilsigtet overskrivning).*
-
-> [!NOTE]
-> **⚡ Hvordan fungerer den automatiske bootstrapper & cache?**  
-> NPM-pakken indeholder en lynhurtig JavaScript-bootstrapper. Første gang du kører en `xgauntlet`-kommando (f.eks. `xgauntlet status` eller `xgauntlet init`), downloader den automatisk den prækompilerede native Rust-binærfil til din platform fra GitHub Releases, verificerer dens kryptografiske Sigstore-attestation og cacher den i:
-> - **Linux / macOS**: `~/.cache/xgauntlet/v<version>/xgauntlet`
-> - **Windows**: `%LOCALAPPDATA%\xgauntlet\v<version>\xgauntlet.exe`  
->
-> *(Hvis du arbejder inde i xGauntlets eget kildekode-repository, bruger bootstrapperen automatisk din lokale `target/debug/xgauntlet` direkte).*
-
-> [!NOTE]
-> **🤖 Hvorfor kræves `xgauntlet plugin install --global`?**  
-> `npm install -g` placerer udelukkende CLI-binæren i dit systems `$PATH`. Hvert AI-agentmiljø (Google Antigravity IDE, Claude Code, OpenAI Codex, Mistral Vibe) har sin egen konfigurationsmappe til skills (f.eks. `~/.gemini/config/plugins/xgauntlet/skills/` eller `~/.claude/skills/`).  
-> `xgauntlet plugin install --global` detekterer automatisk dine installerede agent-harnesses og udpakker de 6 suveræne skills (`discover`, `spec`, `tdd`, `review`, `diagnose`, `release`) som ægte, redigerbare Markdown-filer direkte i agenternes globale mapper.
-
-> [!TIP]
-> **⚡ Hvorfor global installation frem for blot `npx`?**  
-> Når `xgauntlet` er installeret globalt i dit `$PATH`, kører gatekeeper-hooks (`xgauntlet hook ...`) direkte som maskinkode på **under 3 millisekunder** ved hvert eneste værktøjskald fra din AI-agent – helt uden Node.js koldstarts-overhead.  
-> *(Du kan dog stadig køre `npx xgauntlet init`, hvis du blot vil afprøve værktøjet flygtigt uden installation).*
 
 ### 2. Initialiser dit projekt (In-Repo Governance)
 
-Gå ind i dit projekt – uanset om det er skrevet i Python, Rust, Go eller TypeScript:
+Gå ind i dit projekt – uanset om det er skrevet i Rust, TypeScript, Python eller Go:
 
 ```bash
-# Åbn dit projektkatalog
 cd ~/sti/til/dit-projekt
 
-# Scaffold in-repo styringsfiler:
+# Opret projektets deklarative styringsfiler:
 xgauntlet init
 ```
-
-`xgauntlet init` detekterer automatisk projektets programmeringssprog (via `package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod` osv.) og opretter de deklarative styringsfiler.
-
-#### 📦 Hvad `xgauntlet init` opretter lokalt i projektet (In-Repo Single Source of Truth):
-
-| Fil / Mappe | Type | Formål |
-|---|---|---|
-| [`gauntlet.toml`](gauntlet.toml) | **Fælles** | Deklarativ konfiguration af lintere, typer, tests og verifikationslag |
-| [`CONTEXT.md`](CONTEXT.md) | **Fælles** | Domæne-glossary for projektet (Aristoteles' *definitio per genus et differentiam*) |
-| [`CODING_STANDARDS.md`](CODING_STANDARDS.md) | **Fælles** | Multi-stack kodestandarder og arkitekturinvarianter |
-| [`spec.md`](spec.md) | **Fælles** | Makro-specifikation og system-invarianter |
-| [`tasks/001-bootstrap.md`](tasks/) | **Fælles** | Opgavemappe til håndhævelse af task-kontrakter & acceptkriterier |
-| [`docs/adr/`](docs/adr/) | **Fælles** | Architecture Decision Records (ADR) til projekt-specifikke beslutninger |
-| [`.agents/AGENTS.md`](.agents/AGENTS.md) | **Antigravity / Gemini** | Retningslinjer for AI-agenter, Response HUD og task-management |
-| [`.agents/hooks.json`](.agents/hooks.json) | **Antigravity / Gemini** | PreToolUse gatekeeper hook konfiguration |
-| [`CLAUDE.md`](CLAUDE.md) | **Claude Code** | Retningslinjer og sikkerhedsinvarianter for Anthropic Claude Code |
-
-> [!IMPORTANT]
-> **🧠 Globale Agent-Skills vs. In-Repo Governance:**  
-> Bemærk, at `xgauntlet init` **ikke** opretter eller kopierer agent-skills ind i dit projekts undermapper. AI-agenterne (Antigravity, Claude Code, OpenAI Codex, Mistral Vibe) indlæser altid de 6 suveræne skills globalt fra deres respektive harness-mapper (`~/.gemini/config/plugins/xgauntlet/`, `~/.claude/` osv.), som administreres centralt med `xgauntlet plugin install --global`.  
-> Projekt-repoet indeholder udelukkende in-repo governance (regelsæt, specifikationer, opgavepakker og ADRs). Dette forhindrer redundante skill-kopier og sikrer, at dit projekt altid anvender de nyeste globale skills uden lokal konfigurationsdrift.
-
-> [!NOTE]
-> **🤝 Poly-Harness Sameksistens:**  
-> De 7 øverste filer er helt universelle og styrer projektet for både mennesker og alle typer AI-agenter. De to harness-specifikke sæt (`CLAUDE.md` og `.agents/`) sameksisterer fredeligt uden konflikter, så du eller dit team frit kan skifte mellem f.eks. Google Antigravity IDE og Claude Code på det samme projekt. Hvis du udelukkende benytter én agent, kan det overskydende sæt frit slettes.
-
-> [!TIP]
-> **🛡️ Ikke-destruktiv Garanti (Safety First):**  
-> `xgauntlet init` overskriver **aldrig** eksisterende filer i dit projekt, medmindre du udtrykkeligt angiver `--force`.
+`xgauntlet init` detekterer automatisk projektets sprog og opretter de nødvendige in-repo filer (`gauntlet.toml`, `spec.md`, `CONTEXT.md` osv.). Værktøjet er ikke-destruktivt og overskriver **aldrig** eksisterende filer uden `--force`.
 
 ### 3. Kør Verifikation & Tjek Evidens
 
-Når du eller agenten arbejder på en opgave i projektet, afvikles gauntlettet direkte:
+Når du eller din AI-agent arbejder på projektet, afvikles gauntlettet direkte fra terminalen:
 
 ```bash
-# Kør gauntlet og forsegl evidens for en opgave:
-xgauntlet verify --task-id 001-bootstrap
+# Kør flerlags verifikation og forsegl evidens:
+xgauntlet verify
 
-# Valider kildetræets integritet mod rapporten (drift-kontrol):
+# Tjek om arbejdstræet er driftet efter sidste verifikation:
 xgauntlet check-evidence
 
-# Valider opgavespecifikation og CONTEXT.md definitionsformat:
+# Valider opgavespecifikationer og CONTEXT.md:
 xgauntlet check-spec
 
 # Kør miljø- og toolchain-diagnostik:
@@ -149,381 +261,199 @@ xgauntlet doctor
 
 ---
 
-### 🧹 Afinstallation & Oprydning
+<details>
+<summary>🔍 <b>Hvordan fungerer xGauntlet under motorhjelmen?</b> (Cold Start, Sikkerhed & Poly-Harness)</summary>
 
-xGauntlet kører efter **Zero Lock-in** princippet. Der er ingen baggrundsdæmoner, ingen systemd services og ingen skjulte registre:
+* **Lynhurtig opstart (<3ms cold start):** Når `xgauntlet` er installeret globalt, eksekveres gatekeeper-hooks (`xgauntlet hook ...`) direkte som native maskinkode ved hvert værktøjskald fra AI-agenten – fuldstændig uden Node.js koldstarts-overhead.
+* **Sikkerhed & Caching via Sigstore:** NPM-pakken indeholder en letvægtsbootstrapper. Første gang du kører en kommando, downloades den prækompilerede Rust-binærfil fra GitHub Releases, verificeres kryptografisk mod Sigstore-attestationer og caches lokalt i `~/.cache/xgauntlet/` (eller `%LOCALAPPDATA%\xgauntlet` på Windows).
+* **Globale Skills vs. In-Repo Governance:** Agent-skills opbevares centralt i dine harnesses (`~/.gemini/config/plugins/xgauntlet/`, `~/.claude/` osv.) via `xgauntlet plugin install --global`. Dit git-repository forbliver rent og indeholder kun projektets egne specifikationer og regler.
+* **Opgradering:** Når en ny version udgives, opdateres CLI'en med `npm install -g xgauntlet`. Kør herefter `xgauntlet plugin install --global --force` for at synkronisere de globale agent-skills.
+</details>
 
-#### 1. Afkobl et projekt (Kirurgisk In-Repo Oprydning)
-For at fjerne xGauntlet fra et projekt, fjerner du blot de specifikke styringsfiler. Dine egne kodefiler, egne tasks og egne ADR'er berøres ikke:
+---
+
+### 🧹 Afinstallation & Zero Lock-in
+xGauntlet efterlader ingen baggrundsdæmoner, ingen system-services og ingen skjulte registre:
 
 ```bash
-# Fjern xGauntlets kontrolfiler i projektet:
+# 1. Fjern xGauntlet fra et specifikt projekt (dine egne kodefiler berøres ikke):
 rm -f gauntlet.toml .agents/hooks.json verification-report.json evidence.md
 
-# (Valgfrit) Fjern de oprindeligt scaffoldede skabeloner, hvis du ikke ønsker at bevare dem:
-rm -f tasks/001-bootstrap.md docs/adr/0001-package-by-feature-architecture.md
-```
-
-#### 2. Afinstaller værktøjet fra maskinen (Global Cleanup)
-Hvis du ønsker at fjerne selve `xgauntlet`-programmet fra dit styresystem:
-
-```bash
+# 2. Afinstaller værktøjet fra maskinen:
 npm uninstall -g xgauntlet
-
-# Hvis du tidligere har afviklet flygtigt via npx, slettes den lokale cache-binær:
-rm -rf ~/.cache/xgauntlet
+rm -rf ~/.cache/xgauntlet ~/.gemini/config/plugins/xgauntlet ~/.claude/skills/xgauntlet
 ```
 
 ---
 
-## 🧭 Pipeline og Gates: Sådan virker det
+## 🛠️ CLI Reference & Arkitektur-Gates
 
-`xGauntlet` arbejder på to adskilte niveauer:
-1. **Metodiske retningslinjer (Agent Skills)**: Proceskrav (såsom sokratisk behovsafklaring, TDD-disciplin og arkitektur-review), som agenten instrueres i at følge (`discover`, `spec`, `tdd`, `review`, `diagnose`, `release`).
-2. **Håndhævede software-gates (CLI & In-Memory WASM)**: Deterministiske kontrolpunkter i Rust-koden (`check-spec`, pre-invocation WASM hook, `verify`, `check-evidence`, `check-attestation`, `check-architecture` og `check-release`), der fysisk blokerer uautoriserede handlinger med exit-koder og multi-digest integritetskontrol.
+### 1. Fuld CLI Reference
 
-> [!NOTE]
-> **Bemærk om tilstande og Zero-Daemon:** Systemet styres ikke af en global database eller baggrundsdæmon, men af diskrete, uafhængige CLI-kald (`sub-3ms` koldstart). Opgavestatus (`DRAFT`, `ACTIVE`, `PASSED`, `DONE`) er forankret direkte i de enkelte task-filers OKF YAML-frontmatter (`tasks/*.md`), som evalueres on-demand af de respektive gates uden behov for en tilstandsmaskine-service.
-
-### Oversigt over udviklingsflowet
-
-```text
-[ 1. IDÉAFKLARING ]             ──► Metodisk skill (discover)
-         │                          (Opdaterer CONTEXT.md & docs/adr/)
-         ▼
-[ 2. SPECIFIKATION ]            ──► HÅRD GATE: xgauntlet check-spec
-         │                          (OKF metadata, formål, kriterier, Must NOT, Aristoteles-glossar)
-         ▼
-[ 3. TDD & KODNING ]            ──► HÅRD GATE: Zero-Ambient-Authority WASM Policy Hook
-         │                          (Quote-aware tokenization, task scope, forhindrer wrappers & git push)
-         ▼
-[ 4. FLERLAGS VERIFIKATION ]    ──► HÅRD GATE: xgauntlet verify
-         │                          (Kører linters, typer, tests; matematisk pre/post manifestkontrol)
-         ▼
-[ 5. KODESTANDARD-REVIEW ]      ──► Hybrid skill: review & udvikleraccept
-         │                          (Audit mod CODING_STANDARDS.md & Fowler smells)
-         ▼
-[ 6. DRIFT- & ATTESTATION ]     ──► HÅRD GATE: xgauntlet check-evidence & check-attestation
-         │                          (Git OID drift-kontrol og kryptografisk Sigstore OIDC verifikation)
-         ▼
-[ 7. RELEASE READINESS ]        ──► HÅRD GATE: xgauntlet check-release (--strict) & release bump
-                                    (WASM-sync, manifest harmony, changelog og transaktionel staging)
-```
-
-### Pipelinen trin for trin
-
-#### 1. Idé- og kontekstafklaring
-* **Type**: Metodisk proces (Agent Skill)
-* **Hvad der sker**: Før der skrives specifikationer eller kode, aktiveres sparringsskillen `discover`. Agenten udfordrer antagelser, identificerer risici og afstemmer planer mod eksisterende arkitektur og ADR'er.
-* **Kontrolpunkt**:
-  * *Hvem godkender*: Udvikleren i direkte dialog.
-  * *Hvordan*: Dialogen udmønter sig i, at agenten opdaterer `CONTEXT.md` og eventuelt udarbejder en ny ADR i `docs/adr/`.
-  * *Håndhævelse i koden*: Dette er et instruktionskrav til agenten. Der findes ingen automatisk kodelås, der forhindrer oprettelse af tasks uden forudgående grilling; disciplinen bæres af udviklerens sparring med agenten. WASM-policykernen tillader udtrykkeligt skrivning til styringsdokumenter (`tasks/`, `spec.md`, `CONTEXT.md`, `CODING_STANDARDS.md`, `docs/`) uanset opgavestatus.
-
-#### 2. Specifikation & Opgavebinding
-* **Type**: Hård software-gate
-* **Hvad der sker**: Opgaven defineres formelt i en markdown-fil under `tasks/` (f.eks. `tasks/001-bootstrap.md`) med eksplicit OKF v0.2 frontmatter samt eksekverbare acceptkriterier.
-* **Kontrolpunkt**: Spec Gate (`xgauntlet check-spec`)
-  * *Hvem godkender*: Shift-left valideringsmotoren i Rust (`crates/xgauntlet-core/src/features/tasks/validator.rs`).
-  * *Hvordan*: CLI-værktøjet parser task-filerne og validerer:
-    1. Valid OKF v0.2 YAML-frontmatter (`type: Task Package`, `status`, `title`, `generated`).
-    2. Eksistensen af sektionen `## 🎯 Formål` (eller `## Purpose`).
-    3. Eksistensen af eksekverbare acceptkriterier (`- [ ]`).
-    4. Eksistensen af negative forretningsregler under `## 🚫 Must NOT`.
-    5. At definitionerne i `CONTEXT.md` følger Aristoteles' formel (`**Term**:\n<Definition>\n_Avoid_: <synonymer>`).
-  * *Håndhævelse i koden*: Returnerer exit-kode 1, hvis en task-fil mangler, er fejlbehæftet eller overtræder formateringskravene.
-
-#### 3. Implementering under Zero-Ambient-Authority Policy (Værkstedet)
-* **Type**: Metodisk TDD + Hård runtime-beskyttelse
-* **Hvad der sker**: Koden skrives efter Red/Green TDD-princippet (først en fejlende test, derefter den minimale kode, der løser den, og til sidst refaktorisering).
-* **Kontrolpunkt**: Pre-Invocation WASM Hook & Anti-Tamper Guard
-  * *Hvem godkender*: Indlejret Wasmtime policy-motor (`gauntlet_policy.wasm` bygget fra `wit/gauntlet_policy.wit`) og harness-adaptere (`crates/xgauntlet-core/src/features/adapters/`).
-  * *Hvordan*: Agentens værktøjskald (tool calls) overvåges deterministisk ved hvert kald via `xgauntlet hook <harness>`.
-  * *Håndhævelse i koden*:
-    * **Zero Ambient Authority**: WebAssembly-modulet har absolut nul adgang til værtsfilsystem, netværk, systemur eller tilfældighedskilder.
-    * **Struktureret Command Tokenization**: Shell-kommandoer evalueres via en quote-aware argument-lexer. Eksekverings-wrappers (`env`, `sudo`, `eval`, `bash -c`, `sh -c`, `xargs`, `doas`, `su`, `exec`) afvises fail-closed med `reason_code: 4039`.
-    * **Fail-Closed Task Scope**: Filmodifikationer (`WriteFile`) uden for den aktive opgaves erklærede `scope` blokeres hårdt (`reason_code: 4037`). Hvis task scope er udefineret, tillader test-scope isolation udelukkende skrivning til verificerede testfiler.
-    * **Destruktiv Beskyttelse**: Destruktive kommandoer som `git push`, `git reset --hard`, `git clean -f`, `git branch -D` og `rm -rf /` blokeres uanset globale flag (`-C`, `-c`, `--no-pager`).
-    * **Harness Compliance**: Understøtter officielt fladt `PreInvocation` skema for Google Antigravity og sikker, ikke-destruktiv hook-scaffolding mod JSON-korruption.
-  * *Bemærk om TDD*: Selve rækkefølgen (Red før Green) registreres ikke historisk af test-runneren; det er en metodisk adfærd instrueret via agent-skills.
-
-#### 4. Flerlags Verifikation
-* **Type**: Hård software-gate
-* **Hvad der sker**: Fuld automatisk eksekvering af projektets test- og analysesuiter med matematisk beskyttelse mod selvmutation og generering af forseglede rapporter.
-* **Kontrolpunkt**: Diagnostic & Execution Engine (`xgauntlet verify`)
-  * *Hvem godkender*: Verifikationspipelinen i Rust (`crates/xgauntlet-core/src/features/gauntlet/pipeline.rs`).
-  * *Hvordan*: Runneren eksekverer de lag, der er defineret i `gauntlet.toml` (f.eks. Typer, Linters, Tests, Invarianter & Mutationer) med fail-closed semantik og timeouts:
-    1. **Pre-manifest beregning**: Beregner kildetræets Git-blob OID digests forud for testkørsel.
-    2. **Lag-eksekvering**: Kører lagene sekventielt; ved fejl parses output til Actionable Diagnostics (`DiagnosticParser`).
-    3. **Post-manifest & Anti-Tamper**: Genberegner manifest efter kørsel; hvis kildekode eller testassertions muteres undervejs, afvises kørslen øjeblikkeligt (`verify_self_mutation`).
-  * *Håndhævelse i koden*: Alle obligatoriske diagnostiske lag skal bestå (`exit_code == 0`). Ved succes genereres atomart `verification-report.json` (Schema v2) og `evidence.md` med deterministiske SHA-256 digests over kildetræ (`source_manifest_digest`), konfiguration, opgave og politikker.
-
-#### 5. Review mod Kodestandarder
-* **Type**: Hybrid gate (Agent Skill + Udvikleraccept)
-* **Hvad der sker**: Den implementerede løsning auditeres mod arkitekturretningslinjer og regler i `CODING_STANDARDS.md`.
-* **Kontrolpunkt**: Standards Review (`review` skill)
-  * *Hvem godkender*: Udvikleren assisteret af agentens review-skill.
-  * *Hvordan*: Agenten gennemgår diff'en op mod kodestandarderne og fremhæver eventuelle arkitekturbrud, manglende fejlhåndtering eller navngivningsfejl.
-  * *Håndhævelse i koden*: Gaten er procesmæssig og beror på agentens review-rapport kombineret med udviklerens godkendelse.
-
-#### 6. Drift- og Integritetskontrol (Two-Tier Model)
-* **Type**: Hård software-gate
-* **Hvad der sker**: Verificering af, at kildekoden og arbejdstræet ikke er blevet manipuleret eller er driftet efter testkørslen.
-* **Kontrolpunkt**: Drift Verification (`xgauntlet check-evidence`) & Attestation Gate (`xgauntlet check-attestation`)
-  * *Hvem godkender*: Drift-detektionsmotoren (`crates/xgauntlet-core/src/features/evidence/drift.rs`) og attestation-verifikatoren (`attestation.rs`).
-  * *Hvordan*: Værktøjet genberegner det aktuelle kildetræs workspace-manifest og sammenligner det direkte med værdierne i `verification-report.json`.
-  * *Håndhævelse i koden*:
-    * **Tier 1 (Lokal drift-kontrol)**: Er blot én byte ændret i kildetræ, opgave, config eller politik efter `verify`, afvises tjekket med en specifik `DriftViolation`. Beregningen benytter Git-tree/blob OID-hashes, hvilket gør driftkontrollen fuldstændig immun over for linjeskift-forskelle (LF vs. CRLF) på tværs af styresystemer.
-    * **Tier 2 (Kryptografisk Attestation i CI)**: Jf. [ADR 0005](docs/adr/0005-two-tier-verification-and-attestation-model.md) udstedes der i beskyttede CI-miljøer en kryptografisk in-toto/DSSE-attest (Sigstore/OIDC), som forsegler kildens og binærens herkomst (`attestation.bundle` og `attestation.json`). Denne kan efterprøves lokalt eller remote via `xgauntlet check-attestation`.
-
-#### 7. Release Readiness
-* **Type**: Hård software-gate
-* **Hvad der sker**: Koden klargøres til release og merge ved at kontrollere synkronisering mellem versioner, ændringslog, WASM-bytecode og dokumentation.
-* **Kontrolpunkt**: Release Gate (`xgauntlet check-release`) & Transaktionel Bump (`xgauntlet release bump`)
-  * *Hvem godkender*: Release-orkestratoren (`crates/xgauntlet-core/src/features/release/engine.rs`).
-  * *Hvordan*: Værktøjet udfører dybdegående kontroller:
-    1. **Versionskonsistens**: Versionsnumre skal matche på tværs af projektets manifests (`Cargo.toml`, `package.json`, `packages/cli/package.json`).
-    2. **WASM Bytecode Paritet**: Det indlejrede WebAssembly-bytecode valideres mod workspace-versionen (`CONFIG_VERSION_MISMATCH`).
-    3. **Changelog-synkronisering**: `CHANGELOG.md` skal indeholde en sektion for den pågældende version.
-    4. **ADR-referencer**: Samtlige ADR-dokumenter i `docs/adr/` skal være eksplicit refereret eller linket i enten `README.md` eller `spec.md`.
-    5. **Strict Release Mode (`--strict`)**: Validerer rent git-arbejdstræ (med automatisk udelukkelse af cirkulære artefakter) og eksekverer kodeformatering fail-closed.
-    6. **Transaktionel Release Bump**: `xgauntlet release bump [patch|minor|major]` udfører atomisk disk-staging backup (`.xgauntlet_staging_<nonce>`), opdaterer manifests, kompilerer WASM og ruller sikkert tilbage ved fejl uden destruktive git-handlinger.
-
-### 👥 De 4 AI-roller & Session Handoff
-
-For at undgå uendelige review-loops (*bikeshedding*) og bevare et skarpt kontekstvindue, udleder `xGauntlet` automatisk den næste ingeniør-rolle:
-
-1. **`Senior Software Engineer (System Architecture & Requirements)`**:
-   * Aktiveres ved nye eller `DRAFT`-opgaver. Udfordrer antagelser, definerer negative invarianter (`## 🚫 Must NOT`) og eksekverbare kriterier via `xgauntlet check-spec`.
-2. **`Senior Software Engineer (Feature Implementation & Testing)`**:
-   * Aktiveres ved `ACTIVE`-opgaver. Driver TDD-cyklussen (`RED` $\to$ `GREEN` $\to$ `REFACTOR`) og forsegler evidens via `xgauntlet verify`.
-3. **`Senior Software Engineer (Independent Code Review & Audit)`**:
-   * Tager over i en frisk session. Udfører to-akset granskning langs **Akse A (Standarder)** jf. `CODING_STANDARDS.md` og **Akse B (Krav)** jf. `spec.md`/`tasks/`.
-4. **`Release & Operations Engineer (Release Attestation & Deployment)`**:
-   * Tager over når alle opgaver og audits er godkendt. Kører `xgauntlet check-release`, synkroniserer versioner og klargør release.
-
-> [!NOTE]
-> **🛡️ Single-Agent Governance & Human-in-the-Loop (HITL):**
-> xGauntlet anvender en transparent enkelt-agent model under direkte menneskeligt opsyn. Kontekst-renhed opnås via mekaniske Session Handoffs, ikke via uigennemskuelige baggrunds-subagenter. Udvikleren bevarer hermed fuld kontrol og sporbarhed over hver eneste sessionsovergang.
+| Kommando | Beskrivelse & Anvendelse |
+|---|---|
+| `xgauntlet init [--force]` | Initialiserer workspace med deklarativ in-repo governance. |
+| `xgauntlet verify [--task-id <id>] [--diagnostics-json]` | Afvikler alle konfigurerede verifikationslag, tester for selvmutation og forsegler `verification-report.json`. |
+| `xgauntlet check-evidence` | Validerer at arbejdstræets aktuelle Git OID matcher den forseglede verifikationsrapport (Drift Detection). |
+| `xgauntlet check-spec [-t <id>]` | Validerer opgavepakker i `tasks/` (OKF-format, eksekverbare kriterier, Must NOT og Aristoteles-glossar). |
+| `xgauntlet check-architecture` | Håndhæver kodestruktur, filstørrelser (max 800 linjer kode / 1.000 linjer test) og Vertical Slice Architecture-gates. |
+| `xgauntlet check-spec [--context]` | Shift-left opgavespecifikation og to-vejs domæne-drift validering mod CONTEXT.md jf. Aristoteles' formel. |
+| `xgauntlet topology export [--format mermaid\|json] [--level conceptual\|detailed]` | Deterministisk AST-baseret eksport af klasse- og informationsdiagrammer uden LLM-tokens eller baggrundsdæmoner. |
+| `xgauntlet check-release [--strict]` | Kontrollerer versionsparitet, WASM-synkronisering, changelog og ADR-referencer forud for release. |
+| `xgauntlet check-attestation` | Verificerer Sigstore in-toto/DSSE attestationer lokalt eller remote mod GitHub Releases. |
+| `xgauntlet release bump [patch\|minor\|major]` | Udfører transaktionel SemVer-opgradering med atomisk disk-staging backup og WASM-kompilering. |
+| `xgauntlet handoff [--task-id <id>]` | Genererer et standardiseret `🏁 SESSION HANDOFF` telemetrikort til skift af AI-session. |
+| `xgauntlet doctor` | Diagnosticerer udviklermiljø, toolchains og OS-forudsætninger (Linux, macOS, Windows). |
+| `xgauntlet plugin install [--global] [--force]` | Udruller og synkroniserer de 6 sovereign agent-skills til installerede AI agent-harnesses. |
 
 ---
 
-## 🎯 Arkitektur & Designprincipper
+### 2. Deklarativ Arkitekturkontrol (`check-architecture`)
 
-1. **Uncle Bob Clean Architecture & TDD:**
-   * Forankret i de 3 Love for TDD, Transformation Priority Premise (TPP) og Single Responsibility Principle (SRP).
-2. **Package-by-Feature Struktur (Screaming Architecture):**
-   * Hver komponent er isoleret i en feature-underpakke under `crates/xgauntlet-core/src/features/` med høj sammenhørighed og lav kobling ([ADR 0001](docs/adr/0001-package-by-feature-architecture.md)).
-3. **Zero-Daemon & Sub-3ms Koldstart:**
-   * Pure native **Rust** eksekverbar binær. Ingen baggrundsdæmoner, ingen `systemd`/`launchd` services, ingen socket-nedbrud. Hver kommando udføres lynhurtigt in-process.
-4. **Nul Ambient Authority WebAssembly Policy Kerne ([ADR 0007](docs/adr/0007-local-transparent-supervisor-and-wasm-verifier.md)):**
-   * Policy-evaluering kompileres fra `wit/gauntlet_policy.wit` til `gauntlet_policy.wasm`.
-   * Eksekveres in-memory via indlejret **Wasmtime** med absolut nul adgang til filsystem, netværk, system-ur eller tilfældighedskilder.
-5. **Matematisk Anti-Tamper Manifest (Self-Mutation Invariant):**
-   * Pre- og post-test beregning af Git-tree/blob OID digests (immune over for Windows LF/CRLF konverteringer).
-   * Hvis kildekode eller testassertions muteres undervejs i testkørslen, afvises verifikationen øjeblikkeligt.
-6. **Two-Tier Evidens & Tillidsmodel ([ADR 0005](docs/adr/0005-two-tier-verification-and-attestation-model.md)):**
-   * `LOCAL_UNSUPERVISED`: Lokal deterministisk verifikationsrapport for hurtig feedback og matematisk drift-kontrol (`xgauntlet check-evidence`).
-   * `CI_ATTESTED`: Autoritativ, uafviselig Sigstore OIDC / in-toto attestation udstedt i et isoleret CI-miljø.
-7. **Multi-Harness Native Support ([ADR 0004](docs/adr/0004-harness-adapter-slices.md)):**
-   * Autonome vertikale slices for **Google Antigravity IDE**, **Claude Code** og **OpenAI Codex**.
+xGauntlet er designet til at beskytte **både** eksisterende produktionssystemer via skånsom **Safe-Mode** (brownfield) og nye projekter (greenfield) via modulære Vertical Slice Architecture-gates jf. [ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md):
 
----
+```toml
+[architecture]
+max_file_lines = 800
+max_test_file_lines = 1000
 
-## 🏗️ Mappestruktur (`Package-by-Feature`)
+# Gate A: Håndhæv streng lagdelt afhængighed (app -> features -> core -> shared):
+layers = ["app", "features", "core", "shared"]
 
-```text
-xGauntlet/
-├── tasks/                        # Aktive og afsluttede opgavepakker (OKF v0.2)
-├── docs/adr/                     # Arkitekturbeslutninger (ADRs 0001-0007)
-├── CONTEXT.md                    # Domæne-glossary (Aristoteles' genus et differentiam)
-├── CODING_STANDARDS.md           # Multi-stack kodestandarder (Rust, TypeScript, Python)
-├── spec.md                       # Makro-specifikation & system-invarianter
-├── gauntlet.toml                 # Deklarativ multi-stack konfiguration
-├── wit/                          # WebAssembly Interface Types (gauntlet_policy.wit)
-├── Cargo.toml                    # Cargo Workspace root
-├── package.json                  # NPM Workspace root
-│
-├── crates/
-│   ├── gauntlet-policy-engine/   # Pure WASM component (wasm32-wasip1/wasip2)
-│   ├── xgauntlet-core/           # Portabel domænemotor (Package-by-Feature)
-│   │   └── src/features/
-│   │       ├── wasm/             # Embedded Wasmtime host integration
-│   │       ├── policy/           # Capability requests & trusted context
-│   │       ├── evidence/         # Git OID SHA-256 manifest & verification-report
-│   │       ├── gauntlet/         # Multi-layer runner, processtyring, timeouts
-│   │       ├── diagnostics/      # Actionable diagnostics parser
-│   │       ├── tasks/            # OKF v0.2 parser & check-spec
-│   │       ├── adapters/         # Vertikale harness-slices (Antigravity, Claude, Codex)
-│   │       ├── config/           # gauntlet.toml loader & schema
-│   │       ├── scaffold/         # Ikke-destruktiv init-motor
-│   │       └── doctor/           # Miljø- og toolchain-diagnostik
-│   │
-│   └── xgauntlet-cli/            # Native CLI executable (xgauntlet)
-│
-└── packages/
-    └── cli/                      # NPM distributionspakke (xgauntlet)
-        └── bin/xgauntlet.js      # Zero-dependency bootstrapper med Sigstore integritetskontrol
+# Gate B: Black-Box Slice Isolation (forhindrer kryds-imports mellem features):
+slice_root = "src/features"
+isolate_slices = true
+
+# Gate C: Forbyd UI- og framework-lækage ind i forretningskernen:
+forbid_core_imports = ["iced", "react", "javafx"]
 ```
 
----
+* **Gate A (`LayerDirectionViolation`):** Forhindrer at lavere lag (f.eks. `features` eller `core`) importerer baglæns fra højere lag som `app` (omvendte/opadgående afhængigheder).
+* **Gate B (`CrossSliceImportViolation`):** Sikrer at en feature-slice (`src/features/auth/login`) ikke kobler direkte til en peer-slice (`src/features/billing/checkout`). Kommunikation på tværs koordineres i `app` via Actions/Events eller flyttes til `core`.
+* **Gate C (`ForbiddenCoreImportViolation`):** Sikrer at forretningslogik i `core` forbliver 100% ren og framework-uafhængig.
 
-## 🛠️ Fuld CLI Reference
+#### 🏛️ Trinvis Brownfield-Migrering (Sikker Køreplan for Eksisterende Systemer)
+Hvis du har et etableret system med teknisk gæld, skal du **ikke** lave en risikabel "Big Bang"-omskrivning. Følg denne 4-trins køreplan:
 
-### 1. Initialiser Workspace (`init`)
-```bash
-# Standard auto-detektering af stack
-xgauntlet init
-
-# Tving overskrivning af eksisterende skabeloner
-xgauntlet init --force
-```
-
-### 2. Kør Verifikations-Gauntlet (`verify`)
-Kør alle konfigurerede lag, udtræk actionable diagnostics og generer `verification-report.json` og `evidence.md`:
-```bash
-# Standard kørsel bundet til en opgave
-xgauntlet verify --task-id 001-bootstrap
-
-# Returner struktureret JSON med actionable diagnostics til LLM / AI-agenter
-xgauntlet verify --diagnostics-json
-```
-
-### 3. Validering af Evidens & Drift-kontrol (`check-evidence`)
-Verificerer at det aktuelle kildetræ matcher den lokale verifikationsrapport via Git-tree/blob OID digest:
-```bash
-xgauntlet check-evidence
-```
-
-### 4. Early-Phase Spec & Business Rules Gatekeeper (`check-spec`)
-Mekanisk validering af at opgavespecifikationer indeholder forretningsinvarianter (`Must NOT`), eksekverbare acceptkriterier og overholder [CONTEXT.md](CONTEXT.md) formatet:
-```bash
-xgauntlet check-spec
-```
-
-### 5. Release Readiness Gatekeeper (`check-release`)
-Validerer versionskonsistens, WASM-bytecode synkronisering, `CHANGELOG.md` og ADR-krydsreferencer:
-```bash
-# Standard kørsel under udvikling
-xgauntlet check-release --allow-unreleased
-
-# Streng release mode (fail-closed ved uncommitted filer eller formateringsfejl)
-xgauntlet check-release --strict
-```
-
-### 6. Kryptografisk Attesteringskontrol (`check-attestation`)
-Verificerer Sigstore in-toto/DSSE attesteringsbundter (`attestation.bundle` / `attestation.json`) lokalt eller direkte mod GitHub Releases:
-```bash
-# Valider lokalt bundt mod release-artefakt
-xgauntlet check-attestation --bundle attestation.bundle --artifact target/release/xgauntlet
-
-# Valider remote mod GitHub release med statisk forankret repo-ID (1359184794)
-xgauntlet check-attestation --remote-tag v0.8.4
-```
-
-### 7. Deklarativ Arkitekturkontrol (`check-architecture`)
-Håndhæver kodestruktur, filstørrelsesgrænser (kildekode max 800 linjer, tests max 1.000 linjer), forbudte API-tokens samt deterministiske Vertical Slice Architecture-gates jf. [ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md):
-```bash
-xgauntlet check-architecture
-```
-
-#### 🏛️ Fra Skånsom Safe-Mode (Brownfield) til Fuld Vertical Slice Governance (Greenfield)
-
-xGauntlet er designet til at beskytte **både** eksisterende produktionssystemer (brownfield-projekter) og nye systemer (greenfield-projekter), der ønsker deterministisk arkitekturdisciplin:
-
-1. **Skånsom Safe-Mode by Default (Brownfield-beskyttelse):**  
-   Når du initialiserer et projekt med `xgauntlet init`, er de avancerede arkitektur-gates inaktive (`layers = []`, `isolate_slices = false`). xGauntlet validerer udelukkende fil-størrelseslofter og forbudte tokens. Eksisterende kodebaser og moduler bryder ikke sammen ved installation.
-
-2. **Den Fulde Vertical Slice Oplevelse (Greenfield & Modne Projekter):**  
-   I `gauntlet.toml` kan du aktivere tre deterministiske grænse-gates på tværs af Rust, TypeScript/React, Java, Python og Go:
+1. **Trin A: Kør en risikofri Architecture Baseline Audit (Status Quo Snapshot):**  
+   Aktivér gates midlertidigt i `gauntlet.toml` og kør `xgauntlet check-architecture`. Du får et komplet, prioriteret overblik over alle eksisterende import-overtrædelser uden at ændre kildekoden.
+2. **Trin B: Etablér en sikker baseline (Undgå Big-Bang fælden):**  
+   Frys status quo ved at tilføje en midlertidig exemption-regel i `gauntlet.toml`:
    ```toml
-   [architecture]
-   max_file_lines = 800
-   max_test_file_lines = 1000
-
-   # Gate A: Håndhæv streng envejs-afhængighed oppefra og ned (app -> features -> core -> shared):
-   layers = ["app", "features", "core", "shared"]
-
-   # Gate B: Black-Box Slice Isolation (forhindrer uautoriserede imports på tværs af features):
-   slice_root = "src/features"
-   isolate_slices = true
-
-   # Gate C: Forbyd UI- og framework-lækage ind i forretningskernen:
-   forbid_core_imports = ["iced", "react", "javafx"]
+   [[architecture.exemptions]]
+   path = "src/features/**"
+   allow_imports = ["crate::ui::app", "crate::app"]
+   reason = "Legacy kobling under trinvis VSA-migrering jf. ADR 0012"
    ```
-   * **Gate A (`LayerDirectionViolation`):** Forhindrer at lavere lag (f.eks. `features` eller `core`) importerer baglæns fra højere lag som `app`.
-   * **Gate B (`CrossSliceImportViolation`):** Sikrer at en feature-slice (`src/features/auth/login`) ikke kobler direkte til en søskende-slice (`src/features/billing/checkout`). Kommunikation på tværs koordineres i `app` via Actions/Events eller flyttes til `core`.
-   * **Gate C (`ForbiddenCoreImportViolation`):** Sikrer at forretningslogik i `core` forbliver 100% ren og framework-uafhængig.
-
-3. **AI-Drevet Slice Lifecycle (Ingen Manuel Bruger-Toil):**  
-   Når de nye arkitektur-gates er aktive, behøver brugeren ikke at taste CLI-kommandoer eller skrive YAML. Brugeren beskriver blot featuren på almindeligt sprog i chatten (f.eks. *"Byg Google OAuth2 login"*), hvorefter AI-agenten automatisk:
-   * Identificerer domænet (`auth`) og slicen (`login`).
-   * Opretter og vedligeholder den levende slice-specifikation (`specs/auth/login.md`).
-   * Forankrer opgavepakken med `domain`, `slice` og `spec_ref: "specs/auth/login.md"` i frontmatter.
-
-4. **Trinvis Brownfield-Migrering (Sikker Køreplan for Eksisterende Systemer):**  
-   Hvis du har et etableret system med mange opgaver og teknisk gæld (som f.eks. moduler, der importerer baglæns fra UI-monolitten), skal du **ikke** lave en risikabel "Big Bang"-omskrivning. Følg i stedet denne 4-trins køreplan jf. [ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md):
-
-   * **Trin A: Kør en risikofri Architecture Baseline Audit (Status Quo Snapshot):**  
-     Aktivér gates midlertidigt i `gauntlet.toml` (`layers`, `isolate_slices = true`, `forbid_core_imports`) og kør:
-     ```bash
-     xgauntlet check-architecture
-     ```
-     Dette giver dig et komplet, prioriteret overblik over samtlige eksisterende import-overtrædelser uden at ændre kildekoden.
-
-   * **Trin B: Etablér en sikker baseline (Undgå Big-Bang fælden):**  
-     Frys status quo ved at tilføje en midlertidig exemption-regel i `gauntlet.toml`:
-     ```toml
-     [[architecture.exemptions]]
-     path = "src/features/**"
-     allow_imports = ["crate::ui::app", "crate::app"]
-     reason = "Legacy kobling under trinvis VSA-migrering jf. ADR 0012"
-     ```
-     Dette gør, at dit build og gauntlet forbliver **100% grønt**, mens alle *nye* moduler tvinges til at overholde de strenge arkitekturgrænser fra dag 1.
-
-   * **Trin C: Følg den optimale oprydningsrækkefølge (Gate C $\to$ Gate B $\to$ Gate A):**  
-     1. *Først: Rens domænekernen (Gate C):* Fjern framework-specifikke imports (f.eks. UI-pakker som `iced` eller `react`) fra `src/core/`.
-     2. *Dernæst: Isoler slices fra hinanden (Gate B):* Fjern direkte imports mellem søskende-features (`features/foo` $\to$ `features/bar`). Flyt delte forretningsmodeller til `core` eller `shared`.
-     3. *Til sidst: Afkobl fra UI-monolitten (Gate A):* Erstat prop-drilling med *Stateful UI-Slice* mønstret: Slicen indkapsler sin egen tilstand og returnerer et lokalt `enum Action` / `Event` opad til `app.rs`, i stedet for at importere appens globale `Message`.
-
-   * **Trin D: Slice-for-slice afvikling med AI-agenten:**  
-     Refaktorér ét modul ad gangen gennem isolerede opgaver (`tasks/`). Fjern modulet fra exemption-listen i `gauntlet.toml`, og lad `xgauntlet check-architecture` og `verify` bevise og forsegle, at modulet nu er en 100% uafhængig, ren Vertical Slice.
-
-### 8. Transaktionel Versionsstyring (`release bump`)
-Udfører atomisk SemVer opgradering på tværs af manifests, kompilerer og synkroniserer WASM bytecode, roterer CHANGELOG.md og ruller automatisk tilbage ved fejl via disk-staging:
-```bash
-# Bump patch, minor eller major
-xgauntlet release bump patch
-```
-
-### 9. Sessions-Overdragelseskort (`handoff`)
-Genererer et standardiseret `🏁 SESSION HANDOFF` telemetrikort til ren kontekstoverdragelse i AI-sessioner:
-```bash
-xgauntlet handoff --task-id 001-bootstrap
-```
-
-### 10. Workspace Diagnostik (`doctor`)
-Undersøg workspace-konfiguration, stakke og miljøforudsætninger på tværs af Linux, macOS og Windows:
-```bash
-xgauntlet doctor
-```
-
-### 11. Global Plugin & Agent Skills Distribution (`plugin install`)
-Installer eller opdater de 6 suveræne agent-skills (`discover`, `spec`, `tdd`, `review`, `diagnose`, `release`) på tværs af opdagede AI agent harnesses:
-```bash
-# Installer automatisk til alle detekterede agent-harnesses
-xgauntlet plugin install --global
-
-# Preview handlinger uden at skrive filer til disk
-xgauntlet plugin install --global --dry-run
-
-# Tving overskrivning ved opdatering til ny xgauntlet-version
-xgauntlet plugin install --global --force
-```
+   Dette gør dit gauntlet **100% grønt**, mens alle *nye* moduler tvinges til at overholde arkitekturgrænserne fra dag 1.
+3. **Trin C: Følg den optimale oprydningsrækkefølge (Gate C $\to$ Gate B $\to$ Gate A):**  
+   * *1. Rens kernen (Gate C):* Fjern framework-imports (f.eks. `iced` eller `react`) fra `src/core/`.
+   * *2. Isoler slices (Gate B):* Fjern direkte imports mellem peer-features. Flyt delte modeller til `core` eller `shared`.
+   * *3. Afkobl fra UI (Gate A):* Erstat prop-drilling med *Stateful UI-Slice* mønstret: Slicen indkapsler sin egen tilstand og returnerer et lokalt `enum Action` / `Event` opad til `app.rs`.
+4. **Trin D: Slice-for-slice afvikling med AI-agenten:**  
+   Refaktorér ét modul ad gangen via opgaver i `tasks/`. Fjern modulet fra exemption-listen, og lad `check-architecture` og `verify` bevise, at modulet nu er en ren, isoleret Vertical Slice.
 
 ---
 
-## 🦀 Rust API
+### 3. Deterministisk Mermaid Model-Eksport & To-vejs Glossary Drift Gate
+
+xGauntlet bygger en urokkelig, matematisk bro mellem kildekodens konkrete datamodeller og forretningens *Ubiquitous Language* i `CONTEXT.md` jf. Aristoteles' formel (*definitio per genus et differentiam*):
+
+```bash
+# 1. Eksportér et komplet Mermaid klassediagram direkte fra AST (sub-3ms, zero-daemon, zero-token):
+xgauntlet topology export --format mermaid
+
+# 2. Inspicér detaljeret teknisk model inkl. interne infrastrukturelle hjælpe-structs:
+xgauntlet topology export --format mermaid --level detailed
+
+# 3. Kør to-vejs shift-left validering mod CONTEXT.md (fanger orphan modeller og forbudte synonymer):
+xgauntlet check-spec --context
+```
+
+Dermed tvinges AI-agenter til at afklare og dokumentere nye domæneentiteter i `CONTEXT.md`, før de tillades at passere gauntleten, mens teknisk støj holdes ude af forretningsmodellen.
+
+---
+
+### 4. Dybdegående Kodediagnostik & Runtime Udfaldsrum
+
+For arkitekter og platform-ingeniører, der vil efterprøve eller udvide xGauntlet-kernen, dokumenterer nedenstående diagram det fulde, lavniveau udfaldsrum i Rust-kildekoden (`crates/gauntlet-policy-engine` og `crates/xgauntlet-core`):
+
+<details>
+<summary>🔬 <b>Fold ud: Se det komplette runtime-aktivitetsdiagram med preflight-gates og inverse proofs</b></summary>
+
+```mermaid
+flowchart TD
+    %% 1. PreInvocation Hook
+    UserPrompt(["Bruger Henvendelse / Prompt"]) --> HookPreInvoc["PreInvocation Hook<br/>(inspect_task_telemetry)"]
+    HookPreInvoc --> InjectHUD["Injicér Cockpit HUD i prompt"]
+    InjectHUD --> IntentSelect{"Intent Klassificering"}
+
+    %% 2. Spor 1: QUERY
+    IntentSelect -->|"🔍 QUERY"| PathQuery["Read-Only Flow"]
+    PathQuery --> PolicyRead["Wasm Policy: ReadFile tilladt (Code 2000)<br/>Mutation af filer forbudt"]
+    PolicyRead --> QueryDone(["Svar til bruger uden kodeændringer"])
+
+    %% 3. Spor 2: BUG FIX
+    IntentSelect -->|"🐛 BUG FIX"| PathBug["Defekt / Regression Flow"]
+    PathBug --> TaskInitBug["xgauntlet task init --intent bug"]
+    TaskInitBug --> BugTriage{"is_fast_track_eligible?<br/>1. intent == bug?<br/>2. scope <= 3 filer?<br/>3. Ingen ændring i ADR/gauntlet.toml?"}
+
+    %% Fast-Track Bug Lane
+    BugTriage -->|"Ja: Fast-Track Lane"| FTFix["Skriv regressionstest + fix samtidigt<br/>(Ingen separate RED/GREEN commits)"]
+    FTFix --> FTDoneCheck["xgauntlet checkpoint --phase done"]
+    FTDoneCheck --> FTInverse{"evaluate_fast_track_inverse_proof:<br/>Fejler testen mod HEAD i isoleret worktree?"}
+    FTInverse -->|"Nej: Testen fanger ikke fejlen"| FTFail["AFVIS (InvariantViolation):<br/>Test fanger ikke regression mod HEAD"]
+    FTInverse -->|"Ja: Inverse proof bevist"| FTPass["Proof Godkendt:<br/>Gå direkte til Gauntlet"]
+
+    %% Standard Bug Lane
+    BugTriage -->|"Nej: Scope > 3 filer"| BugRed["Skriv isoleret fejlet reproduktionstest"]
+    BugRed --> CheckRed
+
+    %% 4. Spor 3: REFACTOR
+    IntentSelect -->|"🔄 REFACTOR"| PathRefactor["Omstrukturering Flow<br/>(Adfærd er frosset)"]
+    PathRefactor --> TaskInitRefactor["xgauntlet task init --intent refactor"]
+    TaskInitRefactor --> AntiMonoRefactor["Anti-Monolithic Guard:<br/>is_refactor = true giver dispensation<br/>til at røre testfiler > 1000 linjer"]
+    AntiMonoRefactor --> NoSliceReq["Ingen krav om nye slice-specs<br/>(Intern teknisk oprydning)"]
+    NoSliceReq --> RefactorWork["Udfør strukturel refaktorisering"]
+    RefactorWork --> CheckRefactor["xgauntlet checkpoint --phase refactor"]
+    CheckRefactor --> SelfMutCheck{"verify_self_mutation:<br/>Er der sket utilsigtede ændringer?"}
+    SelfMutCheck -->|"Ja"| SelfMutFail["AFVIS: SelfMutationDetected"]
+    SelfMutCheck -->|"Nej"| RefactorPass["Refactor Checkpoint OK"]
+
+    %% 5. Spor 4: ENHANCEMENT & FEATURE
+    IntentSelect -->|"🚀 ENHANCEMENT / FEATURE"| PathEnhance["Ny kapabilitet / Adfærdsudvidelse"]
+    PathEnhance --> TaskInitEnhance["xgauntlet task init --intent enhancement/feature"]
+    TaskInitEnhance --> SliceCheck{"validate_task_slice_mapping:<br/>Er domain, slice og spec_ref sat?"}
+    SliceCheck -->|"Mangler"| SliceFail["AFVIS: MISSING_TASK_SLICE_MAPPING"]
+    SliceCheck -->|"OK"| AntiMonoStrict{"Anti-Monolithic Guard:<br/>Er testfiler <= 1000 linjer?"}
+    AntiMonoStrict -->|"Over 1000 linjer"| MonoFail["AFVIS: MONOLITHIC_TEST_FILE_PROHIBITED"]
+    AntiMonoStrict -->|"Under 1000 linjer"| EnhanceRed["Skriv ny accepttest jf. udvidet kontrakt"]
+    EnhanceRed --> CheckRed
+
+    %% 6. TDD Løkke
+    CheckRed["xgauntlet checkpoint --phase red"] --> PreflightRed{"run_preflight_check(Red):<br/>Fejler testen med assertion failure?"}
+    PreflightRed -->|"Nej: Testen består"| RedFailPass["AFVIS: Test skal fejle i RED"]
+    PreflightRed -->|"Nej: Syntaksfejl i src/"| RedFailSyntax["AFVIS: Syntaksfejl i produktionskode"]
+    PreflightRed -->|"Ja: Assertion error"| CommitRed["Git Commit: test(id): ... [RED]"]
+    CommitRed --> GreenImpl["Implementér minimal kode"]
+    GreenImpl --> CheckGreen["xgauntlet checkpoint --phase green"]
+    CheckGreen --> PreflightGreen{"run_preflight_check(Green):<br/>Består alle tests?"}
+    PreflightGreen -->|"Nej"| GreenFail["AFVIS: Tests fejler i GREEN"]
+    PreflightGreen -->|"Ja"| CommitGreen["Git Commit: feat(id): ... [GREEN]"]
+    CommitGreen --> RefactorPass
+
+    %% 7. Gauntlet
+    RefactorPass --> DoneReq["xgauntlet checkpoint --phase done"]
+    FTPass --> DoneReq
+    DoneReq --> GauntletPipe["Gauntlet Verification Pipeline<br/>(cargo test, clippy, fmt, check-spec, mutants)"]
+    GauntletPipe --> VerificationDone(["Evidens forseglet & Task DONE"])
+```
+
+</details>
+
+---
+
+### 4. Rust API
 
 Du kan integrere `xgauntlet-core` direkte i dine egne Rust test-runners eller agent-værktøjer:
 
@@ -538,34 +468,37 @@ println!("Source manifest digest: {}", &manifest.source_manifest_digest[..16]);
 
 ---
 
-## 🏛️ Arkitektur (ADRs)
+### 5. Arkitektur (ADRs)
 
-Projektets invariante tekniske valg og designprincipper er dokumenteret i [`docs/adr/`](docs/adr/):
+Projektets invariante arkitekturvalg er dokumenteret i [`docs/adr/`](docs/adr/):
 - 🏛️ **[ADR 0001](docs/adr/0001-package-by-feature-architecture.md)**: Package-by-Feature / Screaming Architecture
-- 🏛️ **[ADR 0002](docs/adr/0002-cryptographic-evidence-authority.md)**: Cryptographic Evidence Authority (Superseded by ADR 0005)
+- 🏛️ **[ADR 0002](docs/adr/0002-cryptographic-evidence-authority.md)**: Cryptographic Evidence Authority *(Superseded by ADR 0005)*
 - 🏛️ **[ADR 0003](docs/adr/0003-surgical-gatekeeper-and-no-remote-push.md)**: Surgical Gatekeeper and No Remote Push
 - 🏛️ **[ADR 0004](docs/adr/0004-harness-adapter-slices.md)**: Vertical Slice Harness Adapters
 - 🏛️ **[ADR 0005](docs/adr/0005-two-tier-verification-and-attestation-model.md)**: Two-Tier Verification and Attestation Model
 - 🏛️ **[ADR 0006](docs/adr/0006-multi-harness-policy-adapter-contract.md)**: Multi-Harness Policy Adapter Contract
 - 🏛️ **[ADR 0007](docs/adr/0007-local-transparent-supervisor-and-wasm-verifier.md)**: Zero-Daemon WASM Policy Verifier
 - 🏛️ **[ADR 0008](docs/adr/0008-sovereign-agentic-sdlc-task-scoping-and-design-tokens.md)**: Sovereign Agentic SDLC, Task Scoping, and Design Token Governance
+- 🏛️ **[ADR 0009](docs/adr/0009-autonomous-tdd-inner-loop-and-boundary-human-gates.md)**: Autonomous TDD Inner Loop and Boundary Human-in-the-Loop Gates
+- 🏛️ **[ADR 0010](docs/adr/0010-adr-bound-architectural-exemptions-and-monotonic-ratchets.md)**: ADR-Bound Architectural Exemptions and Monotonic Ratchet Governance
+- 🏛️ **[ADR 0011](docs/adr/0011-fast-track-worktree-inverse-proof-and-scoped-preflight.md)**: Fast-Track Bugfix Protocol, Worktree Inverse Proof, and Scoped Preflight Execution
+- 🏛️ **[ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md)**: Vertical Slice Boundaries and ADR Lifecycle
 
 ---
 
-## 🙏 Anerkendelse & Inspiration (Credits)
+### 6. Anerkendelse & Inspiration (Credits)
 
-`xGauntlet` bygger videre på idéer, filosofi og pionerarbejde inden for stringent software-verifikation, agent-craftsmanship og forsyningskædesikkerhed:
-- **[Robert C. Martin ("Uncle Bob")](https://x.com/unclebobmartin/status/2080257779395154409)**: For TDD, Clean Craftsmanship og princippet om at omgive koden med en uomgængelig, automatiseret *gauntlet*.
-- **[amazingang (old-coder)](https://github.com/amazingang/old-coder)**: For formuleringen af Evidence-First filosofien (*"Trust moves from inspection to constraints"*).
-- **[Matt Pocock](https://github.com/mattpocock)**: For banebrydende arbejde med sokratiske agent-workflows og to-akset review-metodologi.
-- **[Addy Osmani](https://addyosmani.com/)**: For metodiske agent-skills inden for kildestyring under implementering, metodisk forsimpling (*Chesterton's Fence*) og adversarial kvalitets-ratchets.
-- **[Jesse Vincent (obra)](https://github.com/obra/superpowers)**: For Superpowers agent-metodikken, *The Iron Law of Debugging*, anti-goals og deterministisk branch-afslutning.
-- **[Bytecode Alliance](https://bytecodealliance.org/)**: For Wasmtime og WebAssembly Component Model med formel Zero Ambient Authority.
-- **[Sigstore & OpenSSF](https://sigstore.dev/)**: For keyless OIDC-attestation og in-toto standarder for uafviselig forsyningskædesikkerhed.
+`xGauntlet` bygger videre på idéer og pionerarbejde inden for stringent software-verifikation, craftsmanship og forsyningskædesikkerhed:
+* **[Robert C. Martin ("Uncle Bob")](https://x.com/unclebobmartin/status/2080257779395154409)**: For TDD, Clean Craftsmanship og princippet om at omgive koden med en uomgængelig *gauntlet*.
+* **[amazingang (old-coder)](https://github.com/amazingang/old-coder)**: For Evidence-First filosofien (*"Trust moves from inspection to constraints"*).
+* **[Matt Pocock](https://github.com/mattpocock)**: For sokratiske agent-workflows og to-akset review-metodologi.
+* **[Addy Osmani](https://addyosmani.com/)**: For agent-skills inden for kildestyring under implementering, *Chesterton's Fence* og adversarial kvalitets-ratchets.
+* **[Jesse Vincent (obra)](https://github.com/obra/superpowers)**: For Superpowers agent-metodikken, *The Iron Law of Debugging* og anti-goals.
+* **[Bytecode Alliance](https://bytecodealliance.org/)**: For Wasmtime og WebAssembly Component Model med formel Zero Ambient Authority.
+* **[Sigstore & OpenSSF](https://sigstore.dev/)**: For keyless OIDC-attestation og in-toto standarder for uafviselig forsyningskædesikkerhed.
 
 ---
 
-## 📄 Licens
+### 7. Licens
 
 Dette projekt er licenseret under [MIT Licensen](LICENSE).
-

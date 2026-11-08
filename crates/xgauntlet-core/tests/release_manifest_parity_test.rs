@@ -203,7 +203,10 @@ fn test_npm_cli_readme_identical_to_root_readme() {
     let cli_readme_path = repo_root.join("packages/cli/README.md");
 
     assert!(root_readme_path.is_file(), "root README.md must exist");
-    assert!(cli_readme_path.is_file(), "packages/cli/README.md must exist");
+    assert!(
+        cli_readme_path.is_file(),
+        "packages/cli/README.md must exist"
+    );
 
     let root_content = fs::read_to_string(&root_readme_path).expect("read root README.md");
     let cli_content = fs::read_to_string(&cli_readme_path).expect("read packages/cli/README.md");

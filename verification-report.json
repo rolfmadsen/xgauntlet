@@ -961,6 +961,14 @@
         "commit_oid": "73ccd57c9a242708852469e8d267af402d974252",
         "timestamp": "2026-11-08T11:55:44Z",
         "digest": "fbd1db24636719eff7bb9c767f85decb22e4d808658816cf0ec53dbf46431630"
+      },
+      {
+        "session_nonce": "sess-b4e22626",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "b4e22626ac9e01acd5446c159e21fe3da3034b9a",
+        "timestamp": "2026-11-08T11:56:25Z",
+        "digest": "3e440d2285bd2d466d1eaae100e5e45ffabaa285fea261528871c5f6cdac0898"
       }
     ]
   },
@@ -2021,6 +2029,13 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_npm_cli_readme_identical_to_root_readme",
+      "failure_output": "Verified in RED checkpoint commit b4e2262",
+      "failure_digest": "13b3f4cc8f63845de2578859bcbf205b134ec4289e8e390bcf5f64dc16d7e39b",
+      "verified_at": "2026-11-08T12:56:25+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }
