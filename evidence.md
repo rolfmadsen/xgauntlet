@@ -1,20 +1,26 @@
 # Verification Report
 
-**Task ID**: `069-ddd-slice-taxonomy-and-dogfooding`  
-**Task Title**: Task 069: Correct DDD/VSA Taxonomy, 1- and 2-Level Slice Isolation, and Dogfooding  
+**Task ID**: `070-release-v0-13-2`  
+**Task Title**: Task 070: Release v0.13.2 Preparation & Manifest Bump  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `88357c419a5fde91bae2d6c480c93a2a0c7eda598b6dd6feb67bfc191c14fc32`  
-**Timestamp**: `2026-11-08T14:10:21Z`  
-**Head**: `7eb2d1c`  
-**Commit**: `7eb2d1c`  
+**Source Manifest Digest**: `b1604da91652af3c00ba2e874dd17d2d211e8f031a1d6918f89c1e6748e151e3`  
+**Timestamp**: `2026-11-08T14:23:12Z`  
+**Head**: `80829e9`  
+**Commit**: `80829e9`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (1-Level & 2-Level Slice Identity in Gate B):** `run_architecture_check` med `isolate_slices = true` tillader interne imports mellem søskendefiler i en 1-niveau slice (`src/features/tasks/validator.rs` der importerer `crate::features::tasks::models::TaskPackage`), men afviser uautoriserede tværgående slice-imports (`src/features/tasks/validator.rs` der importerer `crate::features::release::models::ReleaseReport`) med `CrossSliceImportViolation`, og bevarer fuld 2-niveau slice-isolation (`src/features/<subdomain>/<slice>/...`).
-- [x] **AC2 (Glob Path Exemptions for `allow_imports`):** `[[architecture.exemptions]]` med `path = "src/features/**"` eller `path = "crates/xgauntlet-core/src/features/**"` og `allow_imports = [...]` matcher kildefiler under præfikset og kombineres korrekt med fil-specifikke linjeloft-exemptions.
-- [x] **AC3 (1-Level & 2-Level `spec_ref` in `check-spec` and `task new`):** `check_task_specification` og `TaskScaffolder` accepterer både 1-niveau tasks (`slice: architecture`, `spec_ref: "specs/architecture.md"` uden `domain`/`subdomain`) og 2-niveau tasks (`subdomain: billing` eller `domain: billing`, `slice: checkout`, `spec_ref: "specs/billing/checkout.md"`).
-- [x] **AC4 (Glossary Parenthetical Aliases & Dogfooding):** `validate_glossary_drift` udtrækker både hovedtermen og parentetiske `/`-separerede model-aliaser fra `CONTEXT.md`, afviser fortsat uregistrerede modeller (`UnregisteredBountyEvidence`), og består 100% på `xgauntlet`s eget repository via `xgauntlet check-spec --context` og `xgauntlet check-architecture`.
+- [x] **Acceptance Test for Version 0.13.2**:
+- [x] `release_manifest_parity_test.rs` opdateres til at kræve version `0.13.2` på tværs af alle manifester.
+- [x] **Manifest-opgradering til 0.13.2**:
+- [x] Opdatere alle 8 manifester til `0.13.2` (`Cargo.toml`, `package.json`, `packages/cli/package.json`, `plugin.json`, `policy.json` mv.).
+- [x] **WASM Policy Bytecode Rebuild**:
+- [x] Genkompilere `gauntlet-policy-engine` til version `0.13.2` og opdatere `crates/xgauntlet-core/wasm/gauntlet_policy.wasm`.
+- [x] **Changelog Rotation**:
+- [x] `CHANGELOG.md` opdateres med `[0.13.2] - 2026-11-08` dækkende Task 069 (DDD/VSA taksonomi, 1- og 2-niveau slice-isolation, glob exemptions, valgfri `subdomain` i `spec_ref`, parentetiske model-aliaser i `CONTEXT.md` og dogfooding).
+- [x] **Release Gatekeeper & Verifikation**:
+- [x] `xgauntlet check-release` rapporterer fuld release-paritet og 100% ADR dækning for `0.13.2`.
 
 ---
 
@@ -22,13 +28,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.105s` |
-| `format` | `PASSED` | `0` | `0.253s` |
-| `lint` | `PASSED` | `0` | `0.115s` |
-| `unit` | `PASSED` | `0` | `32.326s` |
-| `npm` | `PASSED` | `0` | `0.796s` |
-| `invariants` | `PASSED` | `0` | `0.080s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
+| `architecture` | `PASSED` | `0` | `3.862s` |
+| `format` | `PASSED` | `0` | `0.241s` |
+| `lint` | `PASSED` | `0` | `0.973s` |
+| `unit` | `PASSED` | `0` | `36.743s` |
+| `npm` | `PASSED` | `0` | `0.788s` |
+| `invariants` | `PASSED` | `0` | `0.079s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.009s` |
 
 ---
 
@@ -154,6 +160,7 @@
 | `sess-7eb2d1cc` | `TDD Craftsman` | `GREEN` | `7eb2d1c` | `2026-11-08T14:09:17Z` | `VALID` |
 | `sess-0cb16c60` | `Software Engineer` | `DONE` | `0cb16c6` | `2026-11-08T14:11:10Z` | `VALID` |
 | `sess-b0b6b0b8` | `System Architect` | `SPEC` | `b0b6b0b` | `2026-11-08T14:18:25Z` | `VALID` |
+| `sess-80829e9c` | `TDD Craftsman` | `RED` | `80829e9` | `2026-11-08T14:19:13Z` | `VALID` |
 
 ---
 
@@ -161,6 +168,10 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `24d16e87708d41a2...` | `2026-11-08T15:19:13+01:00` |
+| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `24d16e87708d41a2...` | `2026-11-08T15:19:13+01:00` |
+| `test_workspace_manifests_synchronized_to_version_0_13_2` | `RedCheckpointVerified` | `24d16e87708d41a2...` | `2026-11-08T15:19:13+01:00` |
+| `test_npm_cli_readme_identical_to_root_readme` | `RedCheckpointVerified` | `24d16e87708d41a2...` | `2026-11-08T15:19:13+01:00` |
 | `test_architecture_config_parsing_from_toml` | `RedCheckpointVerified` | `6dfbcc2100981406...` | `2026-11-08T14:57:50+01:00` |
 | `test_architecture_check_passes_on_compliant_workspace` | `RedCheckpointVerified` | `6dfbcc2100981406...` | `2026-11-08T14:57:50+01:00` |
 | `test_architecture_check_fails_on_monolithic_production_file` | `RedCheckpointVerified` | `6dfbcc2100981406...` | `2026-11-08T14:57:50+01:00` |
@@ -181,10 +192,7 @@
 | `test_glossary_drift_detects_prohibited_avoid_synonyms_in_fields` | `RedCheckpointVerified` | `6dfbcc2100981406...` | `2026-11-08T14:57:50+01:00` |
 | `test_check_spec_supports_1_level_slice_without_subdomain` | `RedCheckpointVerified` | `6dfbcc2100981406...` | `2026-11-08T14:57:50+01:00` |
 | `test_glossary_drift_supports_parenthetical_aliases_and_dogfoods_workspace` | `RedCheckpointVerified` | `6dfbcc2100981406...` | `2026-11-08T14:57:50+01:00` |
-| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `df6785ad3278087b...` | `2026-11-08T13:00:26+01:00` |
-| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `df6785ad3278087b...` | `2026-11-08T13:00:26+01:00` |
 | `test_workspace_manifests_synchronized_to_version_0_13_1` | `RedCheckpointVerified` | `df6785ad3278087b...` | `2026-11-08T13:00:26+01:00` |
-| `test_npm_cli_readme_identical_to_root_readme` | `RedCheckpointVerified` | `df6785ad3278087b...` | `2026-11-08T13:00:26+01:00` |
 | `test_workspace_manifests_synchronized_to_version_0_13_0` | `RedCheckpointVerified` | `13b3f4cc8f63845d...` | `2026-11-08T12:56:25+01:00` |
 | `test_paths_config_default_diagram_file` | `RedCheckpointVerified` | `a00ae1cd4b5d35aa...` | `2026-11-08T12:45:47+01:00` |
 | `test_verify_save_generates_architecture_mermaid` | `RedCheckpointVerified` | `a00ae1cd4b5d35aa...` | `2026-11-08T12:45:47+01:00` |

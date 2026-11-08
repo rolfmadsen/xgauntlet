@@ -4,38 +4,44 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "069-ddd-slice-taxonomy-and-dogfooding",
-    "task_title": "Task 069: Correct DDD/VSA Taxonomy, 1- and 2-Level Slice Isolation, and Dogfooding",
-    "task_digest": "2d738f72c75ba849576f87f18548a09fd84b85ad61bb9bf3ba8530acb73e6643",
+    "task_id": "070-release-v0-13-2",
+    "task_title": "Task 070: Release v0.13.2 Preparation & Manifest Bump",
+    "task_digest": "595eea1ad91a0d4ab85478f0f6ecd9d737221ddb765972e9b74eed27bfa18a55",
     "acceptance_criteria": [
-      "**AC1 (1-Level & 2-Level Slice Identity in Gate B):** `run_architecture_check` med `isolate_slices = true` tillader interne imports mellem søskendefiler i en 1-niveau slice (`src/features/tasks/validator.rs` der importerer `crate::features::tasks::models::TaskPackage`), men afviser uautoriserede tværgående slice-imports (`src/features/tasks/validator.rs` der importerer `crate::features::release::models::ReleaseReport`) med `CrossSliceImportViolation`, og bevarer fuld 2-niveau slice-isolation (`src/features/<subdomain>/<slice>/...`).",
-      "**AC2 (Glob Path Exemptions for `allow_imports`):** `[[architecture.exemptions]]` med `path = \"src/features/**\"` eller `path = \"crates/xgauntlet-core/src/features/**\"` og `allow_imports = [...]` matcher kildefiler under præfikset og kombineres korrekt med fil-specifikke linjeloft-exemptions.",
-      "**AC3 (1-Level & 2-Level `spec_ref` in `check-spec` and `task new`):** `check_task_specification` og `TaskScaffolder` accepterer både 1-niveau tasks (`slice: architecture`, `spec_ref: \"specs/architecture.md\"` uden `domain`/`subdomain`) og 2-niveau tasks (`subdomain: billing` eller `domain: billing`, `slice: checkout`, `spec_ref: \"specs/billing/checkout.md\"`).",
-      "**AC4 (Glossary Parenthetical Aliases & Dogfooding):** `validate_glossary_drift` udtrækker både hovedtermen og parentetiske `/`-separerede model-aliaser fra `CONTEXT.md`, afviser fortsat uregistrerede modeller (`UnregisteredBountyEvidence`), og består 100% på `xgauntlet`s eget repository via `xgauntlet check-spec --context` og `xgauntlet check-architecture`."
+      "**Acceptance Test for Version 0.13.2**:",
+      "`release_manifest_parity_test.rs` opdateres til at kræve version `0.13.2` på tværs af alle manifester.",
+      "**Manifest-opgradering til 0.13.2**:",
+      "Opdatere alle 8 manifester til `0.13.2` (`Cargo.toml`, `package.json`, `packages/cli/package.json`, `plugin.json`, `policy.json` mv.).",
+      "**WASM Policy Bytecode Rebuild**:",
+      "Genkompilere `gauntlet-policy-engine` til version `0.13.2` og opdatere `crates/xgauntlet-core/wasm/gauntlet_policy.wasm`.",
+      "**Changelog Rotation**:",
+      "`CHANGELOG.md` opdateres med `[0.13.2] - 2026-11-08` dækkende Task 069 (DDD/VSA taksonomi, 1- og 2-niveau slice-isolation, glob exemptions, valgfri `subdomain` i `spec_ref`, parentetiske model-aliaser i `CONTEXT.md` og dogfooding).",
+      "**Release Gatekeeper & Verifikation**:",
+      "`xgauntlet check-release` rapporterer fuld release-paritet og 100% ADR dækning for `0.13.2`."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "68524f2844d1014d1cd4f16fea9022a43724f8f68f39522a22657475aa95e279",
-    "source_manifest_digest_pre": "88357c419a5fde91bae2d6c480c93a2a0c7eda598b6dd6feb67bfc191c14fc32",
-    "source_manifest_digest_post": "88357c419a5fde91bae2d6c480c93a2a0c7eda598b6dd6feb67bfc191c14fc32",
-    "config_digest": "49116794f572555420f526505b2e95ff15888ea0b35960e79212f07f7d3c4f7a",
-    "task_digest": "2d738f72c75ba849576f87f18548a09fd84b85ad61bb9bf3ba8530acb73e6643",
+    "source_content_digest": "1541d8b89464fb9616f0fcba634d3fb1ba8fdde2096c3a722e5d2bbe34cafbf0",
+    "source_manifest_digest_pre": "b1604da91652af3c00ba2e874dd17d2d211e8f031a1d6918f89c1e6748e151e3",
+    "source_manifest_digest_post": "b1604da91652af3c00ba2e874dd17d2d211e8f031a1d6918f89c1e6748e151e3",
+    "config_digest": "72d2a97b589a2e3b419308f2b93bb8faaadc8be95fdad2d12e92b224bf163345",
+    "task_digest": "595eea1ad91a0d4ab85478f0f6ecd9d737221ddb765972e9b74eed27bfa18a55",
     "policy_digest": "3190e9f941adaa8321b511f1e7fd4a53bf788a7ec401f23bfe68f8eec8713e2b",
     "check_definitions_digest": "7b85613e7b7c24f03e0db6873ce7a93328152d05b26a6eea242f15f10f6063af",
-    "included_files_count": 273,
+    "included_files_count": 275,
     "vcs": {
       "type": "git",
-      "head": "7eb2d1c",
-      "commit": "7eb2d1c",
+      "head": "80829e9",
+      "commit": "80829e9",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-08T14:09:47Z",
-    "finished_at": "2026-11-08T14:10:21Z",
-    "total_duration_seconds": 33.916831707,
+    "started_at": "2026-11-08T14:22:29Z",
+    "finished_at": "2026-11-08T14:23:12Z",
+    "total_duration_seconds": 42.905722289,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -48,16 +54,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.104761337,
+      "duration_seconds": 3.8620131349999998,
       "optional": false,
       "passed": true,
-      "log_digest": "4f10615871882c5afa6c4bdbe977bd7952a92232b1aabd3958a1d71fe31b10d2"
+      "log_digest": "7ce1b434857d45ea961cc3ec9afd9ece14db6f856ce09382b61c0b17dfea2b84"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.253319486,
+      "duration_seconds": 0.241162464,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -66,43 +72,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.115365658,
+      "duration_seconds": 0.972718316,
       "optional": false,
       "passed": true,
-      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
+      "log_digest": "d1dd8f5a51c0a294a73a4a85b49688d6871947998cede7435258cddb26f30235"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 32.32599616,
+      "duration_seconds": 36.742645709,
       "optional": false,
       "passed": true,
-      "log_digest": "d8333f91da6d463cb9aa1193f47f8d66e3a66673918db18dcc45d3a7264bfb81"
+      "log_digest": "93e909977b7aaef5e1d89791418d23f7fcb38366e9cf7ad48c108a4aea3d1b52"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.796484836,
+      "duration_seconds": 0.787817444,
       "optional": false,
       "passed": true,
-      "log_digest": "6e41875fc995fa4981a48f9539e2e7436a0b93409aeb0fcd85fcf80d6e7f8115"
+      "log_digest": "722f9257bc7054ea8e8c2bb46f314ea0b65e51caad521514187d8ffcd8d4963c"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.080493296,
+      "duration_seconds": 0.079261832,
       "optional": false,
       "passed": true,
-      "log_digest": "1280cb9e5bd1fdd30e2e11c84fbe48b093d0191a3b7ae1a7eff13435c75bd4db"
+      "log_digest": "acd8c1d937b79f8a3d17cf8a8d9abdeab32c402b82107589994900b8be7f9b2a"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.011883279,
+      "duration_seconds": 0.009131212,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -1065,10 +1071,46 @@
         "commit_oid": "b0b6b0b8b2539a4a5c815bb3a4c18f7d6ea418b3",
         "timestamp": "2026-11-08T14:18:25Z",
         "digest": "389eb083094548c9d61dd7b58629cb79c229b39c931ebd0ce4ad68ceccb99074"
+      },
+      {
+        "session_nonce": "sess-80829e9c",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "80829e9c935f16c9ec49abc2097fe8aea3af0b77",
+        "timestamp": "2026-11-08T14:19:13Z",
+        "digest": "8db041bf8a300e52fadece3245c336bcc2b408291a3744733c023292db940370"
       }
     ]
   },
   "test_provenance": [
+    {
+      "test_identifier": "test_extract_declared_versions_includes_plugin_and_policy",
+      "failure_output": "Verified in RED checkpoint commit 80829e9",
+      "failure_digest": "24d16e87708d41a2abf68befa373873b03bde754e88a9558ee19b9b32326f3af",
+      "verified_at": "2026-11-08T15:19:13+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_update_manifest_versions_bumps_plugin_and_policy",
+      "failure_output": "Verified in RED checkpoint commit 80829e9",
+      "failure_digest": "24d16e87708d41a2abf68befa373873b03bde754e88a9558ee19b9b32326f3af",
+      "verified_at": "2026-11-08T15:19:13+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_workspace_manifests_synchronized_to_version_0_13_2",
+      "failure_output": "Verified in RED checkpoint commit 80829e9",
+      "failure_digest": "24d16e87708d41a2abf68befa373873b03bde754e88a9558ee19b9b32326f3af",
+      "verified_at": "2026-11-08T15:19:13+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_npm_cli_readme_identical_to_root_readme",
+      "failure_output": "Verified in RED checkpoint commit 80829e9",
+      "failure_digest": "24d16e87708d41a2abf68befa373873b03bde754e88a9558ee19b9b32326f3af",
+      "verified_at": "2026-11-08T15:19:13+01:00",
+      "status": "red_checkpoint_verified"
+    },
     {
       "test_identifier": "test_architecture_config_parsing_from_toml",
       "failure_output": "Verified in RED checkpoint commit 8abd7c6",
@@ -1210,28 +1252,7 @@
       "status": "red_checkpoint_verified"
     },
     {
-      "test_identifier": "test_extract_declared_versions_includes_plugin_and_policy",
-      "failure_output": "Verified in RED checkpoint commit f06083c",
-      "failure_digest": "df6785ad3278087babe0c5117e1d700a5185ecc24b5e230c581c91ce21a47b59",
-      "verified_at": "2026-11-08T13:00:26+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_update_manifest_versions_bumps_plugin_and_policy",
-      "failure_output": "Verified in RED checkpoint commit f06083c",
-      "failure_digest": "df6785ad3278087babe0c5117e1d700a5185ecc24b5e230c581c91ce21a47b59",
-      "verified_at": "2026-11-08T13:00:26+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
       "test_identifier": "test_workspace_manifests_synchronized_to_version_0_13_1",
-      "failure_output": "Verified in RED checkpoint commit f06083c",
-      "failure_digest": "df6785ad3278087babe0c5117e1d700a5185ecc24b5e230c581c91ce21a47b59",
-      "verified_at": "2026-11-08T13:00:26+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_npm_cli_readme_identical_to_root_readme",
       "failure_output": "Verified in RED checkpoint commit f06083c",
       "failure_digest": "df6785ad3278087babe0c5117e1d700a5185ecc24b5e230c581c91ce21a47b59",
       "verified_at": "2026-11-08T13:00:26+01:00",

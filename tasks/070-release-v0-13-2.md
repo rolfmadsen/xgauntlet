@@ -40,16 +40,16 @@ test_refs:
 Forberede udgivelse af version `0.13.2` (patch/bugfix bump på `0.13.1`) for at muliggøre publicering til GitHub og NPM Registry, synkronisere samtlige 8 manifester, genkompilere WebAssembly policy engine til `0.13.2`, opdatere `CHANGELOG.md` med Task 069 og validere 100% release readiness via `xgauntlet check-release`.
 
 ## 📋 Acceptance Criteria
-- [ ] **Acceptance Test for Version 0.13.2**:
-  - [ ] `release_manifest_parity_test.rs` opdateres til at kræve version `0.13.2` på tværs af alle manifester.
-- [ ] **Manifest-opgradering til 0.13.2**:
-  - [ ] Opdatere alle 8 manifester til `0.13.2` (`Cargo.toml`, `package.json`, `packages/cli/package.json`, `plugin.json`, `policy.json` mv.).
-- [ ] **WASM Policy Bytecode Rebuild**:
-  - [ ] Genkompilere `gauntlet-policy-engine` til version `0.13.2` og opdatere `crates/xgauntlet-core/wasm/gauntlet_policy.wasm`.
-- [ ] **Changelog Rotation**:
-  - [ ] `CHANGELOG.md` opdateres med `[0.13.2] - 2026-11-08` dækkende Task 069 (DDD/VSA taksonomi, 1- og 2-niveau slice-isolation, glob exemptions, valgfri `subdomain` i `spec_ref`, parentetiske model-aliaser i `CONTEXT.md` og dogfooding).
-- [ ] **Release Gatekeeper & Verifikation**:
-  - [ ] `xgauntlet check-release` rapporterer fuld release-paritet og 100% ADR dækning for `0.13.2`.
+- [x] **Acceptance Test for Version 0.13.2**:
+  - [x] `release_manifest_parity_test.rs` opdateres til at kræve version `0.13.2` på tværs af alle manifester.
+- [x] **Manifest-opgradering til 0.13.2**:
+  - [x] Opdatere alle 8 manifester til `0.13.2` (`Cargo.toml`, `package.json`, `packages/cli/package.json`, `plugin.json`, `policy.json` mv.).
+- [x] **WASM Policy Bytecode Rebuild**:
+  - [x] Genkompilere `gauntlet-policy-engine` til version `0.13.2` og opdatere `crates/xgauntlet-core/wasm/gauntlet_policy.wasm`.
+- [x] **Changelog Rotation**:
+  - [x] `CHANGELOG.md` opdateres med `[0.13.2] - 2026-11-08` dækkende Task 069 (DDD/VSA taksonomi, 1- og 2-niveau slice-isolation, glob exemptions, valgfri `subdomain` i `spec_ref`, parentetiske model-aliaser i `CONTEXT.md` og dogfooding).
+- [x] **Release Gatekeeper & Verifikation**:
+  - [x] `xgauntlet check-release` rapporterer fuld release-paritet og 100% ADR dækning for `0.13.2`.
 
 ## 🚫 Must NOT
 - Må IKKE udføre remote publication (`git push`) jf. ADR 0003.

@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.2] - 2026-11-08
+
+### 🚀 Added & Enhanced
+- **DDD & Vertical Slice Taxonomy, 1- and 2-Level Slice Isolation & Dogfooding (`Task 069`, `ADR 0012`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`)**:
+  - Aligned conceptual hierarchy across `CONTEXT.md`, `ADR 0012`, `CODING_STANDARDS.md`, and bundled sovereign skills (`discover`, `spec`, `tdd`): `Domain (Problem Space) -> Subdomain (Optional Grouping) -> Bounded Context (CONTEXT.md) -> Shared Kernel (core/) & Vertical Slice (features/<slice>/ or features/<subdomain>/<slice>/)`.
+  - Extended Gate B (`extract_slice_identity` / `extract_import_slice_identity`) to auto-detect both 1-level (`features/<slice>/`, including internal subfolders when the slice contains direct source files) and 2-level (`features/<subdomain>/<slice>/`) slice layouts.
+  - Added `/**` directory glob matching and multi-exemption `allow_imports` merging in `xgauntlet check-architecture` (`resolve_file_exemptions`).
+  - Added support for 1-level task slice bindings (`slice: <slice>`, `spec_ref: "specs/<slice>.md"` without requiring `domain`/`subdomain`) and `--subdomain` alias on `xgauntlet task new`.
+  - Extended `validate_glossary_drift` (`xgauntlet check-spec --context`) to parse parenthetical slash-separated model aliases in `CONTEXT.md`, and enabled full dogfooding (`isolate_slices = true` and `check-spec --context`) in `xgauntlet`'s own `gauntlet.toml`.
+
 ## [0.13.1] - 2026-11-08
 
 ### 🚀 Added
