@@ -335,7 +335,7 @@ forbid_core_imports = ["iced", "react", "javafx"]
 #### 🏛️ Trinvis Brownfield-Migrering (Sikker Køreplan for Eksisterende Systemer)
 Hvis du har et etableret system med teknisk gæld, skal du **ikke** lave en risikabel "Big Bang"-omskrivning. Følg denne 4-trins køreplan:
 
-1. **Trin A: Tag et risikofrit Røntgenbillede (Audit Baseline):**  
+1. **Trin A: Kør en risikofri Architecture Baseline Audit (Status Quo Snapshot):**  
    Aktivér gates midlertidigt i `gauntlet.toml` og kør `xgauntlet check-architecture`. Du får et komplet, prioriteret overblik over alle eksisterende import-overtrædelser uden at ændre kildekoden.
 2. **Trin B: Etablér en sikker baseline (Undgå Big-Bang fælden):**  
    Frys status quo ved at tilføje en midlertidig exemption-regel i `gauntlet.toml`:

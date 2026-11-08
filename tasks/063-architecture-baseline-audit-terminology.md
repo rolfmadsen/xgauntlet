@@ -25,10 +25,10 @@ test_refs:
 Erstatte den uhensigtsmæssige fordanskning "risikofrit røntgenbillede" med den professionelle softwarearkitektur-fagterm "Architecture Baseline Audit" i `README.md` og `packages/cli/README.md`, samt opdatere test-assertionen i `architecture_scaffold_template_test.rs` så den afspejler den opdaterede terminologi.
 
 ## 📋 Acceptance Criteria
-- [ ] Erstatte overskriften og omtalen af "risikofrit Røntgenbillede (Audit Baseline)" i `README.md` med "risikofri Architecture Baseline Audit (Status Quo Snapshot)".
-- [ ] Erstatte overskriften og omtalen i `packages/cli/README.md` tilsvarende for fuld konsistens.
-- [ ] Opdatere `crates/xgauntlet-core/tests/architecture_scaffold_template_test.rs` til at validere forekomsten af "Architecture Baseline Audit" eller "Baseline Audit" i stedet for strengt at kræve "Røntgenbillede".
-- [ ] Køre `cargo test -p xgauntlet-core --test architecture_scaffold_template_test` og verificere at testen passerer.
+- [x] Erstatte overskriften og omtalen af "risikofrit Røntgenbillede (Audit Baseline)" i `README.md` med "risikofri Architecture Baseline Audit (Status Quo Snapshot)".
+- [x] Erstatte overskriften og omtalen i `packages/cli/README.md` tilsvarende for fuld konsistens.
+- [x] Opdatere `crates/xgauntlet-core/tests/architecture_scaffold_template_test.rs` til at validere forekomsten af "Architecture Baseline Audit" eller "Baseline Audit" i stedet for strengt at kræve "Røntgenbillede".
+- [x] Køre `cargo test -p xgauntlet-core --test architecture_scaffold_template_test` og verificere at testen passerer.
 
 ## 🚫 Must NOT
 - Må IKKE fjerne forklaringen af trinvis brownfield-migrering eller de 4 migrationstrin jf. ADR 0012.

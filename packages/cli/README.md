@@ -464,7 +464,7 @@ xGauntlet er designet til at beskytte **både** eksisterende produktionssystemer
 4. **Trinvis Brownfield-Migrering (Sikker Køreplan for Eksisterende Systemer):**  
    Hvis du har et etableret system med mange opgaver og teknisk gæld (som f.eks. moduler, der importerer baglæns fra UI-monolitten), skal du **ikke** lave en risikabel "Big Bang"-omskrivning. Følg i stedet denne 4-trins køreplan jf. [ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md):
 
-   * **Trin A: Tag et risikofrit Røntgenbillede (Audit Baseline):**  
+   * **Trin A: Kør en risikofri Architecture Baseline Audit (Status Quo Snapshot):**  
      Aktivér gates midlertidigt i `gauntlet.toml` (`layers`, `isolate_slices = true`, `forbid_core_imports`) og kør:
      ```bash
      xgauntlet check-architecture
