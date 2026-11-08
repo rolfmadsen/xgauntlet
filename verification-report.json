@@ -4,38 +4,46 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "065-release-v0-13-0",
-    "task_title": "Task 065: Release v0.13.0 Preparation & Manifest Synchronization",
-    "task_digest": "3f413d1c5b2fecd7f24fd8df6a12e711fb498275bd0117d8aa4bfc64e275a893",
+    "task_id": "066-automatic-architecture-mermaid-sync",
+    "task_title": "Task 066: Automatic Architecture Mermaid Diagram Synchronization",
+    "task_digest": "08ad3b338391cef618cbb051e2e7bd7d38beff8d0029e3a89b7f9062333cf84d",
     "acceptance_criteria": [
-      "Opdatere `CHANGELOG.md` med udførlige release notes for `0.13.0` under Keep a Changelog standarden.",
-      "Synkronisere alle versionsmanifester til `0.13.0` i `Cargo.toml`, `package.json`, `.agents/plugins/xgauntlet/plugin.json` og `policy.json`.",
-      "Køre `xgauntlet check-release` og bekræfte at alle manifester er i harmoni, og ADR coverage er 100%.",
-      "Køre fuld verifikation `xgauntlet verify --task 065 --save` og bekræfte `[PASSED]`."
+      "**Deklarativ Konfiguration (`gauntlet.toml`)**:",
+      "`PathsConfig` udvides med `diagram_file: String` (default `\"architecture.mermaid\"`).",
+      "Hvis `diagram_file` er sat til en tom streng, springes automatisk diagram-generering over.",
+      "**Automatisk Persistens under `verify --save`**:",
+      "Ved kørsel af verifikationspipelinen med `save_evidence = true` genereres det deterministiske Mermaid `classDiagram` via AST-traverseringen fra Task 062 og skrives til den konfigurerede `diagram_file`.",
+      "Filen genereres uden at udløse selvmutation (`verify_self_mutation`), og tilføjes til `EXCLUDED_FILES` i workspace-manifestet.",
+      "**Scope- og Policy-Godkendelse**:",
+      "Checkpoint-motorens scope-validering (`validate_staged_files_scope`) tillader `architecture.mermaid` som en gyldig governance-artefakt.",
+      "Policy-engine tillader skrivning til `architecture.mermaid` analogt med `spec.md` og `evidence.md`.",
+      "**Specifikation & Dokumentation**:",
+      "`spec.md` indeholder et direkte, klikbart link til `architecture.mermaid`.",
+      "Repositoryets egen `architecture.mermaid` genereres og forsegles."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "eefc859a8628994c9333abc254715f92c97e67d41b7c20a6a95458922740177c",
-    "source_manifest_digest_pre": "d3b63a5e8cc4d6342cfce87a4203b16fb127c92986caba9a7265e2e93efeae28",
-    "source_manifest_digest_post": "d3b63a5e8cc4d6342cfce87a4203b16fb127c92986caba9a7265e2e93efeae28",
-    "config_digest": "7ba4df518211de26938051ab0e3060d47f789fb94d63f973275df49efd9ca8aa",
-    "task_digest": "3f413d1c5b2fecd7f24fd8df6a12e711fb498275bd0117d8aa4bfc64e275a893",
-    "policy_digest": "5d6d04e793b91019925827ab2f37e65bcfa43a7058b240720aec8769c2e529e2",
+    "source_content_digest": "bd7e8ef220385a7ff81a7f1006842887bad84d71fd472ca73da1e497e464557a",
+    "source_manifest_digest_pre": "ed5435660992c54f7bb323e49d29af510d65e8436378e1d3d454a96a5229bd53",
+    "source_manifest_digest_post": "ed5435660992c54f7bb323e49d29af510d65e8436378e1d3d454a96a5229bd53",
+    "config_digest": "b4c52bd8c60d826cd4bc48205d6bfda8acdeb5bd55005fa9fdd78f033d4d1e8f",
+    "task_digest": "08ad3b338391cef618cbb051e2e7bd7d38beff8d0029e3a89b7f9062333cf84d",
+    "policy_digest": "0cf384f5131312b153f7003376748e810b5594b895f8d86af6fb7cae39e28cff",
     "check_definitions_digest": "82ec5871b5df6c01d5aaaf8e617d8149937bc8e255cbc5f3921229e44fec7e9d",
-    "included_files_count": 267,
+    "included_files_count": 269,
     "vcs": {
       "type": "git",
-      "head": "5788ad0",
-      "commit": "5788ad0",
+      "head": "8a7c7d0",
+      "commit": "8a7c7d0",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-08T11:29:06Z",
-    "finished_at": "2026-11-08T11:29:39Z",
-    "total_duration_seconds": 33.387923102,
+    "started_at": "2026-11-08T11:51:26Z",
+    "finished_at": "2026-11-08T11:51:59Z",
+    "total_duration_seconds": 33.759547628,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -48,16 +56,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.104228831,
+      "duration_seconds": 0.066630361,
       "optional": false,
       "passed": true,
-      "log_digest": "c880573bb7a25bd07153eed7db9556c3ada32de01e66c5d876c06df70e4f5dc7"
+      "log_digest": "c02cbaa2a9fbda1082930fe29d9626ce0d39da7e4bdfde11883fedacd6bc772b"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.238193897,
+      "duration_seconds": 0.264897804,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -66,34 +74,34 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.107188112,
+      "duration_seconds": 0.110472566,
       "optional": false,
       "passed": true,
-      "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
+      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 31.891987384,
+      "duration_seconds": 32.248520347,
       "optional": false,
       "passed": true,
-      "log_digest": "0371fe9a63f42cb2a4e336b391720351df945fe3d4f68ae36b4dd8de7b5acdd4"
+      "log_digest": "c9f50c1afc356fe4b5d0b15d7a6ed52de0098a0b247d2839e6ba5c2c1e403e24"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.752759667,
+      "duration_seconds": 0.802931193,
       "optional": false,
       "passed": true,
-      "log_digest": "c938fec9dd8ad5e27b5aad64b91fc7f9db9adbe7a0a7da00788f443d8d537cfd"
+      "log_digest": "b1a7995a0982a9b61e4d090695c34c0517a2eebad0920bbd16822d547f1684a4"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.069354862,
+      "duration_seconds": 0.057824299,
       "optional": false,
       "passed": true,
       "log_digest": "7d184fd5d971b758c7402ea8e4bcc75c7d2f7e37c39855bc52b739778d2d8444"
@@ -102,7 +110,7 @@
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.010278882,
+      "duration_seconds": 0.014998318,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -929,10 +937,39 @@
         "commit_oid": "4f3d14c56d1350a7c626535b0cf83548c867adcd",
         "timestamp": "2026-11-08T11:49:09Z",
         "digest": "82adea363bdc48767533aca9e93a40c467a58af7c0541a93b7db9811bdf166ee"
+      },
+      {
+        "session_nonce": "sess-8a7c7d00",
+        "role": "TDD Craftsman",
+        "phase": "REFACTOR",
+        "commit_oid": "8a7c7d005e58e49ed2e819e27bd07cf0e1460f25",
+        "timestamp": "2026-11-08T11:49:24Z",
+        "digest": "e0ab2cff80780c3fbe84a212ae3ee6c8f6ec4a64e0f8621963a6fe5a37d6e851"
       }
     ]
   },
   "test_provenance": [
+    {
+      "test_identifier": "test_paths_config_default_diagram_file",
+      "failure_output": "Verified in RED checkpoint commit 805948b",
+      "failure_digest": "a00ae1cd4b5d35aa08de85b1bd8433302bf938df24deace2877e16800b568857",
+      "verified_at": "2026-11-08T12:45:47+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_verify_save_generates_architecture_mermaid",
+      "failure_output": "Verified in RED checkpoint commit 805948b",
+      "failure_digest": "a00ae1cd4b5d35aa08de85b1bd8433302bf938df24deace2877e16800b568857",
+      "verified_at": "2026-11-08T12:45:47+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_verify_save_skips_when_diagram_file_empty",
+      "failure_output": "Verified in RED checkpoint commit 805948b",
+      "failure_digest": "a00ae1cd4b5d35aa08de85b1bd8433302bf938df24deace2877e16800b568857",
+      "verified_at": "2026-11-08T12:45:47+01:00",
+      "status": "red_checkpoint_verified"
+    },
     {
       "test_identifier": "test_extract_declared_versions_includes_plugin_and_policy",
       "failure_output": "Verified in RED checkpoint commit f597739",
@@ -1968,27 +2005,6 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
-    },
-    {
-      "test_identifier": "test_paths_config_default_diagram_file",
-      "failure_output": "Verified in RED checkpoint commit 805948b",
-      "failure_digest": "a00ae1cd4b5d35aa08de85b1bd8433302bf938df24deace2877e16800b568857",
-      "verified_at": "2026-11-08T12:45:47+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_verify_save_generates_architecture_mermaid",
-      "failure_output": "Verified in RED checkpoint commit 805948b",
-      "failure_digest": "a00ae1cd4b5d35aa08de85b1bd8433302bf938df24deace2877e16800b568857",
-      "verified_at": "2026-11-08T12:45:47+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_verify_save_skips_when_diagram_file_empty",
-      "failure_output": "Verified in RED checkpoint commit 805948b",
-      "failure_digest": "a00ae1cd4b5d35aa08de85b1bd8433302bf938df24deace2877e16800b568857",
-      "verified_at": "2026-11-08T12:45:47+01:00",
-      "status": "red_checkpoint_verified"
     }
   ]
 }

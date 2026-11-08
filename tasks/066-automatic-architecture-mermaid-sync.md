@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 066: Automatic Architecture Mermaid Diagram Synchronization"
 description: "Automatisk generering og synkronisering af architecture.mermaid ved verify --save samt deklarativ konfiguration i gauntlet.toml og linking i spec.md."
-status: active
+status: done
 intent: new_feature
 generated: { by: process:antigravity-task-init, at: "2026-11-08T12:45:00Z" }
 tags: [topology, mermaid, architecture, evidence, gauntlet, config, spec]
@@ -26,7 +26,7 @@ test_refs:
 
 # Task 066: Automatic Architecture Mermaid Diagram Synchronization
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-11-08`
 
@@ -34,18 +34,18 @@ test_refs:
 Etablere automatisk generering og persistens af et deterministisk Mermaid-klassediagram (`architecture.mermaid`) ved hver fuldført verifikation med gemt evidens (`xgauntlet verify --save`), så projektets visuelle og maskinlæsbare arkitektur- og domænemodel altid er opdateret i git-arbejdstræet uden manuelle omdirigeringer. Filen konfigureres deklarativt under `[paths] diagram_file` i `gauntlet.toml` og refereres med et direkte link fra `spec.md`.
 
 ## 📋 Acceptance Criteria
-- [ ] **Deklarativ Konfiguration (`gauntlet.toml`)**:
-  - [ ] `PathsConfig` udvides med `diagram_file: String` (default `"architecture.mermaid"`).
-  - [ ] Hvis `diagram_file` er sat til en tom streng, springes automatisk diagram-generering over.
-- [ ] **Automatisk Persistens under `verify --save`**:
-  - [ ] Ved kørsel af verifikationspipelinen med `save_evidence = true` genereres det deterministiske Mermaid `classDiagram` via AST-traverseringen fra Task 062 og skrives til den konfigurerede `diagram_file`.
-  - [ ] Filen genereres uden at udløse selvmutation (`verify_self_mutation`), og tilføjes til `EXCLUDED_FILES` i workspace-manifestet.
-- [ ] **Scope- og Policy-Godkendelse**:
-  - [ ] Checkpoint-motorens scope-validering (`validate_staged_files_scope`) tillader `architecture.mermaid` som en gyldig governance-artefakt.
-  - [ ] Policy-engine tillader skrivning til `architecture.mermaid` analogt med `spec.md` og `evidence.md`.
-- [ ] **Specifikation & Dokumentation**:
-  - [ ] `spec.md` indeholder et direkte, klikbart link til `architecture.mermaid`.
-  - [ ] Repositoryets egen `architecture.mermaid` genereres og forsegles.
+- [x] **Deklarativ Konfiguration (`gauntlet.toml`)**:
+  - [x] `PathsConfig` udvides med `diagram_file: String` (default `"architecture.mermaid"`).
+  - [x] Hvis `diagram_file` er sat til en tom streng, springes automatisk diagram-generering over.
+- [x] **Automatisk Persistens under `verify --save`**:
+  - [x] Ved kørsel af verifikationspipelinen med `save_evidence = true` genereres det deterministiske Mermaid `classDiagram` via AST-traverseringen fra Task 062 og skrives til den konfigurerede `diagram_file`.
+  - [x] Filen genereres uden at udløse selvmutation (`verify_self_mutation`), og tilføjes til `EXCLUDED_FILES` i workspace-manifestet.
+- [x] **Scope- og Policy-Godkendelse**:
+  - [x] Checkpoint-motorens scope-validering (`validate_staged_files_scope`) tillader `architecture.mermaid` som en gyldig governance-artefakt.
+  - [x] Policy-engine tillader skrivning til `architecture.mermaid` analogt med `spec.md` og `evidence.md`.
+- [x] **Specifikation & Dokumentation**:
+  - [x] `spec.md` indeholder et direkte, klikbart link til `architecture.mermaid`.
+  - [x] Repositoryets egen `architecture.mermaid` genereres og forsegles.
 
 ## 🚫 Must NOT
 - Må IKKE udføre remote publication (`git push`) jf. ADR 0003.

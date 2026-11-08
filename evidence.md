@@ -1,20 +1,28 @@
 # Verification Report
 
-**Task ID**: `065-release-v0-13-0`  
-**Task Title**: Task 065: Release v0.13.0 Preparation & Manifest Synchronization  
+**Task ID**: `066-automatic-architecture-mermaid-sync`  
+**Task Title**: Task 066: Automatic Architecture Mermaid Diagram Synchronization  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `d3b63a5e8cc4d6342cfce87a4203b16fb127c92986caba9a7265e2e93efeae28`  
-**Timestamp**: `2026-11-08T11:29:39Z`  
-**Head**: `5788ad0`  
-**Commit**: `5788ad0`  
+**Source Manifest Digest**: `ed5435660992c54f7bb323e49d29af510d65e8436378e1d3d454a96a5229bd53`  
+**Timestamp**: `2026-11-08T11:51:59Z`  
+**Head**: `8a7c7d0`  
+**Commit**: `8a7c7d0`  
 
 ## Acceptance Criteria
 
-- [x] Opdatere `CHANGELOG.md` med udførlige release notes for `0.13.0` under Keep a Changelog standarden.
-- [x] Synkronisere alle versionsmanifester til `0.13.0` i `Cargo.toml`, `package.json`, `.agents/plugins/xgauntlet/plugin.json` og `policy.json`.
-- [x] Køre `xgauntlet check-release` og bekræfte at alle manifester er i harmoni, og ADR coverage er 100%.
-- [x] Køre fuld verifikation `xgauntlet verify --task 065 --save` og bekræfte `[PASSED]`.
+- [x] **Deklarativ Konfiguration (`gauntlet.toml`)**:
+- [x] `PathsConfig` udvides med `diagram_file: String` (default `"architecture.mermaid"`).
+- [x] Hvis `diagram_file` er sat til en tom streng, springes automatisk diagram-generering over.
+- [x] **Automatisk Persistens under `verify --save`**:
+- [x] Ved kørsel af verifikationspipelinen med `save_evidence = true` genereres det deterministiske Mermaid `classDiagram` via AST-traverseringen fra Task 062 og skrives til den konfigurerede `diagram_file`.
+- [x] Filen genereres uden at udløse selvmutation (`verify_self_mutation`), og tilføjes til `EXCLUDED_FILES` i workspace-manifestet.
+- [x] **Scope- og Policy-Godkendelse**:
+- [x] Checkpoint-motorens scope-validering (`validate_staged_files_scope`) tillader `architecture.mermaid` som en gyldig governance-artefakt.
+- [x] Policy-engine tillader skrivning til `architecture.mermaid` analogt med `spec.md` og `evidence.md`.
+- [x] **Specifikation & Dokumentation**:
+- [x] `spec.md` indeholder et direkte, klikbart link til `architecture.mermaid`.
+- [x] Repositoryets egen `architecture.mermaid` genereres og forsegles.
 
 ---
 
@@ -22,13 +30,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.104s` |
-| `format` | `PASSED` | `0` | `0.238s` |
-| `lint` | `PASSED` | `0` | `0.107s` |
-| `unit` | `PASSED` | `0` | `31.892s` |
-| `npm` | `PASSED` | `0` | `0.753s` |
-| `invariants` | `PASSED` | `0` | `0.069s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
+| `architecture` | `PASSED` | `0` | `0.067s` |
+| `format` | `PASSED` | `0` | `0.265s` |
+| `lint` | `PASSED` | `0` | `0.110s` |
+| `unit` | `PASSED` | `0` | `32.249s` |
+| `npm` | `PASSED` | `0` | `0.803s` |
+| `invariants` | `PASSED` | `0` | `0.058s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.015s` |
 
 ---
 
@@ -137,6 +145,7 @@
 | `sess-dc6456b7` | `System Architect` | `SPEC` | `dc6456b` | `2026-11-08T11:45:16Z` | `VALID` |
 | `sess-805948b8` | `TDD Craftsman` | `RED` | `805948b` | `2026-11-08T11:45:47Z` | `VALID` |
 | `sess-4f3d14c5` | `TDD Craftsman` | `GREEN` | `4f3d14c` | `2026-11-08T11:49:09Z` | `VALID` |
+| `sess-8a7c7d00` | `TDD Craftsman` | `REFACTOR` | `8a7c7d0` | `2026-11-08T11:49:24Z` | `VALID` |
 
 ---
 
@@ -144,6 +153,9 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_paths_config_default_diagram_file` | `RedCheckpointVerified` | `a00ae1cd4b5d35aa...` | `2026-11-08T12:45:47+01:00` |
+| `test_verify_save_generates_architecture_mermaid` | `RedCheckpointVerified` | `a00ae1cd4b5d35aa...` | `2026-11-08T12:45:47+01:00` |
+| `test_verify_save_skips_when_diagram_file_empty` | `RedCheckpointVerified` | `a00ae1cd4b5d35aa...` | `2026-11-08T12:45:47+01:00` |
 | `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `6d875a00c0609a11...` | `2026-11-08T12:22:33+01:00` |
 | `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `6d875a00c0609a11...` | `2026-11-08T12:22:33+01:00` |
 | `test_workspace_manifests_synchronized_to_version_0_13_0` | `RedCheckpointVerified` | `6d875a00c0609a11...` | `2026-11-08T12:22:33+01:00` |
@@ -292,8 +304,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_paths_config_default_diagram_file` | `RedCheckpointVerified` | `a00ae1cd4b5d35aa...` | `2026-11-08T12:45:47+01:00` |
-| `test_verify_save_generates_architecture_mermaid` | `RedCheckpointVerified` | `a00ae1cd4b5d35aa...` | `2026-11-08T12:45:47+01:00` |
-| `test_verify_save_skips_when_diagram_file_empty` | `RedCheckpointVerified` | `a00ae1cd4b5d35aa...` | `2026-11-08T12:45:47+01:00` |
 
 ---
