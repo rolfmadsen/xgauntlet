@@ -34,7 +34,7 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
    - Autonomous TDD inner loop with boundary Human-in-the-Loop gates ([ADR 0009](docs/adr/0009-autonomous-tdd-inner-loop-and-boundary-human-gates.md)).
    - Fast-Track Bugfix Lane for bounded defects (`scope.len() <= 3`, zero ADR impact) via direct `RED → DONE` or isolated single-step Worktree Inverse Proof ([ADR 0011](docs/adr/0011-fast-track-worktree-inverse-proof-and-scoped-preflight.md)).
    - ADR-bound architectural exemptions and monotonic ratchet governance ([ADR 0010](docs/adr/0010-adr-bound-architectural-exemptions-and-monotonic-ratchets.md)).
-   - Deterministic 4-layer (`app -> features -> core -> shared`) and Vertical Slice boundary gates (`LayerDirectionViolation`, `CrossSliceImportViolation`, `ForbiddenCoreImportViolation`), living slice specifications (`specs/<domain>/<slice>.md`), and 4-state ADR lifecycle governance ([ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md)).
+   - Deterministic 4-layer (`app -> features -> core -> shared`) and 1- or 2-level Vertical Slice boundary gates (`LayerDirectionViolation`, `CrossSliceImportViolation`, `ForbiddenCoreImportViolation`), living slice specifications (`specs/<slice>.md` or `specs/<subdomain>/<slice>.md`), glossary drift verification (`check-spec --context`), and 4-state ADR lifecycle governance ([ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md)).
    - Multi-layer gauntlet: Linters, typecheckers, unit/feature tests, invariant tests, and mutation gauntlet (`cargo-mutants`).
 
 5. **Multi-Harness Native Support**:

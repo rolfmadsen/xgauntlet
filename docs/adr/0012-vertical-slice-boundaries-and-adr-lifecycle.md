@@ -30,22 +30,24 @@ En dybdegående arkitekturanalyse af et større produktionssystem udviklet genne
 
 ## Decision
 Vi indfører en stack-agnostisk makro-arkitektonisk governance-model i `xgauntlet` uden ændringer i WASM-policy-motoren og uden at stramme eksisterende fil-linjelofter:
-1. **4-Niveaus DDD & Slice Taksonomi og 4 Universelle Lag (`app -> features -> core -> shared`):**
-   - **Bounded Context (`CONTEXT.md`):** Den sproglige og arkitektoniske systemgrænse.
-   - **Domain (`features/<domain>/`):** Fagligt delområde inden for konteksten.
-   - **Slice (`features/<domain>/<slice>/`):** Den konkrete funktionelle kapabilitet (*Stateful UI-Slice* eller *Stateless Pipeline-Slice*) med Black-Box indkapsling (egen offentlig facade, egen tilstand/input og eksplicit `Action`/event/result output) og 0% intern mappestruktur-rigiditet.
+1. **DDD & Vertical Slice Taksonomi og 4 Universelle Lag (`app -> features -> core -> shared`):**
+   - **Domain (Problem Space):** Virksomhedens eller produktets overordnede faglige problemrum.
+   - **Subdomain (`features/<subdomain>/` — valgfrit grupperingsniveau):** Fagligt delområde (*Core*, *Supporting* eller *Generic*), når et system har mange slices.
+   - **Bounded Context (`CONTEXT.md`):** Den sproglige og arkitektoniske systemgrænse, hvori enhver domænemodel har én entydig Aristotelisk definition.
+   - **Shared Kernel (`core/`) & Vertical Slice (`features/<slice>/` eller `features/<subdomain>/<slice>/`):** Den konkrete funktionelle kapabilitet (*Stateful UI-Slice* eller *Stateless Pipeline-Slice*) med Black-Box indkapsling (egen offentlig facade, egen tilstand/input og eksplicit `Action`/event/result output) og 0% intern mappestruktur-rigiditet. Leaf-filer inde i en slice-mappe (`models.rs`, `validator.rs` osv.) er altid interne i deres slice.
    - **De 4 lag (`app -> features -> core -> shared`):** Streng envejs-import oppefra og ned.
 2. **Deterministiske Grænse-Gates i `xgauntlet check-architecture` (`[architecture]` i `gauntlet.toml`):**
    - **Gate A (`LayerDirectionViolation`):** Afviser imports fra et lavere lag til et højere lag (f.eks. `features -> app` eller `core -> features/app`).
-   - **Gate B (`CrossSliceImportViolation`):** Afviser direkte imports på tværs af slices (`features/<d1>/<slice_a> -> features/<d2>/<slice_b>`) når `isolate_slices = true`.
+   - **Gate B (`CrossSliceImportViolation`):** Auto-detekterer 1-niveau (`features/<slice>/<file>`) og 2-niveau (`features/<subdomain>/<slice>/<file>`) slice-dybde ud fra mappestrukturen under `slice_root`, og afviser direkte imports på tværs af forskellige slices når `isolate_slices = true`.
    - **Gate C (`ForbiddenCoreImportViolation`):** Afviser UI-/framework-imports i `core`-laget jf. `forbid_core_imports`.
-   - Eksisterende projekter kan migrere gradvist via `allow_imports` under `[[architecture.exemptions]]`.
-3. **Levende Slice-Specifikationer (`specs/<domain>/<slice>.md`):**
-   - Tasks knyttes deterministisk til deres slice via `domain`, `slice` og `spec_ref: "specs/<domain>/<slice>.md"` i OKF-frontmatter (`check-spec` og `xgauntlet task new --domain <d> --slice <s>`), mens eksisterende `status: done` tasks bevarer fuld bagudkompatibilitet.
+   - Eksisterende projekter kan migrere gradvist via `allow_imports` (inkl. glob-stier som `path = "src/features/**"`) under `[[architecture.exemptions]]`.
+3. **Levende Slice-Specifikationer (`specs/<slice>.md` eller `specs/<subdomain>/<slice>.md`):**
+   - Tasks knyttes deterministisk til deres slice via `slice` (og valgfrit `subdomain`, med bagudkompatibelt alias `domain`) samt `spec_ref` i OKF-frontmatter (`check-spec` og `xgauntlet task new --slice <s> [--subdomain <sd>]`), mens eksisterende `status: done` tasks bevarer fuld bagudkompatibilitet.
+   - `xgauntlet check-spec --context` verificerer både aktive task-specifikationer og kildemodellers synkronisering mod `CONTEXT.md` som del af `GAUNTLET`-pipelinen efter `GREEN`.
 4. **4-Trins ADR-Livscyklus (`proposed | accepted | superseded | deprecated`):**
    - `check-adr` håndhæver gyldige statusser og kræver `superseded_by` når `status: superseded`.
    - `check-release` kræver udelukkende, at gældende `accepted` ADRs er refereret i `README.md` og `spec.md`.
 
 ## Consequences
-- Arkitektonisk erosion og falsk VSA fanges deterministisk af `xgauntlet check-architecture` på tværs af Rust, TypeScript/React, Java, Python og Go.
-- Funktionelle kapabiliteter dokumenteres i levende slice-specifikationer (`specs/<domain>/<slice>.md`), mens `docs/adr/` forbliver slankt og forbeholdt ægte tværgående arkitekturbeslutninger.
+- Arkitektonisk erosion og falsk VSA fanges deterministisk af `xgauntlet check-architecture` på tværs af både 1-niveau (`features/<slice>/`) og 2-niveau (`features/<subdomain>/<slice>/`) projekter i Rust, TypeScript/React, Java, Python og Go — herunder via dogfooding i `xgauntlet`s eget repository.
+- Funktionelle kapabiliteter dokumenteres i levende slice-specifikationer (`specs/<slice>.md` eller `specs/<subdomain>/<slice>.md`), mens `docs/adr/` forbliver slankt og forbeholdt ægte tværgående arkitekturbeslutninger.

@@ -17,11 +17,11 @@ This document defines the core ubiquitous language for `xGauntlet` using Aristot
 
 **Task**:
 An executable unit of engineering work, that has bounded acceptance criteria and verifiable completion evidence.
-_Avoid_: Ticket, issue, story, workitem.
+_Avoid_: Ticket, user-story, workitem, backlog-ticket.
 
 **Layer**:
 A verification step, that executes a specific analysis or testing command within a bounded timeout.
-_Avoid_: Stage, phase, check-item.
+_Avoid_: Stage, build-step, check-item.
 
 **Gauntlet**:
 A sequential verification pipeline, that executes verification layers with fail-closed semantics and halts on the first mandatory failure.
@@ -53,7 +53,7 @@ _Avoid_: Test result, summary log.
 
 **Stack Profile**:
 A preconfigured collection of verification layers, that matches the conventions and toolchains of a specific programming language.
-_Avoid_: Environment, runtime config.
+_Avoid_: Runtime preset, language profile, toolchain bundle.
 
 **Canonical Workspace Manifest**:
 A deterministic SHA-256 digest, that captures normalized Git-tree/blob OID hashes (immune to CRLF/LF conversions) and raw file contents across in-scope workspace paths.
@@ -195,29 +195,94 @@ _Avoid_: Shortcut fix, unverified patch, bypass lane, quick fix.
 A mechanical single-step inverse verification protocol, executed in an isolated temporary Git worktree against unchanged HEAD to prove that a regression test fails before accepting a concurrent production bugfix.
 _Avoid_: In-place rollback, stash test, manual checkout, dirty test.
 
+**Domain**:
+An overarching sphere of business knowledge and problem space, that defines the operational mission and subject area addressed by a software system.
+_Avoid_: Technical layer, utility folder, dump directory, generic category.
+
+**Subdomain**:
+A cohesive functional subject area (`features/<subdomain>/`) within a Domain, that groups related business capabilities under shared domain concepts.
+_Avoid_: Horizontal tier, helper directory, catch-all package.
+
 **Bounded Context**:
 An explicit linguistic and architectural system boundary in the solution space, within which every domain term in `CONTEXT.md` carries a single unambiguous meaning without implicit translation.
 _Avoid_: System scope, global namespace, monolith boundary, module group.
 
-**Domain**:
-A cohesive functional subject area (`features/<domain>/`) within a Bounded Context, that groups related business capabilities under shared domain concepts.
-_Avoid_: Technical layer, utility folder, dump directory, generic category.
-
-**Vertical Slice**:
-An autonomous, black-box encapsulated functional capability (`features/<domain>/<slice>/`), that exposes a narrow public facade with explicit input state and output actions (`Stateful UI-Slice` or `Stateless Pipeline-Slice`) without importing upward or across peer slices.
-_Avoid_: Horizontal layer, prop-drilled view helper, god-component fragment, leaky submodule.
+**Shared Kernel**:
+A minimal, framework-agnostic subset of domain models and primitives (`core/`), that multiple Vertical Slices depend on without coupling directly to each other.
+_Avoid_: God module, global state store, UI model dump.
 
 **Universal Layer Model**:
-A four-tier top-down architectural dependency hierarchy (`app -> features -> core -> shared`), that enforces strict one-way downward imports and prohibits framework leakage into the domain core.
+A four-tier top-down architectural dependency hierarchy (`app -> features -> core -> shared`), that enforces strict one-way downward imports and prohibits framework leakage into the Shared Kernel (`core`).
 _Avoid_: Bidirectional modules, circular package graph, spaghetti imports.
 
+**Vertical Slice**:
+An autonomous, black-box encapsulated functional capability (`features/<slice>/` or `features/<subdomain>/<slice>/`), that owns its internal domain models and exposes a narrow public facade with explicit input state and output actions (`Stateful UI-Slice` or `Stateless Pipeline-Slice`) without importing upward or across peer slices.
+_Avoid_: Horizontal layer, prop-drilled view helper, god-component fragment, leaky submodule.
+
 **Living Slice Specification**:
-A persistent capability contract (`specs/<domain>/<slice>.md`), that maintains the authoritative current invariants and behavior of a single Vertical Slice across multiple incremental task deltas (`spec_ref`).
+A persistent capability contract (`specs/<slice>.md` or `specs/<subdomain>/<slice>.md`), that maintains the authoritative current invariants and behavior of a single Vertical Slice across multiple incremental task deltas (`spec_ref`).
 _Avoid_: Ephemeral task note, frozen history doc, feature ADR.
 
 **ADR Lifecycle**:
 A four-state governance state machine (`proposed | accepted | superseded | deprecated`), that tracks the validity of cross-cutting architectural decisions and requires explicit `superseded_by` lineage when retiring obsolete records.
 _Avoid_: Zombie ADR, permanent draft, feature changelog.
+
+**Architecture Gate (ArchitectureConfig / ArchitectureReport / ArchitectureFinding / ArchitectureExemption)**:
+A declarative structural verification engine, that enforces file line ceilings, monotonic ratchets, design token boundaries, downward layer dependencies, and black-box Vertical Slice isolation.
+_Avoid_: Style linter, regex scanner, manual code audit.
+
+**Checkpoint (CheckpointPhase / CheckpointOptions / CheckpointResult / CheckpointConfig / CheckpointError)**:
+A phase-bound local Git commit transaction, that verifies TDD phase preflight invariants before recording an atomic state transition.
+_Avoid_: Autosave, unverified commit, manual tag.
+
+**Session Handoff**:
+A structured context-transfer artifact, that summarizes completed task evidence, Git state, and the next engineering role for a clean chat session.
+_Avoid_: Chat summary, handoff note, session dump.
+
+**Doctor (DoctorCategory / DoctorCheckStatus / DoctorVerdict / DoctorCheckItem / DoctorOptions / DoctorReport / DoctorError)**:
+A side-effect-free diagnostic subsystem, that inspects host platform prerequisites, Git repository health, governance files, and stack toolchains.
+_Avoid_: Env sniffer, health daemon, system probe.
+
+**Config (GauntletConfig / PathsConfig / ConfigValidationIssue / ConfigValidationReport / ConfigError / ValidationSeverity / ValidationIssue)**:
+A declarative repository configuration model (`gauntlet.toml`), that specifies stack profiles, document paths, architectural boundaries, and verification layers.
+_Avoid_: Dotfile settings, ad-hoc preferences, global registry.
+
+**Adapter (NormalizedToolCall / AdapterValidationResult / AdapterHookVerdict)**:
+A platform-normalizing harness translation contract, that converts vendor-specific hook payloads into canonical capability requests and verdicts.
+_Avoid_: Hook wrapper, raw JSON bridge, vendor shim.
+
+**Policy Decision (ToolActionType / DecisionVerdict / EnforcementContext)**:
+A deterministic authorization outcome (`Allow`, `Deny`, `Ask`, `ForceAsk`), that binds a reason code and explanation to an evaluated capability request.
+_Avoid_: Permission boolean, access flag, filter result.
+
+**Evidence Metadata (VerificationVerdict / CheckStatus / CheckSummary / ExecutionOrigin / VcsMetadata / WorkspaceState / ExecutionMetadata / TaskContractSummary / TrustDecision)**:
+A structured provenance record within a Verification Report, that captures layer check summaries, VCS state, execution origin, and multi-digest workspace hashes.
+_Avoid_: Build log, test counter, run metadata.
+
+**Migration (MigrationOptions / MigrationItem / MigrationReport / MigrationError)**:
+A non-destructive schema modernization engine, that upgrades legacy in-repo governance files and hook configurations while preserving user-defined settings.
+_Avoid_: Overwrite script, destructive upgrade, config reset.
+
+**Plugin Distribution (PlatformTarget / DiscoveredHarness / PluginInstallOptions / PluginInstallStatus / PluginTargetInstallReport / PluginInstallReport / PluginError)**:
+A cross-platform skill and hook installer, that deploys the sovereign agent skill suite into detected local AI harnesses.
+_Avoid_: Package manager, extension downloader, manual copy.
+
+**Release Engine (ReleaseFindingCategory / ReleaseFinding / ReleaseReadinessOptions / ReleaseReadinessReport / ReleaseError / SemverBump)**:
+A transactional release verification and version-bumping subsystem, that enforces manifest parity, changelog rotation, and accepted ADR coverage.
+_Avoid_: Publish script, tag pusher, version bumper.
+
+**Scaffold (ScaffoldAction / ScaffoldFileReport / ScaffoldOptions / ScaffoldResult / ScaffoldError / ScaffoldTaskOptions / TaskScaffoldResult)**:
+A safe, non-destructive template generator, that initializes in-repo governance files and task packages without overwriting existing user assets.
+_Avoid_: Project generator, boilerplate cloner, force-init.
+
+**Spec & Glossary Readiness (SpecReadinessReport / AdrReadinessReport / GlossaryDriftOptions / GlossaryDriftReport / FindingType)**:
+A shift-left and post-implementation validation report, that verifies OKF v0.2 task contracts, ADR metadata, and two-way alignment between source code models and `CONTEXT.md`.
+_Avoid_: Markdown linter, spellcheck report, doc validator.
+
+**Topology Model (NodeType / EdgeType / Direction / TopologyNode / TopologyEdge / TopologyGraph / TopologyOptions / TopologyError)**:
+An AST-derived structural graph representation, that models packages, modules, structs, enums, and their directed dependency edges.
+_Avoid_: Call tree, file list, import dump.
+
 
 
 
