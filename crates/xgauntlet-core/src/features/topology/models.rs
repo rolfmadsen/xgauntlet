@@ -111,6 +111,8 @@ pub struct TopologyEdge {
     pub edge_type: EdgeType,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub weight: Option<u32>,
+    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
+    pub metadata: HashMap<String, String>,
 }
 
 impl TopologyEdge {
@@ -120,11 +122,17 @@ impl TopologyEdge {
             to: to.into(),
             edge_type,
             weight: None,
+            metadata: HashMap::new(),
         }
     }
 
     pub fn with_weight(mut self, weight: u32) -> Self {
         self.weight = Some(weight);
+        self
+    }
+
+    pub fn with_metadata(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
+        self.metadata.insert(key.into(), value.into());
         self
     }
 }

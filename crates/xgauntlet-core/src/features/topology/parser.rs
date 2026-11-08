@@ -76,6 +76,46 @@ pub fn scan_workspace_topology(options: &TopologyOptions) -> Result<TopologyGrap
         }
     }
 
+    // Third pass: Extract inter-model relationship edges between structs and enums/interfaces
+    let mut domain_types: HashMap<String, String> = HashMap::new();
+    for (id, node) in &graph.nodes {
+        if matches!(
+            node.node_type,
+            NodeType::Struct | NodeType::Class | NodeType::Interface
+        ) || node.metadata.get("is_enum").map(|v| v.as_str()) == Some("true")
+        {
+            domain_types.insert(node.name.clone(), id.clone());
+        }
+    }
+
+    let mut inter_model_edges = Vec::new();
+    for (from_id, node) in &graph.nodes {
+        if let Some(fields_str) = node.metadata.get("fields") {
+            for field in fields_str.split(',') {
+                if let Some((field_name, field_type)) = field.split_once(':') {
+                    let field_name = field_name.trim();
+                    let field_type = field_type.trim();
+
+                    let type_idents = extract_type_identifiers(field_type);
+                    for ident in type_idents {
+                        if ident != node.name {
+                            if let Some(target_id) = domain_types.get(&ident) {
+                                let edge =
+                                    TopologyEdge::new(from_id, target_id, EdgeType::DependsOn)
+                                        .with_metadata("field_name", field_name);
+                                inter_model_edges.push(edge);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    for edge in inter_model_edges {
+        graph.add_edge(edge);
+    }
+
     Ok(graph)
 }
 
@@ -207,8 +247,14 @@ fn parse_rust_file(
         Err(_) => return Ok(()),
     };
 
-    for line in content.lines() {
-        let trimmed = line.trim();
+    let is_domain_file = rel_path.ends_with("models.rs")
+        || rel_path.contains("/models/")
+        || rel_path.contains("\\models\\");
+
+    let lines: Vec<&str> = content.lines().collect();
+    let mut i = 0;
+    while i < lines.len() {
+        let trimmed = lines[i].trim();
 
         // mod foo;
         if (trimmed.starts_with("mod ") || trimmed.starts_with("pub mod "))
@@ -244,7 +290,10 @@ fn parse_rust_file(
 
         // Symbol detection
         if options.detect_symbols {
-            if trimmed.starts_with("fn ") || trimmed.starts_with("pub fn ") {
+            if trimmed.starts_with("fn ")
+                || trimmed.starts_with("pub fn ")
+                || trimmed.starts_with("pub(crate) fn ")
+            {
                 let name = extract_identifier_after_keyword(trimmed, "fn ");
                 if let Some(fn_name) = name {
                     let sym_id = format!("{node_id}::{fn_name}");
@@ -253,27 +302,210 @@ fn parse_rust_file(
                     graph.add_node(sym_node);
                     graph.add_edge(TopologyEdge::new(&node_id, &sym_id, EdgeType::Defines));
                 }
-            } else if trimmed.starts_with("struct ") || trimmed.starts_with("pub struct ") {
+            } else if (trimmed.starts_with("struct ")
+                || trimmed.starts_with("pub struct ")
+                || trimmed.starts_with("pub(crate) struct ")
+                || trimmed.starts_with("pub(super) struct "))
+                && !trimmed.contains("fn ")
+            {
                 let name = extract_identifier_after_keyword(trimmed, "struct ");
                 if let Some(st_name) = name {
+                    let mut fields = Vec::new();
+                    if !trimmed.ends_with(';') || trimmed.contains('{') {
+                        let mut brace_depth = 0;
+                        let mut entered = false;
+                        let mut j = i;
+                        while j < lines.len() {
+                            let line_j = lines[j];
+                            let open_count = line_j.chars().filter(|&c| c == '{').count();
+                            let close_count = line_j.chars().filter(|&c| c == '}').count();
+                            brace_depth += open_count;
+                            brace_depth -= close_count;
+
+                            if open_count > 0 {
+                                entered = true;
+                            }
+
+                            if entered {
+                                let body_part = if j == i {
+                                    let after_brace =
+                                        line_j.split_once('{').map(|(_, r)| r).unwrap_or("");
+                                    if brace_depth == 0 {
+                                        after_brace
+                                            .rsplit_once('}')
+                                            .map(|(l, _)| l)
+                                            .unwrap_or(after_brace)
+                                    } else {
+                                        after_brace
+                                    }
+                                } else if brace_depth == 0 {
+                                    line_j.rsplit_once('}').map(|(l, _)| l).unwrap_or("")
+                                } else {
+                                    line_j
+                                };
+
+                                for candidate_field in body_part.split(',') {
+                                    let t_field = candidate_field.trim();
+                                    if t_field.starts_with("//")
+                                        || t_field.starts_with('#')
+                                        || t_field.is_empty()
+                                    {
+                                        continue;
+                                    }
+                                    if let Some((raw_name, raw_type)) = t_field.split_once(':') {
+                                        let clean_name = raw_name.trim();
+                                        let field_ident = clean_name
+                                            .split_whitespace()
+                                            .last()
+                                            .unwrap_or(clean_name)
+                                            .trim();
+                                        let clean_type =
+                                            raw_type.split("//").next().unwrap_or(raw_type).trim();
+                                        if !field_ident.is_empty() && !clean_type.is_empty() {
+                                            fields.push(format!("{field_ident}: {clean_type}"));
+                                        }
+                                    }
+                                }
+
+                                if brace_depth == 0 {
+                                    i = j;
+                                    break;
+                                }
+                            } else if line_j.trim().ends_with(';') {
+                                break;
+                            }
+
+                            j += 1;
+                        }
+                    }
+
                     let sym_id = format!("{node_id}::{st_name}");
-                    let sym_node =
+                    let mut sym_node =
                         TopologyNode::new(&sym_id, &st_name, NodeType::Struct, &rel_path);
+                    if is_domain_file {
+                        sym_node
+                            .metadata
+                            .insert("is_domain_model".to_string(), "true".to_string());
+                    }
+                    if !fields.is_empty() {
+                        sym_node
+                            .metadata
+                            .insert("fields".to_string(), fields.join(","));
+                    }
                     graph.add_node(sym_node);
                     graph.add_edge(TopologyEdge::new(&node_id, &sym_id, EdgeType::Defines));
                 }
-            } else if trimmed.starts_with("enum ") || trimmed.starts_with("pub enum ") {
+            } else if (trimmed.starts_with("enum ")
+                || trimmed.starts_with("pub enum ")
+                || trimmed.starts_with("pub(crate) enum ")
+                || trimmed.starts_with("pub(super) enum "))
+                && !trimmed.contains("fn ")
+            {
                 let name = extract_identifier_after_keyword(trimmed, "enum ");
                 if let Some(en_name) = name {
+                    let mut variants = Vec::new();
+                    if !trimmed.ends_with(';') || trimmed.contains('{') {
+                        let mut brace_depth = 0;
+                        let mut entered = false;
+                        let mut j = i;
+                        while j < lines.len() {
+                            let line_j = lines[j];
+                            let open_count = line_j.chars().filter(|&c| c == '{').count();
+                            let close_count = line_j.chars().filter(|&c| c == '}').count();
+                            brace_depth += open_count;
+                            brace_depth -= close_count;
+
+                            if open_count > 0 {
+                                entered = true;
+                            }
+
+                            if entered {
+                                let body_part = if j == i {
+                                    let after_brace =
+                                        line_j.split_once('{').map(|(_, r)| r).unwrap_or("");
+                                    if brace_depth == 0 {
+                                        after_brace
+                                            .rsplit_once('}')
+                                            .map(|(l, _)| l)
+                                            .unwrap_or(after_brace)
+                                    } else {
+                                        after_brace
+                                    }
+                                } else if brace_depth == 0 {
+                                    line_j.rsplit_once('}').map(|(l, _)| l).unwrap_or("")
+                                } else {
+                                    line_j
+                                };
+
+                                for candidate in body_part.split(',') {
+                                    let t_candidate = candidate.trim();
+                                    if t_candidate.starts_with("//")
+                                        || t_candidate.starts_with('#')
+                                        || t_candidate.is_empty()
+                                    {
+                                        continue;
+                                    }
+                                    let var_ident: String = t_candidate
+                                        .chars()
+                                        .take_while(|c| c.is_alphanumeric() || *c == '_')
+                                        .collect();
+                                    if !var_ident.is_empty() && !variants.contains(&var_ident) {
+                                        variants.push(var_ident);
+                                    }
+                                }
+
+                                if brace_depth == 0 {
+                                    i = j;
+                                    break;
+                                }
+                            } else if line_j.trim().ends_with(';') {
+                                break;
+                            }
+
+                            j += 1;
+                        }
+                    }
+
                     let sym_id = format!("{node_id}::{en_name}");
-                    let sym_node =
+                    let mut sym_node =
                         TopologyNode::new(&sym_id, &en_name, NodeType::Struct, &rel_path)
                             .with_metadata("is_enum", "true");
+                    if is_domain_file {
+                        sym_node
+                            .metadata
+                            .insert("is_domain_model".to_string(), "true".to_string());
+                    }
+                    if !variants.is_empty() {
+                        sym_node
+                            .metadata
+                            .insert("variants".to_string(), variants.join(","));
+                    }
+                    graph.add_node(sym_node);
+                    graph.add_edge(TopologyEdge::new(&node_id, &sym_id, EdgeType::Defines));
+                }
+            } else if (trimmed.starts_with("trait ")
+                || trimmed.starts_with("pub trait ")
+                || trimmed.starts_with("pub(crate) trait ")
+                || trimmed.starts_with("pub(super) trait "))
+                && !trimmed.contains("fn ")
+            {
+                let name = extract_identifier_after_keyword(trimmed, "trait ");
+                if let Some(tr_name) = name {
+                    let sym_id = format!("{node_id}::{tr_name}");
+                    let mut sym_node =
+                        TopologyNode::new(&sym_id, &tr_name, NodeType::Interface, &rel_path);
+                    if is_domain_file {
+                        sym_node
+                            .metadata
+                            .insert("is_domain_model".to_string(), "true".to_string());
+                    }
                     graph.add_node(sym_node);
                     graph.add_edge(TopologyEdge::new(&node_id, &sym_id, EdgeType::Defines));
                 }
             }
         }
+
+        i += 1;
     }
 
     Ok(())
@@ -535,4 +767,21 @@ fn extract_identifier_after_keyword(line: &str, keyword: &str) -> Option<String>
     } else {
         Some(ident)
     }
+}
+
+fn extract_type_identifiers(type_str: &str) -> Vec<String> {
+    let mut idents = Vec::new();
+    let mut curr = String::new();
+    for c in type_str.chars() {
+        if c.is_alphanumeric() || c == '_' {
+            curr.push(c);
+        } else if !curr.is_empty() {
+            idents.push(curr.clone());
+            curr.clear();
+        }
+    }
+    if !curr.is_empty() {
+        idents.push(curr);
+    }
+    idents
 }

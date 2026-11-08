@@ -52,8 +52,12 @@ pub fn export_mermaid_class_diagram(
         let is_domain = if let Some(val) = node.metadata.get("is_domain_model") {
             val == "true"
         } else {
-            // Infer from path: models.rs or domain paths
-            node.path.contains("models.rs") || node.path.contains("features")
+            // Infer from path: models.rs or domain paths (e.g. models.rs or /domain/)
+            node.path.ends_with("models.rs")
+                || node.path.contains("/models/")
+                || node.path.contains("\\models\\")
+                || node.path.contains("/domain/")
+                || node.path.contains("\\domain\\")
         };
 
         if options.domain_only && options.level == MermaidLevel::Conceptual && !is_domain {
@@ -122,7 +126,35 @@ pub fn export_mermaid_class_diagram(
         if let (Some(from_node), Some(to_node)) =
             (visible_nodes.get(&edge.from), visible_nodes.get(&edge.to))
         {
-            let rel_str = format!("    {} *-- {} : status\n", from_node.name, to_node.name);
+            let label = edge
+                .metadata
+                .get("field_name")
+                .or_else(|| edge.metadata.get("label"))
+                .map(|s| s.as_str())
+                .unwrap_or("");
+
+            let rel_str = if label.is_empty() {
+                // If no edge label, check if from_node has a field referencing to_node.name
+                let inferred_label = from_node.metadata.get("fields").and_then(|f_str| {
+                    for f in f_str.split(',') {
+                        if let Some((f_name, f_type)) = f.split_once(':') {
+                            if f_type.contains(&to_node.name) {
+                                return Some(f_name.trim().to_string());
+                            }
+                        }
+                    }
+                    None
+                });
+
+                if let Some(inf) = inferred_label {
+                    format!("    {} *-- {} : {}\n", from_node.name, to_node.name, inf)
+                } else {
+                    format!("    {} *-- {}\n", from_node.name, to_node.name)
+                }
+            } else {
+                format!("    {} *-- {} : {}\n", from_node.name, to_node.name, label)
+            };
+
             if !rendered_edges.contains(&rel_str) {
                 out.push_str(&rel_str);
                 rendered_edges.insert(rel_str);

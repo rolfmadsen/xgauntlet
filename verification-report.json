@@ -1103,6 +1103,14 @@
         "commit_oid": "ee1eb4d43af1c72c615bcb149d991a6acb1b44d6",
         "timestamp": "2026-11-08T18:50:05Z",
         "digest": "ff13a43714fbd2375accf66142f254266279b4009f3bea9d27d2d006b66c6bff"
+      },
+      {
+        "session_nonce": "sess-2de532b7",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "2de532b78c64aa314e9a7fc076ec05f2a847e5c9",
+        "timestamp": "2026-11-08T18:51:11Z",
+        "digest": "940b41ac5a7f29a6de33c1595cbc4a95fe8612fed287cb23aae1de2d141c8290"
       }
     ]
   },
@@ -2205,6 +2213,13 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_ast_scans_struct_fields_enum_variants_and_relationships",
+      "failure_output": "Verified in RED checkpoint commit 2de532b",
+      "failure_digest": "31e55713378ebb26c917a94ed4a40a9243047396feb165cfaa469ec35d313d22",
+      "verified_at": "2026-11-08T19:51:11+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }

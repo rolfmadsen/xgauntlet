@@ -164,6 +164,7 @@
 | `sess-328c0dfa` | `TDD Craftsman` | `GREEN` | `328c0df` | `2026-11-08T14:24:34Z` | `VALID` |
 | `sess-d608942a` | `Software Engineer` | `DONE` | `d608942` | `2026-11-08T14:38:28Z` | `VALID` |
 | `sess-ee1eb4d4` | `System Architect` | `SPEC` | `ee1eb4d` | `2026-11-08T18:50:05Z` | `VALID` |
+| `sess-2de532b7` | `TDD Craftsman` | `RED` | `2de532b` | `2026-11-08T18:51:11Z` | `VALID` |
 
 ---
 
@@ -328,5 +329,6 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_ast_scans_struct_fields_enum_variants_and_relationships` | `RedCheckpointVerified` | `31e55713378ebb26...` | `2026-11-08T19:51:11+01:00` |
 
 ---
