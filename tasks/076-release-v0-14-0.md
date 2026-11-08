@@ -42,17 +42,17 @@ Forberede udgivelse af version `0.14.0` (Minor semver bump på `0.13.2`) for at 
 4. **Release Gatekeeper & Evidens**: Validere 100% release readiness via `xgauntlet check-release` og forsegle evidens.
 
 ## 📋 Acceptance Criteria
-- [ ] **Acceptance Test for Version 0.14.0 (RED phase)**:
-  - [ ] `crates/xgauntlet-core/tests/release_manifest_parity_test.rs` opdateres til at kræve version `0.14.0` på tværs af alle manifester og bevises rød før ændringer.
-- [ ] **Manifest-opgradering til 0.14.0**:
-  - [ ] Opdatere alle 8 manifester til `0.14.0`.
-- [ ] **WASM Policy Bytecode Rebuild**:
-  - [ ] Genkompilere `gauntlet-policy-engine` til version `0.14.0` og opdatere `crates/xgauntlet-core/wasm/gauntlet_policy.wasm`.
-- [ ] **Changelog Rotation**:
-  - [ ] `CHANGELOG.md` opdateres med `[0.14.0] - 2026-11-08` dækkende Tasks 071-075.
-- [ ] **Release Gatekeeper & Verifikation**:
-  - [ ] `xgauntlet check-release` rapporterer fuld release-paritet og 100% ADR dækning for `0.14.0`.
-  - [ ] `target/debug/xgauntlet verify --task 076 --save` passerer med `Self-mutation status: CLEAN`.
+- [x] **Acceptance Test for Version 0.14.0 (RED phase)**:
+  - [x] `crates/xgauntlet-core/tests/release_manifest_parity_test.rs` opdateres til at kræve version `0.14.0` på tværs af alle manifester og bevises rød før ændringer.
+- [x] **Manifest-opgradering til 0.14.0**:
+  - [x] Opdatere alle 8 manifester til `0.14.0`.
+- [x] **WASM Policy Bytecode Rebuild**:
+  - [x] Genkompilere `gauntlet-policy-engine` til version `0.14.0` og opdatere `crates/xgauntlet-core/wasm/gauntlet_policy.wasm`.
+- [x] **Changelog Rotation**:
+  - [x] `CHANGELOG.md` opdateres med `[0.14.0] - 2026-11-08` dækkende Tasks 071-075.
+- [x] **Release Gatekeeper & Verifikation**:
+  - [x] `xgauntlet check-release` rapporterer fuld release-paritet og 100% ADR dækning for `0.14.0`.
+  - [x] `target/debug/xgauntlet verify --task 076 --save` passerer med `Self-mutation status: CLEAN`.
 
 ## 🚫 Must NOT
 - Må IKKE udføre remote publication (`git push`) jf. ADR 0003.

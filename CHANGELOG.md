@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-11-08
+
+### 🚀 Added & Enhanced
+- **Domain AST Field, Relationship & Trait Extraction (`Task 071`, `Task 074`, `crates/xgauntlet-core`)**:
+  - Native Rust AST scanner extracts struct fields, enum variants, and inter-model composition relations (`*--`) directly from source files.
+  - Added AST trait realization detection (`impl <Trait> for <Struct>`) rendering implementation relationships (`Concrete ..|> Interface`), connecting all harness adapters (`ClaudeCodeAdapter`, `AntigravityAdapter`, `MistralAdapter`, `CodexAdapter`) to `HarnessAdapter`.
+  - Replaced primitive obsession with strongly-typed domain enums across `AdapterHookVerdict.decision` (`DecisionVerdict`), `CheckSummary.status` (`CheckStatus`), and `VerificationReport.verdict` (`VerificationVerdict`).
+- **Conceptual Domain Model Filtering & Orphan Resolution (`Task 073`, `Task 075`, `crates/xgauntlet-core`, `features/policy/models.rs`)**:
+  - Cleaned up `--level conceptual` visualization in `architecture.mermaid` by filtering out technical operational errors, CLI options, and noise structs, leaving a pure business domain class diagram.
+  - Implemented AST symbol-table shadowing immunity in `parser.rs` preventing test-mocks in `tests/` from overriding production domain models.
+  - Extracted policy domain models into `features/policy/models.rs`, integrated `AttestationReport` into `evidence/models.rs`, and connected ephemeral DTOs, eliminating all 13 orphan types in the conceptual domain architecture.
+- **AST Doc-Comment Parsing Resilience (`Task 072`, `crates/xgauntlet-core`)**:
+  - Hardened struct field and enum variant brace body extraction against multi-line doc comments (`///`), inner comments, and compiler annotations (`#[...]`), ensuring 100% field completeness in Mermaid exports.
+
 ## [0.13.2] - 2026-11-08
 
 ### 🚀 Added & Enhanced
