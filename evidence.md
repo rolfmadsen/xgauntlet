@@ -125,6 +125,7 @@
 | `sess-7b9886b9` | `TDD Craftsman` | `REFACTOR` | `7b9886b` | `2026-11-08T10:59:15Z` | `VALID` |
 | `sess-7f935cb6` | `Software Engineer` | `DONE` | `7f935cb` | `2026-11-08T11:00:39Z` | `VALID` |
 | `sess-bfa7d2a0` | `System Architect` | `SPEC` | `bfa7d2a` | `2026-11-08T11:07:53Z` | `VALID` |
+| `sess-9cb0fc68` | `TDD Craftsman` | `RED` | `9cb0fc6` | `2026-11-08T11:08:23Z` | `VALID` |
 
 ---
 
@@ -270,5 +271,14 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_safe_non_destructive_guarantee_preserves_existing_files` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
+| `test_force_flag_overwrites_existing_files` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
+| `test_dry_run_does_not_modify_disk` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
+| `test_stack_detection_and_custom_stacks` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
+| `test_invalid_stack_rejected` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
+| `test_generated_templates_pass_check_spec_and_config_validation` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
+| `test_all_supported_stacks_generate_valid_configs` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
+| `test_cli_init_integration` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
+| `test_scaffold_agents_md_contains_dynamic_cockpit_hud_and_checkpoint_protocol` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
 
 ---

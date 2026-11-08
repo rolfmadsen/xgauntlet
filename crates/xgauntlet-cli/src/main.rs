@@ -291,7 +291,7 @@ enum Commands {
         /// TDD phase for this checkpoint: spec, red, green, refactor, done
         #[arg(short, long)]
         phase: String,
-        /// Explicit task identifier (e.g. '015' or '015-security-and-policy-boundary-hardening')
+        /// Explicit task identifier (optional; automatically resolves the active task from tasks/ if omitted)
         #[arg(short, long)]
         task: Option<String>,
         /// Commit message (conventional prefix will be formatted automatically if omitted)

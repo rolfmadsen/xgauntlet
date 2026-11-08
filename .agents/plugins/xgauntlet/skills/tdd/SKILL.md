@@ -34,9 +34,9 @@ git commit -m "task(<id>): initialize task specification and criteria"
 ### 2. RED Fase (Skriv den fejlede accepttest først)
 - Skriv nye accepttests i den dedikerede testfil defineret under `test_refs` (IKKE i en monolitisk test-god-fil).
 - Kør testen og **bevis**, at den fejler med den forventede årsag.
-- Udfør lokalt checkpoint:
+- Udfør lokalt checkpoint (der automatisk validerer preflight og committer):
 ```bash
-git commit -m "test(<id>): add failing acceptance test for <feature> [RED]"
+xgauntlet checkpoint --phase red
 ```
 - **Autonom Overgang**: Fortsæt straks til GREEN fasen uden turn-pause!
 
@@ -46,7 +46,7 @@ git commit -m "test(<id>): add failing acceptance test for <feature> [RED]"
 - Verificer at alle tests passerer.
 - Udfør lokalt checkpoint:
 ```bash
-git commit -m "feat(<id>): implement minimal logic to satisfy test [GREEN]"
+xgauntlet checkpoint --phase green
 ```
 
 ### 4. REFACTOR Fase (Oprydning uden adfærdsændring)
@@ -56,7 +56,7 @@ git commit -m "feat(<id>): implement minimal logic to satisfy test [GREEN]"
 - Kør testene igen for at bevise, at refaktoreringen ikke brød eksisterende adfærd.
 - Udfør lokalt checkpoint:
 ```bash
-git commit -m "refactor(<id>): clean up module boundaries and types [REFACTOR]"
+xgauntlet checkpoint --phase refactor
 ```
 
 ---

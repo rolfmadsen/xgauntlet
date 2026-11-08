@@ -43,7 +43,7 @@ Bekræft:
   - Body: `**Status**: DONE`
 - Kør det afsluttende phase checkpoint (genererer automatisk `🏁 SESSION HANDOFF` kortet):
 ```bash
-xgauntlet checkpoint --phase done -t <id>
+xgauntlet checkpoint --phase done
 ```
 
 ### 4. Clean Worktree Guarantee & To-Niveau Session Handoff

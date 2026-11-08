@@ -28,11 +28,11 @@ test_refs:
 Fjerne dynamiske opgaveflag (`-t <id>` / `--task <id>`) fra alle checkpoint-instruktioner i scaffoldede templates, agent-guidelines og sovereign skills. Da `xgauntlet checkpoint` automatisk udleder den aktive opgave fra `tasks/`, skal kommandoen altid være 100% statisk (`xgauntlet checkpoint --phase <fase>`). Dette sikrer, at terminal-sandkasser i AI-harnesses (såsom Google Antigravity IDE og Claude Code) kan auto-godkende kommandoen permanent via præfiks-matching, så brugeren slipper for manuelle godkendelser ved hvert task-skift.
 
 ## 📋 Acceptance Criteria
-- [ ] **Scaffold Templates (`templates.rs`)**: Opdatere `render_agents_md` og relaterede sektioner, så `xgauntlet checkpoint --phase <spec|red|green|refactor|done>` instrueres som standard uden variable task-numre.
-- [ ] **Sovereign Skills (`tdd/SKILL.md` og `release/SKILL.md`)**: Erstatte rå `git commit`-eksempler og `-t <id>` i skills med de kanoniske, statiske `xgauntlet checkpoint --phase <fase>` kommandoer.
-- [ ] **Agent Guidelines (`.agents/AGENTS.md`)**: Opdatere fase-oversigten med de statiske kommandoer.
-- [ ] **CLI Help Docs (`main.rs`)**: Præcisere i `checkpoint` argument-hjælpeteksten, at `--task` er valgfri og automatisk udledes fra aktiv opgave.
-- [ ] **Verifikation**: Køre `cargo test -p xgauntlet-core --test scaffold_engine_test` samt regressionstests og sikre, at alt passerer.
+- [x] **Scaffold Templates (`templates.rs`)**: Opdatere `render_agents_md` og relaterede sektioner, så `xgauntlet checkpoint --phase <spec|red|green|refactor|done>` instrueres som standard uden variable task-numre.
+- [x] **Sovereign Skills (`tdd/SKILL.md` og `release/SKILL.md`)**: Erstatte rå `git commit`-eksempler og `-t <id>` i skills med de kanoniske, statiske `xgauntlet checkpoint --phase <fase>` kommandoer.
+- [x] **Agent Guidelines (`.agents/AGENTS.md`)**: Opdatere fase-oversigten med de statiske kommandoer.
+- [x] **CLI Help Docs (`main.rs`)**: Præcisere i `checkpoint` argument-hjælpeteksten, at `--task` er valgfri og automatisk udledes fra aktiv opgave.
+- [x] **Verifikation**: Køre `cargo test -p xgauntlet-core --test scaffold_engine_test` samt regressionstests og sikre, at alt passerer.
 
 ## 🚫 Must NOT
 - Må IKKE fjerne muligheden for explicit `--task <id>` i `xgauntlet checkpoint` (skal bevares for bagudkompatibilitet og scripting).

@@ -140,12 +140,12 @@ SPEC / DISCOVER → (Human Approval) → [RED → GREEN → REFACTOR (Autonomous
 ---
 
 ## 🔒 Lokal TDD Phase Checkpoint Protokol (ADR 0003)
-For at sikre sporbarhed, atomiske tilbagerulningspunkter og beskytte mod context rot, skal agenten udføre lokale git commits (`git add` og `git commit`) ved hver fase-overgang i TDD-løkken jf. [ADR 0003](docs/adr/0003-surgical-gatekeeper-and-no-remote-push.md):
-- `SPEC`: `task(<id>): initialize task specification and criteria`
-- `RED`: `test(<id>): add failing acceptance test for <feature> [RED]`
-- `GREEN`: `feat(<id>): implement minimal logic to satisfy test [GREEN]`
-- `REFACTOR`: `refactor(<id>): clean up module boundaries and types [REFACTOR]`
-- `DONE`: `chore(<id>): seal evidence and mark task DONE`
+For at sikre sporbarhed, atomiske tilbagerulningspunkter og beskytte mod context rot, skal agenten udføre lokale checkpoints via `xgauntlet checkpoint --phase <fase>` (der automatisk resolver den aktive opgave og udfører standardiseret git commit):
+- `SPEC`: `xgauntlet checkpoint --phase spec` (genererer `task(<id>): initialize task specification and criteria`)
+- `RED`: `xgauntlet checkpoint --phase red` (genererer `test(<id>): add failing acceptance test for <feature> [RED]`)
+- `GREEN`: `xgauntlet checkpoint --phase green` (genererer `feat(<id>): implement minimal logic to satisfy test [GREEN]`)
+- `REFACTOR`: `xgauntlet checkpoint --phase refactor` (genererer `refactor(<id>): clean up module boundaries and types [REFACTOR]`)
+- `DONE`: `xgauntlet checkpoint --phase done` (genererer `chore(<id>): seal evidence and mark task DONE`)
 
 **Kritiske Invarianter (ADR 0003):**
 - Foretag ALDRIG remote publication handlinger (`git push`).
