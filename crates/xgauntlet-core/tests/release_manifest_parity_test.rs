@@ -173,3 +173,21 @@ version = "0.12.0"
     .unwrap();
     assert_eq!(updated_policy["version"].as_str(), Some("0.13.0"));
 }
+
+#[test]
+fn test_workspace_manifests_synchronized_to_version_0_13_0() {
+    let repo_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap();
+
+    let summary = extract_declared_versions(repo_root).expect("extract declared versions");
+    for (file, ver) in &summary.versions_by_source {
+        assert_eq!(
+            ver, "0.13.0",
+            "Manifest '{file}' must be synchronized to release version 0.13.0"
+        );
+    }
+}
+
