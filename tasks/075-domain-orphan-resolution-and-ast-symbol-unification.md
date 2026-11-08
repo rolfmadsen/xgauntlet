@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 075: Domain Orphan Resolution & AST Symbol Unification"
 description: "Eliminere de 13 resterende forældreløse domænemodeller i architecture.mermaid ved at forhindre test-mock skygning i AST-scanneren, opdele policy-domænemodeller i models.rs, integrere AttestationReport, og binde analyse-DTOer."
-status: active
+status: done
 intent: bugfix
 slice: topology
 spec_ref: "specs/topology.md"
@@ -32,7 +32,7 @@ test_refs:
 
 # Task 075: Domain Orphan Resolution & AST Symbol Unification
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🐛 BUG FIX`
 **Oprettet**: `2026-11-08`
 
