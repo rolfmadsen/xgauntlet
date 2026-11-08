@@ -664,3 +664,15 @@ fn validate_task_slice_mapping(
         ));
     }
 }
+
+/// Validates two-way glossary drift between source code models and CONTEXT.md.
+pub fn validate_glossary_drift(
+    _workspace: &Path,
+    _options: &super::models::GlossaryDriftOptions,
+) -> super::models::GlossaryDriftReport {
+    // RED PHASE: Stub returns invalid report to fail acceptance tests
+    let mut report = super::models::GlossaryDriftReport::new();
+    report.is_valid = false;
+    report
+}
+

@@ -150,3 +150,42 @@ impl AdrReadinessReport {
         }
     }
 }
+
+/// Options configuring glossary drift validation between models and CONTEXT.md.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct GlossaryDriftOptions {
+    pub strict: bool,
+    pub check_avoid: bool,
+}
+
+impl Default for GlossaryDriftOptions {
+    fn default() -> Self {
+        Self {
+            strict: false,
+            check_avoid: true,
+        }
+    }
+}
+
+/// Consolidated report of two-way domain glossary drift.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct GlossaryDriftReport {
+    pub is_valid: bool,
+    pub orphan_models: Vec<String>,
+    pub phantom_terms: Vec<String>,
+    pub avoid_violations: Vec<DiagnosticFinding>,
+    pub diagnostics: Vec<DiagnosticFinding>,
+}
+
+impl GlossaryDriftReport {
+    pub fn new() -> Self {
+        Self {
+            is_valid: true,
+            orphan_models: Vec::new(),
+            phantom_terms: Vec::new(),
+            avoid_violations: Vec::new(),
+            diagnostics: Vec::new(),
+        }
+    }
+}
+

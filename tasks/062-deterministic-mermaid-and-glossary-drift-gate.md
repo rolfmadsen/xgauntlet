@@ -11,6 +11,8 @@ scope:
   - "crates/xgauntlet-core/src/features/topology/models.rs"
   - "crates/xgauntlet-core/src/features/topology/parser.rs"
   - "crates/xgauntlet-core/src/features/topology/mermaid.rs"
+  - "crates/xgauntlet-core/src/features/tasks/mod.rs"
+  - "crates/xgauntlet-core/src/features/tasks/models.rs"
   - "crates/xgauntlet-core/src/features/tasks/validator.rs"
   - "crates/xgauntlet-cli/src/main.rs"
   - "crates/xgauntlet-cli/src/checkers.rs"
@@ -18,8 +20,7 @@ scope:
   - "README_OLD.md"
   - "tasks/062-deterministic-mermaid-and-glossary-drift-gate.md"
 test_refs:
-  - "crates/xgauntlet-core/tests/topology_engine_test.rs"
-  - "crates/xgauntlet-core/tests/tasks_engine_test.rs"
+  - "crates/xgauntlet-core/tests/mermaid_and_glossary_drift_test.rs"
 ---
 
 # Task 062: Deterministic Mermaid Class Diagram & Glossary Drift Gate

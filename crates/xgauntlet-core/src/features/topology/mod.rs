@@ -4,11 +4,13 @@
 //! extraction, graph traversal (BFS/DFS/shortest path), blast radius calculation,
 //! and Cockpit HUD Scope telemetry injection.
 
+pub mod mermaid;
 pub mod models;
 pub mod parser;
 pub mod storage;
 pub mod traversal;
 
+pub use mermaid::{export_mermaid_class_diagram, MermaidExportOptions, MermaidLevel};
 pub use models::{
     BlastRadiusReport, Direction, EdgeType, NodeType, TopologyEdge, TopologyError, TopologyGraph,
     TopologyNode, TopologyOptions,

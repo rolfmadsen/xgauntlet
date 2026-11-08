@@ -12,7 +12,8 @@ pub mod validator;
 
 pub use lifecycle::{ScaffoldTaskOptions, TaskScaffoldResult, TaskScaffolder};
 pub use models::{
-    AdrReadinessReport, SpecReadinessReport, TaskContract, TaskPackageInfo, TaskStatus,
+    AdrReadinessReport, GlossaryDriftOptions, GlossaryDriftReport, SpecReadinessReport,
+    TaskContract, TaskPackageInfo, TaskStatus,
 };
 pub use okf::{
     parse_frontmatter, validate_iso_timestamp, Actor, GeneratedEntry, OkfError, OkfMetadata,
@@ -28,5 +29,5 @@ pub use telemetry::{
 };
 pub use validator::{
     check_adr_frontmatter, check_all_adrs, check_all_tasks, check_task_specification,
-    validate_context_content, validate_context_glossary,
+    validate_context_content, validate_context_glossary, validate_glossary_drift,
 };
