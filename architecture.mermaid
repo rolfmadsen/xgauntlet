@@ -695,40 +695,42 @@ classDiagram
         +vcs: Option~VcsMetadata~
     }
 
+    GauntletReport *-- LayerResult : layers
+    ScaffoldFileReport *-- ScaffoldAction : action
+    CapabilityRequest *-- ToolActionType : action_type
+    ScaffoldResult *-- ScaffoldFileReport : files
+    ConfigValidationReport *-- ConfigValidationIssue : issues
+    ArchitectureFinding *-- ArchitectureFindingCategory : category
+    NormalizedToolCall *-- ToolActionType : action_type
+    SpecReadinessReport *-- DiagnosticFinding : diagnostics
+    PluginInstallReport *-- PluginTargetInstallReport : targets
+    GauntletConfig *-- PathsConfig : paths
+    GauntletConfig *-- ArchitectureConfig : architecture
+    GauntletConfig *-- CheckpointConfig : checkpoint
+    GauntletConfig *-- LayerConfig : layers
+    TaskPackageInfo *-- TaskStatus : status
     GlossaryDriftReport *-- DiagnosticFinding : avoid_violations
     GlossaryDriftReport *-- DiagnosticFinding : diagnostics
+    TopologyEdge *-- EdgeType : edge_type
+    ArchitectureConfig *-- ArchitectureExemption : exemptions
+    AdapterValidationResult *-- ValidationIssue : issues
+    PluginTargetInstallReport *-- PluginInstallStatus : status
+    ArchitectureReport *-- ArchitectureFinding : findings
+    ValidationIssue *-- ValidationSeverity : severity
+    AdrReadinessReport *-- DiagnosticFinding : diagnostics
+    WorkspaceState *-- VcsMetadata : vcs
+    ConfigValidationIssue *-- ValidationSeverity : severity
+    LayerResult *-- LayerExecutionStatus : status
+    LayerResult *-- LayerRequirement : requirement
+    LayerDefinition *-- LayerRequirement : requirement
     VerificationReport *-- TaskContractSummary : task_contract
     VerificationReport *-- WorkspaceState : workspace_state
     VerificationReport *-- ExecutionMetadata : execution_metadata
     VerificationReport *-- CheckSummary : checks
     VerificationReport *-- DiagnosticFinding : diagnostics
-    GauntletConfig *-- PathsConfig : paths
-    GauntletConfig *-- ArchitectureConfig : architecture
-    GauntletConfig *-- CheckpointConfig : checkpoint
-    GauntletConfig *-- LayerConfig : layers
-    LayerDefinition *-- LayerRequirement : requirement
-    ArchitectureConfig *-- ArchitectureExemption : exemptions
     PolicyDecision *-- DecisionVerdict : verdict
-    ArchitectureFinding *-- ArchitectureFindingCategory : category
-    WorkspaceState *-- VcsMetadata : vcs
-    PluginInstallReport *-- PluginTargetInstallReport : targets
-    ScaffoldResult *-- ScaffoldFileReport : files
-    PluginTargetInstallReport *-- PluginInstallStatus : status
-    ArchitectureReport *-- ArchitectureFinding : findings
-    TopologyGraph *-- TopologyEdge : edges
-    DiagnosticReport *-- DiagnosticFinding : findings
     DiagnosticFinding *-- FindingType : finding_type
-    TopologyEdge *-- EdgeType : edge_type
+    DiagnosticReport *-- DiagnosticFinding : findings
     StackProfile *-- LayerConfig : default_layers
-    AdrReadinessReport *-- DiagnosticFinding : diagnostics
-    ValidationIssue *-- ValidationSeverity : severity
-    GauntletReport *-- LayerResult : layers
-    AdapterValidationResult *-- ValidationIssue : issues
-    LayerResult *-- LayerExecutionStatus : status
-    LayerResult *-- LayerRequirement : requirement
-    ConfigValidationReport *-- ConfigValidationIssue : issues
-    SpecReadinessReport *-- DiagnosticFinding : diagnostics
-    ConfigValidationIssue *-- ValidationSeverity : severity
+    TopologyGraph *-- TopologyEdge : edges
     TopologyNode *-- NodeType : node_type
-    ScaffoldFileReport *-- ScaffoldAction : action
-    TaskPackageInfo *-- TaskStatus : status

@@ -4,10 +4,10 @@
 **Task Title**: Task 071: Domain AST Field & Relationship Extraction for Mermaid  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `971963ad6e20f8dbd28b7f0f3ffe919027840436fe6e7533ecc5fbd58c9050bd`  
-**Timestamp**: `2026-11-08T19:02:58Z`  
-**Head**: `756d2e9`  
-**Commit**: `756d2e9`  
+**Source Manifest Digest**: `7a5a1c5976207987f1ed6476f2fcfe98e756d49d4ca7bcd67737751ae5ce344a`  
+**Timestamp**: `2026-11-08T20:01:05Z`  
+**Head**: `7536374`  
+**Commit**: `7536374`  
 
 ## Acceptance Criteria
 
@@ -29,13 +29,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.106s` |
-| `format` | `PASSED` | `0` | `0.248s` |
-| `lint` | `PASSED` | `0` | `1.059s` |
-| `unit` | `PASSED` | `0` | `35.946s` |
-| `npm` | `PASSED` | `0` | `0.786s` |
-| `invariants` | `PASSED` | `0` | `0.076s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
+| `architecture` | `PASSED` | `0` | `0.146s` |
+| `format` | `PASSED` | `0` | `0.238s` |
+| `lint` | `PASSED` | `0` | `0.121s` |
+| `unit` | `PASSED` | `0` | `32.488s` |
+| `npm` | `PASSED` | `0` | `0.806s` |
+| `invariants` | `PASSED` | `0` | `0.067s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---
 
@@ -168,6 +168,7 @@
 | `sess-2de532b7` | `TDD Craftsman` | `RED` | `2de532b` | `2026-11-08T18:51:11Z` | `VALID` |
 | `sess-756d2e9a` | `TDD Craftsman` | `GREEN` | `756d2e9` | `2026-11-08T18:57:19Z` | `VALID` |
 | `sess-124272b5` | `TDD Craftsman` | `REFACTOR` | `124272b` | `2026-11-08T19:03:19Z` | `VALID` |
+| `sess-75363747` | `Software Engineer` | `DONE` | `7536374` | `2026-11-08T19:03:52Z` | `VALID` |
 
 ---
 

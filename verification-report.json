@@ -6,7 +6,7 @@
   "task_contract": {
     "task_id": "071-domain-ast-mermaid-fields-and-relationships",
     "task_title": "Task 071: Domain AST Field & Relationship Extraction for Mermaid",
-    "task_digest": "3f23028abfdab6ff5a7a83061c598727f6b928334594667487c69cfbfb3873d6",
+    "task_digest": "e0530c02ab2e561e01bf10afe2cd709c16c004738cdd499521ef061c2eba3db1",
     "acceptance_criteria": [
       "**AC1 (Rust AST Block & Field Parsing):**",
       "`parse_rust_file` i `crates/xgauntlet-core/src/features/topology/parser.rs` scanner struct-kroppe `{ ... }` for felter og gemmer dem kommasepareret i nodens `fields`-metadata (`felt: Type`).",
@@ -24,25 +24,25 @@
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "4852e813869373de1a48449e3552bd166ae3d3b120c6c880a6653a4eb0e4f7d3",
-    "source_manifest_digest_pre": "971963ad6e20f8dbd28b7f0f3ffe919027840436fe6e7533ecc5fbd58c9050bd",
-    "source_manifest_digest_post": "971963ad6e20f8dbd28b7f0f3ffe919027840436fe6e7533ecc5fbd58c9050bd",
+    "source_content_digest": "ef5a60c7dc783894a9b455700265fd4df094cf3df03fcef8dfa7b65c0a705a0e",
+    "source_manifest_digest_pre": "7a5a1c5976207987f1ed6476f2fcfe98e756d49d4ca7bcd67737751ae5ce344a",
+    "source_manifest_digest_post": "7a5a1c5976207987f1ed6476f2fcfe98e756d49d4ca7bcd67737751ae5ce344a",
     "config_digest": "72d2a97b589a2e3b419308f2b93bb8faaadc8be95fdad2d12e92b224bf163345",
-    "task_digest": "3f23028abfdab6ff5a7a83061c598727f6b928334594667487c69cfbfb3873d6",
+    "task_digest": "e0530c02ab2e561e01bf10afe2cd709c16c004738cdd499521ef061c2eba3db1",
     "policy_digest": "3190e9f941adaa8321b511f1e7fd4a53bf788a7ec401f23bfe68f8eec8713e2b",
     "check_definitions_digest": "7b85613e7b7c24f03e0db6873ce7a93328152d05b26a6eea242f15f10f6063af",
     "included_files_count": 279,
     "vcs": {
       "type": "git",
-      "head": "756d2e9",
-      "commit": "756d2e9",
+      "head": "7536374",
+      "commit": "7536374",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-08T19:02:20Z",
-    "finished_at": "2026-11-08T19:02:58Z",
-    "total_duration_seconds": 38.468530012,
+    "started_at": "2026-11-08T20:00:31Z",
+    "finished_at": "2026-11-08T20:01:05Z",
+    "total_duration_seconds": 34.072802807,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -55,16 +55,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.106494166,
+      "duration_seconds": 0.146004093,
       "optional": false,
       "passed": true,
-      "log_digest": "712b2e800ef1c2cbca2e89d562ed2bd107b8f160946f91493bcece2c3bba435c"
+      "log_digest": "32464fa9212d8b760c9f1c7a7d8e2ff4f42f0c6b801f135dd5b8cac9bdecbc1f"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.247919326,
+      "duration_seconds": 0.237636431,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -73,43 +73,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.059342821,
+      "duration_seconds": 0.121467104,
       "optional": false,
       "passed": true,
-      "log_digest": "eabae794c3c4025bc71fd4e870bfe912fdfa8142c06ed2ee9cf6d0989663c2d5"
+      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 35.945514263,
+      "duration_seconds": 32.488172307,
       "optional": false,
       "passed": true,
-      "log_digest": "bd0857399896a88c6384efbb2fb19afec64a2c7cb6768a0b7cbfa160b56e4498"
+      "log_digest": "3081ce0967e9227d1c291af6b07f4589ae411c2526b2baf5ac1398d49b56e60a"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.785548815,
+      "duration_seconds": 0.805775763,
       "optional": false,
       "passed": true,
-      "log_digest": "3a2f5ad73601e90a730054e2ffc249e3d9188471a15dd5aec75f2a25670186d2"
+      "log_digest": "b6a2259a170b7523f063003068e47f5556403b92167c299515164ac9eebdd6e1"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.076264598,
+      "duration_seconds": 0.067096602,
       "optional": false,
       "passed": true,
-      "log_digest": "82f205b70905e17bc3f2be1b144e21b3db8345d913eb1588a84346fe92ef1858"
+      "log_digest": "35af2529f7e62037c0d898bd1e85a58e5093ebacde203583d38b4b7b5b2f25b4"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.012430455,
+      "duration_seconds": 0.010262629,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -1128,6 +1128,14 @@
         "commit_oid": "124272b5c13fe83cf5c1d4df9937d8f29c4606d7",
         "timestamp": "2026-11-08T19:03:19Z",
         "digest": "a588721664e5fbbcd9a356528bcada9958cc8bf0cec826d867a1f9c359fb5b19"
+      },
+      {
+        "session_nonce": "sess-75363747",
+        "role": "Software Engineer",
+        "phase": "DONE",
+        "commit_oid": "753637478b6b1e4fb0f5f156d39c12899b31dc82",
+        "timestamp": "2026-11-08T19:03:52Z",
+        "digest": "adb1671571af495d5dd45ff5ff5acf180c5aca16d3622535803c91ff049e178a"
       }
     ]
   },

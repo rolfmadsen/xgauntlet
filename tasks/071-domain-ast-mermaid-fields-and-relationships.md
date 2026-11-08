@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 071: Domain AST Field & Relationship Extraction for Mermaid"
 description: "Eksekvere deterministisk ekstraktion af felter, varianter og relationer mellem domænemodeller i topology-scanneren til berigelse af architecture.mermaid."
-status: active
+status: done
 intent: new_feature
 slice: topology
 spec_ref: "specs/topology.md"
@@ -23,7 +23,7 @@ test_refs:
 
 # Task 071: Domain AST Field & Relationship Extraction for Mermaid
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-11-08`
 
