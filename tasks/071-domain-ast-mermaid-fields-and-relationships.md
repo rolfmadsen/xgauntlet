@@ -19,7 +19,6 @@ scope:
   - "evidence.md"
 test_refs:
   - "crates/xgauntlet-core/tests/mermaid_field_and_relation_extraction_test.rs"
-  - "crates/xgauntlet-core/tests/mermaid_and_glossary_drift_test.rs"
 ---
 
 # Task 071: Domain AST Field & Relationship Extraction for Mermaid
