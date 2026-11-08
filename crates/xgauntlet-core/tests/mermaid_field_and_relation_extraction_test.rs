@@ -359,3 +359,82 @@ pub struct InvoiceOptions {
         "Detailed diagram must retain technical CLI options InvoiceOptions:\n{mermaid_detailed}"
     );
 }
+
+#[test]
+fn test_ast_scans_trait_implementation_realization_and_strong_enums() {
+    let ws = TempWorkspace::new("trait_realization_test");
+    let ws_path = ws.path();
+
+    fs::write(
+        ws_path.join("Cargo.toml"),
+        r#"[package]
+name = "gateway-core"
+version = "0.1.0"
+edition = "2021"
+"#,
+    )
+    .unwrap();
+
+    let models_dir = ws_path.join("src").join("features").join("gateway");
+    fs::create_dir_all(&models_dir).unwrap();
+
+    let models_rs = models_dir.join("models.rs");
+    fs::write(
+        &models_rs,
+        r#"//! Payment gateway domain models and contracts.
+
+pub enum TransactionStatus {
+    Pending,
+    Settled,
+}
+
+pub struct Transaction {
+    pub id: String,
+    pub status: TransactionStatus,
+}
+
+pub trait PaymentGateway {
+    fn process(&self, tx: &Transaction) -> bool;
+}
+
+pub struct StripeGateway {
+    pub api_key: String,
+}
+
+impl PaymentGateway for StripeGateway {
+    fn process(&self, tx: &Transaction) -> bool {
+        true
+    }
+}
+"#,
+    )
+    .unwrap();
+
+    let topology_opts = TopologyOptions {
+        workspace_root: ws_path.to_path_buf(),
+        detect_symbols: true,
+        ..Default::default()
+    };
+
+    let graph = scan_workspace_topology(&topology_opts).unwrap();
+
+    let export_opts = MermaidExportOptions {
+        direction: "TB".to_string(),
+        level: MermaidLevel::Conceptual,
+        domain_only: true,
+    };
+    let mermaid = export_mermaid_class_diagram(&graph, &export_opts);
+
+    // 1. Verify Realization relationship: StripeGateway ..|> PaymentGateway
+    assert!(
+        mermaid.contains("StripeGateway ..|> PaymentGateway"),
+        "Conceptual diagram must contain realization relationship 'StripeGateway ..|> PaymentGateway':\n{mermaid}"
+    );
+
+    // 2. Verify Composition: Transaction *-- TransactionStatus : status
+    assert!(
+        mermaid.contains("Transaction *-- TransactionStatus : status"),
+        "Conceptual diagram must contain composition relationship:\n{mermaid}"
+    );
+}
+
