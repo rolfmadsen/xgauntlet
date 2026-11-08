@@ -190,3 +190,26 @@ fn test_workspace_manifests_synchronized_to_version_0_13_0() {
         );
     }
 }
+
+#[test]
+fn test_npm_cli_readme_identical_to_root_readme() {
+    let repo_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap();
+
+    let root_readme_path = repo_root.join("README.md");
+    let cli_readme_path = repo_root.join("packages/cli/README.md");
+
+    assert!(root_readme_path.is_file(), "root README.md must exist");
+    assert!(cli_readme_path.is_file(), "packages/cli/README.md must exist");
+
+    let root_content = fs::read_to_string(&root_readme_path).expect("read root README.md");
+    let cli_content = fs::read_to_string(&cli_readme_path).expect("read packages/cli/README.md");
+
+    assert_eq!(
+        root_content, cli_content,
+        "packages/cli/README.md must be byte-for-byte identical to root README.md to avoid npm registry drift"
+    );
+}
