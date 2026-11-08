@@ -44,6 +44,9 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
 
 ## 📐 Architecture & Feature Modules (`Package-by-Feature`)
 
+### 📊 Visual Domain Model & Architecture Diagram
+- [architecture.mermaid](file:///home/rolfmadsen/Github/xgauntlet/architecture.mermaid): Automatisk genereret og deterministisk synkroniseret Mermaid-klassediagram udledt fra kildekodens forretnings- og domænemodeller ved hver verifikation (`xgauntlet verify --save`).
+
 - `crates/gauntlet-policy-engine`: Deterministic WebAssembly component implementing `wit/gauntlet_policy.wit`. Structured quote-aware command tokenization, wrapper rejection, fail-closed task scope enforcement (`allowed_scopes`), and test scope isolation (`allowed_test_targets`).
 - `crates/xgauntlet-core/src/features/`:
   - `wasm`: Embedded Wasmtime runtime host (`WasmRuntimeHost`). In-memory WebAssembly module instantiation with Zero Ambient Authority (no filesystem, no network, no clock, no random). Exposes linear memory bridge (`alloc`, `dealloc`, `evaluate_json_wasm`).
