@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🚀 Added
+- **Deterministic AST Mermaid Class Diagram Export (`Task 062`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`)**:
+  - `xgauntlet topology export --format mermaid [--level conceptual|detailed]`: Deterministic native Rust extraction of structs, enums, variants, and relationships (`*--`, `o--`, `<|--`) directly from domain models.
+  - Automatic boundary separation: `--level conceptual` (default) filters out serializers, infrastructure, and technical boilerplate to preserve pure business information models, while `--level detailed` includes all technical types.
+- **Two-Way Domain Glossary Drift Gate (`Task 062`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`)**:
+  - `xgauntlet check-spec --context`: Mechanical gate verifying that all domain entities in `models.rs` files are defined according to Aristotle's formula in `CONTEXT.md` (Orphan Model Detection: Code $\to$ Context).
+  - Prohibited Synonym Guard: Rejects fields and identifiers that utilize banned synonyms declared under `_Avoid_:` in `CONTEXT.md`.
+
+### 🔄 Changed & Enhanced
+- **Static Checkpoint Commands & Universal Harness Auto-Approval (`Task 064`, `.agents/`, `crates/xgauntlet-core`)**:
+  - Eliminated variable task ID flags from standard checkpoint instructions across scaffolded templates (`templates.rs`), agent guidelines (`AGENTS.md`), and sovereign skills (`tdd/SKILL.md`, `release/SKILL.md`).
+  - Standardized on 100% static invocations (`xgauntlet checkpoint --phase <spec|red|green|refactor|done>`) using built-in active task resolution (`resolve_active_task_id`), enabling seamless prefix-matching and permanent auto-approval in Google Antigravity IDE and Claude Code without recurring user permission dialogs.
+- **Software Architecture Terminology Alignment (`Task 063`, `README.md`, `packages/cli/README.md`)**:
+  - Replaced clumsy literal translations ("røntgenbillede") with established industry terminology ("Architecture Baseline Audit" / "Status Quo Snapshot") in documentation and regression suites.
+- **Narrative Storytelling Documentation Restructuring (`Task 061`, `README.md`)**:
+  - Restructured `README.md` into a 5-act narrative flow (Hensigten $\to$ Strukturen $\to$ Processen $\to$ Hands-on $\to$ Dybden) with collapsible technical deep dives, cleaner readability, and zero alert fatigue.
+- **Brownfield Architecture Migration Blueprint (`Task 060`, `README.md`, `packages/cli/README.md`)**:
+  - Documented a concrete 4-step pragmatic brownfield migration guide: Audit Baseline $\to$ Baseline Exemptions $\to$ Gate C/B/A cleanup order $\to$ Slice-by-slice migration without risky Big Bang rewrites.
+
+
 ## [0.12.2] - 2026-11-07
 
 ## [0.12.1] - 2026-11-07

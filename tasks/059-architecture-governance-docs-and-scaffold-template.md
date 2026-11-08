@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 059: Architecture Governance Documentation & Scaffold Template Hardening"
 description: "Dokumenterer arkitektur-gates (Gate A/B/C) og Vertical Slice Architecture pædagogisk i README.md og packages/cli/README.md, samt udvider scaffoldet gauntlet.toml template med veldokumenterede eksempler på lag og slice-isolation."
-status: active
+status: done
 intent: enhancement
 generated: { by: process:antigravity-task-init, at: "2026-11-07T21:06:00Z" }
 tags: [architecture, templates, documentation, vsa, layers, brownfield, greenfield]
@@ -19,7 +19,7 @@ test_refs:
 
 # Task 059: Architecture Governance Documentation & Scaffold Template Hardening
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-07`
 

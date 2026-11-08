@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 058: Release Manifest Parity (.agents Plugin & Policy) and Global Distribution Clarity"
 description: "Sikrer at .agents/plugins/xgauntlet/plugin.json og policy.json inkluderes i extract_declared_versions og update_manifest_versions, opdaterer metadata til v0.12.0, og præciserer global installation (--force) vs projekt-init i dokumentationen."
-status: active
+status: done
 intent: bug
 generated: { by: process:antigravity-task-init, at: "2026-11-07T20:10:00Z" }
 tags: [release, manifests, plugin, bundle, documentation, parity]
@@ -20,7 +20,7 @@ test_refs:
 
 # Task 058: Release Manifest Parity (.agents Plugin & Policy) and Global Distribution Clarity
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🐛 BUG FIX`
 **Oprettet**: `2026-11-07`
 
