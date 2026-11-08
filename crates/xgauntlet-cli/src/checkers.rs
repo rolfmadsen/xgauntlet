@@ -173,3 +173,57 @@ pub fn run_check_evidence(workspace: &Path) -> anyhow::Result<CheckEvidenceOutpu
         findings,
     })
 }
+
+pub fn run_check_spec_context(workspace: &Path, json: bool) -> anyhow::Result<bool> {
+    let options = xgauntlet_core::GlossaryDriftOptions {
+        strict: true,
+        check_avoid: true,
+    };
+    let report = xgauntlet_core::validate_glossary_drift(workspace, &options);
+    if json {
+        println!("{}", serde_json::to_string_pretty(&report)?);
+    } else {
+        println!("\n=== xGauntlet Two-Way Glossary Drift Gate ===");
+        if report.is_valid {
+            println!("Status: [PASSED] 0 orphan models, 0 avoid violations.");
+        } else {
+            println!("Status: [FAILED]");
+            for orphan in &report.orphan_models {
+                println!("  🛑 Orphan Model: {orphan}");
+            }
+            for violation in &report.avoid_violations {
+                println!("  🛑 Prohibited Synonym: {}", violation.message);
+            }
+            for d in &report.diagnostics {
+                println!("  💡 Remediation: {}", d.remediation_hint);
+            }
+        }
+    }
+    Ok(report.is_valid)
+}
+
+pub fn run_topology_export(workspace: &Path, format: &str, level: &str) -> anyhow::Result<()> {
+    let options = xgauntlet_core::TopologyOptions {
+        workspace_root: workspace.to_path_buf(),
+        ..Default::default()
+    };
+    let graph = xgauntlet_core::scan_workspace_topology(&options)?;
+    let fmt = format.trim().to_ascii_lowercase();
+    if fmt == "json" {
+        println!("{}", graph.export_json()?);
+    } else {
+        let mermaid_level = if level.trim().eq_ignore_ascii_case("detailed") {
+            xgauntlet_core::MermaidLevel::Detailed
+        } else {
+            xgauntlet_core::MermaidLevel::Conceptual
+        };
+        let export_opts = xgauntlet_core::MermaidExportOptions {
+            direction: "TB".to_string(),
+            level: mermaid_level,
+            domain_only: mermaid_level == xgauntlet_core::MermaidLevel::Conceptual,
+        };
+        let diagram = xgauntlet_core::export_mermaid_class_diagram(&graph, &export_opts);
+        println!("{diagram}");
+    }
+    Ok(())
+}

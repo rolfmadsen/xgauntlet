@@ -3,6 +3,7 @@
 //! Provides OKF v0.2 frontmatter parsing, task package loading,
 //! Aristotelian domain glossary verification, and check-spec gatekeeping.
 
+pub mod glossary;
 pub mod lifecycle;
 pub mod models;
 pub mod okf;
@@ -10,6 +11,7 @@ pub mod parser;
 pub mod telemetry;
 pub mod validator;
 
+pub use glossary::validate_glossary_drift;
 pub use lifecycle::{ScaffoldTaskOptions, TaskScaffoldResult, TaskScaffolder};
 pub use models::{
     AdrReadinessReport, GlossaryDriftOptions, GlossaryDriftReport, SpecReadinessReport,
@@ -29,5 +31,5 @@ pub use telemetry::{
 };
 pub use validator::{
     check_adr_frontmatter, check_all_adrs, check_all_tasks, check_task_specification,
-    validate_context_content, validate_context_glossary, validate_glossary_drift,
+    validate_context_content, validate_context_glossary,
 };

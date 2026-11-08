@@ -1,19 +1,26 @@
 # Verification Report
 
-**Task ID**: `060-brownfield-migration-blueprint-in-readme`  
-**Task Title**: Task 060: Brownfield VSA Migration Blueprint in README Documentation  
+**Task ID**: `062-deterministic-mermaid-and-glossary-drift-gate`  
+**Task Title**: Task 062: Deterministic Mermaid Class Diagram & Glossary Drift Gate  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `bdf7a25377c9ee7ca2fd10f324b47f0adeea19dfe19ff2928350eeb8bc579553`  
-**Timestamp**: `2026-11-07T21:25:40Z`  
-**Head**: `b85f7aa`  
-**Commit**: `b85f7aa`  
+**Source Manifest Digest**: `433d39dd37a84274bf59bf349fe69d14347afd14b27f181c31bef366b2d29826`  
+**Timestamp**: `2026-11-08T10:54:41Z`  
+**Head**: `b98d084`  
+**Commit**: `b98d084`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 — 4-Trins Drejebog i GitHub `README.md`:**
-- [x] **AC2 — Paritet i npm `packages/cli/README.md`:**
-- [x] **AC3 — Automatisk Dokumentationstest:**
+- [x] **Deterministisk AST Mermaid Eksport (`xgauntlet topology export --format mermaid`)**:
+- [x] Traverserer og udtrækker structs, enums, traits/interfaces samt deres felter, varianter og indbyrdes relationer (`*--`, `o--`, `<|--`) fra domænemodeller i `src/features/**/models.rs` (eller typer med `/// @domain`).
+- [x] Adskiller konceptuelle domænemodeller fra tekniske infrastrukturelementer (`engine.rs`, `git.rs`, `render.rs`, serializers som `$schema`), så diagrammet forbliver en ren forretnings- og informationsmodel.
+- [x] Emitterer 100% syntaktisk validt Mermaid `classDiagram` output med sorterede entiteter for deterministisk reproducerbarhed.
+- [x] **To-vejs Glossary Drift Gate (`xgauntlet check-spec --context`)**:
+- [x] **Orphan Model Detection (Code -> Context)**: Emitterer en blokerende `DiagnosticFinding`, hvis en `pub struct` eller `pub enum` i en `models.rs`-fil mangler en tilsvarende Aristoteles-definition i `CONTEXT.md`.
+- [x] **Phantom Term Detection (Context -> Code)**: Advarer hvis et domænebegreb i `CONTEXT.md` er defineret som en datamodel-entitet, men ikke eksisterer i koden.
+- [x] **Synonym Guard**: Validerer at felter og typer ikke anvender forbudte synonymer defineret under `_Avoid_:` i `CONTEXT.md`.
+- [x] **Dokumentations-opdatering**:
+- [x] Opdatere `README.md` (og eventuelt `README2.md`) med CLI-eksempler, output-formater og anvendelse af `xgauntlet topology export --format mermaid` samt `xgauntlet check-spec --context`.
 
 ---
 
@@ -21,12 +28,12 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.079s` |
-| `format` | `PASSED` | `0` | `0.251s` |
-| `lint` | `PASSED` | `0` | `0.105s` |
-| `unit` | `PASSED` | `0` | `31.519s` |
-| `npm` | `PASSED` | `0` | `0.734s` |
-| `invariants` | `PASSED` | `0` | `0.057s` |
+| `architecture` | `PASSED` | `0` | `0.076s` |
+| `format` | `PASSED` | `0` | `0.234s` |
+| `lint` | `PASSED` | `0` | `0.095s` |
+| `unit` | `PASSED` | `0` | `32.060s` |
+| `npm` | `PASSED` | `0` | `0.792s` |
+| `invariants` | `PASSED` | `0` | `0.056s` |
 | `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---
@@ -116,6 +123,7 @@
 | `sess-09d4cde5` | `System Architect` | `SPEC` | `09d4cde` | `2026-11-08T10:35:58Z` | `VALID` |
 | `sess-83796de5` | `TDD Craftsman` | `RED` | `83796de` | `2026-11-08T10:38:43Z` | `VALID` |
 | `sess-ee49883c` | `TDD Craftsman` | `GREEN` | `ee49883` | `2026-11-08T10:45:18Z` | `VALID` |
+| `sess-b98d084b` | `TDD Craftsman` | `REFACTOR` | `b98d084` | `2026-11-08T10:46:28Z` | `VALID` |
 
 ---
 
@@ -123,6 +131,11 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_mermaid_class_diagram_generation_conceptual` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
+| `test_mermaid_class_diagram_detailed_includes_technical_structs` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
+| `test_glossary_drift_detects_orphan_models_missing_in_context` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
+| `test_glossary_drift_passes_when_all_models_defined_in_context` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
+| `test_glossary_drift_detects_prohibited_avoid_synonyms_in_fields` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
 | `test_scaffold_gauntlet_toml_contains_architecture_guidance` | `RedCheckpointVerified` | `a4513418902ae375...` | `2026-11-07T22:23:30+01:00` |
 | `test_readme_documents_architecture_gates_and_safe_mode` | `RedCheckpointVerified` | `a4513418902ae375...` | `2026-11-07T22:23:30+01:00` |
 | `test_readme_documents_brownfield_migration_blueprint` | `RedCheckpointVerified` | `a4513418902ae375...` | `2026-11-07T22:23:30+01:00` |
@@ -256,10 +269,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_mermaid_class_diagram_generation_conceptual` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
-| `test_mermaid_class_diagram_detailed_includes_technical_structs` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
-| `test_glossary_drift_detects_orphan_models_missing_in_context` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
-| `test_glossary_drift_passes_when_all_models_defined_in_context` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
-| `test_glossary_drift_detects_prohibited_avoid_synonyms_in_fields` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
 
 ---

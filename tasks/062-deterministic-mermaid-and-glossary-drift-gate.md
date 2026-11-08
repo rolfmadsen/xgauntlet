@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 062: Deterministic Mermaid Class Diagram & Glossary Drift Gate"
 description: "Implementere deterministisk Mermaid klasse- og informationsdiagram-eksport samt to-vejs glossary drift-validering mellem kildekodens domænemodeller og CONTEXT.md."
-status: active
+status: done
 intent: new_feature
 generated: { by: process:antigravity-task-init, at: "2026-11-08T11:32:00Z" }
 tags: [topology, ast, mermaid, domain-model, glossary, check-spec, okf, readme]
@@ -15,6 +15,7 @@ scope:
   - "crates/xgauntlet-core/src/features/tasks/mod.rs"
   - "crates/xgauntlet-core/src/features/tasks/models.rs"
   - "crates/xgauntlet-core/src/features/tasks/validator.rs"
+  - "crates/xgauntlet-core/src/features/tasks/glossary.rs"
   - "crates/xgauntlet-cli/src/main.rs"
   - "crates/xgauntlet-cli/src/checkers.rs"
   - "README.md"
@@ -26,7 +27,7 @@ test_refs:
 
 # Task 062: Deterministic Mermaid Class Diagram & Glossary Drift Gate
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-11-08`
 

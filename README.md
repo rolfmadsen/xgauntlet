@@ -208,7 +208,7 @@ For at modvirke uendelige review-loops og beskytte mod kontekstforurening (*cont
 4. **`Release Engineer (Attestation & Deployment)`**: Tager over ved afslutning. Kører `check-release`, synkroniserer versioner og forsegler releasen.
 
 > **🛡️ Single-Agent Governance & Human-in-the-Loop:**  
-> xGauntlet anvender en transparent enkelt-agent model under direkte menneskeligt opsyn. Kontekst-renhed opnås via mekaniske **Session Handoffs** (standardiserede handoff-prompts til en frisk chat), ikke via uigennemskuelige baggrunds-subagenter. Udvikleren bevarer hermed fuld kontrol over hver eneste sessionsovergang.
+> xGauntlet anvender en transparent enkelt-agent model under direkte menneskeligt opsyn. Kontekst-renhed opnås via mekaniske Session Handoffs, ikke via uigennemskuelige baggrunds-subagenter. Udvikleren bevarer hermed fuld kontrol over hver eneste sessionsovergang.
 
 ---
 

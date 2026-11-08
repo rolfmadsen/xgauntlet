@@ -648,31 +648,7 @@ async fn main() -> anyhow::Result<()> {
             json,
         }) => {
             if *context {
-                let options = xgauntlet_core::GlossaryDriftOptions {
-                    strict: true,
-                    check_avoid: true,
-                };
-                let report = xgauntlet_core::validate_glossary_drift(workspace, &options);
-                if *json {
-                    println!("{}", serde_json::to_string_pretty(&report)?);
-                } else {
-                    println!("\n=== xGauntlet Two-Way Glossary Drift Gate ===");
-                    if report.is_valid {
-                        println!("Status: [PASSED] 0 orphan models, 0 avoid violations.");
-                    } else {
-                        println!("Status: [FAILED]");
-                        for orphan in &report.orphan_models {
-                            println!("  🛑 Orphan Model: {orphan}");
-                        }
-                        for violation in &report.avoid_violations {
-                            println!("  🛑 Prohibited Synonym: {}", violation.message);
-                        }
-                        for d in &report.diagnostics {
-                            println!("  💡 Remediation: {}", d.remediation_hint);
-                        }
-                    }
-                }
-                if !report.is_valid {
+                if !run_check_spec_context(workspace, *json)? {
                     std::process::exit(1);
                 }
                 return Ok(());
@@ -1833,36 +1809,9 @@ async fn main() -> anyhow::Result<()> {
                 workspace,
                 level,
             } => {
-                let options = xgauntlet_core::TopologyOptions {
-                    workspace_root: workspace.clone(),
-                    ..Default::default()
-                };
-                match xgauntlet_core::scan_workspace_topology(&options) {
-                    Ok(graph) => {
-                        let fmt = format.trim().to_ascii_lowercase();
-                        if fmt == "json" {
-                            println!("{}", graph.export_json()?);
-                        } else {
-                            let mermaid_level = if level.trim().eq_ignore_ascii_case("detailed") {
-                                xgauntlet_core::MermaidLevel::Detailed
-                            } else {
-                                xgauntlet_core::MermaidLevel::Conceptual
-                            };
-                            let export_opts = xgauntlet_core::MermaidExportOptions {
-                                direction: "TB".to_string(),
-                                level: mermaid_level,
-                                domain_only: mermaid_level
-                                    == xgauntlet_core::MermaidLevel::Conceptual,
-                            };
-                            let diagram =
-                                xgauntlet_core::export_mermaid_class_diagram(&graph, &export_opts);
-                            println!("{diagram}");
-                        }
-                    }
-                    Err(err) => {
-                        eprintln!("🛑 Topology export error: {err}");
-                        std::process::exit(1);
-                    }
+                if let Err(err) = run_topology_export(workspace, format, level) {
+                    eprintln!("🛑 Topology export error: {err}");
+                    std::process::exit(1);
                 }
             }
         },
