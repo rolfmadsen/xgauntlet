@@ -990,6 +990,14 @@
         "commit_oid": "6132745ad9abc0be048e53e3848b7dd368b98111",
         "timestamp": "2026-11-08T11:58:44Z",
         "digest": "f7b20a5dae242fc496821ab6505d3a90860e5caf9f87ea5697b17b89e737d060"
+      },
+      {
+        "session_nonce": "sess-ac4b1ae4",
+        "role": "System Architect",
+        "phase": "SPEC",
+        "commit_oid": "ac4b1ae43415224c934a6979f38a1876fd2ed7ef",
+        "timestamp": "2026-11-08T12:00:08Z",
+        "digest": "d02c7d7c8df33c7017acef8540bbcc08e0247fc2ece876dd206db24be8936974"
       }
     ]
   },
