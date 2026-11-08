@@ -98,8 +98,8 @@ fn test_readme_documents_brownfield_migration_blueprint() {
         ("packages/cli/README.md", &cli_readme),
     ] {
         assert!(
-            content.contains("Røntgenbillede") || content.contains("røntgenbillede"),
-            "{} should document the audit röntgen baseline step",
+            content.contains("Architecture Baseline Audit") || content.contains("Baseline Audit"),
+            "{} should document the architecture baseline audit step",
             name
         );
         assert!(
