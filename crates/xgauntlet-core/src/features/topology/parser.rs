@@ -9,6 +9,9 @@ use std::path::{Path, PathBuf};
 use super::models::{
     EdgeType, NodeType, TopologyEdge, TopologyError, TopologyGraph, TopologyNode, TopologyOptions,
 };
+use super::rust_ast::{
+    extract_brace_body, extract_type_identifiers, parse_enum_variants, parse_struct_fields,
+};
 
 /// Scans the specified workspace root and builds a deterministic codebase topology graph.
 pub fn scan_workspace_topology(options: &TopologyOptions) -> Result<TopologyGraph, TopologyError> {
@@ -312,71 +315,9 @@ fn parse_rust_file(
                 if let Some(st_name) = name {
                     let mut fields = Vec::new();
                     if !trimmed.ends_with(';') || trimmed.contains('{') {
-                        let mut brace_depth = 0;
-                        let mut entered = false;
-                        let mut j = i;
-                        while j < lines.len() {
-                            let line_j = lines[j];
-                            let open_count = line_j.chars().filter(|&c| c == '{').count();
-                            let close_count = line_j.chars().filter(|&c| c == '}').count();
-                            brace_depth += open_count;
-                            brace_depth -= close_count;
-
-                            if open_count > 0 {
-                                entered = true;
-                            }
-
-                            if entered {
-                                let body_part = if j == i {
-                                    let after_brace =
-                                        line_j.split_once('{').map(|(_, r)| r).unwrap_or("");
-                                    if brace_depth == 0 {
-                                        after_brace
-                                            .rsplit_once('}')
-                                            .map(|(l, _)| l)
-                                            .unwrap_or(after_brace)
-                                    } else {
-                                        after_brace
-                                    }
-                                } else if brace_depth == 0 {
-                                    line_j.rsplit_once('}').map(|(l, _)| l).unwrap_or("")
-                                } else {
-                                    line_j
-                                };
-
-                                for candidate_field in body_part.split(',') {
-                                    let t_field = candidate_field.trim();
-                                    if t_field.starts_with("//")
-                                        || t_field.starts_with('#')
-                                        || t_field.is_empty()
-                                    {
-                                        continue;
-                                    }
-                                    if let Some((raw_name, raw_type)) = t_field.split_once(':') {
-                                        let clean_name = raw_name.trim();
-                                        let field_ident = clean_name
-                                            .split_whitespace()
-                                            .last()
-                                            .unwrap_or(clean_name)
-                                            .trim();
-                                        let clean_type =
-                                            raw_type.split("//").next().unwrap_or(raw_type).trim();
-                                        if !field_ident.is_empty() && !clean_type.is_empty() {
-                                            fields.push(format!("{field_ident}: {clean_type}"));
-                                        }
-                                    }
-                                }
-
-                                if brace_depth == 0 {
-                                    i = j;
-                                    break;
-                                }
-                            } else if line_j.trim().ends_with(';') {
-                                break;
-                            }
-
-                            j += 1;
-                        }
+                        let (body, next_idx) = extract_brace_body(&lines, i);
+                        fields = parse_struct_fields(&body);
+                        i = next_idx;
                     }
 
                     let sym_id = format!("{node_id}::{st_name}");
@@ -405,65 +346,9 @@ fn parse_rust_file(
                 if let Some(en_name) = name {
                     let mut variants = Vec::new();
                     if !trimmed.ends_with(';') || trimmed.contains('{') {
-                        let mut brace_depth = 0;
-                        let mut entered = false;
-                        let mut j = i;
-                        while j < lines.len() {
-                            let line_j = lines[j];
-                            let open_count = line_j.chars().filter(|&c| c == '{').count();
-                            let close_count = line_j.chars().filter(|&c| c == '}').count();
-                            brace_depth += open_count;
-                            brace_depth -= close_count;
-
-                            if open_count > 0 {
-                                entered = true;
-                            }
-
-                            if entered {
-                                let body_part = if j == i {
-                                    let after_brace =
-                                        line_j.split_once('{').map(|(_, r)| r).unwrap_or("");
-                                    if brace_depth == 0 {
-                                        after_brace
-                                            .rsplit_once('}')
-                                            .map(|(l, _)| l)
-                                            .unwrap_or(after_brace)
-                                    } else {
-                                        after_brace
-                                    }
-                                } else if brace_depth == 0 {
-                                    line_j.rsplit_once('}').map(|(l, _)| l).unwrap_or("")
-                                } else {
-                                    line_j
-                                };
-
-                                for candidate in body_part.split(',') {
-                                    let t_candidate = candidate.trim();
-                                    if t_candidate.starts_with("//")
-                                        || t_candidate.starts_with('#')
-                                        || t_candidate.is_empty()
-                                    {
-                                        continue;
-                                    }
-                                    let var_ident: String = t_candidate
-                                        .chars()
-                                        .take_while(|c| c.is_alphanumeric() || *c == '_')
-                                        .collect();
-                                    if !var_ident.is_empty() && !variants.contains(&var_ident) {
-                                        variants.push(var_ident);
-                                    }
-                                }
-
-                                if brace_depth == 0 {
-                                    i = j;
-                                    break;
-                                }
-                            } else if line_j.trim().ends_with(';') {
-                                break;
-                            }
-
-                            j += 1;
-                        }
+                        let (body, next_idx) = extract_brace_body(&lines, i);
+                        variants = parse_enum_variants(&body);
+                        i = next_idx;
                     }
 
                     let sym_id = format!("{node_id}::{en_name}");
@@ -767,21 +652,4 @@ fn extract_identifier_after_keyword(line: &str, keyword: &str) -> Option<String>
     } else {
         Some(ident)
     }
-}
-
-fn extract_type_identifiers(type_str: &str) -> Vec<String> {
-    let mut idents = Vec::new();
-    let mut curr = String::new();
-    for c in type_str.chars() {
-        if c.is_alphanumeric() || c == '_' {
-            curr.push(c);
-        } else if !curr.is_empty() {
-            idents.push(curr.clone());
-            curr.clear();
-        }
-    }
-    if !curr.is_empty() {
-        idents.push(curr);
-    }
-    idents
 }

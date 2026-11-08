@@ -7,6 +7,7 @@
 pub mod mermaid;
 pub mod models;
 pub mod parser;
+pub mod rust_ast;
 pub mod storage;
 pub mod traversal;
 

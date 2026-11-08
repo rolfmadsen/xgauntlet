@@ -1,31 +1,51 @@
 classDiagram
     direction TB
 
-    class Actor {
-    }
-
     class AdapterHookVerdict {
+        +allowed: bool
+        +decision: String
+        +reason: String
+        +reason_code: Option~u32~
     }
 
     class AdapterValidationResult {
-    }
-
-    class AdrCoverageSummary {
+        +valid: bool
+        +issues: Vec~ValidationIssue~
     }
 
     class AdrReadinessReport {
-    }
-
-    class AntigravityAdapter {
+        +is_valid: bool
+        +adr_id: String
+        +diagnostics: Vec~DiagnosticFinding~
+        +inspected_files: Vec~String~
     }
 
     class ArchitectureConfig {
+        +max_file_lines: Option~usize~
+        +max_test_file_lines: Option~usize~
+        +forbidden_tokens: Vec~String~
+        +forbidden_imports: Vec~String~
+        +layers: Vec~String~
+        +slice_root: String
+        +isolate_slices: bool
+        +forbid_core_imports: Vec~String~
+        +exemptions: Vec~ArchitectureExemption~
     }
 
     class ArchitectureExemption {
+        +path: String
+        +reason: String
+        +adr: String
+        +max_lines: Option~usize~
+        +allow_imports: Vec~String~
     }
 
     class ArchitectureFinding {
+        +file_path: String
+        +line_number: Option~usize~
+        +category: ArchitectureFindingCategory
+        +message: String
+        +remediation_hint: String
     }
 
     class ArchitectureFindingCategory {
@@ -33,40 +53,74 @@ classDiagram
     }
 
     class ArchitectureReport {
-    }
-
-    class AttestationError {
-        <<enumeration>>
-    }
-
-    class AttestationReport {
+        +is_valid: bool
+        +files_scanned: usize
+        +findings: Vec~ArchitectureFinding~
+        +notices: Vec~String~
     }
 
     class AttestationStatus {
         <<enumeration>>
+        Absent
+        Valid
+        Invalid
     }
 
     class BlastRadiusReport {
-    }
-
-    class CanonicalWorkspaceManifest {
+        +target: String
+        +affected_nodes: Vec~String~
+        +direct_dependents: Vec~String~
+        +indirect_dependents: Vec~String~
+        +max_depth_reached: usize
+        +total_affected_count: usize
     }
 
     class CapabilityRequest {
+        +action_type: ToolActionType
+        +raw_tool_name: String
+        +target_resource: String
+        +payload_json: String
     }
 
     class CheckStatus {
         <<enumeration>>
+        Passed
+        Failed
+        Error
+        Skipped
     }
 
     class CheckSummary {
+        +name: String
+        +status: String
+        +exit_code: i32
+        +duration_seconds: f64
+        +optional: bool
+        +passed: bool
+        +log_digest: String
     }
 
     class CheckpointConfig {
+        +enforce_provenance: bool
     }
 
     class CheckpointError {
         <<enumeration>>
+        InvalidPhase
+        NoActiveTask
+        RedPhaseUnmet
+        GreenPhaseUnmet
+        SpecPhaseUnmet
+        RefactorPhaseUnmet
+        DonePhaseUnmet
+        ScopeViolation
+        BornGreenTestDetected
+        TautologicalTestDetected
+        GitError
+        NothingToCommit
+        ConfigError
+        TaskError
+        IoError
     }
 
     class CheckpointOptions {
@@ -74,48 +128,78 @@ classDiagram
 
     class CheckpointPhase {
         <<enumeration>>
+        Spec
+        Red
+        Green
+        Refactor
+        Done
     }
 
     class CheckpointResult {
     }
 
-    class ClaudeCodeAdapter {
-    }
-
-    class CodexAdapter {
-    }
-
     class ConfigError {
         <<enumeration>>
+        IoError
+        JsonError
+        TomlError
+        ValidationError
+        UnknownStack
     }
 
     class ConfigValidationIssue {
+        +severity: ValidationSeverity
+        +code: String
+        +message: String
+        +field: Option~String~
+        +remediation: Option~String~
     }
 
     class ConfigValidationReport {
-    }
-
-    class CriteriaProgress {
+        +is_valid: bool
+        +issues: Vec~ConfigValidationIssue~
     }
 
     class DecisionVerdict {
         <<enumeration>>
+        Allow
+        Deny
+        Ask
+        ForceAsk
     }
 
     class DiagnosticFinding {
-    }
-
-    class DiagnosticParser {
+        +finding_type: FindingType
+        +tool_name: String
+        +file_path: String
+        +line_number: Option~usize~
+        +column_number: Option~usize~
+        +message: String
+        +remediation_hint: String
+        +raw_context: String
     }
 
     class DiagnosticReport {
+        +layer_name: String
+        +passed: bool
+        +exit_code: i32
+        +findings: Vec~DiagnosticFinding~
+        +summary: String
     }
 
     class Direction {
         <<enumeration>>
+        Incoming
+        Outgoing
+        Both
     }
 
     class DiscoveredHarness {
+        +name: String
+        +detected: bool
+        +config_dir: PathBuf
+        +plugin_installed: bool
+        +plugin_dir: PathBuf
     }
 
     class DoctorCategory {
@@ -131,6 +215,11 @@ classDiagram
 
     class DoctorError {
         <<enumeration>>
+        Io
+        Config
+        Spec
+        Git
+        Other
     }
 
     class DoctorOptions {
@@ -143,105 +232,135 @@ classDiagram
         <<enumeration>>
     }
 
-    class DriftViolation {
-    }
-
     class EdgeType {
         <<enumeration>>
+        Imports
+        Calls
+        DependsOn
+        Defines
+        Exports
+        Implements
     }
 
     class EnforcementContext {
+        +workspace_id: String
+        +has_active_task: bool
+        +active_task_id: String
+        +read_only: bool
+        +allowed_scopes: Vec~String~
+        +allowed_test_targets: Vec~String~
     }
 
     class ExecutionMetadata {
+        +started_at: String
+        +finished_at: String
+        +total_duration_seconds: f64
+        +environment: BTreeMap~String
+        +String~
     }
 
     class ExecutionOrigin {
         <<enumeration>>
+        Local
+        CiUnprivileged
+        CiProtected
     }
 
     class FindingType {
         <<enumeration>>
+        LintError
+        TypeMismatch
+        TestFailure
+        PropertyViolation
+        MutantSurvived
+        DriftDetected
+        InvariantViolation
+        GeneralError
+        Warning
     }
 
     class GauntletConfig {
-    }
-
-    class GauntletExecutionOutcome {
-    }
-
-    class GauntletOptions {
-    }
-
-    class GauntletPipelineError {
-        <<enumeration>>
+        +stack: String
+        +save_evidence: bool
+        +evidence_file: String
+        +evidence_markdown_file: String
+        +paths: PathsConfig
+        +architecture: ArchitectureConfig
+        +checkpoint: CheckpointConfig
+        +layers: Vec~LayerConfig~
     }
 
     class GauntletReport {
-    }
-
-    class GeneratedEntry {
-    }
-
-    class GitTelemetry {
+        +success: bool
+        +layers: Vec~LayerResult~
+        +total_duration_seconds: f64
     }
 
     class GlossaryDriftOptions {
+        +strict: bool
+        +check_avoid: bool
     }
 
     class GlossaryDriftReport {
+        +is_valid: bool
+        +orphan_models: Vec~String~
+        +phantom_terms: Vec~String~
+        +avoid_violations: Vec~DiagnosticFinding~
+        +diagnostics: Vec~DiagnosticFinding~
     }
 
-    class HarnessKind {
-        <<enumeration>>
-    }
-
-    class IsolatedWorktree {
-    }
-
-    class JitPhaseDirective {
+    class HarnessAdapter {
+        <<interface>>
     }
 
     class LayerConfig {
+        +name: String
+        +command: Vec~String~
+        +optional: bool
+        +timeout_seconds: f64
+        +fail_on_output: bool
     }
 
     class LayerDefinition {
+        +name: String
+        +command: Vec~String~
+        +optional: bool
+        +timeout_seconds: f64
+        +fail_on_output: bool
+        +requirement: LayerRequirement
     }
 
     class LayerExecutionStatus {
         <<enumeration>>
+        Passed
+        Failed
+        Skipped
+        Unavailable
+        TimedOut
+        Error
     }
 
     class LayerRequirement {
         <<enumeration>>
+        Required
+        Optional
     }
 
     class LayerResult {
-    }
-
-    class LineageError {
-        <<enumeration>>
-    }
-
-    class ManifestError {
-        <<enumeration>>
-    }
-
-    class ManifestItem {
-    }
-
-    class ManifestVersionSummary {
-    }
-
-    class MermaidExportOptions {
-    }
-
-    class MermaidLevel {
-        <<enumeration>>
+        +name: String
+        +exit_code: i32
+        +passed: bool
+        +output: String
+        +status: LayerExecutionStatus
+        +duration_seconds: f64
+        +requirement: LayerRequirement
     }
 
     class MigrationError {
         <<enumeration>>
+        Io
+        JsonParse
+        Other
     }
 
     class MigrationItem {
@@ -253,64 +372,92 @@ classDiagram
     class MigrationReport {
     }
 
-    class MistralAdapter {
-    }
-
     class NodeType {
         <<enumeration>>
+        Package
+        Module
+        File
+        Function
+        Struct
+        Interface
+        Class
+        Unknown
     }
 
     class NormalizedToolCall {
-    }
-
-    class OkfError {
-        <<enumeration>>
-    }
-
-    class OkfMetadata {
-    }
-
-    class PathSecurityError {
-        <<enumeration>>
+        +action_type: ToolActionType
+        +target_resource: String
+        +raw_tool_name: String
+        +payload: Value
     }
 
     class PathsConfig {
-    }
-
-    class PipelinePhase {
-        <<enumeration>>
+        +tasks_dir: String
+        +spec_file: String
+        +context_file: String
+        +coding_standards_file: String
+        +diagram_file: String
     }
 
     class PlatformTarget {
         <<enumeration>>
+        Linux
+        MacOS
+        Windows
     }
 
     class PluginError {
         <<enumeration>>
+        RedPhaseUnmet
+        Io
+        UnknownHarness
+        ManifestError
     }
 
     class PluginInstallOptions {
+        +global: bool
+        +harness: Option~String~
+        +dry_run: bool
+        +force: bool
+        +target: Option~PathBuf~
+        +json: bool
     }
 
     class PluginInstallReport {
+        +targets: Vec~PluginTargetInstallReport~
+        +success: bool
+        +is_dry_run: bool
     }
 
     class PluginInstallStatus {
         <<enumeration>>
+        Installed
+        UpToDate
+        SkippedExisting
+        DryRunSimulated
     }
 
     class PluginTargetInstallReport {
+        +harness: String
+        +target_dir: PathBuf
+        +status: PluginInstallStatus
+        +files_written: Vec~PathBuf~
+        +files_skipped: Vec~PathBuf~
     }
 
     class PolicyDecision {
-    }
-
-    class PolicyError {
-        <<enumeration>>
+        +verdict: DecisionVerdict
+        +reason: String
+        +reason_code: u32
     }
 
     class ReleaseError {
         <<enumeration>>
+        IoError
+        JsonError
+        InvalidWorkspace
+        InvalidVersion
+        General
     }
 
     class ReleaseFinding {
@@ -320,21 +467,10 @@ classDiagram
         <<enumeration>>
     }
 
-    class ReleaseReadinessEngine {
-    }
-
     class ReleaseReadinessOptions {
     }
 
     class ReleaseReadinessReport {
-    }
-
-    class ReportError {
-        <<enumeration>>
-    }
-
-    class RustTestTarget {
-        <<enumeration>>
     }
 
     class ScaffoldAction {
@@ -343,157 +479,256 @@ classDiagram
 
     class ScaffoldError {
         <<enumeration>>
+        Io
+        InvalidStack
+        InvalidWorkspace
     }
 
     class ScaffoldFileReport {
+        +path: String
+        +action: ScaffoldAction
+        +reason: Option~String~
     }
 
     class ScaffoldOptions {
     }
 
     class ScaffoldResult {
-    }
-
-    class ScaffoldTaskOptions {
-    }
-
-    class ScaffoldTemplate {
-    }
-
-    class SelfMutationViolation {
+        +workspace: PathBuf
+        +stack: String
+        +files: Vec~ScaffoldFileReport~
+        +created_count: usize
+        +skipped_count: usize
+        +overwritten_count: usize
+        +is_success: bool
     }
 
     class SemverBump {
         <<enumeration>>
+        Patch
+        Minor
+        Major
     }
 
     class SessionHandoff {
-    }
-
-    class SessionHealth {
-    }
-
-    class SessionHealthStatus {
-        <<enumeration>>
-    }
-
-    class SessionLineageEntry {
-    }
-
-    class SessionLineageTrail {
-    }
-
-    class SessionTracker {
-    }
-
-    class SessionTrackerState {
-    }
-
-    class SourceEntry {
+        +task_id: String
+        +branch: String
+        +commit_oid: String
+        +commits_ahead: usize
+        +is_clean: bool
+        +next_role: String
+        +formatted_card: String
     }
 
     class SpecReadinessReport {
+        +is_valid: bool
+        +task_id: String
+        +diagnostics: Vec~DiagnosticFinding~
+        +inspected_files: Vec~String~
+        +must_not_rules: Vec~String~
+        +acceptance_criteria: Vec~String~
     }
 
     class StackProfile {
+        +name: String
+        +description: String
+        +detection_files: Vec~String~
+        +default_layers: Vec~LayerConfig~
     }
 
     class TaskContract {
+        +task_id: String
+        +title: String
+        +acceptance_criteria: Vec~String~
+        +unresolved_criteria: Vec~String~
     }
 
     class TaskContractSummary {
-    }
-
-    class TaskError {
-        <<enumeration>>
+        +task_id: String
+        +task_title: String
+        +task_digest: String
+        +acceptance_criteria: Vec~String~
+        +unresolved_criteria: Vec~String~
     }
 
     class TaskPackageInfo {
-    }
-
-    class TaskScaffoldResult {
-    }
-
-    class TaskScaffolder {
+        +task_id: String
+        +title: String
+        +status: TaskStatus
+        +intent: Option~String~
+        +purpose: String
+        +acceptance_criteria: Vec~String~
+        +unresolved_criteria: Vec~String~
+        +must_not: Vec~String~
+        +scope: Vec~String~
+        +test_refs: Vec~String~
+        +domain: Option~String~
+        +slice: Option~String~
+        +spec_ref: Option~String~
+        +metadata: Option~OkfMetadata~
     }
 
     class TaskStatus {
         <<enumeration>>
-    }
-
-    class TaskSummaryItem {
-    }
-
-    class TaskTelemetry {
-    }
-
-    class TestProvenanceEvidence {
-    }
-
-    class TestProvenanceStatus {
-        <<enumeration>>
+        Draft
+        Active
+        InProgress
+        Wip
+        Todo
+        Reopened
+        Done
+        Completed
+        Deprecated
+        Superseded
+        Rejected
+        Unknown
     }
 
     class ToolActionType {
         <<enumeration>>
+        ReadFile
+        WriteFile
+        ExecuteCommand
+        Other
     }
 
     class TopologyEdge {
+        +from: String
+        +to: String
+        +edge_type: EdgeType
+        +weight: Option~u32~
+        +metadata: HashMap~String
+        +String~
     }
 
     class TopologyError {
         <<enumeration>>
+        RedPhaseUnmet
+        Io
+        Serialization
+        NodeNotFound
+        ParseError
+        ExportError
     }
 
     class TopologyGraph {
+        +nodes: HashMap~String
+        +TopologyNode~
+        +edges: Vec~TopologyEdge~
     }
 
     class TopologyNode {
+        +id: String
+        +name: String
+        +node_type: NodeType
+        +path: String
+        +metadata: HashMap~String
+        +String~
     }
 
     class TopologyOptions {
+        +workspace_root: PathBuf
+        +max_depth: Option~usize~
+        +exclude_dirs: Vec~String~
+        +detect_symbols: bool
     }
 
     class TrustDecision {
         <<enumeration>>
-    }
-
-    class TrustPolicy {
+        Accepted
+        PolicyRejected
     }
 
     class ValidationIssue {
+        +severity: ValidationSeverity
+        +path: String
+        +message: String
     }
 
     class ValidationSeverity {
         <<enumeration>>
+        Error
+        Warning
     }
 
     class VcsMetadata {
+        +vcs_type: String
+        +head: String
+        +commit: String
+        +is_dirty: bool
     }
 
     class VerificationReport {
+        +schema: String
+        +schema_version: String
+        +execution_origin: String
+        +verdict: String
+        +task_contract: TaskContractSummary
+        +workspace_state: WorkspaceState
+        +execution_metadata: ExecutionMetadata
+        +checks: Vec~CheckSummary~
+        +diagnostics: Vec~DiagnosticFinding~
+        +lineage: SessionLineageTrail~
+        +test_provenance: TestProvenanceEvidence~~
+        +proof_mode: Option~String~
     }
 
     class VerificationVerdict {
         <<enumeration>>
-    }
-
-    class VerifiedEntry {
-    }
-
-    class WasmError {
-        <<enumeration>>
-    }
-
-    class WasmPolicyEngine {
-    }
-
-    class WasmRuntimeHost {
-    }
-
-    class WorkspaceRelativePath {
+        Passed
+        Failed
+        Error
+        Incomplete
+        Skipped
     }
 
     class WorkspaceState {
+        +manifest_version: String
+        +source_content_digest: String
+        +source_manifest_digest_pre: String
+        +source_manifest_digest_post: String
+        +config_digest: String
+        +task_digest: String
+        +policy_digest: String
+        +check_definitions_digest: String
+        +included_files_count: usize
+        +vcs: Option~VcsMetadata~
     }
 
+    GlossaryDriftReport *-- DiagnosticFinding : avoid_violations
+    GlossaryDriftReport *-- DiagnosticFinding : diagnostics
+    VerificationReport *-- TaskContractSummary : task_contract
+    VerificationReport *-- WorkspaceState : workspace_state
+    VerificationReport *-- ExecutionMetadata : execution_metadata
+    VerificationReport *-- CheckSummary : checks
+    VerificationReport *-- DiagnosticFinding : diagnostics
+    GauntletConfig *-- PathsConfig : paths
+    GauntletConfig *-- ArchitectureConfig : architecture
+    GauntletConfig *-- CheckpointConfig : checkpoint
+    GauntletConfig *-- LayerConfig : layers
+    LayerDefinition *-- LayerRequirement : requirement
+    ArchitectureConfig *-- ArchitectureExemption : exemptions
+    PolicyDecision *-- DecisionVerdict : verdict
+    ArchitectureFinding *-- ArchitectureFindingCategory : category
+    WorkspaceState *-- VcsMetadata : vcs
+    PluginInstallReport *-- PluginTargetInstallReport : targets
+    ScaffoldResult *-- ScaffoldFileReport : files
+    PluginTargetInstallReport *-- PluginInstallStatus : status
+    ArchitectureReport *-- ArchitectureFinding : findings
+    TopologyGraph *-- TopologyEdge : edges
+    DiagnosticReport *-- DiagnosticFinding : findings
+    DiagnosticFinding *-- FindingType : finding_type
+    TopologyEdge *-- EdgeType : edge_type
+    StackProfile *-- LayerConfig : default_layers
+    AdrReadinessReport *-- DiagnosticFinding : diagnostics
+    ValidationIssue *-- ValidationSeverity : severity
+    GauntletReport *-- LayerResult : layers
+    AdapterValidationResult *-- ValidationIssue : issues
+    LayerResult *-- LayerExecutionStatus : status
+    LayerResult *-- LayerRequirement : requirement
+    ConfigValidationReport *-- ConfigValidationIssue : issues
+    SpecReadinessReport *-- DiagnosticFinding : diagnostics
+    ConfigValidationIssue *-- ValidationSeverity : severity
+    TopologyNode *-- NodeType : node_type
+    ScaffoldFileReport *-- ScaffoldAction : action
+    TaskPackageInfo *-- TaskStatus : status

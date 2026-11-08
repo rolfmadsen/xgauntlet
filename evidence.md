@@ -1,26 +1,27 @@
 # Verification Report
 
-**Task ID**: `070-release-v0-13-2`  
-**Task Title**: Task 070: Release v0.13.2 Preparation & Manifest Bump  
+**Task ID**: `071-domain-ast-mermaid-fields-and-relationships`  
+**Task Title**: Task 071: Domain AST Field & Relationship Extraction for Mermaid  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `b1604da91652af3c00ba2e874dd17d2d211e8f031a1d6918f89c1e6748e151e3`  
-**Timestamp**: `2026-11-08T14:23:12Z`  
-**Head**: `80829e9`  
-**Commit**: `80829e9`  
+**Source Manifest Digest**: `971963ad6e20f8dbd28b7f0f3ffe919027840436fe6e7533ecc5fbd58c9050bd`  
+**Timestamp**: `2026-11-08T19:02:58Z`  
+**Head**: `756d2e9`  
+**Commit**: `756d2e9`  
 
 ## Acceptance Criteria
 
-- [x] **Acceptance Test for Version 0.13.2**:
-- [x] `release_manifest_parity_test.rs` opdateres til at kræve version `0.13.2` på tværs af alle manifester.
-- [x] **Manifest-opgradering til 0.13.2**:
-- [x] Opdatere alle 8 manifester til `0.13.2` (`Cargo.toml`, `package.json`, `packages/cli/package.json`, `plugin.json`, `policy.json` mv.).
-- [x] **WASM Policy Bytecode Rebuild**:
-- [x] Genkompilere `gauntlet-policy-engine` til version `0.13.2` og opdatere `crates/xgauntlet-core/wasm/gauntlet_policy.wasm`.
-- [x] **Changelog Rotation**:
-- [x] `CHANGELOG.md` opdateres med `[0.13.2] - 2026-11-08` dækkende Task 069 (DDD/VSA taksonomi, 1- og 2-niveau slice-isolation, glob exemptions, valgfri `subdomain` i `spec_ref`, parentetiske model-aliaser i `CONTEXT.md` og dogfooding).
-- [x] **Release Gatekeeper & Verifikation**:
-- [x] `xgauntlet check-release` rapporterer fuld release-paritet og 100% ADR dækning for `0.13.2`.
+- [x] **AC1 (Rust AST Block & Field Parsing):**
+- [x] `parse_rust_file` i `crates/xgauntlet-core/src/features/topology/parser.rs` scanner struct-kroppe `{ ... }` for felter og gemmer dem kommasepareret i nodens `fields`-metadata (`felt: Type`).
+- [x] `parse_rust_file` scanner enum-kroppe `{ ... }` for varianter og gemmer dem i nodens `variants`-metadata (`VariantA, VariantB`).
+- [x] **AC2 (Inter-Model Relationship Extraction):**
+- [x] Parseren detekterer felter, der refererer til andre kendte domæneentiteter (direkte `Type`, `Option<Type>`, `Vec<Type>`), og opretter en `TopologyEdge` med kildemodel, målmodel og feltnavn i metadata.
+- [x] `export_mermaid_class_diagram` i `mermaid.rs` renderer disse kanter med det reelle feltnavn (`Source *-- Target : field_name`) og fjerner den tidligere hårde stub `: status`.
+- [x] **AC3 (Conceptual Domain Filtering):**
+- [x] I `Conceptual`-niveau (`domain_only = true`) begrænses visningen til typer fra `models.rs` eller med `is_domain_model = true`, så tekniske infrastrukturelementer ikke genererer tomme urelaterede kasser.
+- [x] **AC4 (Multi-Layer Verifikation & Diagram Regenerering):**
+- [x] En ny isoleret accepttest `mermaid_field_and_relation_extraction_test.rs` bekræfter ekstraktion af felter, varianter og relationer.
+- [x] `xgauntlet verify --task 071 --save` regenererer [architecture.mermaid](file:///home/rolfmadsen/Github/xgauntlet/architecture.mermaid) uden selvmutationsfejl.
 
 ---
 
@@ -28,13 +29,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `3.862s` |
-| `format` | `PASSED` | `0` | `0.241s` |
-| `lint` | `PASSED` | `0` | `0.973s` |
-| `unit` | `PASSED` | `0` | `36.743s` |
-| `npm` | `PASSED` | `0` | `0.788s` |
-| `invariants` | `PASSED` | `0` | `0.079s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.009s` |
+| `architecture` | `PASSED` | `0` | `0.106s` |
+| `format` | `PASSED` | `0` | `0.248s` |
+| `lint` | `PASSED` | `0` | `1.059s` |
+| `unit` | `PASSED` | `0` | `35.946s` |
+| `npm` | `PASSED` | `0` | `0.786s` |
+| `invariants` | `PASSED` | `0` | `0.076s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
 
 ---
 
@@ -165,6 +166,7 @@
 | `sess-d608942a` | `Software Engineer` | `DONE` | `d608942` | `2026-11-08T14:38:28Z` | `VALID` |
 | `sess-ee1eb4d4` | `System Architect` | `SPEC` | `ee1eb4d` | `2026-11-08T18:50:05Z` | `VALID` |
 | `sess-2de532b7` | `TDD Craftsman` | `RED` | `2de532b` | `2026-11-08T18:51:11Z` | `VALID` |
+| `sess-756d2e9a` | `TDD Craftsman` | `GREEN` | `756d2e9` | `2026-11-08T18:57:19Z` | `VALID` |
 
 ---
 
@@ -172,6 +174,7 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_ast_scans_struct_fields_enum_variants_and_relationships` | `RedCheckpointVerified` | `31e55713378ebb26...` | `2026-11-08T19:51:11+01:00` |
 | `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `24d16e87708d41a2...` | `2026-11-08T15:19:13+01:00` |
 | `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `24d16e87708d41a2...` | `2026-11-08T15:19:13+01:00` |
 | `test_workspace_manifests_synchronized_to_version_0_13_2` | `RedCheckpointVerified` | `24d16e87708d41a2...` | `2026-11-08T15:19:13+01:00` |
@@ -329,6 +332,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_ast_scans_struct_fields_enum_variants_and_relationships` | `RedCheckpointVerified` | `31e55713378ebb26...` | `2026-11-08T19:51:11+01:00` |
 
 ---
