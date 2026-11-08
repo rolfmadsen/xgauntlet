@@ -49,6 +49,7 @@ pub const EXCLUDED_DIRS: &[&str] = &[
 pub const EXCLUDED_FILES: &[&str] = &[
     ".DS_Store",
     ".coverage",
+    "architecture.mermaid",
     "attestation.bundle",
     "coverage.xml",
     "evidence.json",

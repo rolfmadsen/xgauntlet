@@ -135,6 +135,7 @@
 | `sess-5788ad0d` | `TDD Craftsman` | `REFACTOR` | `5788ad0` | `2026-11-08T11:25:24Z` | `VALID` |
 | `sess-98f9a33f` | `Software Engineer` | `DONE` | `98f9a33` | `2026-11-08T11:29:39Z` | `VALID` |
 | `sess-dc6456b7` | `System Architect` | `SPEC` | `dc6456b` | `2026-11-08T11:45:16Z` | `VALID` |
+| `sess-805948b8` | `TDD Craftsman` | `RED` | `805948b` | `2026-11-08T11:45:47Z` | `VALID` |
 
 ---
 
@@ -290,5 +291,8 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_paths_config_default_diagram_file` | `RedCheckpointVerified` | `a00ae1cd4b5d35aa...` | `2026-11-08T12:45:47+01:00` |
+| `test_verify_save_generates_architecture_mermaid` | `RedCheckpointVerified` | `a00ae1cd4b5d35aa...` | `2026-11-08T12:45:47+01:00` |
+| `test_verify_save_skips_when_diagram_file_empty` | `RedCheckpointVerified` | `a00ae1cd4b5d35aa...` | `2026-11-08T12:45:47+01:00` |
 
 ---

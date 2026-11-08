@@ -97,6 +97,7 @@ pub fn validate_staged_files_scope(
             || norm_file == "evidence.md"
             || norm_file == "evidence.json"
             || norm_file == "verification-report.json"
+            || norm_file == "architecture.mermaid"
             || norm_file == "gauntlet.toml"
             || norm_file.starts_with(".agents/")
             || norm_file.starts_with(".github/")

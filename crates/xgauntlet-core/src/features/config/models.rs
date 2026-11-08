@@ -112,6 +112,8 @@ pub struct PathsConfig {
     pub context_file: String,
     #[serde(default = "default_coding_standards")]
     pub coding_standards_file: String,
+    #[serde(default = "default_diagram_file")]
+    pub diagram_file: String,
 }
 
 fn default_tasks_dir() -> String {
@@ -126,6 +128,9 @@ fn default_context_file() -> String {
 fn default_coding_standards() -> String {
     "CODING_STANDARDS.md".to_string()
 }
+fn default_diagram_file() -> String {
+    "architecture.mermaid".to_string()
+}
 
 impl Default for PathsConfig {
     fn default() -> Self {
@@ -134,6 +139,7 @@ impl Default for PathsConfig {
             spec_file: default_spec_file(),
             context_file: default_context_file(),
             coding_standards_file: default_coding_standards(),
+            diagram_file: default_diagram_file(),
         }
     }
 }

@@ -9,6 +9,7 @@ tasks_dir = "tasks"
 spec_file = "spec.md"
 context_file = "CONTEXT.md"
 coding_standards_file = "CODING_STANDARDS.md"
+diagram_file = "architecture.mermaid"
 
 [architecture]
 max_file_lines = 800

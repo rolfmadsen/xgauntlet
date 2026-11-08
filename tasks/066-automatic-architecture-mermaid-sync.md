@@ -8,6 +8,8 @@ generated: { by: process:antigravity-task-init, at: "2026-11-08T12:45:00Z" }
 tags: [topology, mermaid, architecture, evidence, gauntlet, config, spec]
 scope:
   - "crates/xgauntlet-core/src/features/config/models.rs"
+  - "crates/xgauntlet-core/src/features/config/loader.rs"
+  - "crates/xgauntlet-core/src/features/topology/parser.rs"
   - "crates/xgauntlet-core/src/features/evidence/manifest.rs"
   - "crates/xgauntlet-core/src/features/evidence/report.rs"
   - "crates/xgauntlet-core/src/features/gauntlet/pipeline.rs"

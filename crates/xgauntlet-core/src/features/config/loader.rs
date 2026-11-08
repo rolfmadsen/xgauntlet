@@ -160,6 +160,7 @@ pub fn parse_toml(content: &str) -> Result<GauntletConfig, ConfigError> {
                     "coding_standards_file" => {
                         config.paths.coding_standards_file = parse_str_val(val)
                     }
+                    "diagram_file" => config.paths.diagram_file = parse_str_val(val),
                     _ => {}
                 }
             } else {
@@ -210,8 +211,12 @@ pub fn render_toml(config: &GauntletConfig) -> String {
         config.paths.context_file
     ));
     out.push_str(&format!(
-        "coding_standards_file = \"{}\"\n\n",
+        "coding_standards_file = \"{}\"\n",
         config.paths.coding_standards_file
+    ));
+    out.push_str(&format!(
+        "diagram_file = \"{}\"\n\n",
+        config.paths.diagram_file
     ));
 
     out.push_str("[architecture]\n");

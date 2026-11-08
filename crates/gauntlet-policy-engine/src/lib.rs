@@ -93,6 +93,7 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
                 || target_str == "CONTEXT.md"
                 || target_str == "CODING_STANDARDS.md"
                 || target_str == "README.md"
+                || target_str == "architecture.mermaid"
                 || target_str.starts_with("docs/")
             {
                 return PolicyDecision {

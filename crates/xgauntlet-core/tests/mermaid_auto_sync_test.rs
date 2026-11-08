@@ -5,7 +5,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use xgauntlet_core::features::config::GauntletConfig;
-use xgauntlet_core::features::gauntlet::{execute_gauntlet_pipeline, GauntletOptions, LayerDefinition};
+use xgauntlet_core::features::gauntlet::{
+    execute_gauntlet_pipeline, GauntletOptions, LayerDefinition,
+};
 
 static TEST_COUNTER: AtomicU64 = AtomicU64::new(1);
 
@@ -51,10 +53,9 @@ type: Task Package
 title: "Task 001: Bootstrap"
 description: "Bootstrap task"
 status: active
-generated: { by: test, at: "2026-11-08T12:00:00Z" }
+generated: { by: process:test, at: "2026-11-08T12:00:00Z" }
 tags: [test]
 scope: ["src/**"]
-test_refs: ["tests/test.rs"]
 ---
 # Task 001: Bootstrap
 **Status**: ACTIVE
@@ -146,7 +147,10 @@ async fn test_verify_save_generates_architecture_mermaid() {
     );
 
     let content = fs::read_to_string(&mermaid_path).expect("read mermaid file");
-    assert!(content.contains("classDiagram"), "must contain classDiagram");
+    assert!(
+        content.contains("classDiagram"),
+        "must contain classDiagram"
+    );
     assert!(
         content.contains("CustomerInvoice"),
         "must contain CustomerInvoice from models.rs"

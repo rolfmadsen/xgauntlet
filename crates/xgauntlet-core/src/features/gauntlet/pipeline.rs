@@ -345,6 +345,26 @@ pub async fn execute_gauntlet_pipeline(
     // 12. Save Evidence Artifacts if requested
     if options.save_evidence {
         save_verification_report(workspace, &report)?;
+
+        // Automatically sync architecture.mermaid if configured
+        let config = GauntletConfig::load(workspace).unwrap_or_default();
+        let diagram_file = config.paths.diagram_file.trim();
+        if !diagram_file.is_empty() {
+            let topology_opts = crate::features::topology::TopologyOptions {
+                workspace_root: workspace.to_path_buf(),
+                ..Default::default()
+            };
+            if let Ok(graph) = crate::features::topology::scan_workspace_topology(&topology_opts) {
+                let export_opts = crate::features::topology::MermaidExportOptions {
+                    direction: "TB".to_string(),
+                    level: crate::features::topology::MermaidLevel::Conceptual,
+                    domain_only: true,
+                };
+                let diagram =
+                    crate::features::topology::export_mermaid_class_diagram(&graph, &export_opts);
+                let _ = std::fs::write(workspace.join(diagram_file), diagram);
+            }
+        }
     }
 
     Ok(GauntletExecutionOutcome {

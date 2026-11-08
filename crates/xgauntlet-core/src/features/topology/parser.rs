@@ -262,6 +262,16 @@ fn parse_rust_file(
                     graph.add_node(sym_node);
                     graph.add_edge(TopologyEdge::new(&node_id, &sym_id, EdgeType::Defines));
                 }
+            } else if trimmed.starts_with("enum ") || trimmed.starts_with("pub enum ") {
+                let name = extract_identifier_after_keyword(trimmed, "enum ");
+                if let Some(en_name) = name {
+                    let sym_id = format!("{node_id}::{en_name}");
+                    let sym_node =
+                        TopologyNode::new(&sym_id, &en_name, NodeType::Struct, &rel_path)
+                            .with_metadata("is_enum", "true");
+                    graph.add_node(sym_node);
+                    graph.add_edge(TopologyEdge::new(&node_id, &sym_id, EdgeType::Defines));
+                }
             }
         }
     }

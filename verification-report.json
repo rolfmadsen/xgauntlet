@@ -913,6 +913,14 @@
         "commit_oid": "dc6456b7e4d618d90b4caf12c8a9726034fde731",
         "timestamp": "2026-11-08T11:45:16Z",
         "digest": "9fca26aacde0af8427e87b423c7b38ed243c6119ba3ad5fa9fcba487b507fa26"
+      },
+      {
+        "session_nonce": "sess-805948b8",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "805948b83ab08ff320f417ecf61b8a6c014f5445",
+        "timestamp": "2026-11-08T11:45:47Z",
+        "digest": "54deeb28e5e33536010f8e60b36207208657805364ab5deec66d386e86191e87"
       }
     ]
   },
@@ -1952,6 +1960,27 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_paths_config_default_diagram_file",
+      "failure_output": "Verified in RED checkpoint commit 805948b",
+      "failure_digest": "a00ae1cd4b5d35aa08de85b1bd8433302bf938df24deace2877e16800b568857",
+      "verified_at": "2026-11-08T12:45:47+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_verify_save_generates_architecture_mermaid",
+      "failure_output": "Verified in RED checkpoint commit 805948b",
+      "failure_digest": "a00ae1cd4b5d35aa08de85b1bd8433302bf938df24deace2877e16800b568857",
+      "verified_at": "2026-11-08T12:45:47+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_verify_save_skips_when_diagram_file_empty",
+      "failure_output": "Verified in RED checkpoint commit 805948b",
+      "failure_digest": "a00ae1cd4b5d35aa08de85b1bd8433302bf938df24deace2877e16800b568857",
+      "verified_at": "2026-11-08T12:45:47+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }
