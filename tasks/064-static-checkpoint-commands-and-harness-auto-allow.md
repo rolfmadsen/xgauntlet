@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 064: Static Checkpoint Commands & Harness Auto-Allow"
 description: "Gøre checkpoint-kommandoer i templates, skills og dokumentation 100% statiske (uden dynamiske -t flags) så AI-harnesses kan auto-godkende checkpoints via præfiks-matching."
-status: active
+status: done
 intent: enhancement
 generated: { by: process:antigravity-task-init, at: "2026-11-08T12:08:00Z" }
 tags: [scaffold, templates, skills, checkpoint, harness, auto-approval, antigravity]
@@ -20,7 +20,7 @@ test_refs:
 
 # Task 064: Static Checkpoint Commands & Harness Auto-Allow
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-08`
 

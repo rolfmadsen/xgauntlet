@@ -1,20 +1,21 @@
 # Verification Report
 
-**Task ID**: `063-architecture-baseline-audit-terminology`  
-**Task Title**: Task 063: Architecture Baseline Audit Terminology  
+**Task ID**: `064-static-checkpoint-commands-and-harness-auto-allow`  
+**Task Title**: Task 064: Static Checkpoint Commands & Harness Auto-Allow  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `fdb421f8901f7fb829df10a97ed64eaa42000e13eac803831d0654d3ef771926`  
-**Timestamp**: `2026-11-08T11:00:39Z`  
-**Head**: `7b9886b`  
-**Commit**: `7b9886b`  
+**Source Manifest Digest**: `5798c50d4f3b8b7f7b5587249088fa210c616535ca6cee9f46a5b7c6b082b9f4`  
+**Timestamp**: `2026-11-08T11:12:05Z`  
+**Head**: `ece68b5`  
+**Commit**: `ece68b5`  
 
 ## Acceptance Criteria
 
-- [x] Erstatte overskriften og omtalen af "risikofrit Røntgenbillede (Audit Baseline)" i `README.md` med "risikofri Architecture Baseline Audit (Status Quo Snapshot)".
-- [x] Erstatte overskriften og omtalen i `packages/cli/README.md` tilsvarende for fuld konsistens.
-- [x] Opdatere `crates/xgauntlet-core/tests/architecture_scaffold_template_test.rs` til at validere forekomsten af "Architecture Baseline Audit" eller "Baseline Audit" i stedet for strengt at kræve "Røntgenbillede".
-- [x] Køre `cargo test -p xgauntlet-core --test architecture_scaffold_template_test` og verificere at testen passerer.
+- [x] **Scaffold Templates (`templates.rs`)**: Opdatere `render_agents_md` og relaterede sektioner, så `xgauntlet checkpoint --phase <spec|red|green|refactor|done>` instrueres som standard uden variable task-numre.
+- [x] **Sovereign Skills (`tdd/SKILL.md` og `release/SKILL.md`)**: Erstatte rå `git commit`-eksempler og `-t <id>` i skills med de kanoniske, statiske `xgauntlet checkpoint --phase <fase>` kommandoer.
+- [x] **Agent Guidelines (`.agents/AGENTS.md`)**: Opdatere fase-oversigten med de statiske kommandoer.
+- [x] **CLI Help Docs (`main.rs`)**: Præcisere i `checkpoint` argument-hjælpeteksten, at `--task` er valgfri og automatisk udledes fra aktiv opgave.
+- [x] **Verifikation**: Køre `cargo test -p xgauntlet-core --test scaffold_engine_test` samt regressionstests og sikre, at alt passerer.
 
 ---
 
@@ -22,13 +23,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.073s` |
-| `format` | `PASSED` | `0` | `0.257s` |
-| `lint` | `PASSED` | `0` | `0.126s` |
-| `unit` | `PASSED` | `0` | `32.603s` |
-| `npm` | `PASSED` | `0` | `0.779s` |
+| `architecture` | `PASSED` | `0` | `0.064s` |
+| `format` | `PASSED` | `0` | `0.239s` |
+| `lint` | `PASSED` | `0` | `0.100s` |
+| `unit` | `PASSED` | `0` | `32.342s` |
+| `npm` | `PASSED` | `0` | `0.764s` |
 | `invariants` | `PASSED` | `0` | `0.052s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.013s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
 
 ---
 
@@ -127,6 +128,7 @@
 | `sess-bfa7d2a0` | `System Architect` | `SPEC` | `bfa7d2a` | `2026-11-08T11:07:53Z` | `VALID` |
 | `sess-9cb0fc68` | `TDD Craftsman` | `RED` | `9cb0fc6` | `2026-11-08T11:08:23Z` | `VALID` |
 | `sess-f91e9316` | `TDD Craftsman` | `GREEN` | `f91e931` | `2026-11-08T11:10:00Z` | `VALID` |
+| `sess-ece68b5c` | `TDD Craftsman` | `REFACTOR` | `ece68b5` | `2026-11-08T11:10:17Z` | `VALID` |
 
 ---
 
@@ -134,6 +136,15 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_safe_non_destructive_guarantee_preserves_existing_files` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
+| `test_force_flag_overwrites_existing_files` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
+| `test_dry_run_does_not_modify_disk` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
+| `test_stack_detection_and_custom_stacks` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
+| `test_invalid_stack_rejected` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
+| `test_generated_templates_pass_check_spec_and_config_validation` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
+| `test_all_supported_stacks_generate_valid_configs` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
+| `test_cli_init_integration` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
+| `test_scaffold_agents_md_contains_dynamic_cockpit_hud_and_checkpoint_protocol` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
 | `test_scaffold_gauntlet_toml_contains_architecture_guidance` | `RedCheckpointVerified` | `6c0e45497d42950a...` | `2026-11-08T11:58:40+01:00` |
 | `test_readme_documents_architecture_gates_and_safe_mode` | `RedCheckpointVerified` | `6c0e45497d42950a...` | `2026-11-08T11:58:40+01:00` |
 | `test_readme_documents_brownfield_migration_blueprint` | `RedCheckpointVerified` | `6c0e45497d42950a...` | `2026-11-08T11:58:40+01:00` |
@@ -272,14 +283,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_safe_non_destructive_guarantee_preserves_existing_files` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
-| `test_force_flag_overwrites_existing_files` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
-| `test_dry_run_does_not_modify_disk` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
-| `test_stack_detection_and_custom_stacks` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
-| `test_invalid_stack_rejected` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
-| `test_generated_templates_pass_check_spec_and_config_validation` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
-| `test_all_supported_stacks_generate_valid_configs` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
-| `test_cli_init_integration` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
-| `test_scaffold_agents_md_contains_dynamic_cockpit_hud_and_checkpoint_protocol` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
 
 ---
