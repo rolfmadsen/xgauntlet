@@ -168,6 +168,8 @@ impl BlastRadiusReport {
 pub struct TopologyGraph {
     pub nodes: HashMap<String, TopologyNode>,
     pub edges: Vec<TopologyEdge>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub blast_radius: Option<BlastRadiusReport>,
 }
 
 impl TopologyGraph {

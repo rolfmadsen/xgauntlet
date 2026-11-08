@@ -73,6 +73,8 @@ pub struct PluginTargetInstallReport {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PluginInstallReport {
     pub targets: Vec<PluginTargetInstallReport>,
+    #[serde(default)]
+    pub discovered_harnesses: Vec<DiscoveredHarness>,
     pub success: bool,
     pub is_dry_run: bool,
 }

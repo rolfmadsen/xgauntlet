@@ -2,6 +2,7 @@
 //! Validates detached attestation bundles against trust policies, cryptographic digests,
 //! and static repository / workflow identity constraints.
 
+pub use crate::features::evidence::models::AttestationReport;
 use crate::features::evidence::models::{AttestationStatus, TrustDecision, VerificationVerdict};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -45,20 +46,6 @@ impl Default for TrustPolicy {
             expected_tag: None,
         }
     }
-}
-
-/// Consolidated attestation verification verdict and evidence report.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct AttestationReport {
-    pub bundle_path: String,
-    pub artifact_path: String,
-    pub artifact_digest: String,
-    pub verdict: VerificationVerdict,
-    pub attestation_status: AttestationStatus,
-    pub trust_decision: TrustDecision,
-    pub reasons: Vec<String>,
-    pub matched_subject: Option<String>,
-    pub claims: BTreeMap<String, String>,
 }
 
 /// Pure base64 decoder supporting standard and URL-safe alphabets with optional padding.

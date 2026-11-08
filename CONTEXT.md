@@ -63,7 +63,7 @@ _Avoid_: Git commit, workspace hash, checksum.
 An unsigned data record, that binds verification layer outcomes, diagnostic findings, and task contracts to the workspace manifest digests.
 _Avoid_: Proof report, receipt, certification.
 
-**Attestation Bundle (AttestationStatus)**:
+**Attestation Bundle (AttestationStatus, AttestationReport)**:
 A detached cryptographic statement, that binds an authenticated, independent CI identity to verification reports and source digests via keyless OIDC and DSSE/in-toto envelopes.
 _Avoid_: Local signature, HMAC receipt, inline certificate.
 

@@ -350,6 +350,7 @@ pub async fn execute_gauntlet_pipeline(
         lineage: existing_lineage,
         test_provenance,
         proof_mode,
+        attestation: None,
     };
 
     // 12. Save Evidence Artifacts if requested

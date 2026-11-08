@@ -11,12 +11,17 @@ tags: [topology, ast, mermaid, symbol-unification, domain-model, policy, evidenc
 scope:
   - "specs/topology.md"
   - "tasks/075-domain-orphan-resolution-and-ast-symbol-unification.md"
+  - "CONTEXT.md"
   - "crates/xgauntlet-core/src/features/topology/parser.rs"
   - "crates/xgauntlet-core/src/features/topology/mermaid.rs"
   - "crates/xgauntlet-core/src/features/policy/mod.rs"
   - "crates/xgauntlet-core/src/features/policy/models.rs"
   - "crates/xgauntlet-core/src/features/evidence/models.rs"
   - "crates/xgauntlet-core/src/features/evidence/attestation.rs"
+  - "crates/xgauntlet-core/src/features/gauntlet/pipeline.rs"
+  - "crates/xgauntlet-core/src/features/plugin/models.rs"
+  - "crates/xgauntlet-core/src/features/plugin/installer.rs"
+  - "crates/xgauntlet-core/src/features/topology/models.rs"
   - "crates/xgauntlet-core/tests/mermaid_field_and_relation_extraction_test.rs"
   - "architecture.mermaid"
   - "verification-report.json"
@@ -39,19 +44,19 @@ Eliminere de 13 forældreløse typer (`TrustDecision`, `NormalizedToolCall`, `Di
 4. **Analyse DTO Forbindelser**: Binde `BlastRadiusReport` og `DiscoveredHarness` til deres naturlige operationelle ejere (`TopologyGraph` og `PluginInstallReport`).
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Symbol Table Shadowing Elimination):**
-  - [ ] AST-scanneren i `parser.rs` prioriterer produktionsfiler (`src/`) og domænemodeller (`is_domain_model = true`) frem for test-filer (`tests/`), så mock-modeller aldrig skygger for ægte typer.
-  - [ ] `VerificationReport *-- TaskContract : task_contract` og `DoctorCheckItem *-- DoctorCategory : category` renderes automatisk i `architecture.mermaid`.
-- [ ] **AC2 (Policy Modeller & Hook/Adapter Forbindelse):**
-  - [ ] `features/policy/models.rs` definerer eller re-eksporterer de kanoniske policy-modeller.
-  - [ ] `PolicyDecision *-- DecisionVerdict : verdict` og `CapabilityRequest *-- ToolActionType : action_type` renderes.
-  - [ ] `AdapterHookVerdict *-- DecisionVerdict : decision` og `NormalizedToolCall *-- ToolActionType : action_type` renderes.
-- [ ] **AC3 (Attestation Forældre/Børn Relationer):**
-  - [ ] `AttestationReport` renderes i konceptuelt diagram med relationer til `AttestationStatus` og `TrustDecision`.
-- [ ] **AC4 (Analyse DTO Integration):**
-  - [ ] `BlastRadiusReport` og `DiscoveredHarness` er ikke længere isolerede øer i det konceptuelle klassediagram.
-- [ ] **AC5 (Multi-Layer Verifikation & Invariant Kontrol):**
-  - [ ] `cargo test` og `xgauntlet verify --task 075 --save` passerer uden fejl eller regressionsbrud.
+- [x] **AC1 (Symbol Table Shadowing Elimination):**
+  - [x] AST-scanneren i `parser.rs` prioriterer produktionsfiler (`src/`) og domænemodeller (`is_domain_model = true`) frem for test-filer (`tests/`), så mock-modeller aldrig skygger for ægte typer.
+  - [x] `VerificationReport *-- TaskContract : task_contract` og `DoctorCheckItem *-- DoctorCategory : category` renderes automatisk i `architecture.mermaid`.
+- [x] **AC2 (Policy Modeller & Hook/Adapter Forbindelse):**
+  - [x] `features/policy/models.rs` definerer eller re-eksporterer de kanoniske policy-modeller.
+  - [x] `PolicyDecision *-- DecisionVerdict : verdict` og `CapabilityRequest *-- ToolActionType : action_type` renderes.
+  - [x] `AdapterHookVerdict *-- DecisionVerdict : decision` og `NormalizedToolCall *-- ToolActionType : action_type` renderes.
+- [x] **AC3 (Attestation Forældre/Børn Relationer):**
+  - [x] `AttestationReport` renderes i konceptuelt diagram med relationer til `AttestationStatus` og `TrustDecision`.
+- [x] **AC4 (Analyse DTO Integration):**
+  - [x] `BlastRadiusReport` og `DiscoveredHarness` er ikke længere isolerede øer i det konceptuelle klassediagram.
+- [x] **AC5 (Multi-Layer Verifikation & Invariant Kontrol):**
+  - [x] `cargo test` og `xgauntlet verify --task 075 --save` passerer uden fejl eller regressionsbrud.
 
 ## 🚫 Must NOT
 - Må IKKE bryde bagudkompatibilitet for WASM policy runtime eller eksterne API-kald.

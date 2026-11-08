@@ -95,6 +95,39 @@ pub fn scan_workspace_topology(options: &TopologyOptions) -> Result<TopologyGrap
             NodeType::Struct | NodeType::Class | NodeType::Interface
         ) || node.metadata.get("is_enum").map(|v| v.as_str()) == Some("true")
         {
+            let is_test = node.path.contains("/tests/")
+                || node.path.contains("\\tests\\")
+                || node.path.starts_with("tests/");
+            let is_domain = node
+                .metadata
+                .get("is_domain_model")
+                .map(|v| v == "true")
+                .unwrap_or(false);
+
+            if let Some(existing_id) = domain_types.get(&node.name) {
+                let existing_node = graph.nodes.get(existing_id);
+                let existing_is_domain = existing_node
+                    .and_then(|n| n.metadata.get("is_domain_model"))
+                    .map(|v| v == "true")
+                    .unwrap_or(false);
+                let existing_is_test = existing_node
+                    .map(|n| {
+                        n.path.contains("/tests/")
+                            || n.path.contains("\\tests\\")
+                            || n.path.starts_with("tests/")
+                    })
+                    .unwrap_or(false);
+
+                // If existing is already a domain model and current is not, retain existing
+                if existing_is_domain && !is_domain {
+                    continue;
+                }
+                // If existing is production and current is a test mock, retain existing
+                if !existing_is_test && is_test {
+                    continue;
+                }
+            }
+
             domain_types.insert(node.name.clone(), id.clone());
         }
     }

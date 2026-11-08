@@ -1,32 +1,29 @@
 # Verification Report
 
-**Task ID**: `074-domain-relationship-completeness-and-trait-realization`  
-**Task Title**: Task 074: Domain Relationship Completeness & AST Trait Realization  
-**Verdict**: `PARTIAL`  
+**Task ID**: `075-domain-orphan-resolution-and-ast-symbol-unification`  
+**Task Title**: Task 075: Domain Orphan Resolution & AST Symbol Unification  
+**Verdict**: `INCOMPLETE`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `2084aaaa32c760c3781dadfba79b3f2b9c0ff0deb44922e573c9f7c1c0de636c`  
-**Timestamp**: `2026-11-08T20:57:01Z`  
-**Head**: `01629ed`  
-**Commit**: `01629ed`  
+**Source Manifest Digest**: `38b7038ce3923bd0dd5748469a6bdad74225bf2df4d1c02b34a0652fd1e26607`  
+**Timestamp**: `2026-11-08T21:21:57Z`  
+**Head**: `4d30c2e`  
+**Commit**: `4d30c2e`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (AST Trait Realization):**
-- [x] `parser.rs` scanner `impl <Trait> for <Struct>` blokke i Rust source og etablerer `EdgeType::Implements` kanter.
-- [x] `mermaid.rs` renderer `EdgeType::Implements` som `Concrete ..|> Interface`.
-- [x] `architecture.mermaid` viser relationer fra `AntigravityAdapter`, `ClaudeCodeAdapter`, `CodexAdapter`, `MistralAdapter` til `HarnessAdapter`.
-- [x] **AC2 (Primitive Obsession Elimination / Strong Enums):**
-- [x] `AdapterHookVerdict.decision` typesættes stærkt som `DecisionVerdict`.
-- [x] `CheckSummary.status` typesættes stærkt som `CheckStatus`.
-- [x] `VerificationReport.verdict` typesættes stærkt som `VerificationVerdict`.
-- [x] `VerificationReport.execution_origin` typesættes stærkt som `ExecutionOrigin`.
-- [x] AST-scanneren etablerer automatisk `*--` relationer for samtlige disse felter i `architecture.mermaid`.
-- [x] **AC3 (Konsolideret TaskContract):**
-- [x] `TaskContract` har entydig tilknytning i domænemodellen uden at efterlade isolerede modeller.
-- [x] **AC4 (Multi-Layer Verifikation & Regression):**
-- [x] Eksisterende tests opdateres og udvides til at verificere `..|>` og de nye stærke kompositionsrelationer.
-- [x] `architecture.mermaid` regenereres og demonstrerer en fuldt sammenhængende model.
-- [x] `xgauntlet verify --task 074 --save` passerer med `Self-mutation status: CLEAN`.
+- [ ] **AC1 (Symbol Table Shadowing Elimination):**
+- [ ] AST-scanneren i `parser.rs` prioriterer produktionsfiler (`src/`) og domænemodeller (`is_domain_model = true`) frem for test-filer (`tests/`), så mock-modeller aldrig skygger for ægte typer.
+- [ ] `VerificationReport *-- TaskContract : task_contract` og `DoctorCheckItem *-- DoctorCategory : category` renderes automatisk i `architecture.mermaid`.
+- [ ] **AC2 (Policy Modeller & Hook/Adapter Forbindelse):**
+- [ ] `features/policy/models.rs` definerer eller re-eksporterer de kanoniske policy-modeller.
+- [ ] `PolicyDecision *-- DecisionVerdict : verdict` og `CapabilityRequest *-- ToolActionType : action_type` renderes.
+- [ ] `AdapterHookVerdict *-- DecisionVerdict : decision` og `NormalizedToolCall *-- ToolActionType : action_type` renderes.
+- [ ] **AC3 (Attestation Forældre/Børn Relationer):**
+- [ ] `AttestationReport` renderes i konceptuelt diagram med relationer til `AttestationStatus` og `TrustDecision`.
+- [ ] **AC4 (Analyse DTO Integration):**
+- [ ] `BlastRadiusReport` og `DiscoveredHarness` er ikke længere isolerede øer i det konceptuelle klassediagram.
+- [ ] **AC5 (Multi-Layer Verifikation & Invariant Kontrol):**
+- [ ] `cargo test` og `xgauntlet verify --task 075 --save` passerer uden fejl eller regressionsbrud.
 
 ---
 
@@ -34,13 +31,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.088s` |
-| `format` | `PASSED` | `0` | `0.245s` |
-| `lint` | `PASSED` | `0` | `0.111s` |
-| `unit` | `PASSED` | `0` | `31.640s` |
-| `npm` | `PASSED` | `0` | `0.809s` |
-| `invariants` | `PASSED` | `0` | `0.077s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.011s` |
+| `architecture` | `PASSED` | `0` | `0.097s` |
+| `format` | `PASSED` | `0` | `0.253s` |
+| `lint` | `PASSED` | `0` | `0.171s` |
+| `unit` | `PASSED` | `0` | `32.088s` |
+| `npm` | `PASSED` | `0` | `0.896s` |
+| `invariants` | `PASSED` | `0` | `0.082s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---
 
@@ -189,6 +186,7 @@
 | `sess-01629edd` | `TDD Craftsman` | `RED` | `01629ed` | `2026-11-08T20:40:17Z` | `VALID` |
 | `sess-5190370e` | `Software Engineer` | `DONE` | `5190370` | `2026-11-08T20:57:01Z` | `VALID` |
 | `sess-c76308a5` | `System Architect` | `SPEC` | `c76308a` | `2026-11-08T21:11:02Z` | `VALID` |
+| `sess-4d30c2e7` | `TDD Craftsman` | `RED` | `4d30c2e` | `2026-11-08T21:15:10Z` | `VALID` |
 
 ---
 
@@ -196,10 +194,12 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
-| `test_ast_scans_struct_fields_enum_variants_and_relationships` | `RedCheckpointVerified` | `aa08e60181e7a1d2...` | `2026-11-08T21:40:17+01:00` |
-| `test_ast_scans_doc_commented_struct_fields_enum_variants_and_relationships` | `RedCheckpointVerified` | `aa08e60181e7a1d2...` | `2026-11-08T21:40:17+01:00` |
-| `test_conceptual_mermaid_filters_errors_and_options_while_detailed_keeps_them` | `RedCheckpointVerified` | `aa08e60181e7a1d2...` | `2026-11-08T21:40:17+01:00` |
-| `test_ast_scans_trait_implementation_realization_and_strong_enums` | `RedCheckpointVerified` | `aa08e60181e7a1d2...` | `2026-11-08T21:40:17+01:00` |
+| `test_ast_scans_struct_fields_enum_variants_and_relationships` | `RedCheckpointVerified` | `9b8cab0c4e31c6b7...` | `2026-11-08T22:15:10+01:00` |
+| `test_ast_scans_doc_commented_struct_fields_enum_variants_and_relationships` | `RedCheckpointVerified` | `9b8cab0c4e31c6b7...` | `2026-11-08T22:15:10+01:00` |
+| `test_conceptual_mermaid_filters_errors_and_options_while_detailed_keeps_them` | `RedCheckpointVerified` | `9b8cab0c4e31c6b7...` | `2026-11-08T22:15:10+01:00` |
+| `test_ast_scans_trait_implementation_realization_and_strong_enums` | `RedCheckpointVerified` | `9b8cab0c4e31c6b7...` | `2026-11-08T22:15:10+01:00` |
+| `test_ast_shadowing_immunity_prevents_test_mocks_from_overwriting_domain_models` | `RedCheckpointVerified` | `9b8cab0c4e31c6b7...` | `2026-11-08T22:15:10+01:00` |
+| `test_xgauntlet_repo_conceptual_domain_model_relationships` | `RedCheckpointVerified` | `9b8cab0c4e31c6b7...` | `2026-11-08T22:15:10+01:00` |
 | `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `24d16e87708d41a2...` | `2026-11-08T15:19:13+01:00` |
 | `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `24d16e87708d41a2...` | `2026-11-08T15:19:13+01:00` |
 | `test_workspace_manifests_synchronized_to_version_0_13_2` | `RedCheckpointVerified` | `24d16e87708d41a2...` | `2026-11-08T15:19:13+01:00` |

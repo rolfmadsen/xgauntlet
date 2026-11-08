@@ -3,7 +3,6 @@
 //! Evaluates strongly-typed capability requests against trusted enforcement contexts
 //! via the embedded WebAssembly policy engine (`wit/gauntlet_policy.wit`).
 
-use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::features::wasm::{WasmError, WasmRuntimeHost};
@@ -204,124 +203,8 @@ pub enum PolicyError {
     EvaluationFailed(String),
 }
 
-/// Tool action classification for fine-grained capability evaluation.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum ToolActionType {
-    ReadFile,
-    WriteFile,
-    ExecuteCommand,
-    Other,
-}
-
-impl ToolActionType {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::ReadFile => "read_file",
-            Self::WriteFile => "write_file",
-            Self::ExecuteCommand => "execute_command",
-            Self::Other => "other",
-        }
-    }
-}
-
-/// Strongly-typed capability request from an agent or harness.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CapabilityRequest {
-    pub action_type: ToolActionType,
-    pub raw_tool_name: String,
-    pub target_resource: String,
-    pub payload_json: String,
-}
-
-/// Immutable trusted context provided by the supervisor runtime.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
-pub struct EnforcementContext {
-    pub workspace_id: String,
-    pub has_active_task: bool,
-    pub active_task_id: String,
-    pub read_only: bool,
-    #[serde(default)]
-    pub allowed_scopes: Vec<String>,
-    #[serde(default)]
-    pub allowed_test_targets: Vec<String>,
-}
-
-impl EnforcementContext {
-    /// Creates an enforcement context directly resolved from a workspace directory.
-    pub fn from_workspace(workspace: &std::path::Path, read_only: bool) -> Self {
-        let active_task_id = crate::features::tasks::resolve_active_task_id(workspace);
-        let mut has_active_task = false;
-        let mut active_task_id_str = String::new();
-        let mut allowed_scopes = Vec::new();
-        let mut allowed_test_targets = Vec::new();
-
-        if let Some(ref tid) = active_task_id {
-            let task_file = workspace.join("tasks").join(format!("{tid}.md"));
-            if task_file.is_file() {
-                match crate::features::tasks::parse_task_file(&task_file) {
-                    Ok(info) => {
-                        has_active_task = true;
-                        active_task_id_str = tid.clone();
-                        allowed_scopes = info.scope;
-                        allowed_test_targets = info.test_refs;
-                    }
-                    Err(_) => {
-                        // Fail-closed: corrupt or invalid task files leave scopes empty and has_active_task = false
-                        has_active_task = false;
-                        active_task_id_str.clear();
-                        allowed_scopes.clear();
-                        allowed_test_targets.clear();
-                    }
-                }
-            }
-        }
-
-        let workspace_id = workspace
-            .file_name()
-            .and_then(|s| s.to_str())
-            .unwrap_or("workspace")
-            .to_string();
-
-        Self {
-            workspace_id,
-            has_active_task,
-            active_task_id: active_task_id_str,
-            read_only,
-            allowed_scopes,
-            allowed_test_targets,
-        }
-    }
-}
-
-/// Policy evaluation decision verdict.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum DecisionVerdict {
-    Allow,
-    Deny,
-    Ask,
-    ForceAsk,
-}
-
-impl DecisionVerdict {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Allow => "allow",
-            Self::Deny => "deny",
-            Self::Ask => "ask",
-            Self::ForceAsk => "force_ask",
-        }
-    }
-}
-
-/// Strongly-typed policy decision returned by the policy engine.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct PolicyDecision {
-    pub verdict: DecisionVerdict,
-    pub reason: String,
-    pub reason_code: u32,
-}
+pub mod models;
+pub use models::*;
 
 /// Common trait for evaluating capability requests.
 pub trait PolicyEvaluator {
@@ -372,6 +255,7 @@ impl PolicyEvaluator for WasmPolicyEngine {
                     verdict: DecisionVerdict::Deny,
                     reason: format!("Wasm evaluation failed closed: {e}"),
                     reason_code: 5000,
+                    context: Some(ctx.clone()),
                 });
             }
         };
@@ -383,6 +267,7 @@ impl PolicyEvaluator for WasmPolicyEngine {
                     verdict: DecisionVerdict::Deny,
                     reason: format!("Corrupted policy decision output (fail-closed): {e}"),
                     reason_code: 5001,
+                    context: Some(ctx.clone()),
                 });
             }
         };
@@ -427,6 +312,7 @@ pub fn evaluate_reference(req: &CapabilityRequest, ctx: &EnforcementContext) -> 
         },
         reason: dec.reason,
         reason_code: dec.reason_code,
+        context: Some(ctx.clone()),
     }
 }
 

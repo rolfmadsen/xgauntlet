@@ -104,6 +104,20 @@ pub enum TrustDecision {
     PolicyRejected,
 }
 
+/// Consolidated attestation verification verdict and evidence report.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AttestationReport {
+    pub bundle_path: String,
+    pub artifact_path: String,
+    pub artifact_digest: String,
+    pub verdict: VerificationVerdict,
+    pub attestation_status: AttestationStatus,
+    pub trust_decision: TrustDecision,
+    pub reasons: Vec<String>,
+    pub matched_subject: Option<String>,
+    pub claims: std::collections::BTreeMap<String, String>,
+}
+
 /// Summary of an executed verification check.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CheckSummary {
@@ -242,6 +256,8 @@ pub struct VerificationReport {
         Option<Vec<crate::features::checkpoint::provenance::TestProvenanceEvidence>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub proof_mode: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub attestation: Option<AttestationReport>,
 }
 
 fn default_schema_url() -> String {
@@ -282,6 +298,7 @@ impl VerificationReport {
             lineage: None,
             test_provenance: None,
             proof_mode: None,
+            attestation: None,
         }
     }
 }

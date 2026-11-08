@@ -2,52 +2,63 @@
   "$schema": "https://xgauntlet.dev/schemas/v2/verification-report.json",
   "schema_version": "2.0.0",
   "execution_origin": "LOCAL",
-  "verdict": "PARTIAL",
+  "verdict": "INCOMPLETE",
   "task_contract": {
-    "task_id": "074-domain-relationship-completeness-and-trait-realization",
-    "task_title": "Task 074: Domain Relationship Completeness & AST Trait Realization",
-    "task_digest": "bae4a33e0f16305dacb361537fe3365046c5a57b7edcba28e67e488cc20ccff9",
+    "task_id": "075-domain-orphan-resolution-and-ast-symbol-unification",
+    "task_title": "Task 075: Domain Orphan Resolution & AST Symbol Unification",
+    "task_digest": "4f337835f9709c06ed437362f0b11ebb5612a61873fe4cef004c9b3883a668d4",
     "acceptance_criteria": [
-      "**AC1 (AST Trait Realization):**",
-      "`parser.rs` scanner `impl <Trait> for <Struct>` blokke i Rust source og etablerer `EdgeType::Implements` kanter.",
-      "`mermaid.rs` renderer `EdgeType::Implements` som `Concrete ..|> Interface`.",
-      "`architecture.mermaid` viser relationer fra `AntigravityAdapter`, `ClaudeCodeAdapter`, `CodexAdapter`, `MistralAdapter` til `HarnessAdapter`.",
-      "**AC2 (Primitive Obsession Elimination / Strong Enums):**",
-      "`AdapterHookVerdict.decision` typesættes stærkt som `DecisionVerdict`.",
-      "`CheckSummary.status` typesættes stærkt som `CheckStatus`.",
-      "`VerificationReport.verdict` typesættes stærkt som `VerificationVerdict`.",
-      "`VerificationReport.execution_origin` typesættes stærkt som `ExecutionOrigin`.",
-      "AST-scanneren etablerer automatisk `*--` relationer for samtlige disse felter i `architecture.mermaid`.",
-      "**AC3 (Konsolideret TaskContract):**",
-      "`TaskContract` har entydig tilknytning i domænemodellen uden at efterlade isolerede modeller.",
-      "**AC4 (Multi-Layer Verifikation & Regression):**",
-      "Eksisterende tests opdateres og udvides til at verificere `..|>` og de nye stærke kompositionsrelationer.",
-      "`architecture.mermaid` regenereres og demonstrerer en fuldt sammenhængende model.",
-      "`xgauntlet verify --task 074 --save` passerer med `Self-mutation status: CLEAN`."
+      "**AC1 (Symbol Table Shadowing Elimination):**",
+      "AST-scanneren i `parser.rs` prioriterer produktionsfiler (`src/`) og domænemodeller (`is_domain_model = true`) frem for test-filer (`tests/`), så mock-modeller aldrig skygger for ægte typer.",
+      "`VerificationReport *-- TaskContract : task_contract` og `DoctorCheckItem *-- DoctorCategory : category` renderes automatisk i `architecture.mermaid`.",
+      "**AC2 (Policy Modeller & Hook/Adapter Forbindelse):**",
+      "`features/policy/models.rs` definerer eller re-eksporterer de kanoniske policy-modeller.",
+      "`PolicyDecision *-- DecisionVerdict : verdict` og `CapabilityRequest *-- ToolActionType : action_type` renderes.",
+      "`AdapterHookVerdict *-- DecisionVerdict : decision` og `NormalizedToolCall *-- ToolActionType : action_type` renderes.",
+      "**AC3 (Attestation Forældre/Børn Relationer):**",
+      "`AttestationReport` renderes i konceptuelt diagram med relationer til `AttestationStatus` og `TrustDecision`.",
+      "**AC4 (Analyse DTO Integration):**",
+      "`BlastRadiusReport` og `DiscoveredHarness` er ikke længere isolerede øer i det konceptuelle klassediagram.",
+      "**AC5 (Multi-Layer Verifikation & Invariant Kontrol):**",
+      "`cargo test` og `xgauntlet verify --task 075 --save` passerer uden fejl eller regressionsbrud."
     ],
-    "unresolved_criteria": []
+    "unresolved_criteria": [
+      "**AC1 (Symbol Table Shadowing Elimination):**",
+      "AST-scanneren i `parser.rs` prioriterer produktionsfiler (`src/`) og domænemodeller (`is_domain_model = true`) frem for test-filer (`tests/`), så mock-modeller aldrig skygger for ægte typer.",
+      "`VerificationReport *-- TaskContract : task_contract` og `DoctorCheckItem *-- DoctorCategory : category` renderes automatisk i `architecture.mermaid`.",
+      "**AC2 (Policy Modeller & Hook/Adapter Forbindelse):**",
+      "`features/policy/models.rs` definerer eller re-eksporterer de kanoniske policy-modeller.",
+      "`PolicyDecision *-- DecisionVerdict : verdict` og `CapabilityRequest *-- ToolActionType : action_type` renderes.",
+      "`AdapterHookVerdict *-- DecisionVerdict : decision` og `NormalizedToolCall *-- ToolActionType : action_type` renderes.",
+      "**AC3 (Attestation Forældre/Børn Relationer):**",
+      "`AttestationReport` renderes i konceptuelt diagram med relationer til `AttestationStatus` og `TrustDecision`.",
+      "**AC4 (Analyse DTO Integration):**",
+      "`BlastRadiusReport` og `DiscoveredHarness` er ikke længere isolerede øer i det konceptuelle klassediagram.",
+      "**AC5 (Multi-Layer Verifikation & Invariant Kontrol):**",
+      "`cargo test` og `xgauntlet verify --task 075 --save` passerer uden fejl eller regressionsbrud."
+    ]
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "b5cb16edcc42e5ec1ec63e8e15cdbbc8e99815ec95dfa7b94b92e90f2dc525ac",
-    "source_manifest_digest_pre": "2084aaaa32c760c3781dadfba79b3f2b9c0ff0deb44922e573c9f7c1c0de636c",
-    "source_manifest_digest_post": "2084aaaa32c760c3781dadfba79b3f2b9c0ff0deb44922e573c9f7c1c0de636c",
+    "source_content_digest": "9cd4f679b941e6b30e79657f90c67e4960c3fe773a968013256316d1007d7fe3",
+    "source_manifest_digest_pre": "38b7038ce3923bd0dd5748469a6bdad74225bf2df4d1c02b34a0652fd1e26607",
+    "source_manifest_digest_post": "38b7038ce3923bd0dd5748469a6bdad74225bf2df4d1c02b34a0652fd1e26607",
     "config_digest": "72d2a97b589a2e3b419308f2b93bb8faaadc8be95fdad2d12e92b224bf163345",
-    "task_digest": "bae4a33e0f16305dacb361537fe3365046c5a57b7edcba28e67e488cc20ccff9",
-    "policy_digest": "3190e9f941adaa8321b511f1e7fd4a53bf788a7ec401f23bfe68f8eec8713e2b",
+    "task_digest": "4f337835f9709c06ed437362f0b11ebb5612a61873fe4cef004c9b3883a668d4",
+    "policy_digest": "0382717cbc7b4cd661c5c92823b986a73091b41eefd351aaede750fbe99af71d",
     "check_definitions_digest": "7b85613e7b7c24f03e0db6873ce7a93328152d05b26a6eea242f15f10f6063af",
-    "included_files_count": 282,
+    "included_files_count": 284,
     "vcs": {
       "type": "git",
-      "head": "01629ed",
-      "commit": "01629ed",
+      "head": "4d30c2e",
+      "commit": "4d30c2e",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-08T20:56:27Z",
-    "finished_at": "2026-11-08T20:57:01Z",
-    "total_duration_seconds": 33.181734547,
+    "started_at": "2026-11-08T21:21:23Z",
+    "finished_at": "2026-11-08T21:21:57Z",
+    "total_duration_seconds": 33.834770015,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -60,16 +71,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.088175472,
+      "duration_seconds": 0.096724784,
       "optional": false,
       "passed": true,
-      "log_digest": "712b2e800ef1c2cbca2e89d562ed2bd107b8f160946f91493bcece2c3bba435c"
+      "log_digest": "a4a47891e1336ea9b1fbd65a29247f6a1723759e217f76decf68f34a046331d1"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.244820598,
+      "duration_seconds": 0.253318507,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -78,43 +89,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.111012167,
+      "duration_seconds": 0.171094286,
       "optional": false,
       "passed": true,
-      "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
+      "log_digest": "a41051563a4cb5fc1b1bcdd9aa0ba28ca80f7736d629d90cc138218756e8e3a9"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 31.640034247,
+      "duration_seconds": 32.088019457,
       "optional": false,
       "passed": true,
-      "log_digest": "2734ed2007caf2d2b73cf25ba48e52a311d446dc16c2b32ff6441c968f8c3ef3"
+      "log_digest": "e0f0f0ed2e1242fc1ab75635d50c0d37921e30fad19dcf836a91f409c826d7aa"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.80927586,
+      "duration_seconds": 0.895655911,
       "optional": false,
       "passed": true,
-      "log_digest": "3ebc3c69298c8c2a0e392e9f640615ffd9976525e7f9dc2e1a20d50fdc7a3cb8"
+      "log_digest": "a46016c3d12d8ff7ea7c99e8762f150a699e2886a89b2c88e9ed50b6c477920c"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.076936888,
+      "duration_seconds": 0.081672152,
       "optional": false,
       "passed": true,
-      "log_digest": "98ead5ff8259a239d3b39f7b134a7206b5bee3374ba2444605c05d9c90c738bb"
+      "log_digest": "8b3868946fcf7ab15db91060276b5aa0aa747264f51de924772357000fa4f76c"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.010812047,
+      "duration_seconds": 0.01015569,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -1261,36 +1272,58 @@
         "commit_oid": "c76308a5537958b97ac3bb1beef1860c744ac11f",
         "timestamp": "2026-11-08T21:11:02Z",
         "digest": "49c6fb52f09b41e708274ce5cf9bf270057ae925a256e8ed730adc8b872db8f8"
+      },
+      {
+        "session_nonce": "sess-4d30c2e7",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "4d30c2e76eaf031168fc395cfc7273e095901473",
+        "timestamp": "2026-11-08T21:15:10Z",
+        "digest": "97e5bae4a3126188de5b98137d5927c2d222292ba0f6c3ab9a469f1352c4dd0a"
       }
     ]
   },
   "test_provenance": [
     {
       "test_identifier": "test_ast_scans_struct_fields_enum_variants_and_relationships",
-      "failure_output": "Verified in RED checkpoint commit 01629ed",
-      "failure_digest": "aa08e60181e7a1d2fc7a8f45e8b3c276b051b3d95cf565e0fa804ccf8b79ebd3",
-      "verified_at": "2026-11-08T21:40:17+01:00",
+      "failure_output": "Verified in RED checkpoint commit 4d30c2e",
+      "failure_digest": "9b8cab0c4e31c6b78eb83e906517407e35c17d462253b05a139bacce10f78fcb",
+      "verified_at": "2026-11-08T22:15:10+01:00",
       "status": "red_checkpoint_verified"
     },
     {
       "test_identifier": "test_ast_scans_doc_commented_struct_fields_enum_variants_and_relationships",
-      "failure_output": "Verified in RED checkpoint commit 01629ed",
-      "failure_digest": "aa08e60181e7a1d2fc7a8f45e8b3c276b051b3d95cf565e0fa804ccf8b79ebd3",
-      "verified_at": "2026-11-08T21:40:17+01:00",
+      "failure_output": "Verified in RED checkpoint commit 4d30c2e",
+      "failure_digest": "9b8cab0c4e31c6b78eb83e906517407e35c17d462253b05a139bacce10f78fcb",
+      "verified_at": "2026-11-08T22:15:10+01:00",
       "status": "red_checkpoint_verified"
     },
     {
       "test_identifier": "test_conceptual_mermaid_filters_errors_and_options_while_detailed_keeps_them",
-      "failure_output": "Verified in RED checkpoint commit 01629ed",
-      "failure_digest": "aa08e60181e7a1d2fc7a8f45e8b3c276b051b3d95cf565e0fa804ccf8b79ebd3",
-      "verified_at": "2026-11-08T21:40:17+01:00",
+      "failure_output": "Verified in RED checkpoint commit 4d30c2e",
+      "failure_digest": "9b8cab0c4e31c6b78eb83e906517407e35c17d462253b05a139bacce10f78fcb",
+      "verified_at": "2026-11-08T22:15:10+01:00",
       "status": "red_checkpoint_verified"
     },
     {
       "test_identifier": "test_ast_scans_trait_implementation_realization_and_strong_enums",
-      "failure_output": "Verified in RED checkpoint commit 01629ed",
-      "failure_digest": "aa08e60181e7a1d2fc7a8f45e8b3c276b051b3d95cf565e0fa804ccf8b79ebd3",
-      "verified_at": "2026-11-08T21:40:17+01:00",
+      "failure_output": "Verified in RED checkpoint commit 4d30c2e",
+      "failure_digest": "9b8cab0c4e31c6b78eb83e906517407e35c17d462253b05a139bacce10f78fcb",
+      "verified_at": "2026-11-08T22:15:10+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ast_shadowing_immunity_prevents_test_mocks_from_overwriting_domain_models",
+      "failure_output": "Verified in RED checkpoint commit 4d30c2e",
+      "failure_digest": "9b8cab0c4e31c6b78eb83e906517407e35c17d462253b05a139bacce10f78fcb",
+      "verified_at": "2026-11-08T22:15:10+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_xgauntlet_repo_conceptual_domain_model_relationships",
+      "failure_output": "Verified in RED checkpoint commit 4d30c2e",
+      "failure_digest": "9b8cab0c4e31c6b78eb83e906517407e35c17d462253b05a139bacce10f78fcb",
+      "verified_at": "2026-11-08T22:15:10+01:00",
       "status": "red_checkpoint_verified"
     },
     {

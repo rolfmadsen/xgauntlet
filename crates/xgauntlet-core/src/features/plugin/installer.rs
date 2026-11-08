@@ -75,6 +75,7 @@ pub fn run_plugin_install(
 
     Ok(PluginInstallReport {
         targets: target_reports,
+        discovered_harnesses: Vec::new(),
         success: true,
         is_dry_run: options.dry_run,
     })
