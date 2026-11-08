@@ -255,3 +255,108 @@ pub struct DoctorCheckItem {
         "Diagram must show relation DoctorCheckItem *-- DoctorCheckStatus : status:\n{mermaid}"
     );
 }
+
+#[test]
+fn test_conceptual_mermaid_filters_errors_and_options_while_detailed_keeps_them() {
+    let ws = TempWorkspace::new("filter_test");
+    let ws_path = ws.path();
+
+    fs::write(
+        ws_path.join("Cargo.toml"),
+        r#"[package]
+name = "filter-core"
+version = "0.1.0"
+edition = "2021"
+"#,
+    )
+    .unwrap();
+
+    let models_dir = ws_path.join("src").join("features").join("billing");
+    fs::create_dir_all(&models_dir).unwrap();
+
+    let models_rs = models_dir.join("models.rs");
+    fs::write(
+        &models_rs,
+        r#"//! Billing domain models and scaffolding.
+
+pub enum InvoiceStatus {
+    Draft,
+    Paid,
+}
+
+pub struct Invoice {
+    pub id: String,
+    pub status: InvoiceStatus,
+}
+
+pub enum InvoiceError {
+    NotFound,
+    PaymentFailed,
+}
+
+pub struct InvoiceOptions {
+    pub dry_run: bool,
+}
+"#,
+    )
+    .unwrap();
+
+    let topology_opts = TopologyOptions {
+        workspace_root: ws_path.to_path_buf(),
+        detect_symbols: true,
+        ..Default::default()
+    };
+
+    let graph = scan_workspace_topology(&topology_opts).unwrap();
+
+    // 1. Conceptual export: MUST filter out InvoiceError and InvoiceOptions and have header
+    let export_opts_conceptual = MermaidExportOptions {
+        direction: "TB".to_string(),
+        level: MermaidLevel::Conceptual,
+        domain_only: true,
+    };
+    let mermaid_conceptual = export_mermaid_class_diagram(&graph, &export_opts_conceptual);
+
+    assert!(
+        mermaid_conceptual.contains("class Invoice {"),
+        "Conceptual diagram must contain business entity Invoice:\n{mermaid_conceptual}"
+    );
+    assert!(
+        mermaid_conceptual.contains("class InvoiceStatus {"),
+        "Conceptual diagram must contain business enum InvoiceStatus:\n{mermaid_conceptual}"
+    );
+    assert!(
+        mermaid_conceptual.contains("Invoice *-- InvoiceStatus : status"),
+        "Conceptual diagram must contain composition relationship:\n{mermaid_conceptual}"
+    );
+    assert!(
+        mermaid_conceptual.contains("%% 🏛️ xGauntlet Core Domain Model"),
+        "Conceptual diagram must declare conceptual domain header comment:\n{mermaid_conceptual}"
+    );
+    assert!(
+        !mermaid_conceptual.contains("class InvoiceError"),
+        "Conceptual diagram must NOT include technical error enum InvoiceError:\n{mermaid_conceptual}"
+    );
+    assert!(
+        !mermaid_conceptual.contains("class InvoiceOptions"),
+        "Conceptual diagram must NOT include technical CLI options InvoiceOptions:\n{mermaid_conceptual}"
+    );
+
+    // 2. Detailed export: MUST retain all types
+    let export_opts_detailed = MermaidExportOptions {
+        direction: "TB".to_string(),
+        level: MermaidLevel::Detailed,
+        domain_only: false,
+    };
+    let mermaid_detailed = export_mermaid_class_diagram(&graph, &export_opts_detailed);
+
+    assert!(
+        mermaid_detailed.contains("class InvoiceError"),
+        "Detailed diagram must retain technical error enum InvoiceError:\n{mermaid_detailed}"
+    );
+    assert!(
+        mermaid_detailed.contains("class InvoiceOptions"),
+        "Detailed diagram must retain technical CLI options InvoiceOptions:\n{mermaid_detailed}"
+    );
+}
+
