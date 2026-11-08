@@ -190,4 +190,3 @@ fn test_workspace_manifests_synchronized_to_version_0_13_0() {
         );
     }
 }
-

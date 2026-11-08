@@ -131,6 +131,7 @@
 | `sess-ece68b5c` | `TDD Craftsman` | `REFACTOR` | `ece68b5` | `2026-11-08T11:10:17Z` | `VALID` |
 | `sess-779fc9b4` | `Software Engineer` | `DONE` | `779fc9b` | `2026-11-08T11:12:05Z` | `VALID` |
 | `sess-a3b59688` | `System Architect` | `SPEC` | `a3b5968` | `2026-11-08T11:22:04Z` | `VALID` |
+| `sess-f5977393` | `TDD Craftsman` | `RED` | `f597739` | `2026-11-08T11:22:33Z` | `VALID` |
 
 ---
 
@@ -285,5 +286,6 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_workspace_manifests_synchronized_to_version_0_13_0` | `RedCheckpointVerified` | `6d875a00c0609a11...` | `2026-11-08T12:22:33+01:00` |
 
 ---

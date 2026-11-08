@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-11-08
+
 ### 🚀 Added
 - **Deterministic AST Mermaid Class Diagram Export (`Task 062`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`)**:
   - `xgauntlet topology export --format mermaid [--level conceptual|detailed]`: Deterministic native Rust extraction of structs, enums, variants, and relationships (`*--`, `o--`, `<|--`) directly from domain models.

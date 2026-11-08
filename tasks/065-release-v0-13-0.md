@@ -38,10 +38,10 @@ test_refs:
 Forberede udgivelsen af xGauntlet version `0.13.0` ved at dokumentere alle fuldførte opgaver (Task 060-064) i `CHANGELOG.md`, synkronisere samtlige versionsmanifester (Cargo, npm og agent-plugins), køre release-gatekeeperen (`xgauntlet check-release`) og forsegle evidens for den nye udgivelse.
 
 ## 📋 Acceptance Criteria
-- [ ] Opdatere `CHANGELOG.md` med udførlige release notes for `0.13.0` under Keep a Changelog standarden.
-- [ ] Synkronisere alle versionsmanifester til `0.13.0` i `Cargo.toml`, `package.json`, `.agents/plugins/xgauntlet/plugin.json` og `policy.json`.
-- [ ] Køre `xgauntlet check-release` og bekræfte at alle manifester er i harmoni, og ADR coverage er 100%.
-- [ ] Køre fuld verifikation `xgauntlet verify --task 065 --save` og bekræfte `[PASSED]`.
+- [x] Opdatere `CHANGELOG.md` med udførlige release notes for `0.13.0` under Keep a Changelog standarden.
+- [x] Synkronisere alle versionsmanifester til `0.13.0` i `Cargo.toml`, `package.json`, `.agents/plugins/xgauntlet/plugin.json` og `policy.json`.
+- [x] Køre `xgauntlet check-release` og bekræfte at alle manifester er i harmoni, og ADR coverage er 100%.
+- [x] Køre fuld verifikation `xgauntlet verify --task 065 --save` og bekræfte `[PASSED]`.
 
 ## 🚫 Must NOT
 - Må IKKE bryde manifest-paritet mellem Cargo, npm og `.agents` plugins.
