@@ -37,15 +37,6 @@ pub fn export_mermaid_class_diagram(
     options: &MermaidExportOptions,
 ) -> String {
     let mut out = String::new();
-    if options.level == MermaidLevel::Conceptual {
-        out.push_str("%% ====================================================================\n");
-        out.push_str("%% 🏛️ xGauntlet Core Domain Model (Conceptual Architecture - CONTEXT.md)\n");
-        out.push_str(
-            "%% Reflects domain entities and aggregates. Operational errors and CLI flags\n",
-        );
-        out.push_str("%% are excluded in conceptual view (inspect via --level detailed).\n");
-        out.push_str("%% ====================================================================\n");
-    }
     out.push_str("classDiagram\n");
     let dir = if options.direction.trim().is_empty() {
         "TB"
@@ -53,6 +44,22 @@ pub fn export_mermaid_class_diagram(
         options.direction.trim()
     };
     out.push_str(&format!("    direction {dir}\n\n"));
+
+    if options.level == MermaidLevel::Conceptual {
+        out.push_str(
+            "    %% ====================================================================\n",
+        );
+        out.push_str(
+            "    %% 🏛️ xGauntlet Core Domain Model (Conceptual Architecture - CONTEXT.md)\n",
+        );
+        out.push_str(
+            "    %% Reflects domain entities and aggregates. Operational errors and CLI flags\n",
+        );
+        out.push_str("    %% are excluded in conceptual view (inspect via --level detailed).\n");
+        out.push_str(
+            "    %% ====================================================================\n\n",
+        );
+    }
 
     // Collect and filter nodes deterministically
     let mut visible_nodes: BTreeMap<String, &TopologyNode> = BTreeMap::new();

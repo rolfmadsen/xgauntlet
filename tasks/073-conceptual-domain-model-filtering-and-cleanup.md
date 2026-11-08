@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 073: Conceptual Domain Model Filtering and Topology Cleanup"
 description: "Rense det konceptuelle Mermaid-diagram for tekniske hjælpeklasser (fejl-enums, CLI-options og runtime-parametre) så architecture.mermaid udelukkende fremviser den forbundne forretningsdomænemodel."
-status: active
+status: done
 intent: enhancement
 slice: topology
 spec_ref: "specs/topology.md"
@@ -22,7 +22,7 @@ test_refs:
 
 # Task 073: Conceptual Domain Model Filtering and Topology Cleanup
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-08`
 
@@ -34,16 +34,16 @@ I `Conceptual`-niveauet skal teknisk stillads (fejl-enums som `*Error`/`*Excepti
 Samtidig ryddes overflødig, redundant label-inferens op i `mermaid.rs`, og diagrammet forsynes med en eksplicit konceptuel domæne-header.
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Konceptuel Domæne-støjfiltrering i `mermaid.rs`):**
-  - [ ] Når `level == MermaidLevel::Conceptual`, udelades typer, hvis navn ender på `Error`, `Exception`, `Options`, `Args` eller er runtime-flagene `Direction`, `SemverBump`, `PlatformTarget`.
-  - [ ] Når `level == MermaidLevel::Detailed`, medtages samtlige deklarerede typer fortsat ufiltreret.
-- [ ] **AC2 (Oprydning af Redundant Label-inferens i `mermaid.rs`):**
-  - [ ] Fjern redundant fallback-kodesøgning efter feltnavne i `mermaid.rs`, da 3. pass i `parser.rs` allerede beriger alle `DependsOn`-kanter med deterministisk `field_name`-metadata.
-- [ ] **AC3 (Eksplicit Konceptuel Header i Mermaid Eksport):**
-  - [ ] `export_mermaid_class_diagram` indsætter en indledende kommentarheader, der deklarerer diagrammet som en konceptuel domænemodel forankret i forretningssproget.
-- [ ] **AC4 (Regressionstest & Multi-Layer Verifikation):**
-  - [ ] Ny unit-test i `crates/xgauntlet-core/tests/mermaid_field_and_relation_extraction_test.rs` beviser at `DoctorError` og `DoctorOptions` filtreres fra i `Conceptual`, men bevares i `Detailed`.
-  - [ ] `architecture.mermaid` regenereres uden de 19 tekniske kasser, og `target/debug/xgauntlet verify --task 073 --save` passerer med `Self-mutation status: CLEAN`.
+- [x] **AC1 (Konceptuel Domæne-støjfiltrering i `mermaid.rs`):**
+  - [x] Når `level == MermaidLevel::Conceptual`, udelades typer, hvis navn ender på `Error`, `Exception`, `Options`, `Args` eller er runtime-flagene `Direction`, `SemverBump`, `PlatformTarget`.
+  - [x] Når `level == MermaidLevel::Detailed`, medtages samtlige deklarerede typer fortsat ufiltreret.
+- [x] **AC2 (Oprydning af Redundant Label-inferens i `mermaid.rs`):**
+  - [x] Fjern redundant fallback-kodesøgning efter feltnavne i `mermaid.rs`, da 3. pass i `parser.rs` allerede beriger alle `DependsOn`-kanter med deterministisk `field_name`-metadata.
+- [x] **AC3 (Eksplicit Konceptuel Header i Mermaid Eksport):**
+  - [x] `export_mermaid_class_diagram` indsætter en indledende kommentarheader, der deklarerer diagrammet som en konceptuel domænemodel forankret i forretningssproget.
+- [x] **AC4 (Regressionstest & Multi-Layer Verifikation):**
+  - [x] Ny unit-test i `crates/xgauntlet-core/tests/mermaid_field_and_relation_extraction_test.rs` beviser at `DoctorError` og `DoctorOptions` filtreres fra i `Conceptual`, men bevares i `Detailed`.
+  - [x] `architecture.mermaid` regenereres uden de 19 tekniske kasser, og `target/debug/xgauntlet verify --task 073 --save` passerer med `Self-mutation status: CLEAN`.
 
 ## 🚫 Must NOT
 - Må IKKE fjerne adgangen til at inspicere den fulde rå AST via `MermaidLevel::Detailed`.

@@ -1,6 +1,12 @@
 classDiagram
     direction TB
 
+    %% ====================================================================
+    %% 🏛️ xGauntlet Core Domain Model (Conceptual Architecture - CONTEXT.md)
+    %% Reflects domain entities and aggregates. Operational errors and CLI flags
+    %% are excluded in conceptual view (inspect via --level detailed).
+    %% ====================================================================
+
     class AdapterHookVerdict {
         +allowed: bool
         +decision: String
@@ -114,36 +120,6 @@ classDiagram
         +enforce_provenance: bool
     }
 
-    class CheckpointError {
-        <<enumeration>>
-        InvalidPhase
-        NoActiveTask
-        RedPhaseUnmet
-        GreenPhaseUnmet
-        SpecPhaseUnmet
-        RefactorPhaseUnmet
-        DonePhaseUnmet
-        ScopeViolation
-        BornGreenTestDetected
-        TautologicalTestDetected
-        GitError
-        NothingToCommit
-        ConfigError
-        TaskError
-        IoError
-    }
-
-    class CheckpointOptions {
-        +phase: CheckpointPhase
-        +task_id: Option~String~
-        +message: Option~String~
-        +workspace: PathBuf
-        +skip_verify: bool
-        +allow_empty: bool
-        +strict_provenance: bool
-        +allow_born_green: bool
-    }
-
     class CheckpointPhase {
         <<enumeration>>
         Spec
@@ -164,15 +140,6 @@ classDiagram
         +handoff: Option~SessionHandoff~
         +next_phase: Option~String~
         +autonomous_transition: bool
-    }
-
-    class ConfigError {
-        <<enumeration>>
-        IoError
-        JsonError
-        TomlError
-        ValidationError
-        UnknownStack
     }
 
     class ConfigValidationIssue {
@@ -215,13 +182,6 @@ classDiagram
         +summary: String
     }
 
-    class Direction {
-        <<enumeration>>
-        Incoming
-        Outgoing
-        Both
-    }
-
     class DiscoveredHarness {
         +name: String
         +detected: bool
@@ -256,23 +216,6 @@ classDiagram
         Warn
         Fail
         Info
-    }
-
-    class DoctorError {
-        <<enumeration>>
-        Io
-        Config
-        Spec
-        Git
-        Other
-    }
-
-    class DoctorOptions {
-        +workspace: PathBuf
-        +verbose: bool
-        +strict: bool
-        +category: Option~DoctorCategory~
-        +fix: bool
     }
 
     class DoctorReport {
@@ -360,11 +303,6 @@ classDiagram
         +total_duration_seconds: f64
     }
 
-    class GlossaryDriftOptions {
-        +strict: bool
-        +check_avoid: bool
-    }
-
     class GlossaryDriftReport {
         +is_valid: bool
         +orphan_models: Vec~String~
@@ -420,22 +358,10 @@ classDiagram
         +requirement: LayerRequirement
     }
 
-    class MigrationError {
-        <<enumeration>>
-        Io
-        JsonParse
-        Other
-    }
-
     class MigrationItem {
         +file: PathBuf
         +description: String
         +changes: Vec~String~
-    }
-
-    class MigrationOptions {
-        +workspace: PathBuf
-        +dry_run: bool
     }
 
     class MigrationReport {
@@ -471,30 +397,6 @@ classDiagram
         +diagram_file: String
     }
 
-    class PlatformTarget {
-        <<enumeration>>
-        Linux
-        MacOS
-        Windows
-    }
-
-    class PluginError {
-        <<enumeration>>
-        RedPhaseUnmet
-        Io
-        UnknownHarness
-        ManifestError
-    }
-
-    class PluginInstallOptions {
-        +global: bool
-        +harness: Option~String~
-        +dry_run: bool
-        +force: bool
-        +target: Option~PathBuf~
-        +json: bool
-    }
-
     class PluginInstallReport {
         +targets: Vec~PluginTargetInstallReport~
         +success: bool
@@ -523,15 +425,6 @@ classDiagram
         +reason_code: u32
     }
 
-    class ReleaseError {
-        <<enumeration>>
-        IoError
-        JsonError
-        InvalidWorkspace
-        InvalidVersion
-        General
-    }
-
     class ReleaseFinding {
         +file_path: String
         +category: ReleaseFindingCategory
@@ -549,13 +442,6 @@ classDiagram
         DirtyWorktree
         UnformattedCode
         GeneralError
-    }
-
-    class ReleaseReadinessOptions {
-        +workspace: PathBuf
-        +allow_unreleased: bool
-        +strict: bool
-        +in_flight_staging: bool
     }
 
     class ReleaseReadinessReport {
@@ -580,25 +466,10 @@ classDiagram
         WouldOverwrite
     }
 
-    class ScaffoldError {
-        <<enumeration>>
-        Io
-        InvalidStack
-        InvalidWorkspace
-    }
-
     class ScaffoldFileReport {
         +path: String
         +action: ScaffoldAction
         +reason: Option~String~
-    }
-
-    class ScaffoldOptions {
-        +workspace: PathBuf
-        +stack: Option~String~
-        +force: bool
-        +dry_run: bool
-        +project_name: Option~String~
     }
 
     class ScaffoldResult {
@@ -609,13 +480,6 @@ classDiagram
         +skipped_count: usize
         +overwritten_count: usize
         +is_success: bool
-    }
-
-    class SemverBump {
-        <<enumeration>>
-        Patch
-        Minor
-        Major
     }
 
     class SessionHandoff {
@@ -709,16 +573,6 @@ classDiagram
         +String~
     }
 
-    class TopologyError {
-        <<enumeration>>
-        RedPhaseUnmet
-        Io
-        Serialization
-        NodeNotFound
-        ParseError
-        ExportError
-    }
-
     class TopologyGraph {
         +nodes: HashMap~String
         +TopologyNode~
@@ -732,13 +586,6 @@ classDiagram
         +path: String
         +metadata: HashMap~String
         +String~
-    }
-
-    class TopologyOptions {
-        +workspace_root: PathBuf
-        +max_depth: Option~usize~
-        +exclude_dirs: Vec~String~
-        +detect_symbols: bool
     }
 
     class TrustDecision {
@@ -803,48 +650,49 @@ classDiagram
         +vcs: Option~VcsMetadata~
     }
 
-    StackProfile *-- LayerConfig : default_layers
-    DoctorReport *-- DoctorVerdict : verdict
-    ConfigValidationIssue *-- ValidationSeverity : severity
-    ScaffoldFileReport *-- ScaffoldAction : action
-    AdrReadinessReport *-- DiagnosticFinding : diagnostics
-    TopologyGraph *-- TopologyEdge : edges
-    PluginTargetInstallReport *-- PluginInstallStatus : status
-    DiagnosticReport *-- DiagnosticFinding : findings
-    TopologyEdge *-- EdgeType : edge_type
-    CheckpointResult *-- CheckpointPhase : phase
-    CheckpointResult *-- SessionHandoff : handoff
-    ArchitectureConfig *-- ArchitectureExemption : exemptions
+    ReleaseReadinessReport *-- ReleaseFinding : diagnostics
+    LayerResult *-- LayerExecutionStatus : status
+    LayerResult *-- LayerRequirement : requirement
     SpecReadinessReport *-- DiagnosticFinding : diagnostics
+    DiagnosticReport *-- DiagnosticFinding : findings
+    PluginInstallReport *-- PluginTargetInstallReport : targets
+    GlossaryDriftReport *-- DiagnosticFinding : avoid_violations
+    GlossaryDriftReport *-- DiagnosticFinding : diagnostics
+    ReleaseFinding *-- ReleaseFindingCategory : category
+    TopologyGraph *-- TopologyEdge : edges
     ValidationIssue *-- ValidationSeverity : severity
-    NormalizedToolCall *-- ToolActionType : action_type
+    DoctorCheckItem *-- DoctorCategory : category
+    DoctorCheckItem *-- DoctorCheckStatus : status
+    LayerDefinition *-- LayerRequirement : requirement
+    TopologyEdge *-- EdgeType : edge_type
+    TopologyNode *-- NodeType : node_type
     VerificationReport *-- TaskContractSummary : task_contract
     VerificationReport *-- WorkspaceState : workspace_state
     VerificationReport *-- ExecutionMetadata : execution_metadata
     VerificationReport *-- CheckSummary : checks
     VerificationReport *-- DiagnosticFinding : diagnostics
-    GauntletReport *-- LayerResult : layers
-    TaskPackageInfo *-- TaskStatus : status
-    CheckpointOptions *-- CheckpointPhase : phase
-    ConfigValidationReport *-- ConfigValidationIssue : issues
-    TopologyNode *-- NodeType : node_type
-    ReleaseFinding *-- ReleaseFindingCategory : category
-    GlossaryDriftReport *-- DiagnosticFinding : avoid_violations
-    GlossaryDriftReport *-- DiagnosticFinding : diagnostics
-    WorkspaceState *-- VcsMetadata : vcs
-    PluginInstallReport *-- PluginTargetInstallReport : targets
-    ReleaseReadinessReport *-- ReleaseFinding : diagnostics
     ScaffoldResult *-- ScaffoldFileReport : files
-    MigrationReport *-- MigrationItem : items
-    LayerResult *-- LayerExecutionStatus : status
-    LayerResult *-- LayerRequirement : requirement
-    ArchitectureReport *-- ArchitectureFinding : findings
-    CapabilityRequest *-- ToolActionType : action_type
+    ScaffoldFileReport *-- ScaffoldAction : action
+    ConfigValidationIssue *-- ValidationSeverity : severity
+    PluginTargetInstallReport *-- PluginInstallStatus : status
     ArchitectureFinding *-- ArchitectureFindingCategory : category
+    DoctorReport *-- DoctorVerdict : verdict
+    StackProfile *-- LayerConfig : default_layers
+    CheckpointResult *-- CheckpointPhase : phase
+    CheckpointResult *-- SessionHandoff : handoff
+    ArchitectureReport *-- ArchitectureFinding : findings
+    NormalizedToolCall *-- ToolActionType : action_type
     GauntletConfig *-- PathsConfig : paths
     GauntletConfig *-- ArchitectureConfig : architecture
     GauntletConfig *-- CheckpointConfig : checkpoint
     GauntletConfig *-- LayerConfig : layers
+    CapabilityRequest *-- ToolActionType : action_type
     DiagnosticFinding *-- FindingType : finding_type
-    LayerDefinition *-- LayerRequirement : requirement
+    MigrationReport *-- MigrationItem : items
     AdapterValidationResult *-- ValidationIssue : issues
+    WorkspaceState *-- VcsMetadata : vcs
+    ConfigValidationReport *-- ConfigValidationIssue : issues
+    TaskPackageInfo *-- TaskStatus : status
+    GauntletReport *-- LayerResult : layers
+    ArchitectureConfig *-- ArchitectureExemption : exemptions
+    AdrReadinessReport *-- DiagnosticFinding : diagnostics

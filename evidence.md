@@ -1,27 +1,26 @@
 # Verification Report
 
-**Task ID**: `072-fix-ast-doc-comment-extraction-for-complete-mermaid-model`  
-**Task Title**: Task 072: Fix AST Doc-Comment Parsing for Complete Mermaid Data Model  
+**Task ID**: `073-conceptual-domain-model-filtering-and-cleanup`  
+**Task Title**: Task 073: Conceptual Domain Model Filtering and Topology Cleanup  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `ea229f66bca0d62a569c5087a0a99682044ed4a9c3d444455b20280414696680`  
-**Timestamp**: `2026-11-08T20:08:20Z`  
-**Head**: `ac6470c`  
-**Commit**: `ac6470c`  
+**Source Manifest Digest**: `029534e8b5b1cda5e1f0b7aa72416b75cf1e53b9243b50a0acb99b3fb8cebba9`  
+**Timestamp**: `2026-11-08T20:30:04Z`  
+**Head**: `f12003e`  
+**Commit**: `f12003e`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (Bevaring af linjeskift i `extract_brace_body`):**
-- [x] `extract_brace_body` i `rust_ast.rs` sammenkæder udtrukne linjer med `\n` i stedet for `' '`.
-- [x] **AC2 (Robust linje-for-linje kommentar-stripping):**
-- [x] `parse_struct_fields` og `parse_enum_variants` fjerner kommentarer linje for linje uden at klippe efterfølgende felter/varianter af.
-- [x] **AC3 (Fuld ekstraktion af felter, varianter og relationer):**
-- [x] `DoctorCategory` udtrækker alle 6 varianter (`Host`, `Git`, `Governance`, `Toolchains`, `Engine`, `Harnesses`).
-- [x] `DoctorCheckItem` udtrækker samtlige felter, herunder `category: DoctorCategory` og `status: DoctorCheckStatus`.
-- [x] `DoctorCheckItem *-- DoctorCategory : category` og `DoctorCheckItem *-- DoctorCheckStatus : status` genereres som relationer i `architecture.mermaid`.
+- [x] **AC1 (Konceptuel Domæne-støjfiltrering i `mermaid.rs`):**
+- [x] Når `level == MermaidLevel::Conceptual`, udelades typer, hvis navn ender på `Error`, `Exception`, `Options`, `Args` eller er runtime-flagene `Direction`, `SemverBump`, `PlatformTarget`.
+- [x] Når `level == MermaidLevel::Detailed`, medtages samtlige deklarerede typer fortsat ufiltreret.
+- [x] **AC2 (Oprydning af Redundant Label-inferens i `mermaid.rs`):**
+- [x] Fjern redundant fallback-kodesøgning efter feltnavne i `mermaid.rs`, da 3. pass i `parser.rs` allerede beriger alle `DependsOn`-kanter med deterministisk `field_name`-metadata.
+- [x] **AC3 (Eksplicit Konceptuel Header i Mermaid Eksport):**
+- [x] `export_mermaid_class_diagram` indsætter en indledende kommentarheader, der deklarerer diagrammet som en konceptuel domænemodel forankret i forretningssproget.
 - [x] **AC4 (Regressionstest & Multi-Layer Verifikation):**
-- [x] En regressionstest i `crates/xgauntlet-core/tests/mermaid_field_and_relation_extraction_test.rs` beviser at doc-kommenterede modeller udtrækkes komplet med felter og varianter.
-- [x] `target/debug/xgauntlet verify --task 072 --save` kører rent uden selvmutation, og `architecture.mermaid` opdateres med den fulde datamodel.
+- [x] Ny unit-test i `crates/xgauntlet-core/tests/mermaid_field_and_relation_extraction_test.rs` beviser at `DoctorError` og `DoctorOptions` filtreres fra i `Conceptual`, men bevares i `Detailed`.
+- [x] `architecture.mermaid` regenereres uden de 19 tekniske kasser, og `target/debug/xgauntlet verify --task 073 --save` passerer med `Self-mutation status: CLEAN`.
 
 ---
 
@@ -29,13 +28,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.093s` |
-| `format` | `PASSED` | `0` | `0.256s` |
-| `lint` | `PASSED` | `0` | `0.116s` |
-| `unit` | `PASSED` | `0` | `32.024s` |
-| `npm` | `PASSED` | `0` | `0.741s` |
-| `invariants` | `PASSED` | `0` | `0.071s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.011s` |
+| `architecture` | `PASSED` | `0` | `0.107s` |
+| `format` | `PASSED` | `0` | `0.246s` |
+| `lint` | `PASSED` | `0` | `0.118s` |
+| `unit` | `PASSED` | `0` | `31.937s` |
+| `npm` | `PASSED` | `0` | `0.769s` |
+| `invariants` | `PASSED` | `0` | `0.072s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---
 
@@ -178,6 +177,7 @@
 | `sess-9d4cae5f` | `System Architect` | `SPEC` | `9d4cae5` | `2026-11-08T20:24:47Z` | `VALID` |
 | `sess-6c96f37f` | `TDD Craftsman` | `RED` | `6c96f37` | `2026-11-08T20:25:15Z` | `VALID` |
 | `sess-1c88beb6` | `TDD Craftsman` | `GREEN` | `1c88beb` | `2026-11-08T20:26:01Z` | `VALID` |
+| `sess-f12003e4` | `TDD Craftsman` | `REFACTOR` | `f12003e` | `2026-11-08T20:26:06Z` | `VALID` |
 
 ---
 
@@ -185,8 +185,9 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
-| `test_ast_scans_struct_fields_enum_variants_and_relationships` | `RedCheckpointVerified` | `38a88a21ad844209...` | `2026-11-08T21:02:03+01:00` |
-| `test_ast_scans_doc_commented_struct_fields_enum_variants_and_relationships` | `RedCheckpointVerified` | `38a88a21ad844209...` | `2026-11-08T21:02:03+01:00` |
+| `test_ast_scans_struct_fields_enum_variants_and_relationships` | `RedCheckpointVerified` | `1882461c4223dec7...` | `2026-11-08T21:25:15+01:00` |
+| `test_ast_scans_doc_commented_struct_fields_enum_variants_and_relationships` | `RedCheckpointVerified` | `1882461c4223dec7...` | `2026-11-08T21:25:15+01:00` |
+| `test_conceptual_mermaid_filters_errors_and_options_while_detailed_keeps_them` | `RedCheckpointVerified` | `1882461c4223dec7...` | `2026-11-08T21:25:15+01:00` |
 | `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `24d16e87708d41a2...` | `2026-11-08T15:19:13+01:00` |
 | `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `24d16e87708d41a2...` | `2026-11-08T15:19:13+01:00` |
 | `test_workspace_manifests_synchronized_to_version_0_13_2` | `RedCheckpointVerified` | `24d16e87708d41a2...` | `2026-11-08T15:19:13+01:00` |
@@ -344,6 +345,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_conceptual_mermaid_filters_errors_and_options_while_detailed_keeps_them` | `RedCheckpointVerified` | `1882461c4223dec7...` | `2026-11-08T21:25:15+01:00` |
 
 ---

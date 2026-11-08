@@ -4,45 +4,44 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "072-fix-ast-doc-comment-extraction-for-complete-mermaid-model",
-    "task_title": "Task 072: Fix AST Doc-Comment Parsing for Complete Mermaid Data Model",
-    "task_digest": "0225e28f5d8d358a294973d830e7067f349ea53db9a1ea217544dd4455d19950",
+    "task_id": "073-conceptual-domain-model-filtering-and-cleanup",
+    "task_title": "Task 073: Conceptual Domain Model Filtering and Topology Cleanup",
+    "task_digest": "887c62c70d2d1a2b0b01545d71ed22b82286be3bb807ef3ce955dd7751735d75",
     "acceptance_criteria": [
-      "**AC1 (Bevaring af linjeskift i `extract_brace_body`):**",
-      "`extract_brace_body` i `rust_ast.rs` sammenkæder udtrukne linjer med `\\n` i stedet for `' '`.",
-      "**AC2 (Robust linje-for-linje kommentar-stripping):**",
-      "`parse_struct_fields` og `parse_enum_variants` fjerner kommentarer linje for linje uden at klippe efterfølgende felter/varianter af.",
-      "**AC3 (Fuld ekstraktion af felter, varianter og relationer):**",
-      "`DoctorCategory` udtrækker alle 6 varianter (`Host`, `Git`, `Governance`, `Toolchains`, `Engine`, `Harnesses`).",
-      "`DoctorCheckItem` udtrækker samtlige felter, herunder `category: DoctorCategory` og `status: DoctorCheckStatus`.",
-      "`DoctorCheckItem *-- DoctorCategory : category` og `DoctorCheckItem *-- DoctorCheckStatus : status` genereres som relationer i `architecture.mermaid`.",
+      "**AC1 (Konceptuel Domæne-støjfiltrering i `mermaid.rs`):**",
+      "Når `level == MermaidLevel::Conceptual`, udelades typer, hvis navn ender på `Error`, `Exception`, `Options`, `Args` eller er runtime-flagene `Direction`, `SemverBump`, `PlatformTarget`.",
+      "Når `level == MermaidLevel::Detailed`, medtages samtlige deklarerede typer fortsat ufiltreret.",
+      "**AC2 (Oprydning af Redundant Label-inferens i `mermaid.rs`):**",
+      "Fjern redundant fallback-kodesøgning efter feltnavne i `mermaid.rs`, da 3. pass i `parser.rs` allerede beriger alle `DependsOn`-kanter med deterministisk `field_name`-metadata.",
+      "**AC3 (Eksplicit Konceptuel Header i Mermaid Eksport):**",
+      "`export_mermaid_class_diagram` indsætter en indledende kommentarheader, der deklarerer diagrammet som en konceptuel domænemodel forankret i forretningssproget.",
       "**AC4 (Regressionstest & Multi-Layer Verifikation):**",
-      "En regressionstest i `crates/xgauntlet-core/tests/mermaid_field_and_relation_extraction_test.rs` beviser at doc-kommenterede modeller udtrækkes komplet med felter og varianter.",
-      "`target/debug/xgauntlet verify --task 072 --save` kører rent uden selvmutation, og `architecture.mermaid` opdateres med den fulde datamodel."
+      "Ny unit-test i `crates/xgauntlet-core/tests/mermaid_field_and_relation_extraction_test.rs` beviser at `DoctorError` og `DoctorOptions` filtreres fra i `Conceptual`, men bevares i `Detailed`.",
+      "`architecture.mermaid` regenereres uden de 19 tekniske kasser, og `target/debug/xgauntlet verify --task 073 --save` passerer med `Self-mutation status: CLEAN`."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "456e3a6589001fd66f19429fe065071be28063bbac215493e28698782a780c54",
-    "source_manifest_digest_pre": "ea229f66bca0d62a569c5087a0a99682044ed4a9c3d444455b20280414696680",
-    "source_manifest_digest_post": "ea229f66bca0d62a569c5087a0a99682044ed4a9c3d444455b20280414696680",
+    "source_content_digest": "4f900cee6694087f261b9664508b9fa73691898b7b933478fc37240a524ef02e",
+    "source_manifest_digest_pre": "029534e8b5b1cda5e1f0b7aa72416b75cf1e53b9243b50a0acb99b3fb8cebba9",
+    "source_manifest_digest_post": "029534e8b5b1cda5e1f0b7aa72416b75cf1e53b9243b50a0acb99b3fb8cebba9",
     "config_digest": "72d2a97b589a2e3b419308f2b93bb8faaadc8be95fdad2d12e92b224bf163345",
-    "task_digest": "0225e28f5d8d358a294973d830e7067f349ea53db9a1ea217544dd4455d19950",
+    "task_digest": "887c62c70d2d1a2b0b01545d71ed22b82286be3bb807ef3ce955dd7751735d75",
     "policy_digest": "3190e9f941adaa8321b511f1e7fd4a53bf788a7ec401f23bfe68f8eec8713e2b",
     "check_definitions_digest": "7b85613e7b7c24f03e0db6873ce7a93328152d05b26a6eea242f15f10f6063af",
-    "included_files_count": 280,
+    "included_files_count": 281,
     "vcs": {
       "type": "git",
-      "head": "ac6470c",
-      "commit": "ac6470c",
+      "head": "f12003e",
+      "commit": "f12003e",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-08T20:07:47Z",
-    "finished_at": "2026-11-08T20:08:20Z",
-    "total_duration_seconds": 33.513293278,
+    "started_at": "2026-11-08T20:29:31Z",
+    "finished_at": "2026-11-08T20:30:04Z",
+    "total_duration_seconds": 33.456230138,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -55,7 +54,7 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.092586496,
+      "duration_seconds": 0.106767371,
       "optional": false,
       "passed": true,
       "log_digest": "712b2e800ef1c2cbca2e89d562ed2bd107b8f160946f91493bcece2c3bba435c"
@@ -64,7 +63,7 @@
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.256378576,
+      "duration_seconds": 0.245666474,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -73,7 +72,7 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.115535836,
+      "duration_seconds": 0.117712059,
       "optional": false,
       "passed": true,
       "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
@@ -82,25 +81,25 @@
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 32.023837745,
+      "duration_seconds": 31.937398062,
       "optional": false,
       "passed": true,
-      "log_digest": "e90d0a2b14811f9ad6ca356fa27c7eb5f3d05a796b2482e07c4396706ee7b256"
+      "log_digest": "5c10a002168afd15553de2a88e9f93af6184152829eb3bd8b08f601c0b146bfd"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.741300528,
+      "duration_seconds": 0.768672506,
       "optional": false,
       "passed": true,
-      "log_digest": "28bd2c361ca6dd98849b1b3c981b314250a572593e63424046c664753016dc6c"
+      "log_digest": "089be09f348bf1e50029a56c0bf0f87bc33d4ad7b16dea3aba1c156042d9feca"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.070862885,
+      "duration_seconds": 0.071781612,
       "optional": false,
       "passed": true,
       "log_digest": "35af2529f7e62037c0d898bd1e85a58e5093ebacde203583d38b4b7b5b2f25b4"
@@ -109,7 +108,7 @@
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.010850635,
+      "duration_seconds": 0.009573965,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -1208,22 +1207,37 @@
         "commit_oid": "1c88beb66c797b6a1051e27d6421f15d6e5d5840",
         "timestamp": "2026-11-08T20:26:01Z",
         "digest": "1f15a17803d0c3566be5b3b11142b240d9173e0fe57687dc49ccbcac9bdc8528"
+      },
+      {
+        "session_nonce": "sess-f12003e4",
+        "role": "TDD Craftsman",
+        "phase": "REFACTOR",
+        "commit_oid": "f12003e47138abceb9a4c715f369edf020e819d0",
+        "timestamp": "2026-11-08T20:26:06Z",
+        "digest": "276481dbdfe17d88ad0dea45d605864448058e95867064e09cc6bdf33c5ba213"
       }
     ]
   },
   "test_provenance": [
     {
       "test_identifier": "test_ast_scans_struct_fields_enum_variants_and_relationships",
-      "failure_output": "Verified in RED checkpoint commit b6e47a6",
-      "failure_digest": "38a88a21ad84420915b0d93bcd8a690eaa4c69bf684f4f3608579a8e8426b9f1",
-      "verified_at": "2026-11-08T21:02:03+01:00",
+      "failure_output": "Verified in RED checkpoint commit 6c96f37",
+      "failure_digest": "1882461c4223dec7f1b4d458e6566ffc93738315a5ad8258d294067fcbd056f5",
+      "verified_at": "2026-11-08T21:25:15+01:00",
       "status": "red_checkpoint_verified"
     },
     {
       "test_identifier": "test_ast_scans_doc_commented_struct_fields_enum_variants_and_relationships",
-      "failure_output": "Verified in RED checkpoint commit b6e47a6",
-      "failure_digest": "38a88a21ad84420915b0d93bcd8a690eaa4c69bf684f4f3608579a8e8426b9f1",
-      "verified_at": "2026-11-08T21:02:03+01:00",
+      "failure_output": "Verified in RED checkpoint commit 6c96f37",
+      "failure_digest": "1882461c4223dec7f1b4d458e6566ffc93738315a5ad8258d294067fcbd056f5",
+      "verified_at": "2026-11-08T21:25:15+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_conceptual_mermaid_filters_errors_and_options_while_detailed_keeps_them",
+      "failure_output": "Verified in RED checkpoint commit 6c96f37",
+      "failure_digest": "1882461c4223dec7f1b4d458e6566ffc93738315a5ad8258d294067fcbd056f5",
+      "verified_at": "2026-11-08T21:25:15+01:00",
       "status": "red_checkpoint_verified"
     },
     {
@@ -2324,13 +2338,6 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
-    },
-    {
-      "test_identifier": "test_conceptual_mermaid_filters_errors_and_options_while_detailed_keeps_them",
-      "failure_output": "Verified in RED checkpoint commit 6c96f37",
-      "failure_digest": "1882461c4223dec7f1b4d458e6566ffc93738315a5ad8258d294067fcbd056f5",
-      "verified_at": "2026-11-08T21:25:15+01:00",
-      "status": "red_checkpoint_verified"
     }
   ]
 }
