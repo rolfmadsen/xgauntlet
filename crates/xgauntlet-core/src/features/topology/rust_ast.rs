@@ -27,20 +27,20 @@ pub fn extract_brace_body(lines: &[&str], start_idx: usize) -> (String, usize) {
                         .map(|(l, _)| l)
                         .unwrap_or(after_brace);
                     body.push_str(inside);
-                    body.push(' ');
+                    body.push('\n');
                     return (body, j);
                 } else {
                     body.push_str(after_brace);
-                    body.push(' ');
+                    body.push('\n');
                 }
             } else if brace_depth == 0 {
                 let inside = line_j.rsplit_once('}').map(|(l, _)| l).unwrap_or("");
                 body.push_str(inside);
-                body.push(' ');
+                body.push('\n');
                 return (body, j);
             } else {
                 body.push_str(line_j);
-                body.push(' ');
+                body.push('\n');
             }
         } else if line_j.trim().ends_with(';') {
             break;

@@ -255,4 +255,3 @@ pub struct DoctorCheckItem {
         "Diagram must show relation DoctorCheckItem *-- DoctorCheckStatus : status:\n{mermaid}"
     );
 }
-
