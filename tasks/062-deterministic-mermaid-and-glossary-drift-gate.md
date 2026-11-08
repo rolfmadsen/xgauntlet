@@ -7,6 +7,7 @@ intent: new_feature
 generated: { by: process:antigravity-task-init, at: "2026-11-08T11:32:00Z" }
 tags: [topology, ast, mermaid, domain-model, glossary, check-spec, okf, readme]
 scope:
+  - "crates/xgauntlet-core/src/lib.rs"
   - "crates/xgauntlet-core/src/features/topology/mod.rs"
   - "crates/xgauntlet-core/src/features/topology/models.rs"
   - "crates/xgauntlet-core/src/features/topology/parser.rs"
@@ -33,16 +34,16 @@ test_refs:
 Etablere en deterministisk, sub-5ms AST-baseret eksport af kodebasens domænemodeller til gyldige Mermaid klasse- og informationsdiagrammer (`xgauntlet topology export --format mermaid`) samt en mekanisk to-vejs glossary drift-gate (`xgauntlet check-spec --context`), der validerer at alle domænemodeller i `src/features/**/models.rs` er defineret jf. Aristoteles' formel i `CONTEXT.md` og blokerer teknisk støj. Efter endt implementering opdateres `README.md` tilsvarende for at dokumentere de nye funktioner.
 
 ## 📋 Acceptance Criteria
-- [ ] **Deterministisk AST Mermaid Eksport (`xgauntlet topology export --format mermaid`)**:
-  - [ ] Traverserer og udtrækker structs, enums, traits/interfaces samt deres felter, varianter og indbyrdes relationer (`*--`, `o--`, `<|--`) fra domænemodeller i `src/features/**/models.rs` (eller typer med `/// @domain`).
-  - [ ] Adskiller konceptuelle domænemodeller fra tekniske infrastrukturelementer (`engine.rs`, `git.rs`, `render.rs`, serializers som `$schema`), så diagrammet forbliver en ren forretnings- og informationsmodel.
-  - [ ] Emitterer 100% syntaktisk validt Mermaid `classDiagram` output med sorterede entiteter for deterministisk reproducerbarhed.
-- [ ] **To-vejs Glossary Drift Gate (`xgauntlet check-spec --context`)**:
-  - [ ] **Orphan Model Detection (Code -> Context)**: Emitterer en blokerende `DiagnosticFinding`, hvis en `pub struct` eller `pub enum` i en `models.rs`-fil mangler en tilsvarende Aristoteles-definition i `CONTEXT.md`.
-  - [ ] **Phantom Term Detection (Context -> Code)**: Advarer hvis et domænebegreb i `CONTEXT.md` er defineret som en datamodel-entitet, men ikke eksisterer i koden.
-  - [ ] **Synonym Guard**: Validerer at felter og typer ikke anvender forbudte synonymer defineret under `_Avoid_:` i `CONTEXT.md`.
-- [ ] **Dokumentations-opdatering**:
-  - [ ] Opdatere `README.md` (og eventuelt `README2.md`) med CLI-eksempler, output-formater og anvendelse af `xgauntlet topology export --format mermaid` samt `xgauntlet check-spec --context`.
+- [x] **Deterministisk AST Mermaid Eksport (`xgauntlet topology export --format mermaid`)**:
+  - [x] Traverserer og udtrækker structs, enums, traits/interfaces samt deres felter, varianter og indbyrdes relationer (`*--`, `o--`, `<|--`) fra domænemodeller i `src/features/**/models.rs` (eller typer med `/// @domain`).
+  - [x] Adskiller konceptuelle domænemodeller fra tekniske infrastrukturelementer (`engine.rs`, `git.rs`, `render.rs`, serializers som `$schema`), så diagrammet forbliver en ren forretnings- og informationsmodel.
+  - [x] Emitterer 100% syntaktisk validt Mermaid `classDiagram` output med sorterede entiteter for deterministisk reproducerbarhed.
+- [x] **To-vejs Glossary Drift Gate (`xgauntlet check-spec --context`)**:
+  - [x] **Orphan Model Detection (Code -> Context)**: Emitterer en blokerende `DiagnosticFinding`, hvis en `pub struct` eller `pub enum` i en `models.rs`-fil mangler en tilsvarende Aristoteles-definition i `CONTEXT.md`.
+  - [x] **Phantom Term Detection (Context -> Code)**: Advarer hvis et domænebegreb i `CONTEXT.md` er defineret som en datamodel-entitet, men ikke eksisterer i koden.
+  - [x] **Synonym Guard**: Validerer at felter og typer ikke anvender forbudte synonymer defineret under `_Avoid_:` i `CONTEXT.md`.
+- [x] **Dokumentations-opdatering**:
+  - [x] Opdatere `README.md` (og eventuelt `README2.md`) med CLI-eksempler, output-formater og anvendelse af `xgauntlet topology export --format mermaid` samt `xgauntlet check-spec --context`.
 
 ## 🚫 Must NOT
 - Må IKKE introducere eksterne baggrundsprocesser, dæmoner eller netværkskald (Zero-Daemon Invariant).

@@ -71,6 +71,10 @@ enum Commands {
         #[arg(short, long, alias = "task-id")]
         task: Option<String>,
 
+        /// Perform two-way glossary drift validation between domain models and CONTEXT.md
+        #[arg(long)]
+        context: bool,
+
         /// Validate all tasks in tasks/ directory
         #[arg(short, long)]
         all: bool,
@@ -485,6 +489,20 @@ enum TopologyCommands {
         #[arg(long)]
         json: bool,
     },
+    /// Export codebase topology to Mermaid or JSON format
+    Export {
+        /// Format to export: 'mermaid' or 'json'
+        #[arg(short, long, default_value = "mermaid")]
+        format: String,
+
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Detail level: 'conceptual' or 'detailed'
+        #[arg(long, default_value = "conceptual")]
+        level: String,
+    },
 }
 
 #[derive(Subcommand, Debug)]
@@ -625,9 +643,41 @@ async fn main() -> anyhow::Result<()> {
         Some(Commands::CheckSpec {
             workspace,
             task,
+            context,
             all,
             json,
         }) => {
+            if *context {
+                let options = xgauntlet_core::GlossaryDriftOptions {
+                    strict: true,
+                    check_avoid: true,
+                };
+                let report = xgauntlet_core::validate_glossary_drift(workspace, &options);
+                if *json {
+                    println!("{}", serde_json::to_string_pretty(&report)?);
+                } else {
+                    println!("\n=== xGauntlet Two-Way Glossary Drift Gate ===");
+                    if report.is_valid {
+                        println!("Status: [PASSED] 0 orphan models, 0 avoid violations.");
+                    } else {
+                        println!("Status: [FAILED]");
+                        for orphan in &report.orphan_models {
+                            println!("  🛑 Orphan Model: {orphan}");
+                        }
+                        for violation in &report.avoid_violations {
+                            println!("  🛑 Prohibited Synonym: {}", violation.message);
+                        }
+                        for d in &report.diagnostics {
+                            println!("  💡 Remediation: {}", d.remediation_hint);
+                        }
+                    }
+                }
+                if !report.is_valid {
+                    std::process::exit(1);
+                }
+                return Ok(());
+            }
+
             let reports = run_check_spec(workspace, task.as_deref(), *all)?;
             let all_valid = reports.iter().all(|r| r.is_valid);
 
@@ -1774,6 +1824,43 @@ async fn main() -> anyhow::Result<()> {
                         } else {
                             eprintln!("🛑 Topology error: {err}");
                         }
+                        std::process::exit(1);
+                    }
+                }
+            }
+            TopologyCommands::Export {
+                format,
+                workspace,
+                level,
+            } => {
+                let options = xgauntlet_core::TopologyOptions {
+                    workspace_root: workspace.clone(),
+                    ..Default::default()
+                };
+                match xgauntlet_core::scan_workspace_topology(&options) {
+                    Ok(graph) => {
+                        let fmt = format.trim().to_ascii_lowercase();
+                        if fmt == "json" {
+                            println!("{}", graph.export_json()?);
+                        } else {
+                            let mermaid_level = if level.trim().to_ascii_lowercase() == "detailed" {
+                                xgauntlet_core::MermaidLevel::Detailed
+                            } else {
+                                xgauntlet_core::MermaidLevel::Conceptual
+                            };
+                            let export_opts = xgauntlet_core::MermaidExportOptions {
+                                direction: "TB".to_string(),
+                                level: mermaid_level,
+                                domain_only: mermaid_level
+                                    == xgauntlet_core::MermaidLevel::Conceptual,
+                            };
+                            let diagram =
+                                xgauntlet_core::export_mermaid_class_diagram(&graph, &export_opts);
+                            println!("{diagram}");
+                        }
+                    }
+                    Err(err) => {
+                        eprintln!("🛑 Topology export error: {err}");
                         std::process::exit(1);
                     }
                 }

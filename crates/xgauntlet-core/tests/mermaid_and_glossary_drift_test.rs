@@ -5,9 +5,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use xgauntlet_core::features::tasks::{
-    validate_glossary_drift, GlossaryDriftOptions, GlossaryDriftReport,
-};
+use xgauntlet_core::features::tasks::{validate_glossary_drift, GlossaryDriftOptions};
 use xgauntlet_core::features::topology::{
     export_mermaid_class_diagram, EdgeType, MermaidExportOptions, MermaidLevel, NodeType,
     TopologyEdge, TopologyGraph, TopologyNode,
@@ -62,7 +60,9 @@ fn test_mermaid_class_diagram_generation_conceptual() {
         NodeType::Struct,
         "crates/xgauntlet-core/src/features/tasks/models.rs",
     );
-    node_task.metadata.insert("is_domain_model".to_string(), "true".to_string());
+    node_task
+        .metadata
+        .insert("is_domain_model".to_string(), "true".to_string());
     node_task.metadata.insert(
         "fields".to_string(),
         "task_id:String,title:String,status:TaskStatus,acceptance_criteria:Vec<String>".to_string(),
@@ -74,9 +74,15 @@ fn test_mermaid_class_diagram_generation_conceptual() {
         NodeType::Struct,
         "crates/xgauntlet-core/src/features/tasks/models.rs",
     );
-    node_status.metadata.insert("is_domain_model".to_string(), "true".to_string());
-    node_status.metadata.insert("is_enum".to_string(), "true".to_string());
-    node_status.metadata.insert("variants".to_string(), "Draft,Active,Done".to_string());
+    node_status
+        .metadata
+        .insert("is_domain_model".to_string(), "true".to_string());
+    node_status
+        .metadata
+        .insert("is_enum".to_string(), "true".to_string());
+    node_status
+        .metadata
+        .insert("variants".to_string(), "Draft,Active,Done".to_string());
 
     let mut node_adapter = TopologyNode::new(
         "crate::core::adapters::HarnessAdapter",
@@ -84,7 +90,9 @@ fn test_mermaid_class_diagram_generation_conceptual() {
         NodeType::Interface,
         "crates/xgauntlet-core/src/features/adapters/models.rs",
     );
-    node_adapter.metadata.insert("is_domain_model".to_string(), "true".to_string());
+    node_adapter
+        .metadata
+        .insert("is_domain_model".to_string(), "true".to_string());
 
     let mut node_tech = TopologyNode::new(
         "crate::core::checkpoint::GitRunner",
@@ -92,7 +100,9 @@ fn test_mermaid_class_diagram_generation_conceptual() {
         NodeType::Struct,
         "crates/xgauntlet-core/src/features/checkpoint/git.rs",
     );
-    node_tech.metadata.insert("is_domain_model".to_string(), "false".to_string());
+    node_tech
+        .metadata
+        .insert("is_domain_model".to_string(), "false".to_string());
 
     graph.add_node(node_task);
     graph.add_node(node_status);

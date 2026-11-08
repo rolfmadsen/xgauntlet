@@ -297,6 +297,8 @@ rm -rf ~/.cache/xgauntlet ~/.gemini/config/plugins/xgauntlet ~/.claude/skills/xg
 | `xgauntlet check-evidence` | Validerer at arbejdstræets aktuelle Git OID matcher den forseglede verifikationsrapport (Drift Detection). |
 | `xgauntlet check-spec [-t <id>]` | Validerer opgavepakker i `tasks/` (OKF-format, eksekverbare kriterier, Must NOT og Aristoteles-glossar). |
 | `xgauntlet check-architecture` | Håndhæver kodestruktur, filstørrelser (max 800 linjer kode / 1.000 linjer test) og Vertical Slice Architecture-gates. |
+| `xgauntlet check-spec [--context]` | Shift-left opgavespecifikation og to-vejs domæne-drift validering mod CONTEXT.md jf. Aristoteles' formel. |
+| `xgauntlet topology export [--format mermaid\|json] [--level conceptual\|detailed]` | Deterministisk AST-baseret eksport af klasse- og informationsdiagrammer uden LLM-tokens eller baggrundsdæmoner. |
 | `xgauntlet check-release [--strict]` | Kontrollerer versionsparitet, WASM-synkronisering, changelog og ADR-referencer forud for release. |
 | `xgauntlet check-attestation` | Verificerer Sigstore in-toto/DSSE attestationer lokalt eller remote mod GitHub Releases. |
 | `xgauntlet release bump [patch\|minor\|major]` | Udfører transaktionel SemVer-opgradering med atomisk disk-staging backup og WASM-kompilering. |
@@ -308,7 +310,7 @@ rm -rf ~/.cache/xgauntlet ~/.gemini/config/plugins/xgauntlet ~/.claude/skills/xg
 
 ### 2. Deklarativ Arkitekturkontrol (`check-architecture`)
 
-xGauntlet er designet til at beskytte **både** eksisterende produktionssystemer (brownfield) og nye projekter (greenfield) via modulære Vertical Slice Architecture-gates jf. [ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md):
+xGauntlet er designet til at beskytte **både** eksisterende produktionssystemer via skånsom **Safe-Mode** (brownfield) og nye projekter (greenfield) via modulære Vertical Slice Architecture-gates jf. [ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md):
 
 ```toml
 [architecture]
@@ -333,7 +335,7 @@ forbid_core_imports = ["iced", "react", "javafx"]
 #### 🏛️ Trinvis Brownfield-Migrering (Sikker Køreplan for Eksisterende Systemer)
 Hvis du har et etableret system med teknisk gæld, skal du **ikke** lave en risikabel "Big Bang"-omskrivning. Følg denne 4-trins køreplan:
 
-1. **Trin A: Udfør et Dependency Baseline Scan (Arkitektur-Audit):**  
+1. **Trin A: Tag et risikofrit Røntgenbillede (Audit Baseline):**  
    Aktivér gates midlertidigt i `gauntlet.toml` og kør `xgauntlet check-architecture`. Du får et komplet, prioriteret overblik over alle eksisterende import-overtrædelser uden at ændre kildekoden.
 2. **Trin B: Etablér en sikker baseline (Undgå Big-Bang fælden):**  
    Frys status quo ved at tilføje en midlertidig exemption-regel i `gauntlet.toml`:
@@ -353,7 +355,26 @@ Hvis du har et etableret system med teknisk gæld, skal du **ikke** lave en risi
 
 ---
 
-### 3. Dybdegående Kodediagnostik & Runtime Udfaldsrum
+### 3. Deterministisk Mermaid Model-Eksport & To-vejs Glossary Drift Gate
+
+xGauntlet bygger en urokkelig, matematisk bro mellem kildekodens konkrete datamodeller og forretningens *Ubiquitous Language* i `CONTEXT.md` jf. Aristoteles' formel (*definitio per genus et differentiam*):
+
+```bash
+# 1. Eksportér et komplet Mermaid klassediagram direkte fra AST (sub-3ms, zero-daemon, zero-token):
+xgauntlet topology export --format mermaid
+
+# 2. Inspicér detaljeret teknisk model inkl. interne infrastrukturelle hjælpe-structs:
+xgauntlet topology export --format mermaid --level detailed
+
+# 3. Kør to-vejs shift-left validering mod CONTEXT.md (fanger orphan modeller og forbudte synonymer):
+xgauntlet check-spec --context
+```
+
+Dermed tvinges AI-agenter til at afklare og dokumentere nye domæneentiteter i `CONTEXT.md`, før de tillades at passere gauntleten, mens teknisk støj holdes ude af forretningsmodellen.
+
+---
+
+### 4. Dybdegående Kodediagnostik & Runtime Udfaldsrum
 
 For arkitekter og platform-ingeniører, der vil efterprøve eller udvide xGauntlet-kernen, dokumenterer nedenstående diagram det fulde, lavniveau udfaldsrum i Rust-kildekoden (`crates/gauntlet-policy-engine` og `crates/xgauntlet-core`):
 

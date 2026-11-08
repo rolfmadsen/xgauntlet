@@ -83,19 +83,20 @@ pub use features::tasks::{
     list_workspace_tasks, parse_criteria_progress, parse_frontmatter, parse_task_content,
     parse_task_file, parse_task_status, resolve_active_task_id, resolve_latest_done_task_id,
     resolve_task_contract, validate_context_content, validate_context_glossary,
-    validate_iso_timestamp, Actor, AdrReadinessReport, CriteriaProgress, GeneratedEntry,
-    GitTelemetry, OkfError, OkfMetadata, ScaffoldTaskOptions, SourceEntry, SpecReadinessReport,
-    TaskContract, TaskError, TaskPackageInfo, TaskScaffoldResult, TaskScaffolder, TaskStatus,
-    TaskSummaryItem, TaskTelemetry, VerifiedEntry,
+    validate_glossary_drift, validate_iso_timestamp, Actor, AdrReadinessReport, CriteriaProgress,
+    GeneratedEntry, GitTelemetry, GlossaryDriftOptions, GlossaryDriftReport, OkfError, OkfMetadata,
+    ScaffoldTaskOptions, SourceEntry, SpecReadinessReport, TaskContract, TaskError,
+    TaskPackageInfo, TaskScaffoldResult, TaskScaffolder, TaskStatus, TaskSummaryItem,
+    TaskTelemetry, VerifiedEntry,
 };
 pub use features::telemetry::{
     get_phase_directive, render_jit_directive, JitPhaseDirective, PipelinePhase,
 };
 pub use features::topology::{
-    calculate_blast_radius, find_neighbors, find_shortest_path, load_topology,
-    render_ascii_topology, save_topology, scan_workspace, scan_workspace_topology,
-    BlastRadiusReport, Direction, EdgeType, NodeType, TopologyEdge, TopologyError, TopologyGraph,
-    TopologyNode, TopologyOptions, TOPOLOGY_FILE_PATH,
+    calculate_blast_radius, export_mermaid_class_diagram, find_neighbors, find_shortest_path,
+    load_topology, render_ascii_topology, save_topology, scan_workspace, scan_workspace_topology,
+    BlastRadiusReport, Direction, EdgeType, MermaidExportOptions, MermaidLevel, NodeType,
+    TopologyEdge, TopologyError, TopologyGraph, TopologyNode, TopologyOptions, TOPOLOGY_FILE_PATH,
 };
 pub use features::wasm::{WasmError, WasmRuntimeHost};
 

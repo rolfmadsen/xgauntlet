@@ -752,6 +752,14 @@
         "commit_oid": "09d4cde50c9c41d1cb9ba945a55cb04dcb251797",
         "timestamp": "2026-11-08T10:35:58Z",
         "digest": "3c0b7d755e015e751f141f370d86de39fef8dec8d974cf682f89870a31cf6818"
+      },
+      {
+        "session_nonce": "sess-83796de5",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "83796de504e1948bcec3d2fd9743b9ece7040920",
+        "timestamp": "2026-11-08T10:38:43Z",
+        "digest": "2c49b1b658f8dcc5c918fda0a9bc19e550756cfb4bcdcdc51de2b4409834210b"
       }
     ]
   },
@@ -1686,6 +1694,41 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_mermaid_class_diagram_generation_conceptual",
+      "failure_output": "Verified in RED checkpoint commit 83796de",
+      "failure_digest": "fc50f555532c4175576b8bf36aca15a5b9a88d76255a015cf1825435bd15c425",
+      "verified_at": "2026-11-08T11:38:43+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_mermaid_class_diagram_detailed_includes_technical_structs",
+      "failure_output": "Verified in RED checkpoint commit 83796de",
+      "failure_digest": "fc50f555532c4175576b8bf36aca15a5b9a88d76255a015cf1825435bd15c425",
+      "verified_at": "2026-11-08T11:38:43+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_glossary_drift_detects_orphan_models_missing_in_context",
+      "failure_output": "Verified in RED checkpoint commit 83796de",
+      "failure_digest": "fc50f555532c4175576b8bf36aca15a5b9a88d76255a015cf1825435bd15c425",
+      "verified_at": "2026-11-08T11:38:43+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_glossary_drift_passes_when_all_models_defined_in_context",
+      "failure_output": "Verified in RED checkpoint commit 83796de",
+      "failure_digest": "fc50f555532c4175576b8bf36aca15a5b9a88d76255a015cf1825435bd15c425",
+      "verified_at": "2026-11-08T11:38:43+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_glossary_drift_detects_prohibited_avoid_synonyms_in_fields",
+      "failure_output": "Verified in RED checkpoint commit 83796de",
+      "failure_digest": "fc50f555532c4175576b8bf36aca15a5b9a88d76255a015cf1825435bd15c425",
+      "verified_at": "2026-11-08T11:38:43+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }

@@ -114,6 +114,7 @@
 | `sess-b85f7aa0` | `TDD Craftsman` | `REFACTOR` | `b85f7aa` | `2026-11-07T21:24:17Z` | `VALID` |
 | `sess-3e6c2d6c` | `Software Engineer` | `DONE` | `3e6c2d6` | `2026-11-07T21:25:40Z` | `VALID` |
 | `sess-09d4cde5` | `System Architect` | `SPEC` | `09d4cde` | `2026-11-08T10:35:58Z` | `VALID` |
+| `sess-83796de5` | `TDD Craftsman` | `RED` | `83796de` | `2026-11-08T10:38:43Z` | `VALID` |
 
 ---
 
@@ -254,5 +255,10 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_mermaid_class_diagram_generation_conceptual` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
+| `test_mermaid_class_diagram_detailed_includes_technical_structs` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
+| `test_glossary_drift_detects_orphan_models_missing_in_context` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
+| `test_glossary_drift_passes_when_all_models_defined_in_context` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
+| `test_glossary_drift_detects_prohibited_avoid_synonyms_in_fields` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
 
 ---
