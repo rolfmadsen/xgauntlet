@@ -154,3 +154,105 @@ pub struct Order {
         "Diagram must show relation between Order and PaymentStatus with field label 'status':\n{mermaid}"
     );
 }
+
+#[test]
+fn test_ast_scans_doc_commented_struct_fields_enum_variants_and_relationships() {
+    let ws = TempWorkspace::new("doc_comments");
+    let ws_path = ws.path();
+
+    fs::write(
+        ws_path.join("Cargo.toml"),
+        r#"[package]
+name = "doctor-core"
+version = "0.1.0"
+edition = "2021"
+"#,
+    )
+    .unwrap();
+
+    let models_dir = ws_path.join("src").join("features").join("doctor");
+    fs::create_dir_all(&models_dir).unwrap();
+
+    let models_rs = models_dir.join("models.rs");
+    fs::write(
+        &models_rs,
+        r#"//! Domain models for doctor diagnostics.
+
+/// Categories for diagnostic checks.
+pub enum DoctorCategory {
+    /// Host platform metadata.
+    Host,
+    /// Git repository checks.
+    Git,
+}
+
+/// Execution status of an individual diagnostic check.
+pub enum DoctorCheckStatus {
+    /// Check passed.
+    Pass,
+    /// Check failed.
+    Fail,
+}
+
+/// Result of an individual diagnostic check.
+pub struct DoctorCheckItem {
+    /// Identifier name of the check.
+    pub name: String,
+    /// Category grouping for the check.
+    pub category: DoctorCategory,
+    /// Final status of this check.
+    pub status: DoctorCheckStatus,
+    /// Execution duration.
+    pub duration_ms: u64,
+}
+"#,
+    )
+    .unwrap();
+
+    let topology_opts = TopologyOptions {
+        workspace_root: ws_path.to_path_buf(),
+        detect_symbols: true,
+        ..Default::default()
+    };
+
+    let graph = scan_workspace_topology(&topology_opts)
+        .expect("Topology scan should succeed on valid workspace");
+
+    let export_opts = MermaidExportOptions {
+        direction: "TB".to_string(),
+        level: MermaidLevel::Conceptual,
+        domain_only: true,
+    };
+
+    let mermaid = export_mermaid_class_diagram(&graph, &export_opts);
+
+    // 1. Verify Enum variants with doc comments
+    assert!(
+        mermaid.contains("Host") && mermaid.contains("Git"),
+        "DoctorCategory must declare variants Host and Git:\n{mermaid}"
+    );
+    assert!(
+        mermaid.contains("Pass") && mermaid.contains("Fail"),
+        "DoctorCheckStatus must declare variants Pass and Fail:\n{mermaid}"
+    );
+
+    // 2. Verify Struct fields with doc comments
+    assert!(
+        mermaid.contains("+name: String")
+            && mermaid.contains("+category: DoctorCategory")
+            && mermaid.contains("+status: DoctorCheckStatus")
+            && mermaid.contains("+duration_ms: u64"),
+        "DoctorCheckItem must extract all fields even when preceded by doc comments:\n{mermaid}"
+    );
+
+    // 3. Verify Relationships derived from doc-commented fields
+    assert!(
+        mermaid.contains("DoctorCheckItem *-- DoctorCategory : category"),
+        "Diagram must show relation DoctorCheckItem *-- DoctorCategory : category:\n{mermaid}"
+    );
+    assert!(
+        mermaid.contains("DoctorCheckItem *-- DoctorCheckStatus : status"),
+        "Diagram must show relation DoctorCheckItem *-- DoctorCheckStatus : status:\n{mermaid}"
+    );
+}
+
