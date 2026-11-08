@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 069: Correct DDD/VSA Taxonomy, 1- and 2-Level Slice Isolation, and Dogfooding"
 description: "Align Domain -> Subdomain -> Bounded Context -> Shared Kernel / Vertical Slice hierarchy, support 1- and 2-level slices in Gate B and check-spec, and dogfood isolate_slices and check-spec --context in xgauntlet."
-status: active
+status: done
 intent: enhancement
 slice: architecture
 spec_ref: "specs/architecture.md"
@@ -30,7 +30,7 @@ test_refs:
 
 # Task 069: Correct DDD/VSA Taxonomy, 1- and 2-Level Slice Isolation, and Dogfooding
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-08`
 
