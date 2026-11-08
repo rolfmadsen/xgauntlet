@@ -1,6 +1,6 @@
 //! Deterministic AST to Mermaid class diagram generator.
 
-use super::models::{NodeType, TopologyGraph, TopologyNode};
+use super::models::{EdgeType, NodeType, TopologyGraph, TopologyNode};
 use std::collections::{BTreeMap, BTreeSet};
 
 /// Level of detail for Mermaid class diagram generation.
@@ -156,6 +156,15 @@ pub fn export_mermaid_class_diagram(
         if let (Some(from_node), Some(to_node)) =
             (visible_nodes.get(&edge.from), visible_nodes.get(&edge.to))
         {
+            if edge.edge_type == EdgeType::Implements {
+                let rel_str = format!("    {} ..|> {}\n", from_node.name, to_node.name);
+                if !rendered_edges.contains(&rel_str) {
+                    out.push_str(&rel_str);
+                    rendered_edges.insert(rel_str);
+                }
+                continue;
+            }
+
             let label = edge
                 .metadata
                 .get("field_name")

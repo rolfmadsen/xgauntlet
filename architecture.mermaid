@@ -9,7 +9,7 @@ classDiagram
 
     class AdapterHookVerdict {
         +allowed: bool
-        +decision: String
+        +decision: DecisionVerdict
         +reason: String
         +reason_code: Option~u32~
     }
@@ -24,6 +24,9 @@ classDiagram
         +adr_id: String
         +diagnostics: Vec~DiagnosticFinding~
         +inspected_files: Vec~String~
+    }
+
+    class AntigravityAdapter {
     }
 
     class ArchitectureConfig {
@@ -108,7 +111,7 @@ classDiagram
 
     class CheckSummary {
         +name: String
-        +status: String
+        +status: CheckStatus
         +exit_code: i32
         +duration_seconds: f64
         +optional: bool
@@ -140,6 +143,12 @@ classDiagram
         +handoff: Option~SessionHandoff~
         +next_phase: Option~String~
         +autonomous_transition: bool
+    }
+
+    class ClaudeCodeAdapter {
+    }
+
+    class CodexAdapter {
     }
 
     class ConfigValidationIssue {
@@ -370,6 +379,9 @@ classDiagram
         +files_modified: Vec~PathBuf~
     }
 
+    class MistralAdapter {
+    }
+
     class NodeType {
         <<enumeration>>
         Package
@@ -510,13 +522,6 @@ classDiagram
 
     class TaskContract {
         +task_id: String
-        +title: String
-        +acceptance_criteria: Vec~String~
-        +unresolved_criteria: Vec~String~
-    }
-
-    class TaskContractSummary {
-        +task_id: String
         +task_title: String
         +task_digest: String
         +acceptance_criteria: Vec~String~
@@ -616,9 +621,9 @@ classDiagram
     class VerificationReport {
         +schema: String
         +schema_version: String
-        +execution_origin: String
-        +verdict: String
-        +task_contract: TaskContractSummary
+        +execution_origin: ExecutionOrigin
+        +verdict: VerificationVerdict
+        +task_contract: TaskContract
         +workspace_state: WorkspaceState
         +execution_metadata: ExecutionMetadata
         +checks: Vec~CheckSummary~
@@ -634,6 +639,7 @@ classDiagram
         Failed
         Error
         Incomplete
+        Partial
         Skipped
     }
 
@@ -650,49 +656,52 @@ classDiagram
         +vcs: Option~VcsMetadata~
     }
 
-    ReleaseReadinessReport *-- ReleaseFinding : diagnostics
-    LayerResult *-- LayerExecutionStatus : status
-    LayerResult *-- LayerRequirement : requirement
-    SpecReadinessReport *-- DiagnosticFinding : diagnostics
-    DiagnosticReport *-- DiagnosticFinding : findings
-    PluginInstallReport *-- PluginTargetInstallReport : targets
-    GlossaryDriftReport *-- DiagnosticFinding : avoid_violations
-    GlossaryDriftReport *-- DiagnosticFinding : diagnostics
-    ReleaseFinding *-- ReleaseFindingCategory : category
-    TopologyGraph *-- TopologyEdge : edges
-    ValidationIssue *-- ValidationSeverity : severity
-    DoctorCheckItem *-- DoctorCategory : category
+    ClaudeCodeAdapter ..|> HarnessAdapter
+    AntigravityAdapter ..|> HarnessAdapter
+    MistralAdapter ..|> HarnessAdapter
+    CodexAdapter ..|> HarnessAdapter
     DoctorCheckItem *-- DoctorCheckStatus : status
-    LayerDefinition *-- LayerRequirement : requirement
-    TopologyEdge *-- EdgeType : edge_type
     TopologyNode *-- NodeType : node_type
-    VerificationReport *-- TaskContractSummary : task_contract
-    VerificationReport *-- WorkspaceState : workspace_state
-    VerificationReport *-- ExecutionMetadata : execution_metadata
-    VerificationReport *-- CheckSummary : checks
-    VerificationReport *-- DiagnosticFinding : diagnostics
-    ScaffoldResult *-- ScaffoldFileReport : files
-    ScaffoldFileReport *-- ScaffoldAction : action
-    ConfigValidationIssue *-- ValidationSeverity : severity
-    PluginTargetInstallReport *-- PluginInstallStatus : status
-    ArchitectureFinding *-- ArchitectureFindingCategory : category
-    DoctorReport *-- DoctorVerdict : verdict
-    StackProfile *-- LayerConfig : default_layers
-    CheckpointResult *-- CheckpointPhase : phase
-    CheckpointResult *-- SessionHandoff : handoff
-    ArchitectureReport *-- ArchitectureFinding : findings
-    NormalizedToolCall *-- ToolActionType : action_type
     GauntletConfig *-- PathsConfig : paths
     GauntletConfig *-- ArchitectureConfig : architecture
     GauntletConfig *-- CheckpointConfig : checkpoint
     GauntletConfig *-- LayerConfig : layers
-    CapabilityRequest *-- ToolActionType : action_type
-    DiagnosticFinding *-- FindingType : finding_type
-    MigrationReport *-- MigrationItem : items
-    AdapterValidationResult *-- ValidationIssue : issues
-    WorkspaceState *-- VcsMetadata : vcs
-    ConfigValidationReport *-- ConfigValidationIssue : issues
-    TaskPackageInfo *-- TaskStatus : status
+    PluginTargetInstallReport *-- PluginInstallStatus : status
     GauntletReport *-- LayerResult : layers
+    WorkspaceState *-- VcsMetadata : vcs
+    ReleaseFinding *-- ReleaseFindingCategory : category
+    ConfigValidationReport *-- ConfigValidationIssue : issues
+    GlossaryDriftReport *-- DiagnosticFinding : avoid_violations
+    GlossaryDriftReport *-- DiagnosticFinding : diagnostics
+    TopologyGraph *-- TopologyEdge : edges
+    TaskPackageInfo *-- TaskStatus : status
+    LayerDefinition *-- LayerRequirement : requirement
+    MigrationReport *-- MigrationItem : items
+    ScaffoldFileReport *-- ScaffoldAction : action
+    AdapterValidationResult *-- ValidationIssue : issues
+    ConfigValidationIssue *-- ValidationSeverity : severity
+    CheckSummary *-- CheckStatus : status
+    DoctorReport *-- DoctorVerdict : verdict
+    TopologyEdge *-- EdgeType : edge_type
+    SpecReadinessReport *-- DiagnosticFinding : diagnostics
+    ArchitectureFinding *-- ArchitectureFindingCategory : category
+    ScaffoldResult *-- ScaffoldFileReport : files
     ArchitectureConfig *-- ArchitectureExemption : exemptions
+    VerificationReport *-- ExecutionOrigin : execution_origin
+    VerificationReport *-- VerificationVerdict : verdict
+    VerificationReport *-- WorkspaceState : workspace_state
+    VerificationReport *-- ExecutionMetadata : execution_metadata
+    VerificationReport *-- CheckSummary : checks
+    VerificationReport *-- DiagnosticFinding : diagnostics
+    LayerResult *-- LayerExecutionStatus : status
+    LayerResult *-- LayerRequirement : requirement
+    ReleaseReadinessReport *-- ReleaseFinding : diagnostics
     AdrReadinessReport *-- DiagnosticFinding : diagnostics
+    StackProfile *-- LayerConfig : default_layers
+    PluginInstallReport *-- PluginTargetInstallReport : targets
+    DiagnosticReport *-- DiagnosticFinding : findings
+    ArchitectureReport *-- ArchitectureFinding : findings
+    ValidationIssue *-- ValidationSeverity : severity
+    DiagnosticFinding *-- FindingType : finding_type
+    CheckpointResult *-- CheckpointPhase : phase
+    CheckpointResult *-- SessionHandoff : handoff

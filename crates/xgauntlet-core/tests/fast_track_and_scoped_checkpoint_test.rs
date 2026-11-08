@@ -500,7 +500,10 @@ test_refs:
     .await
     .unwrap();
 
-    assert_eq!(outcome.report.verdict, "PASSED");
+    assert_eq!(
+        outcome.report.verdict,
+        xgauntlet_core::VerificationVerdict::Passed
+    );
     assert_eq!(
         outcome.report.proof_mode.as_deref(),
         Some("worktree_inverse_proof"),

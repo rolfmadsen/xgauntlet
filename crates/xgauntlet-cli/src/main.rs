@@ -778,13 +778,13 @@ async fn main() -> anyhow::Result<()> {
                         .report
                         .checks
                         .iter()
-                        .filter(|c| c.status == "PASSED")
+                        .filter(|c| c.status == xgauntlet_core::CheckStatus::Passed)
                         .count(),
                     outcome
                         .report
                         .checks
                         .iter()
-                        .filter(|c| c.status != "PASSED")
+                        .filter(|c| c.status != xgauntlet_core::CheckStatus::Passed)
                         .count(),
                 );
                 match xgauntlet_core::HarnessKind::parse_alias(h) {
@@ -820,7 +820,9 @@ async fn main() -> anyhow::Result<()> {
                 render_verify_summary(&outcome, *save);
             }
 
-            if outcome.report.verdict == "FAILED" || outcome.report.verdict == "INCOMPLETE" {
+            if outcome.report.verdict == xgauntlet_core::VerificationVerdict::Failed
+                || outcome.report.verdict == xgauntlet_core::VerificationVerdict::Incomplete
+            {
                 std::process::exit(1);
             }
         }

@@ -279,10 +279,13 @@ impl ReleaseReadinessEngine {
                         });
                     }
                     Ok(vr) => {
-                        let verdict = vr.verdict.to_uppercase();
-                        let verdict_approved = if verdict == "PASSED" {
+                        let verdict = vr.verdict;
+                        let verdict_approved = if verdict
+                            == crate::features::evidence::VerificationVerdict::Passed
+                        {
                             true
-                        } else if verdict == "PARTIAL" {
+                        } else if verdict == crate::features::evidence::VerificationVerdict::Partial
+                        {
                             vr.checks.iter().all(|c| {
                                 let is_required = !c.optional;
                                 if is_required {

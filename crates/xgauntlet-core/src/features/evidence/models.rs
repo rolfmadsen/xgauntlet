@@ -12,6 +12,7 @@ pub enum VerificationVerdict {
     Failed,
     Error,
     Incomplete,
+    Partial,
     Skipped,
 }
 
@@ -22,8 +23,15 @@ impl VerificationVerdict {
             Self::Failed => "FAILED",
             Self::Error => "ERROR",
             Self::Incomplete => "INCOMPLETE",
+            Self::Partial => "PARTIAL",
             Self::Skipped => "SKIPPED",
         }
+    }
+}
+
+impl std::fmt::Display for VerificationVerdict {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
@@ -48,6 +56,12 @@ impl CheckStatus {
     }
 }
 
+impl std::fmt::Display for CheckStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
+
 /// Execution environment where verification occurred.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
@@ -64,6 +78,12 @@ impl ExecutionOrigin {
             Self::CiUnprivileged => "CI_UNPRIVILEGED",
             Self::CiProtected => "CI_PROTECTED",
         }
+    }
+}
+
+impl std::fmt::Display for ExecutionOrigin {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
 
@@ -88,7 +108,7 @@ pub enum TrustDecision {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CheckSummary {
     pub name: String,
-    pub status: String,
+    pub status: CheckStatus,
     pub exit_code: i32,
     pub duration_seconds: f64,
     #[serde(default)]
@@ -190,20 +210,9 @@ impl Default for ExecutionMetadata {
     }
 }
 
-/// Active task contract summary bound to the report.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
-pub struct TaskContractSummary {
-    #[serde(default)]
-    pub task_id: String,
-    #[serde(default)]
-    pub task_title: String,
-    #[serde(default)]
-    pub task_digest: String,
-    #[serde(default)]
-    pub acceptance_criteria: Vec<String>,
-    #[serde(default)]
-    pub unresolved_criteria: Vec<String>,
-}
+pub use crate::features::tasks::TaskContract;
+/// Canonical contract alias for backward-compatible verification reports.
+pub type TaskContractSummary = TaskContract;
 
 /// Canonical Schema v2 Verification Report.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -213,11 +222,11 @@ pub struct VerificationReport {
     #[serde(default = "default_schema_version")]
     pub schema_version: String,
     #[serde(default = "default_execution_origin")]
-    pub execution_origin: String,
+    pub execution_origin: ExecutionOrigin,
     #[serde(default = "default_verdict")]
-    pub verdict: String,
+    pub verdict: VerificationVerdict,
     #[serde(default)]
-    pub task_contract: TaskContractSummary,
+    pub task_contract: TaskContract,
     #[serde(default)]
     pub workspace_state: WorkspaceState,
     #[serde(default)]
@@ -243,12 +252,12 @@ fn default_schema_version() -> String {
     "2.0.0".to_string()
 }
 
-fn default_execution_origin() -> String {
-    "LOCAL".to_string()
+fn default_execution_origin() -> ExecutionOrigin {
+    ExecutionOrigin::Local
 }
 
-fn default_verdict() -> String {
-    "PASSED".to_string()
+fn default_verdict() -> VerificationVerdict {
+    VerificationVerdict::Passed
 }
 
 impl VerificationReport {

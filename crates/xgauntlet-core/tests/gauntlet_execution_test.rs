@@ -212,7 +212,10 @@ async fn test_self_mutation_invariant_enforcement() {
     };
 
     let outcome = execute_gauntlet_pipeline(ws, &opts).await.unwrap();
-    assert_eq!(outcome.report.verdict, "FAILED");
+    assert_eq!(
+        outcome.report.verdict,
+        xgauntlet_core::VerificationVerdict::Failed
+    );
     assert!(outcome.is_self_mutated);
     assert!(outcome
         .report
@@ -246,7 +249,10 @@ async fn test_end_to_end_pipeline_and_evidence_generation() {
     };
 
     let outcome = execute_gauntlet_pipeline(ws, &opts).await.unwrap();
-    assert_eq!(outcome.report.verdict, "PASSED");
+    assert_eq!(
+        outcome.report.verdict,
+        xgauntlet_core::VerificationVerdict::Passed
+    );
     assert!(!outcome.is_self_mutated);
     assert_eq!(outcome.report.checks.len(), 1);
     assert_eq!(outcome.report.checks[0].name, "test-pass");

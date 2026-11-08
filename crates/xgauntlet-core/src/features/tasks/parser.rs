@@ -336,7 +336,8 @@ pub fn resolve_task_contract(
     let info = parse_task_file(&file_to_read)?;
     Ok(TaskContract {
         task_id: info.task_id,
-        title: info.title,
+        task_title: info.title,
+        task_digest: String::new(),
         acceptance_criteria: info.acceptance_criteria,
         unresolved_criteria: info.unresolved_criteria,
     })

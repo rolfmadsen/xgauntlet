@@ -65,10 +65,18 @@ pub fn scan_workspace_topology(options: &TopologyOptions) -> Result<TopologyGrap
     }
 
     // Second pass: Parse source code files
+    let mut trait_impls: Vec<(String, String)> = Vec::new();
     for file_path in &files {
         let ext = file_path.extension().and_then(|e| e.to_str()).unwrap_or("");
         match ext {
-            "rs" => parse_rust_file(root, file_path, &package_map, options, &mut graph)?,
+            "rs" => parse_rust_file(
+                root,
+                file_path,
+                &package_map,
+                options,
+                &mut graph,
+                &mut trait_impls,
+            )?,
             "ts" | "tsx" | "js" | "jsx" => {
                 parse_ts_file(root, file_path, &package_map, options, &mut graph)?
             }
@@ -92,6 +100,31 @@ pub fn scan_workspace_topology(options: &TopologyOptions) -> Result<TopologyGrap
     }
 
     let mut inter_model_edges = Vec::new();
+
+    // Trait implementation realization edges
+    for (target_name, trait_name) in &trait_impls {
+        if let (Some(from_id), Some(to_id)) =
+            (domain_types.get(target_name), domain_types.get(trait_name))
+        {
+            let to_is_domain = graph
+                .nodes
+                .get(to_id)
+                .and_then(|n| n.metadata.get("is_domain_model"))
+                .map(|v| v == "true")
+                .unwrap_or(false);
+
+            if to_is_domain {
+                if let Some(from_node) = graph.nodes.get_mut(from_id) {
+                    from_node
+                        .metadata
+                        .insert("is_domain_model".to_string(), "true".to_string());
+                }
+            }
+
+            let edge = TopologyEdge::new(from_id, to_id, EdgeType::Implements);
+            inter_model_edges.push(edge);
+        }
+    }
     for (from_id, node) in &graph.nodes {
         if let Some(fields_str) = node.metadata.get("fields") {
             for field in fields_str.split(',') {
@@ -230,6 +263,7 @@ fn parse_rust_file(
     package_map: &HashMap<PathBuf, String>,
     options: &TopologyOptions,
     graph: &mut TopologyGraph,
+    trait_impls: &mut Vec<(String, String)>,
 ) -> Result<(), TopologyError> {
     let default_pkg = "crate".to_string();
     let pkg_name = find_enclosing_package(file_path, package_map).unwrap_or(&default_pkg);
@@ -386,6 +420,32 @@ fn parse_rust_file(
                     }
                     graph.add_node(sym_node);
                     graph.add_edge(TopologyEdge::new(&node_id, &sym_id, EdgeType::Defines));
+                }
+            } else if trimmed.starts_with("impl ") && trimmed.contains(" for ") {
+                let after_impl = trimmed.strip_prefix("impl").unwrap_or("").trim();
+                let without_generics = if after_impl.starts_with('<') {
+                    if let Some((_, rest)) = after_impl.split_once('>') {
+                        rest.trim()
+                    } else {
+                        after_impl
+                    }
+                } else {
+                    after_impl
+                };
+                if let Some((raw_trait, raw_target)) = without_generics.split_once(" for ") {
+                    let trait_name = raw_trait
+                        .split(['<', ' '])
+                        .next()
+                        .unwrap_or(raw_trait)
+                        .trim();
+                    let target_name = raw_target
+                        .split(['<', '{', ' '])
+                        .next()
+                        .unwrap_or(raw_target)
+                        .trim();
+                    if !trait_name.is_empty() && !target_name.is_empty() {
+                        trait_impls.push((target_name.to_string(), trait_name.to_string()));
+                    }
                 }
             }
         }

@@ -633,7 +633,7 @@ pub fn execute_release_workflow(
                         ))
                 }?;
 
-                if outcome.report.verdict.eq_ignore_ascii_case("FAILED") {
+                if outcome.report.verdict == xgauntlet_core::VerificationVerdict::Failed {
                     let diags = outcome
                         .report
                         .diagnostics

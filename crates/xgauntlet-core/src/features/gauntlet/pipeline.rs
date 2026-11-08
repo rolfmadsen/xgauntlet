@@ -8,10 +8,13 @@ use crate::features::config::{ConfigError, GauntletConfig};
 use crate::features::diagnostics::{DiagnosticFinding, DiagnosticParser, FindingType};
 use crate::features::evidence::{
     compute_workspace_manifest, current_iso_utc, load_verification_report,
-    save_verification_report, verify_self_mutation, CheckSummary, ExecutionMetadata, ManifestError,
-    ReportError, TaskContractSummary, VerificationReport, WorkspaceState,
+    save_verification_report, verify_self_mutation, CheckStatus, CheckSummary, ExecutionMetadata,
+    ExecutionOrigin, ManifestError, ReportError, TaskContractSummary, VerificationReport,
+    VerificationVerdict, WorkspaceState,
 };
-use crate::features::gauntlet::models::{GauntletReport, LayerDefinition, LayerRequirement};
+use crate::features::gauntlet::models::{
+    GauntletReport, LayerDefinition, LayerExecutionStatus, LayerRequirement,
+};
 use crate::features::gauntlet::runner::run_gauntlet;
 use crate::features::tasks::{resolve_task_contract, TaskError};
 
@@ -136,7 +139,14 @@ pub async fn execute_gauntlet_pipeline(
 
             CheckSummary {
                 name: layer.name.clone(),
-                status: layer.status.as_str().to_string(),
+                status: match layer.status {
+                    LayerExecutionStatus::Passed => CheckStatus::Passed,
+                    LayerExecutionStatus::Failed => CheckStatus::Failed,
+                    LayerExecutionStatus::Error
+                    | LayerExecutionStatus::Unavailable
+                    | LayerExecutionStatus::TimedOut => CheckStatus::Error,
+                    LayerExecutionStatus::Skipped => CheckStatus::Skipped,
+                },
                 exit_code: layer.exit_code,
                 duration_seconds: layer.duration_seconds,
                 optional: layer.requirement == LayerRequirement::Optional,
@@ -260,19 +270,19 @@ pub async fn execute_gauntlet_pipeline(
         || checks.is_empty()
         || is_task_invalid
     {
-        "FAILED"
+        VerificationVerdict::Failed
     } else if has_unresolved_criteria {
-        "INCOMPLETE"
+        VerificationVerdict::Incomplete
     } else if has_optional_failures {
-        "PARTIAL"
+        VerificationVerdict::Partial
     } else {
-        "PASSED"
+        VerificationVerdict::Passed
     };
 
     let (task_id, task_title, acceptance_criteria, unresolved_criteria) = match task_contract {
         Some(tc) => (
             tc.task_id,
-            tc.title,
+            tc.task_title,
             tc.acceptance_criteria,
             tc.unresolved_criteria,
         ),
@@ -324,8 +334,8 @@ pub async fn execute_gauntlet_pipeline(
     let report = VerificationReport {
         schema: "https://xgauntlet.dev/schemas/v2/verification-report.json".to_string(),
         schema_version: "2.0.0".to_string(),
-        execution_origin: "LOCAL".to_string(),
-        verdict: verdict.to_string(),
+        execution_origin: ExecutionOrigin::Local,
+        verdict,
         task_contract: TaskContractSummary {
             task_id,
             task_title,
@@ -368,7 +378,7 @@ pub async fn execute_gauntlet_pipeline(
     }
 
     Ok(GauntletExecutionOutcome {
-        success: verdict == "PASSED" || verdict == "PARTIAL",
+        success: verdict == VerificationVerdict::Passed || verdict == VerificationVerdict::Partial,
         is_self_mutated,
         report,
         gauntlet_report,

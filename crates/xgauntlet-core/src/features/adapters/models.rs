@@ -71,7 +71,7 @@ impl AdapterValidationResult {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AdapterHookVerdict {
     pub allowed: bool,
-    pub decision: String,
+    pub decision: DecisionVerdict,
     pub reason: String,
     pub reason_code: Option<u32>,
 }
@@ -116,7 +116,7 @@ pub trait HarnessAdapter: Send + Sync {
         {
             return AdapterHookVerdict {
                 allowed: false,
-                decision: "deny".to_string(),
+                decision: DecisionVerdict::Deny,
                 reason: "Empty command execution is prohibited".to_string(),
                 reason_code: Some(4001),
             };
@@ -132,7 +132,7 @@ pub trait HarnessAdapter: Send + Sync {
                 if req.action_type == ToolActionType::WriteFile {
                     return AdapterHookVerdict {
                         allowed: false,
-                        decision: "deny".to_string(),
+                        decision: DecisionVerdict::Deny,
                         reason: format!(
                             "Empty target path provided for write operation '{}'",
                             req.raw_tool_name
@@ -152,7 +152,7 @@ pub trait HarnessAdapter: Send + Sync {
                 if !is_whitelisted_dialogue {
                     return AdapterHookVerdict {
                         allowed: false,
-                        decision: "deny".to_string(),
+                        decision: DecisionVerdict::Deny,
                         reason: format!(
                             "Empty target path provided for read operation '{}'",
                             req.raw_tool_name
@@ -168,7 +168,7 @@ pub trait HarnessAdapter: Send + Sync {
             {
                 return AdapterHookVerdict {
                     allowed: false,
-                    decision: "deny".to_string(),
+                    decision: DecisionVerdict::Deny,
                     reason: format!(
                         "Path traversal with '..' is prohibited: '{}'",
                         req.target_resource
@@ -181,7 +181,7 @@ pub trait HarnessAdapter: Send + Sync {
             {
                 return AdapterHookVerdict {
                     allowed: true,
-                    decision: "allow".to_string(),
+                    decision: DecisionVerdict::Allow,
                     reason: "Whitelisted agent harness path".to_string(),
                     reason_code: Some(2000),
                 };
@@ -190,7 +190,7 @@ pub trait HarnessAdapter: Send + Sync {
             {
                 return AdapterHookVerdict {
                     allowed: true,
-                    decision: "allow".to_string(),
+                    decision: DecisionVerdict::Allow,
                     reason: "Session brain artifact path allowed".to_string(),
                     reason_code: Some(2000),
                 };
@@ -205,7 +205,7 @@ pub trait HarnessAdapter: Send + Sync {
                     Err(err) => {
                         return AdapterHookVerdict {
                             allowed: false,
-                            decision: "deny".to_string(),
+                            decision: DecisionVerdict::Deny,
                             reason: format!(
                                 "Path traversal or workspace escape attempt detected: {err}"
                             ),
@@ -226,7 +226,7 @@ pub trait HarnessAdapter: Send + Sync {
                     Err(e) => {
                         return AdapterHookVerdict {
                             allowed: false,
-                            decision: "deny".to_string(),
+                            decision: DecisionVerdict::Deny,
                             reason: format!("Wasm policy evaluation failed (fail-closed): {e}"),
                             reason_code: Some(5000),
                         };
@@ -241,7 +241,7 @@ pub trait HarnessAdapter: Send + Sync {
 
         AdapterHookVerdict {
             allowed: decision.verdict == DecisionVerdict::Allow,
-            decision: decision.verdict.as_str().to_string(),
+            decision: decision.verdict,
             reason: decision.reason,
             reason_code: Some(decision.reason_code),
         }

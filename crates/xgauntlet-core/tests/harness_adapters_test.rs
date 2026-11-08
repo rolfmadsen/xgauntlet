@@ -183,7 +183,7 @@ fn run_shared_conformance_suite(
         "Adapter {} must deny git push command",
         adapter.name()
     );
-    assert_eq!(push_verdict.decision, "deny");
+    assert_eq!(push_verdict.decision, xgauntlet_core::DecisionVerdict::Deny);
 }
 
 // ============================================================================

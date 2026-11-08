@@ -99,12 +99,24 @@ pub struct TaskPackageInfo {
 }
 
 /// Concise contract representation for execution and verification binding.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub struct TaskContract {
+    #[serde(default)]
     pub task_id: String,
-    pub title: String,
+    #[serde(alias = "title", default)]
+    pub task_title: String,
+    #[serde(default)]
+    pub task_digest: String,
+    #[serde(default)]
     pub acceptance_criteria: Vec<String>,
+    #[serde(default)]
     pub unresolved_criteria: Vec<String>,
+}
+
+impl TaskContract {
+    pub fn title(&self) -> &str {
+        &self.task_title
+    }
 }
 
 /// Consolidated assessment of task specification completeness and business rules.

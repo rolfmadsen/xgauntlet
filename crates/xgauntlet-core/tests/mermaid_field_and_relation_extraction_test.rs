@@ -437,4 +437,3 @@ impl PaymentGateway for StripeGateway {
         "Conceptual diagram must contain composition relationship:\n{mermaid}"
     );
 }
-

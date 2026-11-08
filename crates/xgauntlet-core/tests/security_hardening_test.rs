@@ -140,7 +140,8 @@ fn test_task_binding_fail_closed_in_pipeline_when_task_missing() {
     match outcome {
         Ok(res) => {
             assert_eq!(
-                res.report.verdict, "FAILED",
+                res.report.verdict,
+                xgauntlet_core::VerificationVerdict::Failed,
                 "Pipeline MUST fail when requested task does not exist"
             );
             assert_ne!(

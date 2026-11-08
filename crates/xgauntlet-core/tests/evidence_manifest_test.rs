@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use xgauntlet_core::features::evidence::{
     compute_file_git_blob_oid, compute_workspace_manifest, generate_report_json,
     generate_report_markdown, load_report_json, save_verification_report, verify_self_mutation,
-    verify_workspace_state_match, CheckStatus, CheckSummary, ExecutionMetadata,
+    verify_workspace_state_match, CheckStatus, CheckSummary, ExecutionMetadata, ExecutionOrigin,
     TaskContractSummary, VerificationReport, VerificationVerdict, WorkspaceState,
 };
 
@@ -206,7 +206,7 @@ fn test_drift_verification_matches_and_mismatches() {
 #[test]
 fn test_verification_report_serialization_and_markdown() {
     let mut report = VerificationReport::new_local("004-evidence-and-manifest-engine");
-    report.verdict = VerificationVerdict::Passed.as_str().to_string();
+    report.verdict = VerificationVerdict::Passed;
     report.task_contract = TaskContractSummary {
         task_id: "004-evidence-and-manifest-engine".to_string(),
         task_title: "Task 004: Evidence & Workspace Manifest Engine".to_string(),
@@ -240,7 +240,7 @@ fn test_verification_report_serialization_and_markdown() {
     report.checks = vec![
         CheckSummary {
             name: "unit".to_string(),
-            status: CheckStatus::Passed.as_str().to_string(),
+            status: CheckStatus::Passed,
             passed: true,
             exit_code: 0,
             duration_seconds: 0.123,
@@ -249,7 +249,7 @@ fn test_verification_report_serialization_and_markdown() {
         },
         CheckSummary {
             name: "lint".to_string(),
-            status: CheckStatus::Passed.as_str().to_string(),
+            status: CheckStatus::Passed,
             passed: true,
             exit_code: 0,
             duration_seconds: 0.045,
@@ -268,8 +268,8 @@ fn test_verification_report_serialization_and_markdown() {
     // Deserialization roundtrip
     let deserialized = load_report_json(&json_str).expect("JSON deserialization must succeed");
     assert_eq!(deserialized.schema_version, "2.0.0");
-    assert_eq!(deserialized.execution_origin, "LOCAL");
-    assert_eq!(deserialized.verdict, "PASSED");
+    assert_eq!(deserialized.execution_origin, ExecutionOrigin::Local);
+    assert_eq!(deserialized.verdict, VerificationVerdict::Passed);
     assert_eq!(deserialized.checks.len(), 2);
     assert_eq!(deserialized.checks[0].name, "unit");
     assert_eq!(deserialized.checks[0].exit_code, 0);
@@ -360,7 +360,7 @@ fn test_generate_workspace_evidence_artifacts() {
     report.checks = vec![
         CheckSummary {
             name: "cargo-test".to_string(),
-            status: CheckStatus::Passed.as_str().to_string(),
+            status: CheckStatus::Passed,
             passed: true,
             exit_code: 0,
             duration_seconds: 1.5,
@@ -369,7 +369,7 @@ fn test_generate_workspace_evidence_artifacts() {
         },
         CheckSummary {
             name: "clippy".to_string(),
-            status: CheckStatus::Passed.as_str().to_string(),
+            status: CheckStatus::Passed,
             passed: true,
             exit_code: 0,
             duration_seconds: 0.3,
@@ -378,7 +378,7 @@ fn test_generate_workspace_evidence_artifacts() {
         },
         CheckSummary {
             name: "fmt".to_string(),
-            status: CheckStatus::Passed.as_str().to_string(),
+            status: CheckStatus::Passed,
             passed: true,
             exit_code: 0,
             duration_seconds: 0.1,
