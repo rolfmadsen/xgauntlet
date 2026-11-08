@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 061: README Narrative Restructuring"
 description: "Etablere README2.md med en logisk 5-akters fortælling for forbedret formidling af xGauntlets hensigt, struktur og proces uden bastante advarselsbokse."
-status: active
+status: done
 intent: enhancement
 generated: { by: process:antigravity-task-init, at: "2026-11-08T10:41:00Z" }
 tags: [documentation, readme, narrative, storytelling]
@@ -15,7 +15,7 @@ test_refs:
 
 # Task 061: README Narrative Restructuring
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-08`
 
