@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 065: Release v0.13.0 Preparation & Manifest Synchronization"
 description: "Klargøre og forberede udgivelse af version 0.13.0 med opdaterede manifester, roteret CHANGELOG.md og forseglet evidens."
-status: active
+status: done
 intent: enhancement
 generated: { by: process:antigravity-task-init, at: "2026-11-08T12:22:00Z" }
 tags: [release, semver, changelog, manifests, attestation]
@@ -30,7 +30,7 @@ test_refs:
 
 # Task 065: Release v0.13.0 Preparation & Manifest Synchronization
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-08`
 

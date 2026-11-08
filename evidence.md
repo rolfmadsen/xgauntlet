@@ -1,21 +1,20 @@
 # Verification Report
 
-**Task ID**: `064-static-checkpoint-commands-and-harness-auto-allow`  
-**Task Title**: Task 064: Static Checkpoint Commands & Harness Auto-Allow  
+**Task ID**: `065-release-v0-13-0`  
+**Task Title**: Task 065: Release v0.13.0 Preparation & Manifest Synchronization  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `5798c50d4f3b8b7f7b5587249088fa210c616535ca6cee9f46a5b7c6b082b9f4`  
-**Timestamp**: `2026-11-08T11:12:05Z`  
-**Head**: `ece68b5`  
-**Commit**: `ece68b5`  
+**Source Manifest Digest**: `d3b63a5e8cc4d6342cfce87a4203b16fb127c92986caba9a7265e2e93efeae28`  
+**Timestamp**: `2026-11-08T11:29:39Z`  
+**Head**: `5788ad0`  
+**Commit**: `5788ad0`  
 
 ## Acceptance Criteria
 
-- [x] **Scaffold Templates (`templates.rs`)**: Opdatere `render_agents_md` og relaterede sektioner, så `xgauntlet checkpoint --phase <spec|red|green|refactor|done>` instrueres som standard uden variable task-numre.
-- [x] **Sovereign Skills (`tdd/SKILL.md` og `release/SKILL.md`)**: Erstatte rå `git commit`-eksempler og `-t <id>` i skills med de kanoniske, statiske `xgauntlet checkpoint --phase <fase>` kommandoer.
-- [x] **Agent Guidelines (`.agents/AGENTS.md`)**: Opdatere fase-oversigten med de statiske kommandoer.
-- [x] **CLI Help Docs (`main.rs`)**: Præcisere i `checkpoint` argument-hjælpeteksten, at `--task` er valgfri og automatisk udledes fra aktiv opgave.
-- [x] **Verifikation**: Køre `cargo test -p xgauntlet-core --test scaffold_engine_test` samt regressionstests og sikre, at alt passerer.
+- [x] Opdatere `CHANGELOG.md` med udførlige release notes for `0.13.0` under Keep a Changelog standarden.
+- [x] Synkronisere alle versionsmanifester til `0.13.0` i `Cargo.toml`, `package.json`, `.agents/plugins/xgauntlet/plugin.json` og `policy.json`.
+- [x] Køre `xgauntlet check-release` og bekræfte at alle manifester er i harmoni, og ADR coverage er 100%.
+- [x] Køre fuld verifikation `xgauntlet verify --task 065 --save` og bekræfte `[PASSED]`.
 
 ---
 
@@ -23,13 +22,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.064s` |
-| `format` | `PASSED` | `0` | `0.239s` |
-| `lint` | `PASSED` | `0` | `0.100s` |
-| `unit` | `PASSED` | `0` | `32.342s` |
-| `npm` | `PASSED` | `0` | `0.764s` |
-| `invariants` | `PASSED` | `0` | `0.052s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
+| `architecture` | `PASSED` | `0` | `0.104s` |
+| `format` | `PASSED` | `0` | `0.238s` |
+| `lint` | `PASSED` | `0` | `0.107s` |
+| `unit` | `PASSED` | `0` | `31.892s` |
+| `npm` | `PASSED` | `0` | `0.753s` |
+| `invariants` | `PASSED` | `0` | `0.069s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---
 
@@ -133,6 +132,7 @@
 | `sess-a3b59688` | `System Architect` | `SPEC` | `a3b5968` | `2026-11-08T11:22:04Z` | `VALID` |
 | `sess-f5977393` | `TDD Craftsman` | `RED` | `f597739` | `2026-11-08T11:22:33Z` | `VALID` |
 | `sess-39e55163` | `TDD Craftsman` | `GREEN` | `39e5516` | `2026-11-08T11:25:12Z` | `VALID` |
+| `sess-5788ad0d` | `TDD Craftsman` | `REFACTOR` | `5788ad0` | `2026-11-08T11:25:24Z` | `VALID` |
 
 ---
 
@@ -140,6 +140,9 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `6d875a00c0609a11...` | `2026-11-08T12:22:33+01:00` |
+| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `6d875a00c0609a11...` | `2026-11-08T12:22:33+01:00` |
+| `test_workspace_manifests_synchronized_to_version_0_13_0` | `RedCheckpointVerified` | `6d875a00c0609a11...` | `2026-11-08T12:22:33+01:00` |
 | `test_safe_non_destructive_guarantee_preserves_existing_files` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
 | `test_force_flag_overwrites_existing_files` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
 | `test_dry_run_does_not_modify_disk` | `RedCheckpointVerified` | `4e4417bb01a5dce5...` | `2026-11-08T12:08:23+01:00` |
@@ -157,8 +160,6 @@
 | `test_glossary_drift_detects_orphan_models_missing_in_context` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
 | `test_glossary_drift_passes_when_all_models_defined_in_context` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
 | `test_glossary_drift_detects_prohibited_avoid_synonyms_in_fields` | `RedCheckpointVerified` | `fc50f555532c4175...` | `2026-11-08T11:38:43+01:00` |
-| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `e82582c92b588673...` | `2026-11-07T21:27:43+01:00` |
-| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `e82582c92b588673...` | `2026-11-07T21:27:43+01:00` |
 | `test_ac1_architecture_config_toml_roundtrip_for_layers_slices_and_exemptions` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
 | `test_ac2_gate_a_layer_direction_violations_across_rust_ts_and_java` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
 | `test_ac2_gate_b_cross_slice_isolation_and_internal_slice_freedom` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
@@ -287,6 +288,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_workspace_manifests_synchronized_to_version_0_13_0` | `RedCheckpointVerified` | `6d875a00c0609a11...` | `2026-11-08T12:22:33+01:00` |
 
 ---
