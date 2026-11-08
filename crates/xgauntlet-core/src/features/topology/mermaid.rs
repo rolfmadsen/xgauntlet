@@ -37,6 +37,15 @@ pub fn export_mermaid_class_diagram(
     options: &MermaidExportOptions,
 ) -> String {
     let mut out = String::new();
+    if options.level == MermaidLevel::Conceptual {
+        out.push_str("%% ====================================================================\n");
+        out.push_str("%% 🏛️ xGauntlet Core Domain Model (Conceptual Architecture - CONTEXT.md)\n");
+        out.push_str(
+            "%% Reflects domain entities and aggregates. Operational errors and CLI flags\n",
+        );
+        out.push_str("%% are excluded in conceptual view (inspect via --level detailed).\n");
+        out.push_str("%% ====================================================================\n");
+    }
     out.push_str("classDiagram\n");
     let dir = if options.direction.trim().is_empty() {
         "TB"
@@ -61,6 +70,20 @@ pub fn export_mermaid_class_diagram(
         };
 
         if options.domain_only && options.level == MermaidLevel::Conceptual && !is_domain {
+            continue;
+        }
+
+        // Conceptual domain noise filtering: exclude operational errors and CLI options
+        let is_technical_scaffolding = options.level == MermaidLevel::Conceptual
+            && (node.name.ends_with("Error")
+                || node.name.ends_with("Exception")
+                || node.name.ends_with("Options")
+                || node.name.ends_with("Args")
+                || node.name == "Direction"
+                || node.name == "SemverBump"
+                || node.name == "PlatformTarget");
+
+        if is_technical_scaffolding {
             continue;
         }
 
@@ -134,23 +157,7 @@ pub fn export_mermaid_class_diagram(
                 .unwrap_or("");
 
             let rel_str = if label.is_empty() {
-                // If no edge label, check if from_node has a field referencing to_node.name
-                let inferred_label = from_node.metadata.get("fields").and_then(|f_str| {
-                    for f in f_str.split(',') {
-                        if let Some((f_name, f_type)) = f.split_once(':') {
-                            if f_type.contains(&to_node.name) {
-                                return Some(f_name.trim().to_string());
-                            }
-                        }
-                    }
-                    None
-                });
-
-                if let Some(inf) = inferred_label {
-                    format!("    {} *-- {} : {}\n", from_node.name, to_node.name, inf)
-                } else {
-                    format!("    {} *-- {}\n", from_node.name, to_node.name)
-                }
+                format!("    {} *-- {}\n", from_node.name, to_node.name)
             } else {
                 format!("    {} *-- {} : {}\n", from_node.name, to_node.name, label)
             };

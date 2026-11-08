@@ -359,4 +359,3 @@ pub struct InvoiceOptions {
         "Detailed diagram must retain technical CLI options InvoiceOptions:\n{mermaid_detailed}"
     );
 }
-
