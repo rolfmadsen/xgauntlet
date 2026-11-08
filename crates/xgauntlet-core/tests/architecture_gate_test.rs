@@ -477,3 +477,32 @@ max_lines = 2190
     );
     assert_eq!(cfg.architecture.exemptions[0].max_lines, Some(2190));
 }
+
+#[test]
+fn test_gate_b_1_level_slice_sibling_and_glob_exemption() {
+    let temp = TempDir::new("arch_1level_slice");
+    let ws = temp.path();
+    fs::create_dir_all(ws.join("src/features/tasks")).unwrap();
+    fs::create_dir_all(ws.join("src/features/config")).unwrap();
+    fs::create_dir_all(ws.join("docs/adr")).unwrap();
+    fs::write(ws.join("docs/adr/0012.md"), "---\nstatus: accepted\n---\n").unwrap();
+    fs::write(ws.join("src/features/tasks/models.rs"), "pub struct T;\n").unwrap();
+    fs::write(ws.join("src/features/config/models.rs"), "pub struct C;\n").unwrap();
+    let code = "use crate::features::tasks::models::T;\nuse crate::features::config::models::C;\n";
+    fs::write(ws.join("src/features/tasks/validator.rs"), code).unwrap();
+    let ex = ArchitectureExemption {
+        path: "src/features/**".into(),
+        reason: "Allow config slice".into(),
+        adr: "docs/adr/0012.md".into(),
+        allow_imports: vec!["crate::features::config".into()],
+        ..Default::default()
+    };
+    let cfg = ArchitectureConfig {
+        isolate_slices: true,
+        slice_root: "src/features".into(),
+        exemptions: vec![ex],
+        ..Default::default()
+    };
+    let report = run_architecture_check(ws, &cfg).expect("run architecture check");
+    assert!(report.is_valid, "Findings: {:?}", report.findings);
+}

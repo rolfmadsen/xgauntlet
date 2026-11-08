@@ -334,3 +334,96 @@ pub struct TaskInfo {
         report.avoid_violations
     );
 }
+
+#[test]
+fn test_check_spec_supports_1_level_slice_without_subdomain() {
+    use xgauntlet_core::features::tasks::{
+        check_task_specification, ScaffoldTaskOptions, TaskScaffolder,
+    };
+
+    let ws = TempWorkspace::new("slice_1_level_spec");
+    let ws_path = ws.path();
+    fs::create_dir_all(ws_path.join("specs")).unwrap();
+    fs::write(ws_path.join("specs/architecture.md"), "# Architecture\n").unwrap();
+    fs::write(
+        ws_path.join("CONTEXT.md"),
+        "---\ntype: Knowledge Bundle Index\nstatus: stable\n---\n# Context\n**Architecture**:\nBoundary gate.\n_Avoid_: monolith.\n",
+    )
+    .unwrap();
+
+    let opts = ScaffoldTaskOptions {
+        name: "1-level-slice-task".into(),
+        title: Some("1-Level Slice Task".into()),
+        intent: Some("enhancement".into()),
+        purpose: None,
+        workspace: ws_path.to_path_buf(),
+        force: true,
+    };
+    let scaffolded = TaskScaffolder::scaffold_slice(&opts, None, Some("architecture"))
+        .expect("create 1-level slice task");
+    let task_path = scaffolded.path;
+
+    let content = fs::read_to_string(&task_path).unwrap();
+    assert!(
+        content.contains("slice: architecture")
+            && content.contains("spec_ref: \"specs/architecture.md\"")
+            && !content.contains("domain:"),
+        "Expected 1-level slice frontmatter without domain, got:\n{}",
+        content
+    );
+
+    let report = check_task_specification(&task_path, ws_path);
+    assert!(
+        report.is_valid,
+        "1-level slice task with specs/<slice>.md must pass check-spec, diagnostics: {:?}",
+        report.diagnostics
+    );
+}
+
+#[test]
+fn test_glossary_drift_supports_parenthetical_aliases_and_dogfoods_workspace() {
+    let ws = TempWorkspace::new("parenthetical_aliases");
+    let ws_path = ws.path();
+
+    let context_content = r#"---
+type: Knowledge Bundle Index
+title: "Test Context"
+status: stable
+---
+
+# Test Context
+
+**Architecture Gate (ArchitectureConfig / ArchitectureReport)**:
+Deterministic structural verifier.
+_Avoid_: ad-hoc lint.
+"#;
+    fs::write(ws_path.join("CONTEXT.md"), context_content).unwrap();
+
+    let models_dir = ws_path.join("crates/xgauntlet-core/src/features/architecture");
+    fs::create_dir_all(&models_dir).unwrap();
+    fs::write(
+        models_dir.join("models.rs"),
+        "pub struct ArchitectureConfig {\n    pub isolate_slices: bool,\n}\npub struct ArchitectureReport {\n    pub is_valid: bool,\n}\n",
+    )
+    .unwrap();
+
+    let report = validate_glossary_drift(ws_path, &GlossaryDriftOptions::default());
+    assert!(
+        report.is_valid,
+        "Parenthetical slash-separated model aliases must be recognized, orphans: {:?}",
+        report.orphan_models
+    );
+
+    let repo_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap();
+    let repo_report = validate_glossary_drift(repo_root, &GlossaryDriftOptions::default());
+    assert!(
+        repo_report.is_valid,
+        "xgauntlet's own workspace must pass glossary drift check, orphans: {:?}, avoid: {:?}",
+        repo_report.orphan_models,
+        repo_report.avoid_violations
+    );
+}
