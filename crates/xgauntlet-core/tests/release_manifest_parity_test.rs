@@ -175,7 +175,7 @@ version = "0.12.0"
 }
 
 #[test]
-fn test_workspace_manifests_synchronized_to_version_0_14_0() {
+fn test_workspace_manifests_synchronized_to_version_0_15_0() {
     let repo_root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .unwrap()
@@ -183,10 +183,14 @@ fn test_workspace_manifests_synchronized_to_version_0_14_0() {
         .unwrap();
 
     let summary = extract_declared_versions(repo_root).expect("extract declared versions");
+    assert!(
+        !summary.versions_by_source.is_empty(),
+        "Expected at least one declared manifest version"
+    );
     for (file, ver) in &summary.versions_by_source {
         assert_eq!(
-            ver, "0.14.0",
-            "Manifest '{file}' must be synchronized to release version 0.14.0"
+            ver, "0.15.0",
+            "Manifest '{file}' must be synchronized to release version 0.15.0"
         );
     }
 }
