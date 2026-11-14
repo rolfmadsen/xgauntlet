@@ -10,14 +10,16 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::atomic::{AtomicU64, Ordering};
 
+use xgauntlet_core::features::checkpoint::engine::run_checkpoint;
 use xgauntlet_core::features::checkpoint::models::{CheckpointOptions, CheckpointPhase};
 use xgauntlet_core::features::checkpoint::preflight::{
     resolve_scoped_test_command, run_preflight_check, RustTestTarget,
 };
 use xgauntlet_core::features::checkpoint::provenance::{
-    evaluate_fast_track_inverse_proof, is_fast_track_eligible,
+    is_fast_track_eligible, TestProvenanceStatus,
 };
 use xgauntlet_core::features::gauntlet::{execute_gauntlet_pipeline, GauntletOptions};
+use xgauntlet_core::features::tasks::check_task_specification;
 use xgauntlet_core::features::tasks::models::{TaskPackageInfo, TaskStatus};
 
 static TEST_COUNTER: AtomicU64 = AtomicU64::new(1);
@@ -280,31 +282,42 @@ fn test_fast_track_eligibility_criteria() {
     // 5. Disqualified: touched gauntlet.toml
     let gauntlet_changes = vec!["gauntlet.toml".to_string()];
     assert!(!is_fast_track_eligible(&task, &gauntlet_changes));
+
+    // 6. Disqualified: wildcard globs in scope (* or **) even when scope.len() <= 3
+    task.scope = vec!["src/**".to_string()];
+    assert!(
+        !is_fast_track_eligible(&task, &changed_files),
+        "Wildcard glob 'src/**' must disqualify Fast-Track eligibility"
+    );
+    task.scope = vec!["src/*.rs".to_string()];
+    assert!(
+        !is_fast_track_eligible(&task, &changed_files),
+        "Wildcard glob 'src/*.rs' must disqualify Fast-Track eligibility"
+    );
 }
 
-#[test]
-fn test_fast_track_worktree_inverse_proof_born_green_rejection() {
-    let ws = TempWorkspace::new("worktree_born_green");
+#[tokio::test]
+async fn test_fast_track_done_without_red_commit_fails_closed() {
+    let ws = TempWorkspace::new("fast_track_requires_red");
     init_git_repo(ws.path());
 
-    // Commit baseline code
     let src_dir = ws.path().join("src");
-    fs::create_dir_all(&src_dir).unwrap();
-    fs::write(src_dir.join("lib.rs"), "pub fn answer() -> u32 { 42 }").unwrap();
-
     let tests_dir = ws.path().join("tests");
+    let tasks_dir = ws.path().join("tasks");
+    fs::create_dir_all(&src_dir).unwrap();
     fs::create_dir_all(&tests_dir).unwrap();
+    fs::create_dir_all(&tasks_dir).unwrap();
 
+    fs::write(ws.path().join(".gitignore"), "target/\n").unwrap();
+    fs::write(src_dir.join("lib.rs"), "pub fn compute() -> i32 { 10 }").unwrap();
     fs::write(
         ws.path().join("Cargo.toml"),
-        r#"[package]
-name = "mock_repo"
-version = "0.1.0"
-edition = "2021"
-
-[lib]
-path = "src/lib.rs"
-"#,
+        "[package]\nname = \"math_pkg\"\nversion = \"0.1.0\"\nedition = \"2021\"\n\n[lib]\npath = \"src/lib.rs\"\n",
+    )
+    .unwrap();
+    fs::write(
+        ws.path().join("gauntlet.toml"),
+        "[project]\nname = \"math_pkg\"\nversion = \"0.1.0\"\n\n[[layers]]\nname = \"unit\"\ncommand = [\"true\"]\n",
     )
     .unwrap();
 
@@ -317,34 +330,74 @@ path = "src/lib.rs"
         .current_dir(ws.path())
         .output();
 
-    // Now introduce a born-green test (already passes against HEAD)
-    let test_file = tests_dir.join("dummy_test.rs");
+    // Deliver fix + test without any preceding RED commit
+    fs::write(src_dir.join("lib.rs"), "pub fn compute() -> i32 { 20 }").unwrap();
     fs::write(
-        &test_file,
-        r#"
-#[test]
-fn test_always_passes() {
-    assert_eq!(mock_repo::answer(), 42);
-}
+        tests_dir.join("calc_test.rs"),
+        "#[test]\nfn test_fixed_compute() { assert_eq!(math_pkg::compute(), 20); }\n",
+    )
+    .unwrap();
+    fs::write(
+        tasks_dir.join("043-bugfix.md"),
+        r#"---
+type: Task Package
+title: "Task 043: Bugfix"
+status: active
+intent: bug
+scope:
+  - "src/lib.rs"
+test_refs:
+  - "tests/calc_test.rs"
+---
+# Task 043: Bugfix
+**Status**: `ACTIVE`
+**Intent**: `🐛 BUG FIX`
+## 🎯 Formål
+Fix compute return value.
+## 📋 Acceptance Criteria
+- [x] Fix calculation bug
+## 🚫 Must NOT
+- Must not break existing contracts
 "#,
     )
     .unwrap();
 
-    let test_refs = vec!["tests/dummy_test.rs".to_string()];
-    let res = evaluate_fast_track_inverse_proof(ws.path(), &test_refs);
-
-    // Must be rejected as born-green
+    // 1. checkpoint -p done preflight MUST fail closed with RED guidance
+    let opts = CheckpointOptions::new(CheckpointPhase::Done, ws.path()).with_task_id("043");
+    let preflight_res = run_preflight_check(&opts).await;
     assert!(
-        res.is_err(),
-        "Born-green test must be rejected by inverse proof"
+        preflight_res.is_err(),
+        "Fast-Track DONE without preceding RED commit must fail closed"
     );
-    let err_msg = format!("{:?}", res.err().unwrap());
-    let upper = err_msg.to_ascii_uppercase();
+    let err_msg = format!("{:?}", preflight_res.err().unwrap()).to_ascii_lowercase();
     assert!(
-        upper.contains("BORNGREEN")
-            || upper.contains("BORN_GREEN")
-            || upper.contains("TAUTOLOGICAL"),
-        "Error message should mention born-green / tautological: {err_msg}"
+        err_msg.contains("red"),
+        "Error message must guide user to run checkpoint -p red first: {err_msg}"
+    );
+
+    // 2. execute_gauntlet_pipeline MUST also fail closed with RED guidance (no worktree inverse proof)
+    let outcome = execute_gauntlet_pipeline(
+        ws.path(),
+        &GauntletOptions {
+            task_id: Some("043".to_string()),
+            save_evidence: false,
+            layers: None,
+        },
+    )
+    .await
+    .unwrap();
+    assert!(
+        !outcome.success,
+        "Pipeline must reject Fast-Track verification without preceding RED commit"
+    );
+    assert!(
+        outcome
+            .report
+            .diagnostics
+            .iter()
+            .any(|d| d.message.to_ascii_lowercase().contains("red")),
+        "Diagnostics must guide user to run checkpoint -p red: {:?}",
+        outcome.report.diagnostics
     );
 }
 
@@ -402,8 +455,8 @@ test_refs:
 }
 
 #[tokio::test]
-async fn test_fast_track_worktree_inverse_proof_in_pipeline() {
-    let ws = TempWorkspace::new("pipeline_inverse_proof");
+async fn test_fast_track_two_step_red_to_done_pipeline() {
+    let ws = TempWorkspace::new("fast_track_red_to_done");
     init_git_repo(ws.path());
 
     // 1. Commit baseline
@@ -414,6 +467,7 @@ async fn test_fast_track_worktree_inverse_proof_in_pipeline() {
     fs::create_dir_all(&tests_dir).unwrap();
     fs::create_dir_all(&tasks_dir).unwrap();
 
+    fs::write(ws.path().join(".gitignore"), "target/\n").unwrap();
     fs::write(src_dir.join("lib.rs"), "pub fn compute() -> i32 { 10 }").unwrap();
     fs::write(
         ws.path().join("Cargo.toml"),
@@ -454,10 +508,7 @@ command = ["cargo", "test"]
         .current_dir(ws.path())
         .output();
 
-    // 2. Introduce a bugfix in scope and a regression test in test_refs
-    // Fix: compute returns 20
-    fs::write(src_dir.join("lib.rs"), "pub fn compute() -> i32 { 20 }").unwrap();
-    // Test: expects compute() == 20 (which FAILS on baseline HEAD, and PASSES on workspace!)
+    // 2. Write failing regression test and create RED checkpoint (step 1 of 2-step Fast-Track)
     fs::write(
         tests_dir.join("calc_test.rs"),
         r#"
@@ -475,6 +526,7 @@ fn test_fixed_compute() {
 type: Task Package
 title: "Task 043: Bugfix"
 status: active
+intent: bug
 scope:
   - "src/lib.rs"
 test_refs:
@@ -483,12 +535,25 @@ test_refs:
 # Task 043: Bugfix
 **Status**: `ACTIVE`
 **Intent**: `🐛 BUG FIX`
+## 🎯 Formål
+Fix calculation bug.
 ## 📋 Acceptance Criteria
 - [x] Fix calculation bug
+## 🚫 Must NOT
+- Must not regress
 "#,
     )
     .unwrap();
 
+    let red_res = run_checkpoint(&CheckpointOptions::new(CheckpointPhase::Red, ws.path()))
+        .await
+        .expect("RED checkpoint must pass when regression test fails against baseline");
+    assert_eq!(red_res.phase, CheckpointPhase::Red);
+
+    // 3. Apply fix directly in scope (no GREEN/REFACTOR commits needed)
+    fs::write(src_dir.join("lib.rs"), "pub fn compute() -> i32 { 20 }").unwrap();
+
+    // 4. Pipeline verify (and DONE checkpoint) must succeed with fast_track_red_to_done proof_mode
     let outcome = execute_gauntlet_pipeline(
         ws.path(),
         &GauntletOptions {
@@ -506,7 +571,107 @@ test_refs:
     );
     assert_eq!(
         outcome.report.proof_mode.as_deref(),
-        Some("worktree_inverse_proof"),
-        "Pipeline must record proof_mode = worktree_inverse_proof for 1-step Fast-Track"
+        Some("fast_track_red_to_done"),
+        "Pipeline must record proof_mode = fast_track_red_to_done for 2-step Fast-Track"
+    );
+    assert!(
+        outcome
+            .report
+            .test_provenance
+            .as_ref()
+            .is_some_and(|list| list
+                .iter()
+                .any(|p| p.status == TestProvenanceStatus::RedCheckpointVerified)),
+        "Provenance must contain RedCheckpointVerified entry"
+    );
+}
+
+#[test]
+fn test_small_bugfix_exempt_from_feature_spec_mapping() {
+    let ws = TempWorkspace::new("small_bugfix_no_spec_block");
+    fs::create_dir_all(ws.path().join("tasks")).unwrap();
+    fs::create_dir_all(ws.path().join("specs")).unwrap();
+    fs::write(
+        ws.path().join("CONTEXT.md"),
+        "**Task**:\nAn executable unit of work.\n_Avoid_: Ticket.\n",
+    )
+    .unwrap();
+    fs::write(
+        ws.path().join("gauntlet.toml"),
+        "stack = \"rust\"\n[architecture]\nfeature_root = \"src/features\"\nisolate_features = true\n",
+    )
+    .unwrap();
+
+    let write_task = |name: &str, scope_yaml: &str, extra_frontmatter: &str| -> PathBuf {
+        let p = ws.path().join("tasks").join(name);
+        fs::write(
+            &p,
+            format!(
+                "---\ntype: Task Package\ntitle: \"Task: Bugfix\"\ndescription: \"Fix\"\nstatus: active\nintent: bug\n{extra_frontmatter}generated: {{ by: process:xgauntlet, at: \"2026-11-14T10:00:00Z\" }}\ntags: [bug]\n{scope_yaml}\ntest_refs: [\"tests/bug_test.rs\"]\n---\n\n# Task\n\n## 🎯 Formål\nFix defect.\n\n## 📋 Acceptance Criteria\n- [ ] AC1: Fixed.\n\n## 🚫 Must NOT\n- Never break invariants.\n"
+            ),
+        )
+        .unwrap();
+        p
+    };
+
+    // 1. Small bugfix (<= 3 concrete paths) touching feature_root without feature/spec_ref -> MUST PASS
+    let small_bug = write_task(
+        "010-small-bug.md",
+        "scope:\n  - \"src/features/auth/login.rs\"\n  - \"src/features/auth/token.rs\"",
+        "",
+    );
+    let rep_small = check_task_specification(&small_bug, ws.path());
+    assert!(
+        rep_small.is_valid,
+        "Small bugfix (<= 3 concrete files) must not require feature-spec mapping, got: {:?}",
+        rep_small.diagnostics
+    );
+
+    // 2. Wildcard glob in bugfix scope -> MUST still require feature-spec mapping
+    let wildcard_bug = write_task(
+        "011-wildcard-bug.md",
+        "scope:\n  - \"src/features/auth/**\"",
+        "",
+    );
+    let rep_wildcard = check_task_specification(&wildcard_bug, ws.path());
+    assert!(
+        rep_wildcard
+            .diagnostics
+            .iter()
+            .any(|d| d.tool_name == "MISSING_TASK_FEATURE_MAPPING"),
+        "Wildcard bugfix scope must not bypass feature mapping, got: {:?}",
+        rep_wildcard.diagnostics
+    );
+
+    // 3. Large bugfix (> 3 files) -> MUST still require feature-spec mapping
+    let large_bug = write_task(
+        "012-large-bug.md",
+        "scope:\n  - \"src/features/a.rs\"\n  - \"src/features/b.rs\"\n  - \"src/features/c.rs\"\n  - \"src/features/d.rs\"",
+        "",
+    );
+    let rep_large = check_task_specification(&large_bug, ws.path());
+    assert!(
+        rep_large
+            .diagnostics
+            .iter()
+            .any(|d| d.tool_name == "MISSING_TASK_FEATURE_MAPPING"),
+        "Bugfix with scope.len() > 3 must require feature mapping, got: {:?}",
+        rep_large.diagnostics
+    );
+
+    // 4. Small bugfix WITH explicit feature/spec_ref -> MUST still validate missing spec file
+    let explicit_bug = write_task(
+        "013-explicit-feature-bug.md",
+        "scope:\n  - \"src/features/auth/login.rs\"",
+        "feature: auth\nspec_ref: \"specs/auth.md\"\n",
+    );
+    let rep_explicit = check_task_specification(&explicit_bug, ws.path());
+    assert!(
+        rep_explicit
+            .diagnostics
+            .iter()
+            .any(|d| d.tool_name == "MISSING_FEATURE_SPEC_FILE"),
+        "Explicit feature/spec_ref on bugfix must still validate spec file existence, got: {:?}",
+        rep_explicit.diagnostics
     );
 }
