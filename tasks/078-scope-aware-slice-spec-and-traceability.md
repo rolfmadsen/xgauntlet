@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 078: Scope-Aware Slice Spec Mapping & Two-Way Spec-Feature-Task Traceability"
 description: "Gør check-spec slice-validering scope-bevidst (kræv kun specs/<slice>.md når taskens scope faktisk berører slice_root) og etablér synlig to-vejs sporbarhed mellem spec.md, specs/<slice>.md og tasks/<id>.md."
-status: active
+status: done
 intent: enhancement
 slice: tasks
 spec_ref: "specs/tasks.md"
@@ -27,7 +27,7 @@ test_refs:
 
 # Task 078: Scope-Aware Slice Spec Mapping & Two-Way Spec-Feature-Task Traceability
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-14`
 
@@ -46,13 +46,13 @@ Sikre en reel, meningsfuld sammenhæng mellem **Applikation (`spec.md`) $\leftri
    - Hver `specs/<slice>.md` (samt templates oprettet af `xgauntlet task new --slice <slice>`) indeholder en `## 📋 Relaterede Tasks`-sektion med klikbare links til de tasks, der har formet slicen, så udvikleren kan navigere begge veje mellem featurens nu-tilstand og dens ændringshistorik.
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Scope-Aware Slice Mapping i `validator.rs`):**
+- [x] **AC1 (Scope-Aware Slice Mapping i `validator.rs`):**
   - En aktiv `feature`/`enhancement`/`bug`-task uden `slice`/`spec_ref`, hvis `scope` *ikke* rammer `architecture.slice_root` (f.eks. `scope: [".agents/plugins/xgauntlet/skills/**"]`), består `check_task_specification` med 0 `MISSING_TASK_SLICE_MAPPING`-fejl.
   - En aktiv `feature`/`enhancement`/`bug`-task uden `slice`/`spec_ref`, hvis `scope` *rammer* `architecture.slice_root` (f.eks. `scope: ["src/features/diagram/canvas/**"]`), fejler fortsat med `MISSING_TASK_SLICE_MAPPING`.
-- [ ] **AC2 (To-vejs navigations- og sporbarhedsstruktur):**
+- [x] **AC2 (To-vejs navigations- og sporbarhedsstruktur):**
   - `TaskScaffolder` (`lifecycle.rs`) inkluderer en `## 📋 Relaterede Tasks`-sektion ved oprettelse af nye `specs/<slice>.md`-filer og tilføjer link til den nye task.
   - `spec.md` og eksisterende `specs/*.md` (`architecture.md`, `release.md`, `topology.md`, samt ny `specs/tasks.md`) opdateres med to-vejs links mellem system-spec, slice-spec og relaterede tasks.
-- [ ] **AC3 (Skill-dokumentation & Regressionstests):**
+- [x] **AC3 (Skill-dokumentation & Regressionstests):**
   - `.agents/plugins/xgauntlet/skills/spec/SKILL.md` dokumenterer samspillet mellem `spec.md` (Applikation), `specs/<slice>.md` (Feature nu-tilstand) og `tasks/<id>.md` (Delta), samt at kun tasks der rører `slice_root` kræver `spec_ref`.
   - Nye og eksisterende tests i `crates/xgauntlet-core/tests/slice_architecture_and_adr_lifecycle_test.rs` passerer 100%.
 

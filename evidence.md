@@ -1,27 +1,19 @@
 # Verification Report
 
-**Task ID**: `076-release-v0-14-0`  
-**Task Title**: Task 076: Release v0.14.0 Preparation & Manifest Bump  
+**Task ID**: `078-scope-aware-slice-spec-and-traceability`  
+**Task Title**: Task 078: Scope-Aware Slice Spec Mapping & Two-Way Spec-Feature-Task Traceability  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `0a5d83dbd549b063af8d8b2f65ca0ff1c5485f54b25b0a185e0e97488a93b1b9`  
-**Timestamp**: `2026-11-08T21:31:29Z`  
-**Head**: `3aa0594`  
-**Commit**: `3aa0594`  
+**Source Manifest Digest**: `f75bf42a9668d67a9a00ddd4dff2ee0515ddd7d5468c0b42d7937cc3c7149c6f`  
+**Timestamp**: `2026-11-14T14:27:32Z`  
+**Head**: `79221d8`  
+**Commit**: `79221d8`  
 
 ## Acceptance Criteria
 
-- [x] **Acceptance Test for Version 0.14.0 (RED phase)**:
-- [x] `crates/xgauntlet-core/tests/release_manifest_parity_test.rs` opdateres til at kræve version `0.14.0` på tværs af alle manifester og bevises rød før ændringer.
-- [x] **Manifest-opgradering til 0.14.0**:
-- [x] Opdatere alle 8 manifester til `0.14.0`.
-- [x] **WASM Policy Bytecode Rebuild**:
-- [x] Genkompilere `gauntlet-policy-engine` til version `0.14.0` og opdatere `crates/xgauntlet-core/wasm/gauntlet_policy.wasm`.
-- [x] **Changelog Rotation**:
-- [x] `CHANGELOG.md` opdateres med `[0.14.0] - 2026-11-08` dækkende Tasks 071-075.
-- [x] **Release Gatekeeper & Verifikation**:
-- [x] `xgauntlet check-release` rapporterer fuld release-paritet og 100% ADR dækning for `0.14.0`.
-- [x] `target/debug/xgauntlet verify --task 076 --save` passerer med `Self-mutation status: CLEAN`.
+- [x] **AC1 (Scope-Aware Slice Mapping i `validator.rs`):**
+- [x] **AC2 (To-vejs navigations- og sporbarhedsstruktur):**
+- [x] **AC3 (Skill-dokumentation & Regressionstests):**
 
 ---
 
@@ -29,13 +21,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.097s` |
-| `format` | `PASSED` | `0` | `0.267s` |
-| `lint` | `PASSED` | `0` | `0.132s` |
-| `unit` | `PASSED` | `0` | `32.358s` |
-| `npm` | `PASSED` | `0` | `0.799s` |
-| `invariants` | `PASSED` | `0` | `0.082s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.020s` |
+| `architecture` | `PASSED` | `0` | `0.118s` |
+| `format` | `PASSED` | `0` | `0.240s` |
+| `lint` | `PASSED` | `0` | `0.124s` |
+| `unit` | `PASSED` | `0` | `31.271s` |
+| `npm` | `PASSED` | `0` | `0.740s` |
+| `invariants` | `PASSED` | `0` | `0.080s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.011s` |
 
 ---
 
@@ -196,6 +188,7 @@
 | `sess-e1194359` | `System Architect` | `SPEC` | `e119435` | `2026-11-14T14:21:06Z` | `VALID` |
 | `sess-3d875738` | `TDD Craftsman` | `RED` | `3d87573` | `2026-11-14T14:21:52Z` | `VALID` |
 | `sess-b74d56c9` | `TDD Craftsman` | `GREEN` | `b74d56c` | `2026-11-14T14:23:40Z` | `VALID` |
+| `sess-79221d85` | `TDD Craftsman` | `REFACTOR` | `79221d8` | `2026-11-14T14:24:15Z` | `VALID` |
 
 ---
 
@@ -203,6 +196,14 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_ac1_architecture_config_toml_roundtrip_for_layers_slices_and_exemptions` | `RedCheckpointVerified` | `d8b4713b9075ede3...` | `2026-11-14T15:21:52+01:00` |
+| `test_ac2_gate_a_layer_direction_violations_across_rust_ts_and_java` | `RedCheckpointVerified` | `d8b4713b9075ede3...` | `2026-11-14T15:21:52+01:00` |
+| `test_ac2_gate_b_cross_slice_isolation_and_internal_slice_freedom` | `RedCheckpointVerified` | `d8b4713b9075ede3...` | `2026-11-14T15:21:52+01:00` |
+| `test_ac2_gate_c_clean_core_forbids_ui_framework_imports` | `RedCheckpointVerified` | `d8b4713b9075ede3...` | `2026-11-14T15:21:52+01:00` |
+| `test_ac3_domain_slice_task_spec_ref_validation_and_done_exemption` | `RedCheckpointVerified` | `d8b4713b9075ede3...` | `2026-11-14T15:21:52+01:00` |
+| `test_ac4_adr_lifecycle_statuses_and_release_coverage_filtering` | `RedCheckpointVerified` | `d8b4713b9075ede3...` | `2026-11-14T15:21:52+01:00` |
+| `test_ac5_sovereign_skills_and_coding_standards_document_slice_taxonomy_and_polyglot_examples` | `RedCheckpointVerified` | `d8b4713b9075ede3...` | `2026-11-14T15:21:52+01:00` |
+| `test_task_078_scope_aware_slice_mapping_and_two_way_traceability` | `RedCheckpointVerified` | `d8b4713b9075ede3...` | `2026-11-14T15:21:52+01:00` |
 | `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `8b1172de0151fbec...` | `2026-11-08T22:27:21+01:00` |
 | `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `8b1172de0151fbec...` | `2026-11-08T22:27:21+01:00` |
 | `test_workspace_manifests_synchronized_to_version_0_14_0` | `RedCheckpointVerified` | `8b1172de0151fbec...` | `2026-11-08T22:27:21+01:00` |
@@ -251,13 +252,6 @@
 | `test_scaffold_gauntlet_toml_contains_architecture_guidance` | `RedCheckpointVerified` | `6c0e45497d42950a...` | `2026-11-08T11:58:40+01:00` |
 | `test_readme_documents_architecture_gates_and_safe_mode` | `RedCheckpointVerified` | `6c0e45497d42950a...` | `2026-11-08T11:58:40+01:00` |
 | `test_readme_documents_brownfield_migration_blueprint` | `RedCheckpointVerified` | `6c0e45497d42950a...` | `2026-11-08T11:58:40+01:00` |
-| `test_ac1_architecture_config_toml_roundtrip_for_layers_slices_and_exemptions` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
-| `test_ac2_gate_a_layer_direction_violations_across_rust_ts_and_java` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
-| `test_ac2_gate_b_cross_slice_isolation_and_internal_slice_freedom` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
-| `test_ac2_gate_c_clean_core_forbids_ui_framework_imports` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
-| `test_ac3_domain_slice_task_spec_ref_validation_and_done_exemption` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
-| `test_ac4_adr_lifecycle_statuses_and_release_coverage_filtering` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
-| `test_ac5_sovereign_skills_and_coding_standards_document_slice_taxonomy_and_polyglot_examples` | `RedCheckpointVerified` | `046a1345f774cbae...` | `2026-11-07T17:57:31+01:00` |
 | `test_concurrent_worktree_inverse_preflight_and_nonce_uniqueness` | `RedCheckpointVerified` | `1d6dcd40465bcc03...` | `2026-11-02T07:02:57+01:00` |
 | `test_macos_style_symlinked_temp_and_workspace_parity` | `RedCheckpointVerified` | `1d6dcd40465bcc03...` | `2026-11-02T07:02:57+01:00` |
 | `test_codebase_free_of_collision_prone_temp_paths_and_unix_only_env` | `RedCheckpointVerified` | `1d6dcd40465bcc03...` | `2026-11-02T07:02:57+01:00` |
@@ -367,6 +361,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_task_078_scope_aware_slice_mapping_and_two_way_traceability` | `RedCheckpointVerified` | `d8b4713b9075ede3...` | `2026-11-14T15:21:52+01:00` |
 
 ---
