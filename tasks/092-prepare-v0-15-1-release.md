@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 092: Clean Cargo.toml, Add Dependabot & Prepare Release v0.15.1"
 description: "Fjerner ubrugte workspace-felter i Cargo.toml (ed25519-dalek og authors), tilføjer .github/dependabot.yml for automatiske afhængighedsadvarsler og udfører xgauntlet release prepare 0.15.1 med lokalt commit og annoteret tag v0.15.1."
-status: active
+status: done
 intent: enhancement
 generated: { by: process:antigravity-task-init, at: "2026-11-14T23:06:00Z" }
 tags: [release, v0.15.1, cargo, dependabot, maintenance, tag]
@@ -29,7 +29,7 @@ test_refs:
 
 # Task 092: Clean Cargo.toml, Add Dependabot & Prepare Release v0.15.1
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-14`
 
