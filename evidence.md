@@ -1,20 +1,22 @@
 # Verification Report
 
-**Task ID**: `085-hud-start-end-protocol-and-session-telemetry-wiring`  
-**Task Title**: Task 085: HUD Start/End Protocol & Active Session Telemetry Wiring  
+**Task ID**: `056-simplify-fast-track-and-retire-worktree-inverse-proof`  
+**Task Title**: Task 056: Simplify Fast-Track Protocol, Retire Worktree Inverse Proof & Ultralight Bugfix DX  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `1fdb13ce7e31fa673a6937d11e75fe82627bb0cbeeb398f0f268c10dc3ddd0d9`  
-**Timestamp**: `2026-11-14T17:35:43Z`  
-**Head**: `d4caef3`  
-**Commit**: `d4caef3`  
+**Source Manifest Digest**: `d325a6abb30da84b6537a54bf93582a45081e6c1bacf7e2d04585cdfe2018f8c`  
+**Timestamp**: `2026-11-14T20:25:03Z`  
+**Head**: `460337d`  
+**Commit**: `460337d`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (HUD Start/Eskalering/Slut-Regel i `.agents/AGENTS.md` & Scaffold):**
-- [x] **AC2 (Aktiv `PreInvocation` Session-Wiring, Dedup & `.xgauntlet/` Isolation):**
-- [x] **AC3 (Synkroniseret HUD-Skabelon med `Session:`-Metrik):**
-- [x] **AC4 (Snapshot-Sikker Transcript-/Payload-Berigelse uden Dæmon eller Netværk):**
+- [x] **AC1 — Forenkling af Fast-Track Tilstandsmaskine (Rent 2-Trins `RED -> DONE` Flow):**
+- [x] **AC2 — Udfasning af 1-Trins `evaluate_fast_track_inverse_proof`:**
+- [x] **AC3 — Kompakt CLI One-Liner til Bugfixes (`task new`):**
+- [x] **AC4 — Ingen Feature-Spec Blokering på Små Bugfixes:**
+- [x] **AC5 — Opdatering af Governance, Living Specs, Glossary & Skills:**
+- [x] **AC6 — Regressionstest & Paritet:**
 
 ---
 
@@ -22,13 +24,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.087s` |
-| `format` | `PASSED` | `0` | `0.273s` |
-| `lint` | `PASSED` | `0` | `0.940s` |
-| `unit` | `PASSED` | `0` | `36.161s` |
-| `npm` | `PASSED` | `0` | `0.821s` |
-| `invariants` | `PASSED` | `0` | `0.122s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
+| `architecture` | `PASSED` | `0` | `0.084s` |
+| `format` | `PASSED` | `0` | `0.264s` |
+| `lint` | `PASSED` | `0` | `0.144s` |
+| `unit` | `PASSED` | `0` | `33.496s` |
+| `npm` | `PASSED` | `0` | `0.783s` |
+| `invariants` | `PASSED` | `0` | `0.061s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---
 
@@ -217,6 +219,7 @@
 | `sess-843483c9` | `Software Engineer` | `DONE` | `843483c` | `2026-11-14T17:35:43Z` | `VALID` |
 | `sess-c429cb45` | `System Architect` | `SPEC` | `c429cb4` | `2026-11-14T20:18:51Z` | `VALID` |
 | `sess-f2e6e4df` | `TDD Craftsman` | `RED` | `f2e6e4d` | `2026-11-14T20:20:03Z` | `VALID` |
+| `sess-460337d0` | `TDD Craftsman` | `GREEN` | `460337d` | `2026-11-14T20:23:03Z` | `VALID` |
 
 ---
 
@@ -224,6 +227,20 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_cli_task_id_alias_supported_on_verify` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_cli_task_id_alias_supported_on_check_spec` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_cli_task_id_alias_supported_on_handoff` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_cli_task_new_bugfix_one_liner_with_scope_and_test` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_rust_target_resolver_standalone_integration_test` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_rust_target_resolver_harness_submodule` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_rust_target_resolver_lib_unit_test` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_rust_target_resolver_multi_crate_workspace` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_fast_track_eligibility_criteria` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_fast_track_done_without_red_commit_fails_closed` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_phase_machine_blocks_skipping_phases_for_non_fast_track` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_fast_track_two_step_red_to_done_pipeline` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_fixed_compute` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_small_bugfix_exempt_from_feature_spec_mapping` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
 | `test_ac1_pre_invocation_schema_compliance_flat_format` | `RedCheckpointVerified` | `a34554b27e5c2116...` | `2026-11-14T18:28:44+01:00` |
 | `test_ac1_pre_invocation_legacy_grouped_normalization` | `RedCheckpointVerified` | `a34554b27e5c2116...` | `2026-11-14T18:28:44+01:00` |
 | `test_ac2_scaffold_hooks_fails_on_corrupt_json_without_clobbering` | `RedCheckpointVerified` | `a34554b27e5c2116...` | `2026-11-14T18:28:44+01:00` |
@@ -370,10 +387,6 @@
 | `test_hook_read_only_tools_allowed_in_spec_phase` | `RedCheckpointVerified` | `5971e55478f0a410...` | `2026-11-01T22:26:55+01:00` |
 | `test_rust_stack_profile_deduplication` | `RedCheckpointVerified` | `5971e55478f0a410...` | `2026-11-01T22:26:55+01:00` |
 | `test_hook_blocks_command_injection_and_unscoped_git_commit_without_task` | `RedCheckpointVerified` | `5971e55478f0a410...` | `2026-11-01T22:26:55+01:00` |
-| `test_rust_target_resolver_standalone_integration_test` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
-| `test_rust_target_resolver_harness_submodule` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
-| `test_rust_target_resolver_lib_unit_test` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
-| `test_fast_track_eligibility_criteria` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
 | `test_fast_track_worktree_inverse_proof_born_green_rejection` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
 | `test_always_passes` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
 | `test_antigravity_2_6_tools_normalization` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
@@ -438,15 +451,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_cli_task_id_alias_supported_on_verify` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
-| `test_cli_task_id_alias_supported_on_check_spec` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
-| `test_cli_task_id_alias_supported_on_handoff` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
-| `test_cli_task_new_bugfix_one_liner_with_scope_and_test` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
-| `test_rust_target_resolver_multi_crate_workspace` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
-| `test_fast_track_done_without_red_commit_fails_closed` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
-| `test_phase_machine_blocks_skipping_phases_for_non_fast_track` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
-| `test_fast_track_two_step_red_to_done_pipeline` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
-| `test_fixed_compute` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
-| `test_small_bugfix_exempt_from_feature_spec_mapping` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
 
 ---
