@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🚀 Added & Enhanced
+- **Worktree-Isolated Multi-Agent & Subagent Supervision (`Task 088`, `ADR 0014`, `wit/`, `crates/gauntlet-policy-engine`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`)**:
+  - **Worktree-Local Active Task Binding:** Added `.xgauntlet/active_task` resolution priority with fail-closed invalid-binding protection and `xgauntlet task bind` / `unbind` CLI subcommands, enabling concurrent independent tasks in isolated `git worktree`s without `4037` collisions.
+  - **Shared Multi-Harness Worktree Resolution:** Elevated `resolve_effective_workspace` to `features/adapters/workspace.rs` with pure-filesystem Git `commondir` verification and wired it into `AntigravityAdapter`, `ClaudeCodeAdapter`, `CodexAdapter`, and `MistralAdapter` while rejecting unrelated repositories per `ADR 0006`.
+  - **WASM Delegation Policy (`ToolActionType::Delegate`):** Extended `wit/gauntlet_policy.wit`, `gauntlet-policy-engine`, embedded `gauntlet_policy.wasm`, and shared `classify_delegation_tool` normalization so read-only exploration (`research`, `Explore`, `Plan`) runs freely, isolated mutating workers (`share`, `branch`, `worktree`) require an active task, and shared mutating workers (`workspace: "inherit"`) are denied fail-closed (`4040`).
+  - **Session- & Workspace-Scoped Telemetry:** Updated `.xgauntlet/session_state.json` to track independent per-`session_id` turns/tokens and hashed Antigravity `PreInvocation` dedup caches by `(canonical_workspace, session_id)` without background daemons.
+- **Public Docs & NPM Package Parity Sync (`Task 089`, `README.md`, `packages/cli/README.md`, `CHANGELOG.md`)**:
+  - Updated root `README.md` and synchronized `packages/cli/README.md` byte-for-byte with multi-agent/worktree documentation, `xgauntlet task bind`/`unbind` CLI reference entries, and `ADR 0014` linking for GitHub and npmjs publication.
+
 ### 🔄 Changed & Simplified
 - **Fast-Track 2-Step `RED -> DONE` & Ultralight Bugfix DX (`Task 056`, `ADR 0011`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`, `.agents/`)**:
   - Retired the 1-step `Worktree Inverse Proof` (`evaluate_fast_track_inverse_proof` and `target/xgauntlet-preflight` recompilation) and standardized Fast-Track Bugfix Lane on the deterministic 2-step `RED -> DONE` flow (`proof_mode = "fast_track_red_to_done"`), requiring concrete non-wildcard `scope` (`<= 3` files) and a preceding `[RED]` commit.

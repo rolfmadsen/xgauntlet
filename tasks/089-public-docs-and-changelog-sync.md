@@ -30,9 +30,9 @@ Opdatere de brugervendte udgivelsesdokumenter ([README.md](../README.md), [packa
 
 ## 📋 Acceptance Criteria
 
-- [ ] **AC1 — README.md opdateret med ADR 0014 & Multi-Agent/Worktree DX:** Erstat tidligere single-agent-formulering med dokumentation for parallelle `git worktree`-sessioner (`xgauntlet task bind`/`unbind`), sikker subagent/swarm-delegation på tværs af alle 4 harnesses og link til `ADR 0014` i ADR-listen og CLI-referencen.
-- [ ] **AC2 — NPM Package README Byte-Paritet:** `packages/cli/README.md` synkroniseres byte-for-byte med root `README.md`, så `test_npm_cli_readme_identical_to_root_readme` passerer.
-- [ ] **AC3 — CHANGELOG.md `[Unreleased]`:** Dokumenter Task 088 / ADR 0014 under `## [Unreleased]` i Keep a Changelog-format uden at ændre tidligere frigivne versioner eller bumpe versionsnumre.
+- [x] **AC1 — README.md opdateret med ADR 0014 & Multi-Agent/Worktree DX:** Erstat tidligere single-agent-formulering med dokumentation for parallelle `git worktree`-sessioner (`xgauntlet task bind`/`unbind`), sikker subagent/swarm-delegation på tværs af alle 4 harnesses og link til `ADR 0014` i ADR-listen og CLI-referencen.
+- [x] **AC2 — NPM Package README Byte-Paritet:** `packages/cli/README.md` synkroniseres byte-for-byte med root `README.md`, så `test_npm_cli_readme_identical_to_root_readme` passerer.
+- [x] **AC3 — CHANGELOG.md `[Unreleased]`:** Dokumenter Task 088 / ADR 0014 under `## [Unreleased]` i Keep a Changelog-format uden at ændre tidligere frigivne versioner eller bumpe versionsnumre.
 
 ---
 
