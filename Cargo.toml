@@ -18,5 +18,5 @@ sha2 = "0.10"
 thiserror = "2.0"
 anyhow = "1.0"
 clap = { version = "4.5", features = ["derive"] }
-wasmtime = { version = "30.0.0", default-features = false, features = ["cranelift", "runtime", "std"] }
+wasmtime = { version = "50.0.1", default-features = false, features = ["cranelift", "runtime", "std"] }
 gauntlet-policy-engine = { path = "crates/gauntlet-policy-engine" }
