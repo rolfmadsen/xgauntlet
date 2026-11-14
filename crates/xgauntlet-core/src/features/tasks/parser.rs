@@ -248,22 +248,20 @@ pub fn has_active_task(workspace: &Path) -> bool {
     resolve_active_task_path(workspace).is_some()
 }
 
+fn path_stem_string(path: &Path) -> Option<String> {
+    path.file_stem()
+        .and_then(|s| s.to_str())
+        .map(|s| s.to_string())
+}
+
 /// Resolves the task identifier of the highest-numbered active task found in `tasks/**`.
 pub fn resolve_active_task_id(workspace: &Path) -> Option<String> {
-    resolve_active_task_path(workspace).and_then(|p| {
-        p.file_stem()
-            .and_then(|s| s.to_str())
-            .map(|s| s.to_string())
-    })
+    resolve_active_task_path(workspace).and_then(|p| path_stem_string(&p))
 }
 
 /// Resolves the task identifier of the latest done task found in `tasks/**` (highest numbered).
 pub fn resolve_latest_done_task_id(workspace: &Path) -> Option<String> {
-    resolve_latest_done_task_path(workspace).and_then(|p| {
-        p.file_stem()
-            .and_then(|s| s.to_str())
-            .map(|s| s.to_string())
-    })
+    resolve_latest_done_task_path(workspace).and_then(|p| path_stem_string(&p))
 }
 
 /// Parses complete `TaskPackageInfo` from raw markdown content and a designated task identifier.
