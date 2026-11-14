@@ -1,19 +1,19 @@
 # Verification Report
 
-**Task ID**: `078-scope-aware-slice-spec-and-traceability`  
-**Task Title**: Task 078: Scope-Aware Slice Spec Mapping & Two-Way Spec-Feature-Task Traceability  
+**Task ID**: `079-recursive-task-subdirectories-and-archiving`  
+**Task Title**: Task 079: Recursive Task Subdirectories & Auto-Archiving in tasks/  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `f75bf42a9668d67a9a00ddd4dff2ee0515ddd7d5468c0b42d7937cc3c7149c6f`  
-**Timestamp**: `2026-11-14T14:27:32Z`  
-**Head**: `79221d8`  
-**Commit**: `79221d8`  
+**Source Manifest Digest**: `b71b0c66250c35434147d52d5f38f129fd511d9aa092c9d3dbeade6c23801511`  
+**Timestamp**: `2026-11-14T15:19:16Z`  
+**Head**: `f70899d`  
+**Commit**: `f70899d`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (Scope-Aware Slice Mapping i `validator.rs`):**
-- [x] **AC2 (To-vejs navigations- og sporbarhedsstruktur):**
-- [x] **AC3 (Skill-dokumentation & Regressionstests):**
+- [x] **AC1 (Rekursiv Scanning, Numerisk Sortering >999 & Globalt ID-opslag):**
+- [x] **AC2 (Arkiveringsflow & Valgfri Undermapper):**
+- [x] **AC3 (Isolerede Integrationstests):**
 
 ---
 
@@ -21,13 +21,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.118s` |
-| `format` | `PASSED` | `0` | `0.240s` |
-| `lint` | `PASSED` | `0` | `0.124s` |
-| `unit` | `PASSED` | `0` | `31.271s` |
-| `npm` | `PASSED` | `0` | `0.740s` |
-| `invariants` | `PASSED` | `0` | `0.080s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.011s` |
+| `architecture` | `PASSED` | `0` | `0.082s` |
+| `format` | `PASSED` | `0` | `0.243s` |
+| `lint` | `PASSED` | `0` | `0.912s` |
+| `unit` | `PASSED` | `0` | `34.304s` |
+| `npm` | `PASSED` | `0` | `0.803s` |
+| `invariants` | `PASSED` | `0` | `0.088s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---
 
@@ -193,6 +193,7 @@
 | `sess-1788ce30` | `System Architect` | `SPEC` | `1788ce3` | `2026-11-14T15:10:17Z` | `VALID` |
 | `sess-390a0cef` | `TDD Craftsman` | `RED` | `390a0ce` | `2026-11-14T15:11:15Z` | `VALID` |
 | `sess-5289397d` | `TDD Craftsman` | `GREEN` | `5289397` | `2026-11-14T15:16:52Z` | `VALID` |
+| `sess-f70899d2` | `TDD Craftsman` | `REFACTOR` | `f70899d` | `2026-11-14T15:17:32Z` | `VALID` |
 
 ---
 
@@ -200,6 +201,21 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_detect_next_task_number` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_slugify_and_formatting` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_scaffold_task_package_creates_valid_spec` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_scaffold_collision_fail_closed_without_force` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_parse_criteria_progress` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_git_telemetry_graceful_fallback` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_inspect_and_list_workspace_tasks` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_render_box_card_format_and_borders` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_render_box_card_progress_states` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_render_box_compact` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_render_box_card_long_strings_ellipsing_and_fixed_64_width` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_render_box_card_windows_path_normalization` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_recursive_task_discovery_and_global_id_increment` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_numeric_task_sorting_beyond_999_and_exact_prefix_priority` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_scaffold_in_subdir_and_archive_done_tasks_updates_spec_links` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
 | `test_ac1_architecture_config_toml_roundtrip_for_layers_slices_and_exemptions` | `RedCheckpointVerified` | `d8b4713b9075ede3...` | `2026-11-14T15:21:52+01:00` |
 | `test_ac2_gate_a_layer_direction_violations_across_rust_ts_and_java` | `RedCheckpointVerified` | `d8b4713b9075ede3...` | `2026-11-14T15:21:52+01:00` |
 | `test_ac2_gate_b_cross_slice_isolation_and_internal_slice_freedom` | `RedCheckpointVerified` | `d8b4713b9075ede3...` | `2026-11-14T15:21:52+01:00` |
@@ -365,20 +381,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_detect_next_task_number` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
-| `test_slugify_and_formatting` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
-| `test_scaffold_task_package_creates_valid_spec` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
-| `test_scaffold_collision_fail_closed_without_force` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
-| `test_parse_criteria_progress` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
-| `test_git_telemetry_graceful_fallback` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
-| `test_inspect_and_list_workspace_tasks` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
-| `test_render_box_card_format_and_borders` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
-| `test_render_box_card_progress_states` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
-| `test_render_box_compact` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
-| `test_render_box_card_long_strings_ellipsing_and_fixed_64_width` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
-| `test_render_box_card_windows_path_normalization` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
-| `test_recursive_task_discovery_and_global_id_increment` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
-| `test_numeric_task_sorting_beyond_999_and_exact_prefix_priority` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
-| `test_scaffold_in_subdir_and_archive_done_tasks_updates_spec_links` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
 
 ---

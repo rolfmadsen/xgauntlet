@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 079: Recursive Task Subdirectories & Auto-Archiving in tasks/"
 description: "Eliminér den lange flade task-liste ved at understøtte rekursiv scanning af undermapper i tasks/** med numerisk sortering (inkl. >999), valgfri --subdir placering og arkivering af DONE-tasks til tasks/archive/."
-status: active
+status: done
 intent: enhancement
 slice: tasks
 spec_ref: "specs/tasks.md"
@@ -33,7 +33,7 @@ test_refs:
 
 # Task 079: Recursive Task Subdirectories & Auto-Archiving in tasks/
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-14`
 
@@ -50,15 +50,15 @@ Løse udviklerens UX-problem med at skulle scrolle gennem 75–130+ historiske t
    - `AntigravityAdapter::render_blockquote_hud` linker direkte til `telemetry.file_path` (f.eks. `[Task](tasks/079-...md)` eller `[Task](tasks/archive/...)`).
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Rekursiv Scanning, Numerisk Sortering >999 & Globalt ID-opslag):**
+- [x] **AC1 (Rekursiv Scanning, Numerisk Sortering >999 & Globalt ID-opslag):**
   - `collect_task_files`, `resolve_task_file_path`, `resolve_task_path`, `list_workspace_tasks`, `has_active_task`, `resolve_active_task_id`, `resolve_latest_done_task_id`, `resolve_task_contract`, `check_all_tasks`, `EnforcementContext::from_workspace`, `load_task_package_info` og `run_check_spec` finder `.md`-opgavefiler i vilkårlige undermapper under `tasks/` (bortset fra `README.md`/`TEMPLATE.md`).
   - Sortering sker numerisk på det ledende task-nummer (så `1000 > 999`), og eksakt/præfiks-opslag (`001`) prioriteres over substring-match (`1001`).
   - Næste ledige task-nummer (`detect_next_task_number`) beregnes som `max(id) + 1` på tværs af samtlige undermapper i `tasks/**`, så ID-kollisioner aldrig kan opstå.
-- [ ] **AC2 (Arkiveringsflow & Valgfri Undermapper):**
+- [x] **AC2 (Arkiveringsflow & Valgfri Undermapper):**
   - `xgauntlet task archive` flytter færdige (`DONE`/`COMPLETED`) tasks til `tasks/archive/` (med `--dry-run`, enkelt-ID eller `--all-done`), afviser at arkivere ikke-færdige tasks, og opdaterer relative links i `specs/**/*.md`.
   - `xgauntlet task new --subdir <dir>` kan oprette tasks i en sikker relativ undermappe under `tasks/` (afviser path traversal).
   - Cockpit HUD `[Task](...)` linker direkte til `telemetry.file_path`.
-- [ ] **AC3 (Isolerede Integrationstests):**
+- [x] **AC3 (Isolerede Integrationstests):**
   - Udvid `crates/xgauntlet-core/tests/task_lifecycle_test.rs` med tests for rekursiv task-opslag, globalt ID-inkrement på tværs af undermapper, `>999` numerisk sortering & `001` vs `1001` match-prioritet, `EnforcementContext` i undermapper, `--subdir` scaffolding og `archive_tasks` inkl. opdatering af `specs/*.md`-links.
 
 ## 🚫 Must NOT
