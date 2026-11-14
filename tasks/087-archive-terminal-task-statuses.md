@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 087: Archive Terminal Task Statuses (Deprecated, Superseded, Rejected)"
 description: "Udvid TaskScaffolder::archive_tasks til også at arkivere terminale opgavetilstande (Deprecated, Superseded, Rejected) sammen med Done/Completed, så tasks/ udelukkende indeholder åbne DRAFT/ACTIVE/TODO-opgaver."
-status: active
+status: done
 intent: enhancement
 feature: tasks
 spec_ref: "specs/tasks.md"
@@ -22,7 +22,7 @@ test_refs:
 
 # Task 087: Archive Terminal Task Statuses (Deprecated, Superseded, Rejected)
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-14`
 
