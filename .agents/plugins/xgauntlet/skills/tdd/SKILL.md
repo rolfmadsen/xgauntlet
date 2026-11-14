@@ -83,11 +83,11 @@ I større Rust-workspaces fører snesevis af separate `[[test]]`-binarier til vo
 
 ---
 
-## 🧱 Black-Box Vertical Slice Indkapsling (Polyglot: Rust/Iced, TS/React, Java)
+## 🧱 Black-Box Feature Module Indkapsling (Polyglot: Rust/Iced, TS/React, Java)
 
-Under `GREEN` og `REFACTOR` overholdes de deterministiske grænse-gates i `xgauntlet check-architecture` (`app -> features -> core -> shared`, 0% intern mappestruktur-rigiditet indeni slicen, med auto-detektion af både 1-niveau `features/<slice>/` og 2-niveau `features/<subdomain>/<slice>/`):
-- **Stateful UI-Slice (`features/<slice>/` eller `features/<domain>/<slice>/`):** Ejer sin egen tilstand (`State`), sine egne interne beskeder/events (`Message`) og eksponerer en eksplicit udgående `Action`/callback til `app`-orchestratoren. Importerer **aldrig** `crate::app::Message` eller global app-store baglæns.
-- **Stateless Pipeline-Slice (`features/<slice>/` eller `features/<domain>/<slice>/`):** Ren funktionel transformation med eksplicit `Command`/`Input` og `Result`/`Output` over domænetyper fra `core` (`Shared Kernel`).
+Under `GREEN` og `REFACTOR` overholdes de deterministiske grænse-gates i `xgauntlet check-architecture` (`app -> features -> core -> shared`, 0% intern mappestruktur-rigiditet indeni featuren, med auto-detektion af både 1-niveau `features/<feature>/` og 2-niveau `features/<subdomain>/<feature>/`):
+- **Stateful UI-Feature (`features/<feature>/` eller `features/<domain>/<feature>/`):** Ejer sin egen tilstand (`State`), sine egne interne beskeder/events (`Message`) og eksponerer en eksplicit udgående `Action`/callback til `app`-orchestratoren. Importerer **aldrig** `crate::app::Message` eller global app-store baglæns.
+- **Stateless Pipeline-Feature (`features/<feature>/` eller `features/<domain>/<feature>/`):** Ren funktionel transformation med eksplicit `Command`/`Input` og `Result`/`Output` over domænetyper fra `core` (`Shared Kernel`).
 - **To-Trins `CONTEXT.md` Verifikation (`check-spec --context`):** Når nye offentlige domænemodeller (`pub struct` / `pub enum` i `models.rs`) introduceres under `GREEN`/`REFACTOR`, registreres de i `CONTEXT.md` (gerne som parentetiske model-aliaser under deres domænebegreb, f.eks. `**Architecture Gate (ArchitectureConfig / ArchitectureReport)**:`), så `xgauntlet check-spec --context` består i `GAUNTLET`-fasen.
 
 ### Polyglot Eksempler (Rust/Iced, TypeScript/React, Java)
@@ -99,20 +99,20 @@ Under `GREEN` og `REFACTOR` overholdes de deterministiske grænse-gates i `xgaun
   pub enum CanvasAction { None, InspectNode(NodeId) }
   pub fn update(state: &mut CanvasState, msg: CanvasMessage) -> CanvasAction { ... }
   ```
-- **TypeScript / React (`src/features/diagram/canvas/CanvasSlice.tsx`):**
+- **TypeScript / React (`src/features/diagram/canvas/CanvasFeature.tsx`):**
   ```tsx
   import type { DiagramNode } from '@/core/diagram';
-  export interface CanvasSliceProps {
+  export interface CanvasFeatureProps {
     nodes: readonly DiagramNode[];
     onAction: (action: { type: 'INSPECT_NODE'; nodeId: string }) => void;
   }
-  export function CanvasSlice({ nodes, onAction }: CanvasSliceProps) { ... }
+  export function CanvasFeature({ nodes, onAction }: CanvasFeatureProps) { ... }
   ```
-- **Java (`com.acme.features.billing.invoice.InvoiceSlice`):**
+- **Java (`com.acme.features.billing.invoice.InvoiceFeature`):**
   ```java
   package com.acme.features.billing.invoice;
   import com.acme.core.money.Money;
-  public final class InvoiceSlice {
+  public final class InvoiceFeature {
       public record IssueInvoiceCommand(String customerId, Money total) {}
       public record InvoiceIssuedEvent(String invoiceId) {}
       public InvoiceIssuedEvent issue(IssueInvoiceCommand cmd) { ... }

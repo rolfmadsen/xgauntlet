@@ -76,8 +76,8 @@ A state discrepancy, where the current workspace source tree hash no longer matc
 _Avoid_: Code drift, stale build, dirty working tree.
 
 **Harness Adapter**:
-An autonomous vertical feature slice, that translates platform-specific agent events, tool calls, and manifests into canonical gauntlet operations.
-_Avoid_: Plugin bridge, wrapper script, foreign hook.
+An autonomous feature module, that translates platform-specific agent events, tool calls, and manifests into canonical gauntlet operations.
+_Avoid_: Plugin bridge, wrapper script, foreign hook, slice.
 
 **Capability Request**:
 A strongly-typed operation descriptor, that represents an agent action before policy evaluation.
@@ -208,27 +208,27 @@ An explicit linguistic and architectural system boundary in the solution space, 
 _Avoid_: System scope, global namespace, monolith boundary, module group.
 
 **Shared Kernel**:
-A minimal, framework-agnostic subset of domain models and primitives (`core/`), that multiple Vertical Slices depend on without coupling directly to each other.
+A minimal, framework-agnostic subset of domain models and primitives (`core/`), that multiple Feature modules depend on without coupling directly to each other.
 _Avoid_: God module, global state store, UI model dump.
 
 **Universal Layer Model**:
 A four-tier top-down architectural dependency hierarchy (`app -> features -> core -> shared`), that enforces strict one-way downward imports and prohibits framework leakage into the Shared Kernel (`core`).
 _Avoid_: Bidirectional modules, circular package graph, spaghetti imports.
 
-**Vertical Slice**:
-An autonomous, black-box encapsulated functional capability (`features/<slice>/` or `features/<subdomain>/<slice>/`), that owns its internal domain models and exposes a narrow public facade with explicit input state and output actions (`Stateful UI-Slice` or `Stateless Pipeline-Slice`) without importing upward or across peer slices.
-_Avoid_: Horizontal layer, prop-drilled view helper, god-component fragment, leaky submodule.
+**Feature (Feature Module)**:
+An autonomous, black-box encapsulated functional capability (`features/<feature>/` or `features/<subdomain>/<feature>/`), that owns its internal domain models and exposes a narrow public facade with explicit input state and output actions (`Stateful UI-Feature` or `Stateless Pipeline-Feature`) without importing upward or across peer features.
+_Avoid_: Vertical slice, slice, horizontal layer, prop-drilled view helper, god-component fragment, leaky submodule.
 
-**Living Slice Specification**:
-A persistent capability contract (`specs/<slice>.md` or `specs/<subdomain>/<slice>.md`), that maintains the authoritative current invariants and behavior of a single Vertical Slice across multiple incremental task deltas (`spec_ref`).
-_Avoid_: Ephemeral task note, frozen history doc, feature ADR.
+**Living Feature Specification**:
+A persistent capability contract (`specs/<feature>.md` or `specs/<subdomain>/<feature>.md`), that maintains the authoritative current invariants and behavior of a single Feature across multiple incremental task deltas (`spec_ref`).
+_Avoid_: Slice spec, ephemeral task note, frozen history doc, feature ADR.
 
 **ADR Lifecycle**:
 A four-state governance state machine (`proposed | accepted | superseded | deprecated`), that tracks the validity of cross-cutting architectural decisions and requires explicit `superseded_by` lineage when retiring obsolete records.
 _Avoid_: Zombie ADR, permanent draft, feature changelog.
 
 **Architecture Gate (ArchitectureConfig / ArchitectureReport / ArchitectureFinding / ArchitectureExemption)**:
-A declarative structural verification engine, that enforces file line ceilings, monotonic ratchets, design token boundaries, downward layer dependencies, and black-box Vertical Slice isolation.
+A declarative structural verification engine, that enforces file line ceilings, monotonic ratchets, design token boundaries, downward layer dependencies, and black-box Feature isolation.
 _Avoid_: Style linter, regex scanner, manual code audit.
 
 **Checkpoint (CheckpointPhase / CheckpointOptions / CheckpointResult / CheckpointConfig / CheckpointError)**:

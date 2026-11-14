@@ -1,6 +1,6 @@
-//! Deterministic Architectural Boundary Gates (ADR 0012):
+//! Deterministic Architectural Boundary Gates (ADR 0013):
 //! - Gate A (`LayerDirectionViolation`): Top-down layer dependency enforcement (`app -> features -> core -> shared`).
-//! - Gate B (`CrossSliceImportViolation`): Black-box Vertical Slice isolation (`<slice_root>/<domain>/<slice>`).
+//! - Gate B (`CrossFeatureImportViolation`): Black-box Feature isolation (`<feature_root>/<domain>/<feature>`).
 //! - Gate C (`ForbiddenCoreImportViolation`): Clean Core protection against UI/framework leakage.
 
 use std::path::Path;
@@ -10,7 +10,7 @@ use super::models::{
     ArchitectureReport,
 };
 
-/// Evaluates Gate A (Layer Direction), Gate B (Slice Isolation), and Gate C (Clean Core) for a single source file.
+/// Evaluates Gate A (Layer Direction), Gate B (Feature Isolation), and Gate C (Clean Core) for a single source file.
 pub fn evaluate_file_boundaries(
     workspace_root: &Path,
     rel_path: &str,
@@ -19,7 +19,8 @@ pub fn evaluate_file_boundaries(
     exemption: Option<&ArchitectureExemption>,
     report: &mut ArchitectureReport,
 ) {
-    if config.layers.is_empty() && !config.isolate_slices && config.forbid_core_imports.is_empty() {
+    if config.layers.is_empty() && !config.isolate_features && config.forbid_core_imports.is_empty()
+    {
         return;
     }
 
@@ -29,7 +30,7 @@ pub fn evaluate_file_boundaries(
     }
 
     let src_layer = classify_path_layer(rel_path, &config.layers);
-    let src_slice = extract_slice_identity(workspace_root, rel_path, &config.slice_root);
+    let src_feature = extract_feature_identity(workspace_root, rel_path, &config.feature_root);
     let is_in_core = src_layer
         .as_ref()
         .is_some_and(|(_, name)| name.eq_ignore_ascii_case("core"))
@@ -91,37 +92,37 @@ pub fn evaluate_file_boundaries(
             }
         }
 
-        // Gate B: Cross-Slice Isolation (<slice_root>/<slice> or <slice_root>/<subdomain>/<slice>)
-        if config.isolate_slices {
-            if let Some((ref s_domain, ref s_slice)) = src_slice {
+        // Gate B: Cross-Feature Isolation (<feature_root>/<feature> or <feature_root>/<subdomain>/<feature>)
+        if config.isolate_features {
+            if let Some((ref s_domain, ref s_feature)) = src_feature {
                 let is_one_level = s_domain.is_empty();
-                if let Some((t_domain, t_slice)) = extract_import_slice_identity(
+                if let Some((t_domain, t_feature)) = extract_import_feature_identity(
                     &resolved_target,
                     &raw_import,
-                    &config.slice_root,
+                    &config.feature_root,
                     is_one_level,
                 ) {
-                    if s_domain != &t_domain || s_slice != &t_slice {
+                    if s_domain != &t_domain || s_feature != &t_feature {
                         let src_label = if is_one_level {
-                            s_slice.clone()
+                            s_feature.clone()
                         } else {
-                            format!("{s_domain}/{s_slice}")
+                            format!("{s_domain}/{s_feature}")
                         };
                         let dst_label = if t_domain.is_empty() {
-                            t_slice.clone()
+                            t_feature.clone()
                         } else {
-                            format!("{t_domain}/{t_slice}")
+                            format!("{t_domain}/{t_feature}")
                         };
                         report.add_finding(ArchitectureFinding {
                             file_path: rel_path.to_string(),
                             line_number: Some(line_num),
                             category: ArchitectureFindingCategory::ForbiddenImportDetected,
                             message: format!(
-                                "[CrossSliceImportViolation] Slice '{}' in '{}' must not import directly from peer slice '{}' (via '{}') at line {}",
+                                "[CrossFeatureImportViolation] Feature '{}' in '{}' must not import directly from peer feature '{}' (via '{}') at line {}",
                                 src_label, rel_path, dst_label, raw_import, line_num
                             ),
                             remediation_hint: format!(
-                                "Keep slice '{}' black-box isolated. Coordinate across slices in the 'app' orchestrator via Actions/Events or extract shared domain types into 'core'.",
+                                "Keep feature '{}' black-box isolated. Coordinate across features in the 'app' orchestrator via Actions/Events or extract shared domain types into 'core'.",
                                 src_label
                             ),
                         });
@@ -270,16 +271,16 @@ fn classify_import_layer(
     None
 }
 
-/// Extracts `(subdomain, slice)` for a source file on disk:
-/// - 1-level directory (`<slice_root>/<slice>/<file>.rs` or internal subfolder of a 1-level slice) -> `("", "<slice>")`
-/// - 2-level directory (`<slice_root>/<subdomain>/<slice>/<file>.rs`) -> `("<subdomain>", "<slice>")`
-fn extract_slice_identity(
+/// Extracts `(subdomain, feature)` for a source file on disk:
+/// - 1-level directory (`<feature_root>/<feature>/<file>.rs` or internal subfolder of a 1-level feature) -> `("", "<feature>")`
+/// - 2-level directory (`<feature_root>/<subdomain>/<feature>/<file>.rs`) -> `("<subdomain>", "<feature>")`
+fn extract_feature_identity(
     workspace_root: &Path,
     rel_path: &str,
-    slice_root: &str,
+    feature_root: &str,
 ) -> Option<(String, String)> {
     let norm_path = rel_path.replace('\\', "/");
-    let norm_root = slice_root.trim().trim_matches('/').replace('\\', "/");
+    let norm_root = feature_root.trim().trim_matches('/').replace('\\', "/");
 
     if !norm_root.is_empty() {
         if let Some(rest) = norm_path.strip_prefix(&format!("{norm_root}/")) {
@@ -335,28 +336,32 @@ fn dir_has_direct_source_files(dir: &Path) -> bool {
     false
 }
 
-fn extract_import_slice_identity(
+fn extract_import_feature_identity(
     resolved_target: &str,
     raw_import: &str,
-    slice_root: &str,
+    feature_root: &str,
     is_one_level: bool,
 ) -> Option<(String, String)> {
-    let raw =
-        extract_import_slice_identity_inner(resolved_target, raw_import, slice_root, is_one_level)?;
+    let raw = extract_import_feature_identity_inner(
+        resolved_target,
+        raw_import,
+        feature_root,
+        is_one_level,
+    )?;
     if raw.0 == "*" || raw.1 == "*" || raw.1.is_empty() {
         return None;
     }
     Some(raw)
 }
 
-fn extract_import_slice_identity_inner(
+fn extract_import_feature_identity_inner(
     resolved_target: &str,
     raw_import: &str,
-    slice_root: &str,
+    feature_root: &str,
     is_one_level: bool,
 ) -> Option<(String, String)> {
     let norm_target = resolved_target.replace('\\', "/");
-    let norm_root = slice_root.trim().trim_matches('/').replace('\\', "/");
+    let norm_root = feature_root.trim().trim_matches('/').replace('\\', "/");
 
     if !norm_root.is_empty() {
         if let Some(rest) = norm_target.strip_prefix(&format!("{norm_root}/")) {

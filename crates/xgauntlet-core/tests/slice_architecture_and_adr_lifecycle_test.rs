@@ -97,24 +97,49 @@ adr = "docs/adr/0012-slice.md"
     let loaded = GauntletConfig::load(ws.path()).expect("load gauntlet.toml");
     let arch_json = serde_json::to_value(&loaded.architecture).expect("serialize architecture");
 
-    assert_eq!(arch_json["layers"], json!(["app", "features", "core", "shared"]));
+    assert_eq!(
+        arch_json["layers"],
+        json!(["app", "features", "core", "shared"])
+    );
     assert_eq!(arch_json["feature_root"], json!("src/features"));
     assert_eq!(arch_json["isolate_features"], json!(true));
-    assert_eq!(arch_json["forbid_core_imports"], json!(["iced", "react", "javafx"]));
-    assert_eq!(arch_json["exemptions"][0]["allow_imports"], json!(["crate::app::Message", "crate::features::other::State"]));
+    assert_eq!(
+        arch_json["forbid_core_imports"],
+        json!(["iced", "react", "javafx"])
+    );
+    assert_eq!(
+        arch_json["exemptions"][0]["allow_imports"],
+        json!(["crate::app::Message", "crate::features::other::State"])
+    );
 
     // Roundtrip render_toml & parse_toml (must emit feature_root and isolate_features)
     let rendered = render_toml(&loaded);
-    assert!(rendered.contains("feature_root = \"src/features\"") && rendered.contains("isolate_features = true"), "Rendered TOML must use feature keys:\n{rendered}");
+    assert!(
+        rendered.contains("feature_root = \"src/features\"")
+            && rendered.contains("isolate_features = true"),
+        "Rendered TOML must use feature keys:\n{rendered}"
+    );
     let reloaded = parse_toml(&rendered).expect("reparse rendered gauntlet.toml");
-    let reloaded_json = serde_json::to_value(&reloaded.architecture).expect("serialize reloaded architecture");
-    assert_eq!(reloaded_json["layers"], json!(["app", "features", "core", "shared"]));
+    let reloaded_json =
+        serde_json::to_value(&reloaded.architecture).expect("serialize reloaded architecture");
+    assert_eq!(
+        reloaded_json["layers"],
+        json!(["app", "features", "core", "shared"])
+    );
     assert_eq!(reloaded_json["isolate_features"], json!(true));
-    assert_eq!(reloaded_json["forbid_core_imports"], json!(["iced", "react", "javafx"]));
-    assert_eq!(reloaded_json["exemptions"][0]["allow_imports"], json!(["crate::app::Message", "crate::features::other::State"]));
+    assert_eq!(
+        reloaded_json["forbid_core_imports"],
+        json!(["iced", "react", "javafx"])
+    );
+    assert_eq!(
+        reloaded_json["exemptions"][0]["allow_imports"],
+        json!(["crate::app::Message", "crate::features::other::State"])
+    );
 
     // Primary feature_root / isolate_features TOML syntax also parses identically
-    let primary_parsed = parse_toml("[architecture]\nfeature_root = \"src/domains\"\nisolate_features = true\n").unwrap();
+    let primary_parsed =
+        parse_toml("[architecture]\nfeature_root = \"src/domains\"\nisolate_features = true\n")
+            .unwrap();
     let pjson = serde_json::to_value(&primary_parsed.architecture).unwrap();
     assert_eq!(pjson["feature_root"], json!("src/domains"));
     assert_eq!(pjson["isolate_features"], json!(true));
@@ -306,7 +331,7 @@ adr = "docs/adr/0012-slice.md"
         .iter()
         .filter(|f| {
             f.category == ArchitectureFindingCategory::ForbiddenImportDetected
-                && f.message.contains("CrossSliceImportViolation")
+                && f.message.contains("CrossFeatureImportViolation")
         })
         .collect();
 
@@ -476,7 +501,7 @@ Zoom support.
     let parsed = parse_task_file(&valid_task).expect("parse valid task");
     let parsed_json = serde_json::to_value(&parsed).expect("serialize TaskPackageInfo");
     assert_eq!(parsed_json["domain"], json!("diagram"));
-    assert_eq!(parsed_json["slice"], json!("canvas"));
+    assert_eq!(parsed_json["feature"], json!("canvas"));
     assert_eq!(parsed_json["spec_ref"], json!("specs/diagram/canvas.md"));
 
     // 2. Active feature task in a workspace with specs/ directory but missing domain/slice/spec_ref
@@ -512,8 +537,8 @@ test_refs: ["crates/app/tests/canvas_test.rs"]
         rep_missing
             .diagnostics
             .iter()
-            .any(|d| d.tool_name == "MISSING_TASK_SLICE_MAPPING"),
-        "Expected MISSING_TASK_SLICE_MAPPING diagnostic, got: {:?}",
+            .any(|d| d.tool_name == "MISSING_TASK_FEATURE_MAPPING"),
+        "Expected MISSING_TASK_FEATURE_MAPPING diagnostic, got: {:?}",
         rep_missing.diagnostics
     );
 
@@ -588,8 +613,8 @@ test_refs: ["crates/app/tests/canvas_test.rs"]
         rep_missing_file
             .diagnostics
             .iter()
-            .any(|d| d.tool_name == "MISSING_SLICE_SPEC_FILE"),
-        "Expected MISSING_SLICE_SPEC_FILE diagnostic, got: {:?}",
+            .any(|d| d.tool_name == "MISSING_FEATURE_SPEC_FILE"),
+        "Expected MISSING_FEATURE_SPEC_FILE diagnostic, got: {:?}",
         rep_missing_file.diagnostics
     );
 
@@ -650,14 +675,14 @@ Historical purpose.
     let scaffolded_info = parse_task_file(&scaffolded.path).expect("parse scaffolded task");
     let scaffolded_json = serde_json::to_value(&scaffolded_info).expect("serialize scaffolded");
     assert_eq!(scaffolded_json["domain"], json!("diagram"));
-    assert_eq!(scaffolded_json["slice"], json!("minimap"));
+    assert_eq!(scaffolded_json["feature"], json!("minimap"));
     assert_eq!(
         scaffolded_json["spec_ref"],
         json!("specs/diagram/minimap.md")
     );
     assert!(
         ws.path().join("specs/diagram/minimap.md").is_file(),
-        "TaskScaffolder must create specs/<domain>/<slice>.md when scaffolding a slice-bound task"
+        "TaskScaffolder must create specs/<domain>/<feature>.md when scaffolding a feature-bound task"
     );
 }
 
@@ -840,16 +865,16 @@ fn test_ac5_sovereign_skills_and_coding_standards_document_slice_taxonomy_and_po
     let review_skill = get_embedded_skill("review").expect("review skill");
     let release_skill = get_embedded_skill("release").expect("release skill");
 
-    // 1. discover skill: Bounded Context -> Domain -> Slice & ADR Gatekeeper
+    // 1. discover skill: Bounded Context -> Domain -> Feature & ADR Gatekeeper
     assert!(
         discover_skill.contains("Bounded Context")
             && discover_skill.contains("Domain")
-            && discover_skill.contains("Slice"),
-        "discover/SKILL.md must explain the Bounded Context -> Domain -> Slice taxonomy"
+            && discover_skill.contains("Feature Module"),
+        "discover/SKILL.md must explain the Bounded Context -> Domain -> Feature Module taxonomy"
     );
     assert!(
-        discover_skill.contains("specs/<domain>/<slice>.md"),
-        "discover/SKILL.md must explain that functional slice behavior belongs in specs/<domain>/<slice>.md, not ADRs"
+        discover_skill.contains("specs/<domain>/<feature>.md"),
+        "discover/SKILL.md must explain that functional feature behavior belongs in specs/<domain>/<feature>.md, not ADRs"
     );
 
     // 2. ADR-FORMAT.md: 4 statuses and superseded_by
@@ -873,21 +898,21 @@ fn test_ac5_sovereign_skills_and_coding_standards_document_slice_taxonomy_and_po
         "spec/SKILL.md must document the 4 universal layers and spec_ref task mapping"
     );
 
-    // 4. tdd skill: Stateful UI-Slice & Stateless Pipeline-Slice across Rust/Iced, TS/React, Java
+    // 4. tdd skill: Stateful UI-Feature & Stateless Pipeline-Feature across Rust/Iced, TS/React, Java
     assert!(
-        tdd_skill.contains("Stateful UI-Slice")
-            && tdd_skill.contains("Stateless Pipeline-Slice")
+        tdd_skill.contains("Stateful UI-Feature")
+            && tdd_skill.contains("Stateless Pipeline-Feature")
             && tdd_skill.contains("React")
             && tdd_skill.contains("Java"),
-        "tdd/SKILL.md must document Stateful UI-Slice and Stateless Pipeline-Slice with polyglot examples (Rust/Iced, TS/React, Java)"
+        "tdd/SKILL.md must document Stateful UI-Feature and Stateless Pipeline-Feature with polyglot examples (Rust/Iced, TS/React, Java)"
     );
 
     // 5. review & release skills: Boundary gates and ADR lifecycle
     assert!(
         review_skill.contains("LayerDirectionViolation")
-            || review_skill.contains("CrossSliceImportViolation")
+            || review_skill.contains("CrossFeatureImportViolation")
             || review_skill.contains("app -> features -> core -> shared"),
-        "review/SKILL.md must include slice and layer boundary checks on Axis 2"
+        "review/SKILL.md must include feature and layer boundary checks on Axis 2"
     );
     assert!(
         release_skill.contains("superseded") && release_skill.contains("deprecated"),
@@ -918,27 +943,27 @@ fn test_task_078_scope_aware_slice_mapping_and_two_way_traceability() {
         )
     };
 
-    let has_missing_slice = |rel: &str, scope: &str| {
+    let has_missing_feature = |rel: &str, scope: &str| {
         let p = mk_task(rel, scope);
         check_task_specification(&p, ws.path())
             .diagnostics
             .iter()
-            .any(|d| d.tool_name == "MISSING_TASK_SLICE_MAPPING")
+            .any(|d| d.tool_name == "MISSING_TASK_FEATURE_MAPPING")
     };
-    assert!(!has_missing_slice(
+    assert!(!has_missing_feature(
         "tasks/077-review.md",
         "\".agents/plugins/xgauntlet/skills/**\", \"docs/**\""
     ));
-    assert!(has_missing_slice(
-        "tasks/078-in-slice.md",
+    assert!(has_missing_feature(
+        "tasks/078-in-feature.md",
         "\"crates/xgauntlet-core/src/features/tasks/validator.rs\""
     ));
-    assert!(has_missing_slice(
+    assert!(has_missing_feature(
         "tasks/079-broad.md",
         "\"crates/xgauntlet-core/src/**\""
     ));
 
-    // 2. TaskScaffolder writes two-way Relaterede Tasks links in specs/<domain>/<slice>.md
+    // 2. TaskScaffolder writes two-way Relaterede Tasks links in specs/<domain>/<feature>.md
     let ws2 = TempWorkspace::new("t078_traceability");
     for name in [
         "diagram/minimap:viewport-sync",
@@ -959,7 +984,7 @@ fn test_task_078_scope_aware_slice_mapping_and_two_way_traceability() {
     assert!(final_spec.contains("../../tasks/001-viewport-sync.md"));
     assert!(final_spec.contains("../../tasks/002-minimap-zoom.md"));
 
-    // 3. spec/SKILL.md documents slice_root gating and Relaterede Tasks
+    // 3. spec/SKILL.md documents feature_root gating and Relaterede Tasks
     let spec_skill = get_embedded_skill("spec").expect("spec skill");
-    assert!(spec_skill.contains("slice_root") && spec_skill.contains("Relaterede Tasks"));
+    assert!(spec_skill.contains("feature_root") && spec_skill.contains("Relaterede Tasks"));
 }

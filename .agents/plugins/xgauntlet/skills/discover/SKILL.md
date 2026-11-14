@@ -33,13 +33,13 @@ Denne skill forvandler agenten fra en passiv "yes-man" til en proaktiv, intellek
 
 ---
 
-## 🧭 DDD & Vertical Slice Taksonomi (Hvad, Hvorfor & Hvordan)
-Under discovery placeres opgaven i `xGauntlet`s DDD- og Vertical Slice-taksonomi:
+## 🧭 DDD & Feature Module Taksonomi (Hvad, Hvorfor & Hvordan)
+Under discovery placeres opgaven i `xGauntlet`s DDD- og Package-by-Feature-taksonomi:
 1. **Domain (Problem Space) & Subdomain (`src/features/<subdomain>/` — valgfrit grupperingsniveau):** Virksomhedens overordnede faglige problemrum og eventuelle faglige delområder (*Core*, *Supporting*, *Generic* som `diagram`, `billing`, `export`).
 2. **Bounded Context (`CONTEXT.md`):** Den sproglige og arkitektoniske systemgrænse i løsningsrummet, hvor hvert begreb har én entydig betydning (*Aristoteles' genus et differentiam*). Primære forretningsbegreber fastlægges i `DISCOVER`/`SPEC`, mens kildemodeller fra `GREEN` verificeres via `xgauntlet check-spec --context` i `GAUNTLET`.
-3. **Shared Kernel (`src/core/`) & Vertical Slice (`src/features/<slice>/` eller `src/features/<domain>/<slice>/`):** Den konkrete, autonome funktionelle kapabilitet (*Stateful UI-Slice* eller *Stateless Pipeline-Slice*) med Black-Box indkapsling (egen offentlig facade og nul direkte kobling til andre slices).
-4. **ADR Gatekeeper-reglen (`docs/adr/` vs. `specs/<slice>.md` / `specs/<domain>/<slice>.md`):**
-   - **Levende Slice-Specifikation (`specs/<slice>.md` eller `specs/<domain>/<slice>.md`):** Beskriver *funktionel adfærd, UI-state, input og udgående Actions* for en konkret slice.
+3. **Shared Kernel (`src/core/`) & Feature Module (`src/features/<feature>/` eller `src/features/<domain>/<feature>/`):** Den konkrete, autonome funktionelle kapabilitet (*Stateful UI-Feature* eller *Stateless Pipeline-Feature*) med Black-Box indkapsling (egen offentlig facade og nul direkte kobling til andre features).
+4. **ADR Gatekeeper-reglen (`docs/adr/` vs. `specs/<feature>.md` / `specs/<domain>/<feature>.md`):**
+   - **Levende Feature-Specifikation (`specs/<feature>.md` eller `specs/<domain>/<feature>.md`):** Beskriver *funktionel adfærd, UI-state, input og udgående Actions* for et konkret feature.
    - **ADR (`docs/adr/`):** Er **kun** for tværgående, irreversible arkitekturbeslutninger med reelle trade-offs. Skriv ALDRIG almindelige feature-krav som en ADR.
 
 ---
@@ -47,4 +47,4 @@ Under discovery placeres opgaven i `xGauntlet`s DDD- og Vertical Slice-taksonomi
 ## 🏁 Output fra Discover
 Når der er opnået enighed og fælles forståelse:
 1. `CONTEXT.md` er opdateret med de nye primære domænebegreber.
-2. Target `Slice` (og evt. `Subdomain`/`Domain`, jf. `specs/<slice>.md` eller `specs/<domain>/<slice>.md`) er identificeret som grundlag for `spec`-skillen, der syntetiserer en formel `tasks/<id>.md` opgavepakke.
+2. Target `Feature` (og evt. `Subdomain`/`Domain`, jf. `specs/<feature>.md` eller `specs/<domain>/<feature>.md`) er identificeret som grundlag for `spec`-skillen, der syntetiserer en formel `tasks/<id>.md` opgavepakke.

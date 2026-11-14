@@ -91,8 +91,8 @@ pub struct TaskPackageInfo {
     pub test_refs: Vec<String>,
     #[serde(default)]
     pub domain: Option<String>,
-    #[serde(default)]
-    pub slice: Option<String>,
+    #[serde(alias = "slice", default)]
+    pub feature: Option<String>,
     #[serde(default)]
     pub spec_ref: Option<String>,
     pub metadata: Option<OkfMetadata>,

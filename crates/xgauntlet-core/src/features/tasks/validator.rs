@@ -240,7 +240,7 @@ pub fn check_task_specification(task_path: &Path, workspace: &Path) -> SpecReadi
                 "MISSING_TASK_SCOPE",
                 &rel_task,
                 "Active task specification is missing declared target paths in frontmatter 'scope: [...]'.",
-                "Add frontmatter 'scope: [\"src/features/<slice>/**\"]' declaring the bounded directory scope for this task.",
+                "Add frontmatter 'scope: [\"src/features/<feature>/**\"]' declaring the bounded directory scope for this task.",
             ));
         }
 
@@ -250,7 +250,7 @@ pub fn check_task_specification(task_path: &Path, workspace: &Path) -> SpecReadi
                 "MISSING_TASK_TEST_REFS",
                 &rel_task,
                 "Active task specification is missing declared test file references in frontmatter 'test_refs: [...]'.",
-                "Add frontmatter 'test_refs: [\"tests/<slice>_test.rs\"]' referencing the dedicated test target for this task.",
+                "Add frontmatter 'test_refs: [\"tests/<feature>_test.rs\"]' referencing the dedicated test target for this task.",
             ));
         }
 
@@ -275,15 +275,15 @@ pub fn check_task_specification(task_path: &Path, workspace: &Path) -> SpecReadi
                             "MONOLITHIC_TEST_FILE_PROHIBITED",
                             &rel_task,
                             format!("Test target '{test_ref}' contains {line_count} lines (exceeds 1000 line limit). Monolithic test files are prohibited."),
-                            "Decompose and extract slice-specific tests into a separate, focused test file (e.g. tests/<slice>_test.rs).",
+                            "Decompose and extract feature-specific tests into a separate, focused test file (e.g. tests/<feature>_test.rs).",
                         ));
                     }
                 }
             }
         }
 
-        // 6b. Deterministic Domain -> Slice -> Task (spec_ref) Validation (ADR 0012)
-        validate_task_slice_mapping(&task_info, &rel_task, workspace, &mut report);
+        // 6b. Deterministic Domain -> Feature -> Task (spec_ref) Validation (ADR 0013)
+        validate_task_feature_mapping(&task_info, &rel_task, workspace, &mut report);
     }
 
     // 7. Validate CONTEXT.md Glossary Format
@@ -574,8 +574,8 @@ pub fn check_all_adrs(workspace: &Path) -> Vec<AdrReadinessReport> {
         .collect()
 }
 
-fn scope_touches_slice_root(scope: &[String], slice_root: &str) -> bool {
-    let norm_root = slice_root
+fn scope_touches_feature_root(scope: &[String], feature_root: &str) -> bool {
+    let norm_root = feature_root
         .trim()
         .replace('\\', "/")
         .trim_start_matches("./")
@@ -615,43 +615,45 @@ fn scope_touches_slice_root(scope: &[String], slice_root: &str) -> bool {
     })
 }
 
-fn validate_task_slice_mapping(
+fn validate_task_feature_mapping(
     task_info: &crate::features::tasks::models::TaskPackageInfo,
     rel_task: &str,
     workspace: &Path,
     report: &mut SpecReadinessReport,
 ) {
-    let has_any_slice_field =
-        task_info.domain.is_some() || task_info.slice.is_some() || task_info.spec_ref.is_some();
+    let has_any_feature_field =
+        task_info.domain.is_some() || task_info.feature.is_some() || task_info.spec_ref.is_some();
 
     let intent_lower = task_info
         .intent
         .as_deref()
         .unwrap_or("")
         .to_ascii_lowercase();
-    let is_slice_intent = intent_lower.contains("feature")
+    let is_feature_intent = intent_lower.contains("feature")
         || intent_lower.contains("enhancement")
         || intent_lower.contains("bug");
 
     let config = crate::features::config::GauntletConfig::load(workspace).ok();
-    let workspace_uses_slices = workspace.join("specs").is_dir()
+    let workspace_uses_features = workspace.join("specs").is_dir()
         || config
             .as_ref()
-            .is_some_and(|c| c.architecture.isolate_slices);
-    let slice_root = config
+            .is_some_and(|c| c.architecture.isolate_features);
+    let feature_root = config
         .as_ref()
-        .map(|c| c.architecture.slice_root.as_str())
+        .map(|c| c.architecture.feature_root.as_str())
         .filter(|s| !s.trim().is_empty())
         .unwrap_or("src/features");
 
-    let touches_slice_root = scope_touches_slice_root(&task_info.scope, slice_root);
+    let touches_feature_root = scope_touches_feature_root(&task_info.scope, feature_root);
 
-    if !has_any_slice_field && !(is_slice_intent && workspace_uses_slices && touches_slice_root) {
+    if !has_any_feature_field
+        && !(is_feature_intent && workspace_uses_features && touches_feature_root)
+    {
         return;
     }
 
     let domain = task_info.domain.as_deref().unwrap_or("").trim();
-    let slice = task_info.slice.as_deref().unwrap_or("").trim();
+    let feature = task_info.feature.as_deref().unwrap_or("").trim();
     let spec_ref = task_info
         .spec_ref
         .as_deref()
@@ -659,21 +661,21 @@ fn validate_task_slice_mapping(
         .trim()
         .replace('\\', "/");
 
-    if slice.is_empty() || spec_ref.is_empty() {
+    if feature.is_empty() || spec_ref.is_empty() {
         report.diagnostics.push(DiagnosticFinding::new(
             FindingType::GeneralError,
-            "MISSING_TASK_SLICE_MAPPING",
+            "MISSING_TASK_FEATURE_MAPPING",
             rel_task,
-            "Active task is missing required Slice -> Spec mapping ('slice' and 'spec_ref', plus optional 'subdomain'/'domain' in frontmatter).",
-            "Add 'slice: <slice>' and 'spec_ref: \"specs/<slice>.md\"' (or 'subdomain: <sd>' and 'spec_ref: \"specs/<sd>/<slice>.md\"') to task frontmatter.",
+            "Active task is missing required Feature -> Spec mapping ('feature' and 'spec_ref', plus optional 'subdomain'/'domain' in frontmatter).",
+            "Add 'feature: <feature>' and 'spec_ref: \"specs/<feature>.md\"' (or 'subdomain: <sd>' and 'spec_ref: \"specs/<sd>/<feature>.md\"') to task frontmatter.",
         ));
         return;
     }
 
     let expected_spec_ref = if domain.is_empty() {
-        format!("specs/{slice}.md")
+        format!("specs/{feature}.md")
     } else {
-        format!("specs/{domain}/{slice}.md")
+        format!("specs/{domain}/{feature}.md")
     };
     if spec_ref != expected_spec_ref {
         report.diagnostics.push(DiagnosticFinding::new(
@@ -681,7 +683,7 @@ fn validate_task_slice_mapping(
             "INVALID_TASK_SPEC_REF",
             rel_task,
             format!(
-                "Task 'spec_ref' ('{spec_ref}') does not match canonical slice path '{expected_spec_ref}'."
+                "Task 'spec_ref' ('{spec_ref}') does not match canonical feature spec path '{expected_spec_ref}'."
             ),
             format!("Set 'spec_ref: \"{expected_spec_ref}\"' in task frontmatter."),
         ));
@@ -695,13 +697,13 @@ fn validate_task_slice_mapping(
     if !is_non_empty_file {
         report.diagnostics.push(DiagnosticFinding::new(
             FindingType::GeneralError,
-            "MISSING_SLICE_SPEC_FILE",
+            "MISSING_FEATURE_SPEC_FILE",
             rel_task,
             format!(
-                "Referenced living slice specification '{spec_ref}' does not exist or is empty."
+                "Referenced living feature specification '{spec_ref}' does not exist or is empty."
             ),
             format!(
-                "Create or update '{spec_ref}' documenting the slice's capabilities and invariants before executing the task."
+                "Create or update '{spec_ref}' documenting the feature's capabilities and invariants before executing the task."
             ),
         ));
     }

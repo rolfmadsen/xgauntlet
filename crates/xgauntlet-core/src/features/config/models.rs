@@ -215,10 +215,10 @@ pub struct ArchitectureConfig {
     pub forbidden_imports: Vec<String>,
     #[serde(default)]
     pub layers: Vec<String>,
-    #[serde(default = "default_slice_root")]
-    pub slice_root: String,
-    #[serde(default)]
-    pub isolate_slices: bool,
+    #[serde(alias = "slice_root", default = "default_feature_root")]
+    pub feature_root: String,
+    #[serde(alias = "isolate_slices", default)]
+    pub isolate_features: bool,
     #[serde(default)]
     pub forbid_core_imports: Vec<String>,
     #[serde(default)]
@@ -233,7 +233,7 @@ fn default_max_test_file_lines() -> Option<usize> {
     Some(1000)
 }
 
-fn default_slice_root() -> String {
+fn default_feature_root() -> String {
     "src/features".to_string()
 }
 
@@ -245,8 +245,8 @@ impl Default for ArchitectureConfig {
             forbidden_tokens: Vec::new(),
             forbidden_imports: Vec::new(),
             layers: Vec::new(),
-            slice_root: default_slice_root(),
-            isolate_slices: false,
+            feature_root: default_feature_root(),
+            isolate_features: false,
             forbid_core_imports: Vec::new(),
             exemptions: Vec::new(),
         }

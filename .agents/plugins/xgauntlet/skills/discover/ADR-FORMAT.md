@@ -33,7 +33,7 @@ tags: [architecture]
 ---
 ```
 
-> **ADR Gatekeeper Rule:** Functional feature specifications belong in `specs/<domain>/<slice>.md`, never in `docs/adr/`.
+> **ADR Gatekeeper Rule:** Functional feature specifications belong in `specs/<domain>/<feature>.md`, never in `docs/adr/`.
 
 ## Optional sections
 

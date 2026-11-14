@@ -145,8 +145,12 @@ pub fn parse_toml(content: &str) -> Result<GauntletConfig, ConfigError> {
                         config.architecture.forbidden_imports = parse_str_list(val)
                     }
                     "layers" => config.architecture.layers = parse_str_list(val),
-                    "slice_root" => config.architecture.slice_root = parse_str_val(val),
-                    "isolate_slices" => config.architecture.isolate_slices = parse_bool_val(val),
+                    "feature_root" | "slice_root" => {
+                        config.architecture.feature_root = parse_str_val(val)
+                    }
+                    "isolate_features" | "isolate_slices" => {
+                        config.architecture.isolate_features = parse_bool_val(val)
+                    }
                     "forbid_core_imports" => {
                         config.architecture.forbid_core_imports = parse_str_list(val)
                     }
@@ -256,18 +260,18 @@ pub fn render_toml(config: &GauntletConfig) -> String {
             .collect();
         out.push_str(&format!("layers = [{}]\n", layers_fmt.join(", ")));
     }
-    if !config.architecture.slice_root.is_empty()
-        && (config.architecture.slice_root != "src/features"
-            || config.architecture.isolate_slices
+    if !config.architecture.feature_root.is_empty()
+        && (config.architecture.feature_root != "src/features"
+            || config.architecture.isolate_features
             || !config.architecture.layers.is_empty())
     {
         out.push_str(&format!(
-            "slice_root = \"{}\"\n",
-            config.architecture.slice_root
+            "feature_root = \"{}\"\n",
+            config.architecture.feature_root
         ));
     }
-    if config.architecture.isolate_slices {
-        out.push_str("isolate_slices = true\n");
+    if config.architecture.isolate_features {
+        out.push_str("isolate_features = true\n");
     }
     if !config.architecture.forbid_core_imports.is_empty() {
         let core_fmt: Vec<String> = config

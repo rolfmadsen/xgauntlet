@@ -72,11 +72,11 @@ fn render_gauntlet_toml(stack: &str, workspace: Option<&Path>) -> String {
 max_file_lines = 800
 max_test_file_lines = 1000
 
-# --- Valgfrit: Vertical Slice & Layer Boundary Gates (ADR 0012) ---
+# --- Valgfrit: Feature & Layer Boundary Gates (ADR 0013) ---
 # Fjern udkommenteringen herunder for at aktivere deterministisk arkitekturkontrol:
 # layers = ["app", "features", "core", "shared"]
-# slice_root = "src/features"
-# isolate_slices = true
+# feature_root = "src/features"
+# isolate_features = true
 # forbid_core_imports = ["iced", "react", "javafx"]
 "#;
 

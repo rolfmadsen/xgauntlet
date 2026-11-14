@@ -360,7 +360,7 @@ pub fn parse_task_content(content: &str, task_id: &str) -> Result<TaskPackageInf
         .map(|m| m.test_refs.clone())
         .unwrap_or_default();
     let domain = metadata.as_ref().and_then(|m| m.domain.clone());
-    let slice = metadata.as_ref().and_then(|m| m.slice.clone());
+    let feature = metadata.as_ref().and_then(|m| m.feature.clone());
     let spec_ref = metadata.as_ref().and_then(|m| m.spec_ref.clone());
 
     Ok(TaskPackageInfo {
@@ -375,7 +375,7 @@ pub fn parse_task_content(content: &str, task_id: &str) -> Result<TaskPackageInf
         scope,
         test_refs,
         domain,
-        slice,
+        feature,
         spec_ref,
         metadata,
     })

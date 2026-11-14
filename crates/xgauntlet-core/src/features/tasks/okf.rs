@@ -141,8 +141,8 @@ pub struct OkfMetadata {
     pub intent: Option<String>,
     #[serde(default)]
     pub domain: Option<String>,
-    #[serde(default)]
-    pub slice: Option<String>,
+    #[serde(alias = "slice", default)]
+    pub feature: Option<String>,
     #[serde(default)]
     pub spec_ref: Option<String>,
     #[serde(default)]
@@ -286,7 +286,7 @@ fn parse_yaml_metadata(lines: &[&str]) -> Result<OkfMetadata, OkfError> {
     let mut test_refs: Vec<String> = Vec::new();
     let mut intent: Option<String> = None;
     let mut domain: Option<String> = None;
-    let mut slice: Option<String> = None;
+    let mut feature: Option<String> = None;
     let mut spec_ref: Option<String> = None;
     let mut superseded_by: Option<String> = None;
     let mut generated: Option<GeneratedEntry> = None;
@@ -335,10 +335,16 @@ fn parse_yaml_metadata(lines: &[&str]) -> Result<OkfMetadata, OkfError> {
                         domain = Some(s.to_string());
                     }
                 }
-                "slice" => {
+                "feature" => {
                     let s = strip_quotes(val);
                     if !s.is_empty() {
-                        slice = Some(s.to_string());
+                        feature = Some(s.to_string());
+                    }
+                }
+                "slice" => {
+                    let s = strip_quotes(val);
+                    if !s.is_empty() && feature.is_none() {
+                        feature = Some(s.to_string());
                     }
                 }
                 "spec_ref" => {
@@ -489,7 +495,7 @@ fn parse_yaml_metadata(lines: &[&str]) -> Result<OkfMetadata, OkfError> {
         test_refs,
         intent,
         domain,
-        slice,
+        feature,
         spec_ref,
         superseded_by,
         has_verified,

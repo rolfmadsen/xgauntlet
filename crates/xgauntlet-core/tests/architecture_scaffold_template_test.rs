@@ -20,12 +20,12 @@ fn test_scaffold_gauntlet_toml_contains_architecture_guidance() {
     assert!(
         gauntlet_toml
             .content
-            .contains("# slice_root = \"src/features\""),
-        "scaffolded gauntlet.toml should contain commented example for slice_root"
+            .contains("# feature_root = \"src/features\""),
+        "scaffolded gauntlet.toml should contain commented example for feature_root"
     );
     assert!(
-        gauntlet_toml.content.contains("# isolate_slices = true"),
-        "scaffolded gauntlet.toml should contain commented example for isolate_slices"
+        gauntlet_toml.content.contains("# isolate_features = true"),
+        "scaffolded gauntlet.toml should contain commented example for isolate_features"
     );
     assert!(
         gauntlet_toml.content.contains("# forbid_core_imports ="),
@@ -40,8 +40,8 @@ fn test_scaffold_gauntlet_toml_contains_architecture_guidance() {
         "layers must remain unconfigured/empty by default"
     );
     assert!(
-        !parsed.architecture.isolate_slices,
-        "isolate_slices must remain false by default"
+        !parsed.architecture.isolate_features,
+        "isolate_features must remain false by default"
     );
 }
 
@@ -73,8 +73,8 @@ fn test_readme_documents_architecture_gates_and_safe_mode() {
             name
         );
         assert!(
-            content.contains("isolate_slices") && content.contains("forbid_core_imports"),
-            "{} should document configuration tokens isolate_slices and forbid_core_imports",
+            content.contains("isolate_features") && content.contains("forbid_core_imports"),
+            "{} should document configuration tokens isolate_features and forbid_core_imports",
             name
         );
     }

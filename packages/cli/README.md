@@ -296,7 +296,7 @@ rm -rf ~/.cache/xgauntlet ~/.gemini/config/plugins/xgauntlet ~/.claude/skills/xg
 | `xgauntlet verify [--task-id <id>] [--diagnostics-json]` | Afvikler alle konfigurerede verifikationslag, tester for selvmutation og forsegler `verification-report.json`. |
 | `xgauntlet check-evidence` | Validerer at arbejdstræets aktuelle Git OID matcher den forseglede verifikationsrapport (Drift Detection). |
 | `xgauntlet check-spec [-t <id>]` | Validerer opgavepakker i `tasks/` (OKF-format, eksekverbare kriterier, Must NOT og Aristoteles-glossar). |
-| `xgauntlet check-architecture` | Håndhæver kodestruktur, filstørrelser (max 800 linjer kode / 1.000 linjer test) og Vertical Slice Architecture-gates. |
+| `xgauntlet check-architecture` | Håndhæver kodestruktur, filstørrelser (max 800 linjer kode / 1.000 linjer test) og Feature Architecture-gates. |
 | `xgauntlet check-spec [--context]` | Shift-left opgavespecifikation og to-vejs domæne-drift validering mod CONTEXT.md jf. Aristoteles' formel. |
 | `xgauntlet topology export [--format mermaid\|json] [--level conceptual\|detailed]` | Deterministisk AST-baseret eksport af klasse- og informationsdiagrammer uden LLM-tokens eller baggrundsdæmoner. |
 | `xgauntlet check-release [--strict]` | Kontrollerer versionsparitet, WASM-synkronisering, changelog og ADR-referencer forud for release. |
@@ -310,7 +310,7 @@ rm -rf ~/.cache/xgauntlet ~/.gemini/config/plugins/xgauntlet ~/.claude/skills/xg
 
 ### 2. Deklarativ Arkitekturkontrol (`check-architecture`)
 
-xGauntlet er designet til at beskytte **både** eksisterende produktionssystemer via skånsom **Safe-Mode** (brownfield) og nye projekter (greenfield) via modulære Vertical Slice Architecture-gates jf. [ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md):
+xGauntlet er designet til at beskytte **både** eksisterende produktionssystemer via skånsom **Safe-Mode** (brownfield) og nye projekter (greenfield) via modulære Feature Architecture-gates jf. [ADR 0013](docs/adr/0013-feature-architecture-boundaries-and-living-specs.md):
 
 ```toml
 [architecture]
@@ -320,16 +320,16 @@ max_test_file_lines = 1000
 # Gate A: Håndhæv streng lagdelt afhængighed (app -> features -> core -> shared):
 layers = ["app", "features", "core", "shared"]
 
-# Gate B: Black-Box Slice Isolation (forhindrer kryds-imports mellem features):
-slice_root = "src/features"
-isolate_slices = true
+# Gate B: Black-Box Feature Isolation (forhindrer kryds-imports mellem features):
+feature_root = "src/features"
+isolate_features = true
 
 # Gate C: Forbyd UI- og framework-lækage ind i forretningskernen:
 forbid_core_imports = ["iced", "react", "javafx"]
 ```
 
 * **Gate A (`LayerDirectionViolation`):** Forhindrer at lavere lag (f.eks. `features` eller `core`) importerer baglæns fra højere lag som `app` (omvendte/opadgående afhængigheder).
-* **Gate B (`CrossSliceImportViolation`):** Auto-detekterer både 1-niveau (`src/features/<slice>/`) og 2-niveau (`src/features/<subdomain>/<slice>/`) slice-mapper og sikrer, at en feature-slice ikke kobler direkte til en peer-slice. Kommunikation på tværs koordineres i `app` via Actions/Events eller flyttes til `core` (`Shared Kernel`).
+* **Gate B (`CrossFeatureImportViolation`):** Auto-detekterer både 1-niveau (`src/features/<feature>/`) og 2-niveau (`src/features/<subdomain>/<feature>/`) feature-mapper og sikrer, at et feature-modul ikke kobler direkte til et peer-feature. Kommunikation på tværs koordineres i `app` via Actions/Events eller flyttes til `core` (`Shared Kernel`).
 * **Gate C (`ForbiddenCoreImportViolation`):** Sikrer at forretningslogik i `core` (`Shared Kernel`) forbliver 100% ren og framework-uafhængig.
 
 #### 🏛️ Trinvis Brownfield-Migrering (Sikker Køreplan for Eksisterende Systemer)
@@ -343,15 +343,15 @@ Hvis du har et etableret system med teknisk gæld, skal du **ikke** lave en risi
    [[architecture.exemptions]]
    path = "src/features/**"
    allow_imports = ["crate::ui::app", "crate::app"]
-   reason = "Legacy kobling under trinvis VSA-migrering jf. ADR 0012"
+   reason = "Legacy kobling under trinvis Feature-migrering jf. ADR 0013"
    ```
    Dette gør dit gauntlet **100% grønt**, mens alle *nye* moduler tvinges til at overholde arkitekturgrænserne fra dag 1.
 3. **Trin C: Følg den optimale oprydningsrækkefølge (Gate C $\to$ Gate B $\to$ Gate A):**  
    * *1. Rens kernen (Gate C):* Fjern framework-imports (f.eks. `iced` eller `react`) fra `src/core/`.
-   * *2. Isoler slices (Gate B):* Fjern direkte imports mellem peer-features. Flyt delte modeller til `core` eller `shared`.
-   * *3. Afkobl fra UI (Gate A):* Erstat prop-drilling med *Stateful UI-Slice* mønstret: Slicen indkapsler sin egen tilstand og returnerer et lokalt `enum Action` / `Event` opad til `app.rs`.
-4. **Trin D: Slice-for-slice afvikling med AI-agenten:**  
-   Refaktorér ét modul ad gangen via opgaver i `tasks/`. Fjern modulet fra exemption-listen, og lad `check-architecture` og `verify` bevise, at modulet nu er en ren, isoleret Vertical Slice.
+   * *2. Isoler features (Gate B):* Fjern direkte imports mellem peer-features. Flyt delte modeller til `core` eller `shared`.
+   * *3. Afkobl fra UI (Gate A):* Erstat prop-drilling med *Stateful UI-Feature* mønstret: Feature-modulet indkapsler sin egen tilstand og returnerer et lokalt `enum Action` / `Event` opad til `app.rs`.
+4. **Trin D: Feature-for-feature afvikling med AI-agenten:**  
+   Refaktorér ét modul ad gangen via opgaver i `tasks/`. Fjern modulet fra exemption-listen, og lad `check-architecture` og `verify` bevise, at modulet nu er et rent, isoleret Feature-modul.
 
 ---
 
@@ -413,8 +413,8 @@ flowchart TD
     IntentSelect -->|"🔄 REFACTOR"| PathRefactor["Omstrukturering Flow<br/>(Adfærd er frosset)"]
     PathRefactor --> TaskInitRefactor["xgauntlet task init --intent refactor"]
     TaskInitRefactor --> AntiMonoRefactor["Anti-Monolithic Guard:<br/>is_refactor = true giver dispensation<br/>til at røre testfiler > 1000 linjer"]
-    AntiMonoRefactor --> NoSliceReq["Ingen krav om nye slice-specs<br/>(Intern teknisk oprydning)"]
-    NoSliceReq --> RefactorWork["Udfør strukturel refaktorisering"]
+    AntiMonoRefactor --> NoFeatureReq["Ingen krav om nye feature-specs<br/>(Intern teknisk oprydning)"]
+    NoFeatureReq --> RefactorWork["Udfør strukturel refaktorisering"]
     RefactorWork --> CheckRefactor["xgauntlet checkpoint --phase refactor"]
     CheckRefactor --> SelfMutCheck{"verify_self_mutation:<br/>Er der sket utilsigtede ændringer?"}
     SelfMutCheck -->|"Ja"| SelfMutFail["AFVIS: SelfMutationDetected"]
@@ -423,9 +423,9 @@ flowchart TD
     %% 5. Spor 4: ENHANCEMENT & FEATURE
     IntentSelect -->|"🚀 ENHANCEMENT / FEATURE"| PathEnhance["Ny kapabilitet / Adfærdsudvidelse"]
     PathEnhance --> TaskInitEnhance["xgauntlet task init --intent enhancement/feature"]
-    TaskInitEnhance --> SliceCheck{"validate_task_slice_mapping:<br/>Er domain, slice og spec_ref sat?"}
-    SliceCheck -->|"Mangler"| SliceFail["AFVIS: MISSING_TASK_SLICE_MAPPING"]
-    SliceCheck -->|"OK"| AntiMonoStrict{"Anti-Monolithic Guard:<br/>Er testfiler <= 1000 linjer?"}
+    TaskInitEnhance --> FeatureCheck{"validate_task_feature_mapping:<br/>Er domain, feature og spec_ref sat?"}
+    FeatureCheck -->|"Mangler"| FeatureFail["AFVIS: MISSING_TASK_FEATURE_MAPPING"]
+    FeatureCheck -->|"OK"| AntiMonoStrict{"Anti-Monolithic Guard:<br/>Er testfiler <= 1000 linjer?"}
     AntiMonoStrict -->|"Over 1000 linjer"| MonoFail["AFVIS: MONOLITHIC_TEST_FILE_PROHIBITED"]
     AntiMonoStrict -->|"Under 1000 linjer"| EnhanceRed["Skriv ny accepttest jf. udvidet kontrakt"]
     EnhanceRed --> CheckRed
@@ -482,7 +482,8 @@ Projektets invariante arkitekturvalg er dokumenteret i [`docs/adr/`](docs/adr/):
 - 🏛️ **[ADR 0009](docs/adr/0009-autonomous-tdd-inner-loop-and-boundary-human-gates.md)**: Autonomous TDD Inner Loop and Boundary Human-in-the-Loop Gates
 - 🏛️ **[ADR 0010](docs/adr/0010-adr-bound-architectural-exemptions-and-monotonic-ratchets.md)**: ADR-Bound Architectural Exemptions and Monotonic Ratchet Governance
 - 🏛️ **[ADR 0011](docs/adr/0011-fast-track-worktree-inverse-proof-and-scoped-preflight.md)**: Fast-Track Bugfix Protocol, Worktree Inverse Proof, and Scoped Preflight Execution
-- 🏛️ **[ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md)**: Vertical Slice Boundaries and ADR Lifecycle
+- 🏛️ **[ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md)**: Vertical Slice Boundaries and ADR Lifecycle *(Superseded by ADR 0013)*
+- 🏛️ **[ADR 0013](docs/adr/0013-feature-architecture-boundaries-and-living-specs.md)**: Feature Architecture Boundaries, Living Feature Specifications, and ADR Lifecycle
 
 ---
 

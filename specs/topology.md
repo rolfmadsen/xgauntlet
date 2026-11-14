@@ -1,14 +1,14 @@
-# Living Slice Specification: `topology`
+# Living Feature Specification: `topology`
 
 **Bounded Context**: `xGauntlet Core & Governance Engine` ([CONTEXT.md](../CONTEXT.md))  
-**Slice Path**: `crates/xgauntlet-core/src/features/topology/`  
-**Type**: `Stateless AST-Analysis & Diagramming Slice`  
-**Governing ADRs**: [ADR 0001](../docs/adr/0001-package-by-feature-architecture.md), [ADR 0012](../docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md)
+**Feature Path**: `crates/xgauntlet-core/src/features/topology/`  
+**Type**: `Stateless AST-Analysis & Diagramming Feature`  
+**Governing ADRs**: [ADR 0001](../docs/adr/0001-package-by-feature-architecture.md), [ADR 0013](../docs/adr/0013-feature-architecture-boundaries-and-living-specs.md)
 
 ---
 
 ## 🎯 Purpose & Capability Boundary
-The `topology` slice provides sub-5ms deterministic code topology analysis, AST symbol scanning, and Mermaid class diagram generation without background daemons:
+The `topology` feature provides sub-5ms deterministic code topology analysis, AST symbol scanning, and Mermaid class diagram generation without background daemons:
 - **Topology Scanner (`parser.rs`)**: Scans workspace source files, packages (`Cargo.toml`, `package.json`), and AST symbols (`fn`, `struct`, `enum`, `interface`) into a deterministic `TopologyGraph`.
 - **Field & Relation Extractor (`parser.rs`)**: Scans struct fields and enum variants in domain model files (`models.rs`), resolving inter-model type dependencies (`Direct`, `Option<T>`, `Vec<T>`).
 - **Mermaid Exporter (`mermaid.rs`)**: Exports the topology graph into a deterministic, syntax-compliant Mermaid `classDiagram` with field types and relationship arrows (`*--` composition / `-->` association).

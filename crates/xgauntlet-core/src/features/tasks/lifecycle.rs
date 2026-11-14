@@ -149,29 +149,34 @@ impl TaskScaffolder {
             .join(" ")
     }
 
-    /// Extracts optional `(subdomain, slice)` prefix if `name` uses `<subdomain>/<slice>:<slug>` or `<slice>:<slug>` syntax.
-    pub fn split_slice_prefix(raw_name: &str) -> (Option<(String, String)>, &str) {
+    /// Extracts optional `(subdomain, feature)` prefix if `name` uses `<subdomain>/<feature>:<slug>` or `<feature>:<slug>` syntax.
+    pub fn split_feature_prefix(raw_name: &str) -> (Option<(String, String)>, &str) {
         if let Some((prefix, rest)) = raw_name.split_once(':') {
-            if let Some((d, s)) = prefix.split_once('/') {
+            if let Some((d, f)) = prefix.split_once('/') {
                 let domain = Self::slugify(d);
-                let slice = Self::slugify(s);
-                if !domain.is_empty() && !slice.is_empty() {
-                    return (Some((domain, slice)), rest);
+                let feature = Self::slugify(f);
+                if !domain.is_empty() && !feature.is_empty() {
+                    return (Some((domain, feature)), rest);
                 }
             } else {
-                let slice = Self::slugify(prefix);
-                if !slice.is_empty() {
-                    return (Some((String::new(), slice)), rest);
+                let feature = Self::slugify(prefix);
+                if !feature.is_empty() {
+                    return (Some((String::new(), feature)), rest);
                 }
             }
         }
         (None, raw_name)
     }
 
+    /// Backward-compatible alias for [`Self::split_feature_prefix`].
+    pub fn split_slice_prefix(raw_name: &str) -> (Option<(String, String)>, &str) {
+        Self::split_feature_prefix(raw_name)
+    }
+
     /// Generates markdown content for a new task file adhering to OKF v0.2 and check-spec.
     pub fn generate_task_content(options: &ScaffoldTaskOptions, task_number: u32) -> String {
         let padded_num = Self::format_task_number(task_number);
-        let (slice_info, clean_name) = Self::split_slice_prefix(&options.name);
+        let (feature_info, clean_name) = Self::split_feature_prefix(&options.name);
         let raw_slug = Self::slugify(clean_name);
         let (_, slug) = Self::extract_slug_and_number(&raw_slug);
         let title = Self::format_title(&slug, options.title.as_deref());
@@ -194,19 +199,19 @@ impl TaskScaffolder {
             _ => format!("Etablere {title} jf. spec.md og CONTEXT.md"),
         };
 
-        let (slice_yaml, scope_yaml) = if let Some((ref d, ref s)) = slice_info {
+        let (feature_yaml, scope_yaml) = if let Some((ref d, ref f)) = feature_info {
             if d.is_empty() {
                 (
-                    format!("intent: {raw_intent}\nslice: {s}\nspec_ref: \"specs/{s}.md\"\n"),
-                    format!("scope:\n  - \"src/features/{s}/**\"\n  - \"specs/{s}.md\""),
+                    format!("intent: {raw_intent}\nfeature: {f}\nspec_ref: \"specs/{f}.md\"\n"),
+                    format!("scope:\n  - \"src/features/{f}/**\"\n  - \"specs/{f}.md\""),
                 )
             } else {
                 (
                     format!(
-                        "intent: {raw_intent}\ndomain: {d}\nslice: {s}\nspec_ref: \"specs/{d}/{s}.md\"\n"
+                        "intent: {raw_intent}\ndomain: {d}\nfeature: {f}\nspec_ref: \"specs/{d}/{f}.md\"\n"
                     ),
                     format!(
-                        "scope:\n  - \"src/features/{d}/{s}/**\"\n  - \"specs/{d}/{s}.md\""
+                        "scope:\n  - \"src/features/{d}/{f}/**\"\n  - \"specs/{d}/{f}.md\""
                     ),
                 )
             }
@@ -223,7 +228,7 @@ type: Task Package
 title: "Task {padded_num}: {title}"
 description: "{purpose}"
 status: active
-{slice_yaml}generated: {{ by: process:xgauntlet-task-init, at: "{now_iso}" }}
+{feature_yaml}generated: {{ by: process:xgauntlet-task-init, at: "{now_iso}" }}
 tags: [task-lifecycle, intent, scaffolding, rust]
 {scope_yaml}
 test_refs:
@@ -273,30 +278,39 @@ test_refs:
         }
     }
 
-    /// Scaffolds a new task package in `tasks/`, with optional explicit `(subdomain/domain, slice)` binding.
+    /// Scaffolds a new task package in `tasks/`, with optional explicit `(subdomain/domain, feature)` binding.
+    pub fn scaffold_feature(
+        options: &ScaffoldTaskOptions,
+        domain: Option<&str>,
+        feature: Option<&str>,
+    ) -> Result<TaskScaffoldResult, TaskError> {
+        Self::scaffold_in_subdir(options, domain, feature, None)
+    }
+
+    /// Backward-compatible alias for [`Self::scaffold_feature`].
     pub fn scaffold_slice(
         options: &ScaffoldTaskOptions,
         domain: Option<&str>,
         slice: Option<&str>,
     ) -> Result<TaskScaffoldResult, TaskError> {
-        Self::scaffold_in_subdir(options, domain, slice, None)
+        Self::scaffold_feature(options, domain, slice)
     }
 
     /// Scaffolds a new task package in `tasks/` (or an optional safe relative subdirectory under `tasks/`),
-    /// with optional `(subdomain/domain, slice)` living spec binding.
+    /// with optional `(subdomain/domain, feature)` living spec binding.
     pub fn scaffold_in_subdir(
         options: &ScaffoldTaskOptions,
         domain: Option<&str>,
-        slice: Option<&str>,
+        feature: Option<&str>,
         subdir: Option<&str>,
     ) -> Result<TaskScaffoldResult, TaskError> {
         let mut effective = options.clone();
-        if let Some(s) = slice.map(|s| s.trim()).filter(|s| !s.is_empty()) {
+        if let Some(f) = feature.map(|f| f.trim()).filter(|f| !f.is_empty()) {
             if !effective.name.contains(':') {
                 if let Some(d) = domain.map(|d| d.trim()).filter(|d| !d.is_empty()) {
-                    effective.name = format!("{d}/{s}:{}", effective.name);
+                    effective.name = format!("{d}/{f}:{}", effective.name);
                 } else {
-                    effective.name = format!("{s}:{}", effective.name);
+                    effective.name = format!("{f}:{}", effective.name);
                 }
             }
         }
@@ -342,7 +356,7 @@ test_refs:
         let target_dir = Self::resolve_target_subdir(&tasks_dir, subdir)?;
         fs::create_dir_all(&target_dir)?;
 
-        let (slice_info, clean_name) = Self::split_slice_prefix(&options.name);
+        let (feature_info, clean_name) = Self::split_feature_prefix(&options.name);
         let raw_slug = Self::slugify(clean_name);
         let (specified_num, slug) = Self::extract_slug_and_number(&raw_slug);
 
@@ -401,8 +415,8 @@ test_refs:
         let full_title = format!("Task {padded_num}: {title}");
         let task_id = format!("{padded_num}-{slug}");
 
-        if let Some((ref d, ref s)) = slice_info {
-            Self::sync_slice_spec_file(&options.workspace, d, s, &file_path, &full_title)?;
+        if let Some((ref d, ref f)) = feature_info {
+            Self::sync_feature_spec_file(&options.workspace, d, f, &file_path, &full_title)?;
         }
 
         let intent = Self::format_intent(options.intent.as_deref());
@@ -558,29 +572,29 @@ test_refs:
         })
     }
 
-    fn sync_slice_spec_file(
+    fn sync_feature_spec_file(
         workspace: &Path,
         domain: &str,
-        slice: &str,
+        feature: &str,
         task_file_path: &Path,
         full_title: &str,
     ) -> Result<(), TaskError> {
         let (spec_path, heading, metadata, layer_path) = if domain.is_empty() {
             (
-                workspace.join("specs").join(format!("{slice}.md")),
-                slice.to_string(),
-                format!("- **Slice**: `{slice}`"),
-                format!("features/{slice}"),
+                workspace.join("specs").join(format!("{feature}.md")),
+                format!("`{feature}`"),
+                format!("- **Feature**: `{feature}`"),
+                format!("features/{feature}"),
             )
         } else {
             (
                 workspace
                     .join("specs")
                     .join(domain)
-                    .join(format!("{slice}.md")),
-                format!("{domain} / {slice}"),
-                format!("- **Subdomain**: `{domain}`\n- **Slice**: `{slice}`"),
-                format!("features/{domain}/{slice}"),
+                    .join(format!("{feature}.md")),
+                format!("`{domain}/{feature}`"),
+                format!("- **Subdomain**: `{domain}`\n- **Feature**: `{feature}`"),
+                format!("features/{domain}/{feature}"),
             )
         };
 
@@ -593,7 +607,7 @@ test_refs:
                 fs::create_dir_all(parent)?;
             }
             let template = format!(
-                "# Living Slice Specification: {heading}\n\n## 🎯 Capability & Facade Contract\n{metadata}\n- **Layer**: `{layer_path}`\n\n## 🔌 Public Input / Action Contract\n- Dokumenter slicens offentlige state/input og udgående `Action`/event/result her.\n\n## 🛡️ Slice Invariants\n- Må IKKE importere opad fra `app`.\n- Må IKKE importere direkte fra andre slices i `features/`.\n\n## 📋 Relaterede Tasks\n{task_link_line}\n"
+                "# Living Feature Specification: {heading}\n\n## 🎯 Capability & Facade Contract\n{metadata}\n- **Feature Path**: `{layer_path}`\n\n## 🔌 Public Input / Action Contract\n- Dokumenter featurens offentlige state/input og udgående `Action`/event/result her.\n\n## 🛡️ Feature Invariants\n- Må IKKE importere opad fra `app`.\n- Må IKKE importere direkte fra andre features i `features/`.\n\n## 📋 Relaterede Tasks\n{task_link_line}\n"
             );
             fs::write(&spec_path, template)?;
         } else if let Ok(existing) = fs::read_to_string(&spec_path) {

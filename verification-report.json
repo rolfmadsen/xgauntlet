@@ -1449,6 +1449,14 @@
         "commit_oid": "563e349b061f74f907356e1edea1b2e856350ee9",
         "timestamp": "2026-11-14T16:29:36Z",
         "digest": "d4bb1db013c1ff9235e74acb181378d3cbb5ededaea779e18dfaa1edfc67497b"
+      },
+      {
+        "session_nonce": "sess-4a61ec1a",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "4a61ec1af003abd3d4fd43572c85cc9efe7edca3",
+        "timestamp": "2026-11-14T16:31:11Z",
+        "digest": "1f911b5a37ecd1979cdbcdb1ed506cbf6b0899d18874ace3c238652531260882"
       }
     ]
   },
@@ -2726,6 +2734,13 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_task_081_feature_frontmatter_and_legacy_slice_compatibility",
+      "failure_output": "Verified in RED checkpoint commit 4a61ec1",
+      "failure_digest": "b458b0cc00ecfd2677709f8895505dac855fb35134c76caadc3113250e1082f9",
+      "verified_at": "2026-11-14T17:31:11+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }

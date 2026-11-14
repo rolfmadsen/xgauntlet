@@ -504,7 +504,7 @@ fn inspect_file(
                             "File '{}' has {} lines, which exceeds exemption ceiling of {} lines (Reason: '{}')",
                             rel_path, line_count, ceiling, ex.reason
                         ),
-                        remediation_hint: "Decompose this file into smaller slices or refactor logic into peer modules.".into(),
+                        remediation_hint: "Decompose this file into smaller feature modules or refactor logic into peer modules.".into(),
                     });
                 }
             }
@@ -535,7 +535,7 @@ fn inspect_file(
                             "Production file '{}' has {} lines, which exceeds max_file_lines limit of {}",
                             rel_path, line_count, max
                         ),
-                        remediation_hint: "Decompose monolithic file into vertical feature slices or dedicated domain components.".into(),
+                        remediation_hint: "Decompose monolithic file into isolated feature modules or dedicated domain components.".into(),
                     });
                 }
             }
@@ -586,7 +586,7 @@ fn inspect_file(
             }
         }
 
-        // 3. Deterministic Layer & Slice Boundary Gates (ADR 0012: Gate A, Gate B, Gate C)
+        // 3. Deterministic Layer & Feature Boundary Gates (ADR 0013: Gate A, Gate B, Gate C)
         super::boundaries::evaluate_file_boundaries(
             root,
             &rel_path,

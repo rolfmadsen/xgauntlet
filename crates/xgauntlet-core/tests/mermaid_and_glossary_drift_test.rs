@@ -359,16 +359,16 @@ fn test_check_spec_supports_1_level_slice_without_subdomain() {
         workspace: ws_path.to_path_buf(),
         force: true,
     };
-    let scaffolded = TaskScaffolder::scaffold_slice(&opts, None, Some("architecture"))
-        .expect("create 1-level slice task");
+    let scaffolded = TaskScaffolder::scaffold_feature(&opts, None, Some("architecture"))
+        .expect("create 1-level feature task");
     let task_path = scaffolded.path;
 
     let content = fs::read_to_string(&task_path).unwrap();
     assert!(
-        content.contains("slice: architecture")
+        content.contains("feature: architecture")
             && content.contains("spec_ref: \"specs/architecture.md\"")
             && !content.contains("domain:"),
-        "Expected 1-level slice frontmatter without domain, got:\n{}",
+        "Expected 1-level feature frontmatter without domain, got:\n{}",
         content
     );
 
@@ -403,7 +403,7 @@ _Avoid_: ad-hoc lint.
     fs::create_dir_all(&models_dir).unwrap();
     fs::write(
         models_dir.join("models.rs"),
-        "pub struct ArchitectureConfig {\n    pub isolate_slices: bool,\n}\npub struct ArchitectureReport {\n    pub is_valid: bool,\n}\n",
+        "pub struct ArchitectureConfig {\n    pub isolate_features: bool,\n}\npub struct ArchitectureReport {\n    pub is_valid: bool,\n}\n",
     )
     .unwrap();
 

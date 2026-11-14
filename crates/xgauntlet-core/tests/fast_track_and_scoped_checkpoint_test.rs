@@ -243,7 +243,7 @@ fn test_fast_track_eligibility_criteria() {
         scope: vec!["src/parser.rs".to_string()],
         test_refs: vec!["tests/parser_test.rs".to_string()],
         domain: None,
-        slice: None,
+        feature: None,
         spec_ref: None,
         metadata: None,
     };

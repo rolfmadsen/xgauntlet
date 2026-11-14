@@ -53,7 +53,7 @@ git status
 ```
 
 #### Niveau A: Almindelig Task-Afslutning (Hverdags-synkronisering)
-Ved afslutning af et standard arbejds-slice eller en task, skal der **IKKE** oprettes Git tags.
+Ved afslutning af en standard feature-opgave eller task, skal der **IKKE** oprettes Git tags.
 `xgauntlet checkpoint --phase done` eller `xgauntlet handoff` genererer deterministisk det officielle Markdown-kort med den eksakte push-kommando:
 ```bash
 xgauntlet handoff

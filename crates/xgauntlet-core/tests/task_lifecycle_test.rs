@@ -897,5 +897,9 @@ fn test_task_081_feature_frontmatter_and_legacy_slice_compatibility() {
         json!("billing")
     );
     let rep = check_task_specification(&legacy_path, ws);
-    assert!(rep.is_valid, "Legacy slice: task must remain valid: {:?}", rep.diagnostics);
+    assert!(
+        rep.is_valid,
+        "Legacy slice: task must remain valid: {:?}",
+        rep.diagnostics
+    );
 }

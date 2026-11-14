@@ -36,7 +36,7 @@ Rapportér **KUN** fejl, der opfylder mindst ét af følgende tre kriterier:
 
 ## 🧭 Den To-Aksede Review Model
 
-Reviewet udføres altid mod opgavens specifikke **Git diff** (`git diff HEAD~1..HEAD` eller `git diff --cached`) eller isolerede feature-slice – **aldrig** mod et ustruktureret monolitisk helheds-dump.
+Reviewet udføres altid mod opgavens specifikke **Git diff** (`git diff HEAD~1..HEAD` eller `git diff --cached`) eller isolerede feature-modul – **aldrig** mod et ustruktureret monolitisk helheds-dump.
 
 ### Akse 1: Specifikation & Invariant-opfyldelse
 - [ ] **Acceptance Criteria:** Er samtlige kriterier i `tasks/<id>.md` opfyldt og empirisk bevist med tests?
@@ -44,11 +44,11 @@ Reviewet udføres altid mod opgavens specifikke **Git diff** (`git diff HEAD~1..
 - [ ] **Scope Integritet:** Blev ændringerne holdt strengt inden for opgavens deklarerede `scope` uden utilsigtet drift?
 
 ### Akse 2: Kodestandarder, Fowler Smells & Arkitekturgrænser
-- [ ] **Arkitektur- & Slice-grænser (`app -> features -> core -> shared`):** Overholder kildekoden `[architecture]` i `gauntlet.toml` (`xgauntlet check-architecture`) med `0` brud på `LayerDirectionViolation` (ingen baglæns imports fra `features` til `app`), `CrossSliceImportViolation` (ingen direkte imports mellem søskende-slices) og `ForbiddenCoreImportViolation` (ingen UI-pakker i `core`)? Afvis prop-drilling med `#[allow(clippy::too_many_arguments)]` og verificér at `specs/<domain>/<slice>.md` (`spec_ref`) er opdateret.
+- [ ] **Arkitektur- & Feature-grænser (`app -> features -> core -> shared`):** Overholder kildekoden `[architecture]` i `gauntlet.toml` (`xgauntlet check-architecture`) med `0` brud på `LayerDirectionViolation` (ingen baglæns imports fra `features` til `app`), `CrossFeatureImportViolation` (ingen direkte imports mellem søskende-features) og `ForbiddenCoreImportViolation` (ingen UI-pakker i `core`)? Afvis prop-drilling med `#[allow(clippy::too_many_arguments)]` og verificér at `specs/<domain>/<feature>.md` (`spec_ref`) er opdateret.
 - [ ] **Design Tokens & WAI 2.0:** Er alle UI-elementer fri for rå farver/størrelser, og overholder de tilgængelighedsstandarder?
 - [ ] **Fowler Code Smells:**
   - *Large Class / Long Method:* Filer $\le 800$ linjer, metoder $\le 100$ linjer.
-  - *Feature Envy:* Er logik placeret i de rigtige vertikale slices?
+  - *Feature Envy:* Er logik placeret i de rigtige feature-moduler?
   - *Shotgun Surgery:* Er ændringer lokaliseret frem for spredt over mange moduler?
 - [ ] **Mekanisk Først-Princip:** Hvis et fund kan tjekkes deterministisk (f.eks. linjelængder, ubrugte imports, versioner), skal det overdrages til `xgauntlet verify` / `check-architecture`, så LLM'en ikke spilder tid på det.
 - [ ] **Linter & Typesikkerhed:** Passerer koden projektets primære linter og typecheck (fx `cargo clippy`, `eslint`, `mypy`, `go vet`) med 0 advarsler?

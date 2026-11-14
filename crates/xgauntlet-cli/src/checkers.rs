@@ -227,7 +227,7 @@ pub(crate) fn handle_task_command(command: &crate::TaskCommands) -> anyhow::Resu
             intent,
             purpose,
             domain,
-            slice,
+            feature,
             subdir,
             workspace,
             force,
@@ -244,7 +244,7 @@ pub(crate) fn handle_task_command(command: &crate::TaskCommands) -> anyhow::Resu
             let res = xgauntlet_core::TaskScaffolder::scaffold_in_subdir(
                 &options,
                 domain.as_deref(),
-                slice.as_deref(),
+                feature.as_deref(),
                 subdir.as_deref(),
             )?;
             if *json {

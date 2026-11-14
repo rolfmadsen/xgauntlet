@@ -1,14 +1,14 @@
-# Living Slice Specification: `release`
+# Living Feature Specification: `release`
 
 **Bounded Context**: `xGauntlet Core & Governance Engine` ([CONTEXT.md](../CONTEXT.md))  
-**Slice Path**: `crates/xgauntlet-core/src/features/release/`  
-**Type**: `Stateless Pipeline-Slice`  
-**Governing ADRs**: [ADR 0001](../docs/adr/0001-package-by-feature-architecture.md), [ADR 0003](../docs/adr/0003-local-only-git-checkpoints.md), [ADR 0005](../docs/adr/0005-two-tier-trust-and-sigstore-attestation.md), [ADR 0012](../docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md)
+**Feature Path**: `crates/xgauntlet-core/src/features/release/`  
+**Type**: `Stateless Pipeline-Feature`  
+**Governing ADRs**: [ADR 0001](../docs/adr/0001-package-by-feature-architecture.md), [ADR 0003](../docs/adr/0003-local-only-git-checkpoints.md), [ADR 0005](../docs/adr/0005-two-tier-trust-and-sigstore-attestation.md), [ADR 0013](../docs/adr/0013-feature-architecture-boundaries-and-living-specs.md)
 
 ---
 
 ## 🎯 Purpose & Capability Boundary
-The `release` slice enforces mechanical release readiness (`check-release`) and transactional SemVer version bumping (`release bump` / `release prepare`):
+The `release` feature enforces mechanical release readiness (`check-release`) and transactional SemVer version bumping (`release bump` / `release prepare`):
 - **Public Facade (`mod.rs` / `engine.rs` / `archive.rs`)**: `check_release_readiness(options)` $\to$ `Result<ReleaseReadinessReport, ReleaseError>`, `update_manifest_versions`, `prepare_changelog_release`, and `stage_done_tasks_for_release`.
 - **Manifest Harmony**: Synchronizes and verifies version parity across `Cargo.toml`, crate manifests, `package.json`, `packages/cli/package.json`, `.agents/plugins/xgauntlet/plugin.json`, `.agents/plugins/xgauntlet/policy.json`, and embedded `gauntlet_policy.wasm`.
 - **Auto-Archive on Release**: `release bump` and `release prepare` automatically archive all `DONE`/`COMPLETED` tasks to `tasks/archive/` (updating relative links in `specs/**/*.md` and skipping `ACTIVE`/`DRAFT` tasks) **before** final evidence sealing and `check-release --strict`, with transactional rollback on failure and opt-out via `--no-archive`.

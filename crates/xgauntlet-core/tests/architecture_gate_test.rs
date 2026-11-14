@@ -498,8 +498,8 @@ fn test_gate_b_1_level_slice_sibling_and_glob_exemption() {
         ..Default::default()
     };
     let cfg = ArchitectureConfig {
-        isolate_slices: true,
-        slice_root: "src/features".into(),
+        isolate_features: true,
+        feature_root: "src/features".into(),
         exemptions: vec![ex],
         ..Default::default()
     };
