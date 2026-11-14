@@ -97,51 +97,27 @@ adr = "docs/adr/0012-slice.md"
     let loaded = GauntletConfig::load(ws.path()).expect("load gauntlet.toml");
     let arch_json = serde_json::to_value(&loaded.architecture).expect("serialize architecture");
 
-    assert_eq!(
-        arch_json["layers"],
-        json!(["app", "features", "core", "shared"]),
-        "ArchitectureConfig must parse 'layers' array from gauntlet.toml"
-    );
-    assert_eq!(
-        arch_json["slice_root"],
-        json!("src/features"),
-        "ArchitectureConfig must parse 'slice_root' from gauntlet.toml"
-    );
-    assert_eq!(
-        arch_json["isolate_slices"],
-        json!(true),
-        "ArchitectureConfig must parse 'isolate_slices = true' from gauntlet.toml"
-    );
-    assert_eq!(
-        arch_json["forbid_core_imports"],
-        json!(["iced", "react", "javafx"]),
-        "ArchitectureConfig must parse 'forbid_core_imports' from gauntlet.toml"
-    );
-    assert_eq!(
-        arch_json["exemptions"][0]["allow_imports"],
-        json!(["crate::app::Message", "crate::features::other::State"]),
-        "ArchitectureExemption must parse 'allow_imports' from gauntlet.toml"
-    );
+    assert_eq!(arch_json["layers"], json!(["app", "features", "core", "shared"]));
+    assert_eq!(arch_json["feature_root"], json!("src/features"));
+    assert_eq!(arch_json["isolate_features"], json!(true));
+    assert_eq!(arch_json["forbid_core_imports"], json!(["iced", "react", "javafx"]));
+    assert_eq!(arch_json["exemptions"][0]["allow_imports"], json!(["crate::app::Message", "crate::features::other::State"]));
 
-    // Roundtrip render_toml & parse_toml
+    // Roundtrip render_toml & parse_toml (must emit feature_root and isolate_features)
     let rendered = render_toml(&loaded);
+    assert!(rendered.contains("feature_root = \"src/features\"") && rendered.contains("isolate_features = true"), "Rendered TOML must use feature keys:\n{rendered}");
     let reloaded = parse_toml(&rendered).expect("reparse rendered gauntlet.toml");
-    let reloaded_json =
-        serde_json::to_value(&reloaded.architecture).expect("serialize reloaded architecture");
+    let reloaded_json = serde_json::to_value(&reloaded.architecture).expect("serialize reloaded architecture");
+    assert_eq!(reloaded_json["layers"], json!(["app", "features", "core", "shared"]));
+    assert_eq!(reloaded_json["isolate_features"], json!(true));
+    assert_eq!(reloaded_json["forbid_core_imports"], json!(["iced", "react", "javafx"]));
+    assert_eq!(reloaded_json["exemptions"][0]["allow_imports"], json!(["crate::app::Message", "crate::features::other::State"]));
 
-    assert_eq!(
-        reloaded_json["layers"],
-        json!(["app", "features", "core", "shared"])
-    );
-    assert_eq!(reloaded_json["isolate_slices"], json!(true));
-    assert_eq!(
-        reloaded_json["forbid_core_imports"],
-        json!(["iced", "react", "javafx"])
-    );
-    assert_eq!(
-        reloaded_json["exemptions"][0]["allow_imports"],
-        json!(["crate::app::Message", "crate::features::other::State"])
-    );
+    // Primary feature_root / isolate_features TOML syntax also parses identically
+    let primary_parsed = parse_toml("[architecture]\nfeature_root = \"src/domains\"\nisolate_features = true\n").unwrap();
+    let pjson = serde_json::to_value(&primary_parsed.architecture).unwrap();
+    assert_eq!(pjson["feature_root"], json!("src/domains"));
+    assert_eq!(pjson["isolate_features"], json!(true));
 }
 
 // ============================================================================

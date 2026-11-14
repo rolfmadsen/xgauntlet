@@ -833,3 +833,69 @@ fn test_scaffold_in_subdir_and_archive_done_tasks_updates_spec_links() {
         "Active task link must remain intact: {updated_spec}"
     );
 }
+
+#[test]
+fn test_task_081_feature_frontmatter_and_legacy_slice_compatibility() {
+    use serde_json::json;
+    use xgauntlet_core::features::tasks::{
+        check_task_specification, parse_task_file, ScaffoldTaskOptions, TaskScaffolder,
+    };
+
+    let tmp = TempDir::new("t081_feature_compat");
+    let ws = tmp.path();
+    fs::write(
+        ws.join("CONTEXT.md"),
+        "---\ntype: Knowledge Bundle Index\nstatus: stable\n---\n# Context\n**Feature**:\nBoundary.\n_Avoid_: slice.\n",
+    )
+    .unwrap();
+    fs::write(
+        ws.join("gauntlet.toml"),
+        "stack = \"rust\"\n[architecture]\nfeature_root = \"src/features\"\nisolate_features = true\n",
+    )
+    .unwrap();
+    fs::create_dir_all(ws.join("tests")).unwrap();
+    fs::write(ws.join("tests/billing_test.rs"), "#[test] fn ok() {}\n").unwrap();
+
+    let scaffolded = TaskScaffolder::scaffold(&ScaffoldTaskOptions {
+        name: "billing:export".to_string(),
+        title: Some("Export".to_string()),
+        intent: Some("feature".to_string()),
+        purpose: Some("Invoice export".to_string()),
+        workspace: ws.to_path_buf(),
+        force: false,
+    })
+    .expect("scaffold billing:export");
+
+    let task_md = fs::read_to_string(&scaffolded.path).unwrap();
+    assert!(
+        task_md.contains("feature: billing") && !task_md.contains("\nslice:"),
+        "Scaffolded task must use 'feature:' as primary key, got:\n{task_md}"
+    );
+
+    let spec_md = fs::read_to_string(ws.join("specs/billing.md")).unwrap();
+    assert!(
+        spec_md.contains("# Living Feature Specification: `billing`")
+            && spec_md.contains("**Feature Path**:")
+            && !spec_md.contains("Living Slice Specification"),
+        "Scaffolded living spec must use Feature terminology, got:\n{spec_md}"
+    );
+
+    let parsed_new = parse_task_file(&scaffolded.path).unwrap();
+    let parsed_json = serde_json::to_value(&parsed_new).unwrap();
+    assert_eq!(parsed_json["feature"], json!("billing"));
+
+    // Backward compatibility: legacy 'slice:' YAML frontmatter in existing task still validates cleanly
+    let legacy_path = ws.join("tasks/002-legacy.md");
+    fs::write(
+        &legacy_path,
+        "---\ntype: Task Package\ntitle: \"Task 002: Legacy\"\ndescription: \"Legacy\"\nstatus: active\nintent: enhancement\nslice: billing\nspec_ref: \"specs/billing.md\"\ngenerated: { by: process:xgauntlet, at: \"2026-10-01T00:00:00Z\" }\ntags: [billing]\nscope: [\"src/features/billing/mod.rs\"]\ntest_refs: [\"tests/billing_test.rs\"]\n---\n\n# Task 002\n\n## 🎯 Formål\nLegacy compat.\n\n## 📋 Acceptance Criteria\n- [ ] AC1: Works.\n\n## 🚫 Must NOT\n- Never break.\n",
+    )
+    .unwrap();
+    let legacy_parsed = parse_task_file(&legacy_path).unwrap();
+    assert_eq!(
+        serde_json::to_value(&legacy_parsed).unwrap()["feature"],
+        json!("billing")
+    );
+    let rep = check_task_specification(&legacy_path, ws);
+    assert!(rep.is_valid, "Legacy slice: task must remain valid: {:?}", rep.diagnostics);
+}

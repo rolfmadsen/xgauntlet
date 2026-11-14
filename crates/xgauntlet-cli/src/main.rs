@@ -2077,3 +2077,16 @@ fn render_check_architecture_summary(report: &xgauntlet_core::ArchitectureReport
         println!();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_task_new_accepts_feature_and_legacy_slice_flags() {
+        let primary = Cli::try_parse_from(["xgauntlet", "task", "new", "export", "--feature", "billing"]);
+        assert!(primary.is_ok(), "task new must accept --feature: {:?}", primary.err());
+        let legacy = Cli::try_parse_from(["xgauntlet", "task", "new", "export", "--slice", "billing"]);
+        assert!(legacy.is_ok(), "task new must accept legacy --slice alias: {:?}", legacy.err());
+    }
+}

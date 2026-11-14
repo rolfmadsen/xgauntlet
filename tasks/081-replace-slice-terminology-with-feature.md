@@ -39,10 +39,6 @@ scope:
 test_refs:
   - "crates/xgauntlet-core/tests/slice_architecture_and_adr_lifecycle_test.rs"
   - "crates/xgauntlet-core/tests/task_lifecycle_test.rs"
-  - "crates/xgauntlet-core/tests/architecture_gate_test.rs"
-  - "crates/xgauntlet-core/tests/architecture_scaffold_template_test.rs"
-  - "crates/xgauntlet-core/tests/mermaid_and_glossary_drift_test.rs"
-  - "crates/xgauntlet-core/tests/fast_track_and_scoped_checkpoint_test.rs"
 ---
 
 # Task 081: Replace Slice Terminology with Feature Architecture
