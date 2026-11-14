@@ -207,8 +207,10 @@ For at modvirke uendelige review-loops og beskytte mod kontekstforurening (*cont
 3. **`Code Reviewer (Independent Audit)`**: Tager over i en frisk session. Udfører to-akset audit mod `CODING_STANDARDS.md` og specifikationen.
 4. **`Release Engineer (Attestation & Deployment)`**: Tager over ved afslutning. Kører `check-release`, synkroniserer versioner og forsegler releasen.
 
-> **🛡️ Single-Agent Governance & Human-in-the-Loop:**  
-> xGauntlet anvender en transparent enkelt-agent model under direkte menneskeligt opsyn. Kontekst-renhed opnås via mekaniske Session Handoffs, ikke via uigennemskuelige baggrunds-subagenter. Udvikleren bevarer hermed fuld kontrol over hver eneste sessionsovergang.
+> **🛡️ Worktree-Isoleret Multi-Agent & Subagent Supervision ([ADR 0014](docs/adr/0014-worktree-isolated-multi-agent-and-subagent-supervision.md)):**  
+> xGauntlet understøtter både parallelle uafhængige agent-sessioner og koordinerede subagenter/swarms på tværs af **Google Antigravity**, **Claude Code**, **OpenAI Codex** og **Mistral Vibe** — stadig helt uden baggrundsdæmoner:
+> * **Parallelle opgaver i egne `git worktree`s:** Bind hver worktree deterministisk til sin egen opgave via `xgauntlet task bind --task <id>` (`.xgauntlet/active_task`). Hook-motoren opløser automatisk verificerede worktrees fra `cwd`/`workspacePaths` og isolerer telemetri samt dedup pr. `(workspace, session_id)`.
+> * **Sikker subagent- & swarm-delegation (`ToolActionType::Delegate`):** Read-only research (`research`, `Explore`, `Plan`) tillades frit i `SPEC`/`QUERY`, mens skrivende workers kræver aktiv opgave og isoleret worktree (`share` / `branch` / `worktree`). Samtidige muterende agenter i samme working tree (`workspace: "inherit"`) blokeres fail-closed (`4040`).
 
 ---
 
@@ -302,6 +304,8 @@ rm -rf ~/.cache/xgauntlet ~/.gemini/config/plugins/xgauntlet ~/.claude/skills/xg
 | `xgauntlet check-release [--strict]` | Kontrollerer versionsparitet, WASM-synkronisering, changelog og ADR-referencer forud for release. |
 | `xgauntlet check-attestation` | Verificerer Sigstore in-toto/DSSE attestationer lokalt eller remote mod GitHub Releases. |
 | `xgauntlet release bump [patch\|minor\|major]` | Udfører transaktionel SemVer-opgradering med atomisk disk-staging backup og WASM-kompilering. |
+| `xgauntlet task bind -t <id> [-w <dir>]` / `unbind` | Binder eller fjerner en worktree-lokal aktiv opgave (`.xgauntlet/active_task`) til parallelle sessioner. |
+| `xgauntlet checkpoint --phase <spec\|red\|green\|refactor\|done>` | Udfører preflight-verifikation og atomiske, rent lokale Git TDD-checkpoints jf. ADR 0003. |
 | `xgauntlet handoff [--task-id <id>]` | Genererer et standardiseret `🏁 SESSION HANDOFF` telemetrikort til skift af AI-session. |
 | `xgauntlet doctor` | Diagnosticerer udviklermiljø, toolchains og OS-forudsætninger (Linux, macOS, Windows). |
 | `xgauntlet plugin install [--global] [--force]` | Udruller og synkroniserer de 6 sovereign agent-skills til installerede AI agent-harnesses. |
@@ -484,6 +488,7 @@ Projektets invariante arkitekturvalg er dokumenteret i [`docs/adr/`](docs/adr/):
 - 🏛️ **[ADR 0011](docs/adr/0011-fast-track-worktree-inverse-proof-and-scoped-preflight.md)**: Fast-Track Bugfix Protocol, Worktree Inverse Proof, and Scoped Preflight Execution
 - 🏛️ **[ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md)**: Vertical Slice Boundaries and ADR Lifecycle *(Superseded by ADR 0013)*
 - 🏛️ **[ADR 0013](docs/adr/0013-feature-architecture-boundaries-and-living-specs.md)**: Feature Architecture Boundaries, Living Feature Specifications, and ADR Lifecycle
+- 🏛️ **[ADR 0014](docs/adr/0014-worktree-isolated-multi-agent-and-subagent-supervision.md)**: Worktree-Isolated Multi-Agent and Subagent Supervision
 
 ---
 
