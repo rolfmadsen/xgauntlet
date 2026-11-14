@@ -19,7 +19,7 @@ The `release` slice enforces mechanical release readiness (`check-release`) and 
 - Never executes `git push` automatically.
 
 ## 📋 Relaterede Tasks
-- [Task 036: Release Gatekeeper Fail-Closed Hardening](../tasks/036-release-gatekeeper-fail-closed-hardening.md)
-- [Task 042: Release Engine Hardening and Strict Gatekeeper](../tasks/042-release-engine-hardening-and-strict-gatekeeper.md)
-- [Task 058: Release Manifest Parity and Global Distribution Clarity](../tasks/058-release-manifest-parity-and-global-distribution-clarity.md)
-- [Task 076: Release v0.14.0](../tasks/076-release-v0-14-0.md)
+- [Task 036: Release Gatekeeper Fail-Closed Hardening](../tasks/archive/036-release-gatekeeper-fail-closed-hardening.md)
+- [Task 042: Release Engine Hardening and Strict Gatekeeper](../tasks/archive/042-release-engine-hardening-and-strict-gatekeeper.md)
+- [Task 058: Release Manifest Parity and Global Distribution Clarity](../tasks/archive/058-release-manifest-parity-and-global-distribution-clarity.md)
+- [Task 076: Release v0.14.0](../tasks/archive/076-release-v0-14-0.md)

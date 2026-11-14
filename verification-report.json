@@ -2,39 +2,39 @@
   "$schema": "https://xgauntlet.dev/schemas/v2/verification-report.json",
   "schema_version": "2.0.0",
   "execution_origin": "LOCAL",
-  "verdict": "PARTIAL",
+  "verdict": "FAILED",
   "task_contract": {
-    "task_id": "079-recursive-task-subdirectories-and-archiving",
-    "task_title": "Task 079: Recursive Task Subdirectories & Auto-Archiving in tasks/",
-    "task_digest": "cce26b919453a4c9aa0cabfb129df6af871252f8e296b4ac40c896c38d8b1716",
+    "task_id": "082-archive-completed-tasks",
+    "task_title": "Task 082: Archive Completed Tasks to tasks/archive/",
+    "task_digest": "460443c2b5fceac0d193d4f4a99060058d875bdca591e1732dee8d67b7807e68",
     "acceptance_criteria": [
-      "**AC1 (Rekursiv Scanning, Numerisk Sortering >999 & Globalt ID-opslag):**",
-      "**AC2 (Arkiveringsflow & Valgfri Undermapper):**",
-      "**AC3 (Isolerede Integrationstests):**"
+      "**AC1 (Dry-Run Preview & Arkivering af Historiske `DONE`-Tasks):**",
+      "**AC2 (Bevarelse af `DRAFT`/`ACTIVE`-Tasks & Link-Integritet):**",
+      "**AC3 (Fuldt Verificeret Repo efter Oprydning):**"
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "27fc0dda43d3dee01f62a2300494678f00e4e03f3e184dd328f4e740752694f8",
-    "source_manifest_digest_pre": "b71b0c66250c35434147d52d5f38f129fd511d9aa092c9d3dbeade6c23801511",
-    "source_manifest_digest_post": "b71b0c66250c35434147d52d5f38f129fd511d9aa092c9d3dbeade6c23801511",
+    "source_content_digest": "bb8a7d3fadb9371ae8c8a42fd4b323ba35af829a060d2a1853a0a22536bf690c",
+    "source_manifest_digest_pre": "19a148327433fd88dc15536196a9f32f389bb4b8a3f7ad5949dd0a16691a77de",
+    "source_manifest_digest_post": "19a148327433fd88dc15536196a9f32f389bb4b8a3f7ad5949dd0a16691a77de",
     "config_digest": "7bdeb99f18175c79f2b932b98c65a371655dda2a018c8d4c8ee4609c0f8f0f74",
-    "task_digest": "cce26b919453a4c9aa0cabfb129df6af871252f8e296b4ac40c896c38d8b1716",
+    "task_digest": "460443c2b5fceac0d193d4f4a99060058d875bdca591e1732dee8d67b7807e68",
     "policy_digest": "8cd964a56c773721adcd91d621295a938fdb3f5a39bde7914a7331f359045370",
     "check_definitions_digest": "7b85613e7b7c24f03e0db6873ce7a93328152d05b26a6eea242f15f10f6063af",
-    "included_files_count": 290,
+    "included_files_count": 292,
     "vcs": {
       "type": "git",
-      "head": "f70899d",
-      "commit": "f70899d",
+      "head": "757b05c",
+      "commit": "757b05c",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-14T15:18:39Z",
-    "finished_at": "2026-11-14T15:19:16Z",
-    "total_duration_seconds": 36.644386864,
+    "started_at": "2026-11-14T15:57:38Z",
+    "finished_at": "2026-11-14T15:58:14Z",
+    "total_duration_seconds": 35.760123773,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -47,16 +47,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.081879491,
+      "duration_seconds": 0.122383871,
       "optional": false,
       "passed": true,
-      "log_digest": "a4a47891e1336ea9b1fbd65a29247f6a1723759e217f76decf68f34a046331d1"
+      "log_digest": "ec8eb1e08d8494349b4e8bdaee16da5af51663d6e41438f20631f1e6f5eebf31"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.242677165,
+      "duration_seconds": 0.25420209,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -65,43 +65,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.912069629,
+      "duration_seconds": 1.102490828,
       "optional": false,
       "passed": true,
-      "log_digest": "371134ae2c8f29fa810898cc67ff322f1c8c5b619c226499870da5a3da8c8413"
+      "log_digest": "fab8f054c630d779dae20ce8ada592894d00efd1007219ddf80384b015c97cbd"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 34.30418721,
+      "duration_seconds": 32.872036527,
       "optional": false,
       "passed": true,
-      "log_digest": "5ae52fd4bfd40306803f0077240dc26917475008de339977f2c7f777b229437f"
+      "log_digest": "f35923618b6bdc9c4c26843d294f5ab7fcbb02057a319adc4e8c8adadadafcee"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.803282593,
+      "duration_seconds": 0.904530221,
       "optional": false,
       "passed": true,
-      "log_digest": "82e0cfe369d81550a4a56e4ae0421a0b9d70441e811bd5537cc6187755437eb3"
+      "log_digest": "51ebab99253fdda575eaeabbb7dd29068e3281d466778dd0458ee902e7f7dfe0"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.087990214,
+      "duration_seconds": 0.210353444,
       "optional": false,
       "passed": true,
-      "log_digest": "6aae1a93826fb325e4d5dde0838be4f6e62e30df20ce8e05d34913283822c0ac"
+      "log_digest": "15004f11767e416056101c20b71a83179e3d335616438eb95b5eb3711b07486b"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.00972426,
+      "duration_seconds": 0.038504371,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -116,6 +116,16 @@
       "column_number": null,
       "message": "error: no such command: `mutants` | help: view all installed commands with `cargo --list` | help: find a package to install `mutants` with `cargo search cargo-mutants`",
       "remediation_hint": "Check full command output logs for root cause remediation.",
+      "raw_context": ""
+    },
+    {
+      "finding_type": "INVARIANT_VIOLATION",
+      "tool_name": "tdd-phase-provenance",
+      "file_path": "checkpoint",
+      "line_number": null,
+      "column_number": null,
+      "message": "Task '082-archive-completed-tasks' has no preceding RED commit and is not eligible for Fast-Track Bugfix Lane (intent: Some(\"🧹 CHORE\"), scope.len(): 4).",
+      "remediation_hint": "Follow standard TDD protocol: commit failing acceptance test in RED phase ('xgauntlet checkpoint --phase red') before implementation.",
       "raw_context": ""
     }
   ],
@@ -1392,6 +1402,14 @@
         "commit_oid": "f70899d2fc0d03fe41acf1de29ed9fdbcf93be15",
         "timestamp": "2026-11-14T15:17:32Z",
         "digest": "9b4694e39d23fd56e75059146b3eb2bf9056ee766dda62c9d56af1242783a75c"
+      },
+      {
+        "session_nonce": "sess-757b05c3",
+        "role": "Software Engineer",
+        "phase": "DONE",
+        "commit_oid": "757b05c380b159a3d18b985473f9464ac54e0d70",
+        "timestamp": "2026-11-14T15:19:16Z",
+        "digest": "70fc516d4f665c208e668075fd2358eb37241bdfc1146d803fce73f39c7821a9"
       }
     ]
   },

@@ -20,5 +20,5 @@ The `architecture` slice enforces deterministic structural boundaries, monotonic
 - Every `[[architecture.exemptions]]` entry must reference an accepted ADR in `docs/adr/` and supports both exact relative paths and `/**` directory glob prefixes for `allow_imports`.
 
 ## 📋 Relaterede Tasks
-- [Task 057: Deterministic Slice Architecture Gates, Living Slice Specs & ADR Lifecycle](../tasks/057-slice-architecture-gates-and-adr-lifecycle.md)
-- [Task 069: Correct DDD/VSA Taxonomy, 1- and 2-Level Slice Isolation, and Dogfooding](../tasks/069-ddd-slice-taxonomy-and-dogfooding.md)
+- [Task 057: Deterministic Slice Architecture Gates, Living Slice Specs & ADR Lifecycle](../tasks/archive/057-slice-architecture-gates-and-adr-lifecycle.md)
+- [Task 069: Correct DDD/VSA Taxonomy, 1- and 2-Level Slice Isolation, and Dogfooding](../tasks/archive/069-ddd-slice-taxonomy-and-dogfooding.md)

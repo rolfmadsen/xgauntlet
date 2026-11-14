@@ -1,19 +1,19 @@
 # Verification Report
 
-**Task ID**: `079-recursive-task-subdirectories-and-archiving`  
-**Task Title**: Task 079: Recursive Task Subdirectories & Auto-Archiving in tasks/  
-**Verdict**: `PARTIAL`  
+**Task ID**: `082-archive-completed-tasks`  
+**Task Title**: Task 082: Archive Completed Tasks to tasks/archive/  
+**Verdict**: `FAILED`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `b71b0c66250c35434147d52d5f38f129fd511d9aa092c9d3dbeade6c23801511`  
-**Timestamp**: `2026-11-14T15:19:16Z`  
-**Head**: `f70899d`  
-**Commit**: `f70899d`  
+**Source Manifest Digest**: `19a148327433fd88dc15536196a9f32f389bb4b8a3f7ad5949dd0a16691a77de`  
+**Timestamp**: `2026-11-14T15:58:14Z`  
+**Head**: `757b05c`  
+**Commit**: `757b05c`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (Rekursiv Scanning, Numerisk Sortering >999 & Globalt ID-opslag):**
-- [x] **AC2 (Arkiveringsflow & Valgfri Undermapper):**
-- [x] **AC3 (Isolerede Integrationstests):**
+- [x] **AC1 (Dry-Run Preview & Arkivering af Historiske `DONE`-Tasks):**
+- [x] **AC2 (Bevarelse af `DRAFT`/`ACTIVE`-Tasks & Link-Integritet):**
+- [x] **AC3 (Fuldt Verificeret Repo efter Oprydning):**
 
 ---
 
@@ -21,13 +21,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.082s` |
-| `format` | `PASSED` | `0` | `0.243s` |
-| `lint` | `PASSED` | `0` | `0.912s` |
-| `unit` | `PASSED` | `0` | `34.304s` |
-| `npm` | `PASSED` | `0` | `0.803s` |
-| `invariants` | `PASSED` | `0` | `0.088s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
+| `architecture` | `PASSED` | `0` | `0.122s` |
+| `format` | `PASSED` | `0` | `0.254s` |
+| `lint` | `PASSED` | `0` | `1.102s` |
+| `unit` | `PASSED` | `0` | `32.872s` |
+| `npm` | `PASSED` | `0` | `0.905s` |
+| `invariants` | `PASSED` | `0` | `0.210s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.039s` |
 
 ---
 
@@ -194,6 +194,7 @@
 | `sess-390a0cef` | `TDD Craftsman` | `RED` | `390a0ce` | `2026-11-14T15:11:15Z` | `VALID` |
 | `sess-5289397d` | `TDD Craftsman` | `GREEN` | `5289397` | `2026-11-14T15:16:52Z` | `VALID` |
 | `sess-f70899d2` | `TDD Craftsman` | `REFACTOR` | `f70899d` | `2026-11-14T15:17:32Z` | `VALID` |
+| `sess-757b05c3` | `Software Engineer` | `DONE` | `757b05c` | `2026-11-14T15:19:16Z` | `VALID` |
 
 ---
 
