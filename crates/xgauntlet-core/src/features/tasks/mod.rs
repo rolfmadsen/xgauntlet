@@ -12,7 +12,10 @@ pub mod telemetry;
 pub mod validator;
 
 pub use glossary::validate_glossary_drift;
-pub use lifecycle::{ScaffoldTaskOptions, TaskScaffoldResult, TaskScaffolder};
+pub use lifecycle::{
+    ScaffoldTaskOptions, TaskArchiveEntry, TaskArchiveOptions, TaskArchiveResult,
+    TaskScaffoldResult, TaskScaffolder,
+};
 pub use models::{
     AdrReadinessReport, GlossaryDriftOptions, GlossaryDriftReport, SpecReadinessReport,
     TaskContract, TaskPackageInfo, TaskStatus,
@@ -22,8 +25,10 @@ pub use okf::{
     SourceEntry, VerifiedEntry,
 };
 pub use parser::{
-    has_active_task, is_task_active, parse_task_content, parse_task_file, parse_task_status,
-    resolve_active_task_id, resolve_latest_done_task_id, resolve_task_contract, TaskError,
+    collect_task_files, extract_task_number, has_active_task, is_task_active, parse_task_content,
+    parse_task_file, parse_task_status, resolve_active_task_id, resolve_active_task_path,
+    resolve_latest_done_task_id, resolve_latest_done_task_path, resolve_task_contract,
+    resolve_task_file_path, TaskError,
 };
 pub use telemetry::{
     collect_git_telemetry, inspect_task_telemetry, list_workspace_tasks, parse_criteria_progress,

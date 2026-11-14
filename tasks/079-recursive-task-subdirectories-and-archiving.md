@@ -26,6 +26,7 @@ scope:
   - "crates/xgauntlet-cli/src/checkers.rs"
   - "crates/xgauntlet-cli/src/render.rs"
   - "crates/xgauntlet-core/tests/task_lifecycle_test.rs"
+  - "crates/xgauntlet-core/tests/harness_adapters_test.rs"
 test_refs:
   - "crates/xgauntlet-core/tests/task_lifecycle_test.rs"
 ---

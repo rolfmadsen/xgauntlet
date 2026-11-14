@@ -6,7 +6,9 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use crate::features::tasks::models::TaskStatus;
-use crate::features::tasks::parser::{parse_task_file, resolve_active_task_id, TaskError};
+use crate::features::tasks::parser::{
+    collect_task_files, extract_task_number, parse_task_file, resolve_task_file_path, TaskError,
+};
 
 /// Lightweight local Git status telemetry.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -358,59 +360,7 @@ fn resolve_task_path(
     workspace: &Path,
     task_id_or_path: Option<&str>,
 ) -> Result<PathBuf, TaskError> {
-    let tasks_dir = workspace.join("tasks");
-
-    if let Some(id_or_path) = task_id_or_path {
-        // 1. Direct path check
-        let direct = PathBuf::from(id_or_path);
-        if direct.is_file() {
-            return Ok(direct);
-        }
-        let joined = workspace.join(id_or_path);
-        if joined.is_file() {
-            return Ok(joined);
-        }
-        let in_tasks = tasks_dir.join(id_or_path);
-        if in_tasks.is_file() {
-            return Ok(in_tasks);
-        }
-        let in_tasks_md = tasks_dir.join(format!("{id_or_path}.md"));
-        if in_tasks_md.is_file() {
-            return Ok(in_tasks_md);
-        }
-
-        // 2. Scan tasks dir for matching prefix or substring
-        if tasks_dir.is_dir() {
-            if let Ok(entries) = fs::read_dir(&tasks_dir) {
-                for entry in entries.flatten() {
-                    let p = entry.path();
-                    if p.extension().is_some_and(|ext| ext == "md") {
-                        let stem = p.file_stem().and_then(|s| s.to_str()).unwrap_or("");
-                        if stem == id_or_path
-                            || stem.starts_with(&format!("{id_or_path}-"))
-                            || stem.contains(id_or_path)
-                        {
-                            return Ok(p);
-                        }
-                    }
-                }
-            }
-        }
-
-        return Err(TaskError::TaskNotFound(id_or_path.to_string()));
-    }
-
-    // 3. Fallback to active task
-    if let Some(active_id) = resolve_active_task_id(workspace) {
-        let p = tasks_dir.join(format!("{active_id}.md"));
-        if p.is_file() {
-            return Ok(p);
-        }
-    }
-
-    Err(TaskError::TaskNotFound(
-        "no active task found in tasks/".to_string(),
-    ))
+    resolve_task_file_path(workspace, task_id_or_path)
 }
 
 /// Infers the active TDD phase by inspecting conventional commit markers for this task.
@@ -504,41 +454,36 @@ pub fn inspect_task_telemetry(
     })
 }
 
-/// Lists all tasks discovered in `tasks/` directory with progress telemetry.
+/// Lists all tasks discovered in `tasks/**` directory tree with progress telemetry.
 pub fn list_workspace_tasks(workspace: &Path) -> Result<Vec<TaskSummaryItem>, TaskError> {
     let tasks_dir = workspace.join("tasks");
     if !tasks_dir.is_dir() {
         return Ok(Vec::new());
     }
 
-    let entries = fs::read_dir(&tasks_dir)?;
+    let paths = collect_task_files(&tasks_dir);
     let mut items = Vec::new();
 
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if path.extension().is_some_and(|ext| ext == "md") {
-            if let Ok(info) = parse_task_file(&path) {
-                if let Ok(content) = fs::read_to_string(&path) {
-                    let criteria = parse_criteria_progress(&content);
-                    let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("");
-                    let digits: String = stem.chars().take_while(|c| c.is_ascii_digit()).collect();
-                    let task_number = digits.parse::<u32>().ok();
+    for path in paths {
+        if let Ok(info) = parse_task_file(&path) {
+            if let Ok(content) = fs::read_to_string(&path) {
+                let criteria = parse_criteria_progress(&content);
+                let task_number = extract_task_number(&path);
 
-                    let rel_path = match path.strip_prefix(workspace) {
-                        Ok(p) => p.display().to_string().replace('\\', "/"),
-                        Err(_) => path.display().to_string().replace('\\', "/"),
-                    };
+                let rel_path = match path.strip_prefix(workspace) {
+                    Ok(p) => p.display().to_string().replace('\\', "/"),
+                    Err(_) => path.display().to_string().replace('\\', "/"),
+                };
 
-                    items.push(TaskSummaryItem {
-                        task_id: info.task_id,
-                        task_number,
-                        title: info.title,
-                        status: info.status,
-                        intent: info.intent,
-                        criteria,
-                        file_path: rel_path,
-                    });
-                }
+                items.push(TaskSummaryItem {
+                    task_id: info.task_id,
+                    task_number,
+                    title: info.title,
+                    status: info.status,
+                    intent: info.intent,
+                    criteria,
+                    file_path: rel_path,
+                });
             }
         }
     }

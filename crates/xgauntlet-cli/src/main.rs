@@ -506,7 +506,7 @@ enum TopologyCommands {
 }
 
 #[derive(Subcommand, Debug)]
-enum TaskCommands {
+pub(crate) enum TaskCommands {
     /// Scaffold a new task package with sequential numbering and OKF v0.2 frontmatter
     New {
         /// Task package slug name (e.g. 'task-lifecycle-and-intent-scaffolding')
@@ -531,6 +531,10 @@ enum TaskCommands {
         /// Vertical slice name within the domain (e.g. 'canvas')
         #[arg(long)]
         slice: Option<String>,
+
+        /// Optional relative subdirectory inside tasks/ (e.g. 'infra')
+        #[arg(long)]
+        subdir: Option<String>,
 
         /// Path to repository workspace root
         #[arg(short, long, default_value = ".")]
@@ -565,6 +569,28 @@ enum TaskCommands {
         workspace: std::path::PathBuf,
 
         /// Output task list in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
+    /// Archive DONE task packages into tasks/archive/ and update relative specs/ links
+    Archive {
+        /// Specific DONE task identifier to archive (archives all DONE tasks if omitted)
+        #[arg(short, long)]
+        task: Option<String>,
+
+        /// Archive all DONE/COMPLETED tasks outside tasks/archive/
+        #[arg(long)]
+        all_done: bool,
+
+        /// Preview changes without moving files
+        #[arg(long)]
+        dry_run: bool,
+
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Output archive report in structured JSON format
         #[arg(long)]
         json: bool,
     },
@@ -1075,81 +1101,7 @@ async fn main() -> anyhow::Result<()> {
                 std::process::exit(1);
             }
         }
-        Some(Commands::Task { command }) => match command {
-            TaskCommands::New {
-                name,
-                title,
-                intent,
-                purpose,
-                domain,
-                slice,
-                workspace,
-                force,
-                json,
-            } => {
-                let canonical_ws = if workspace.is_absolute() {
-                    workspace.clone()
-                } else {
-                    std::env::current_dir()?.join(workspace)
-                };
-
-                let options = xgauntlet_core::ScaffoldTaskOptions {
-                    name: name.clone(),
-                    title: title.clone(),
-                    intent: Some(intent.clone()),
-                    purpose: purpose.clone(),
-                    workspace: canonical_ws,
-                    force: *force,
-                };
-
-                let res = xgauntlet_core::TaskScaffolder::scaffold_slice(
-                    &options,
-                    domain.as_deref(),
-                    slice.as_deref(),
-                )?;
-
-                if *json {
-                    println!("{}", serde_json::to_string_pretty(&res)?);
-                } else {
-                    render_task_scaffold_summary(&res);
-                }
-            }
-            TaskCommands::Status {
-                task,
-                workspace,
-                json,
-            } => {
-                let canonical_ws = if workspace.is_absolute() {
-                    workspace.clone()
-                } else {
-                    std::env::current_dir()?.join(workspace)
-                };
-
-                let telemetry =
-                    xgauntlet_core::inspect_task_telemetry(&canonical_ws, task.as_deref())?;
-
-                if *json {
-                    println!("{}", serde_json::to_string_pretty(&telemetry)?);
-                } else {
-                    render_task_status_summary(&telemetry);
-                }
-            }
-            TaskCommands::List { workspace, json } => {
-                let canonical_ws = if workspace.is_absolute() {
-                    workspace.clone()
-                } else {
-                    std::env::current_dir()?.join(workspace)
-                };
-
-                let items = xgauntlet_core::list_workspace_tasks(&canonical_ws)?;
-
-                if *json {
-                    println!("{}", serde_json::to_string_pretty(&items)?);
-                } else {
-                    render_task_list_summary(&items);
-                }
-            }
-        },
+        Some(Commands::Task { command }) => handle_task_command(command)?,
 
         Some(Commands::Telemetry {
             task,

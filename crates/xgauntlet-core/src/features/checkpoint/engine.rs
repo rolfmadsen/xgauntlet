@@ -46,27 +46,9 @@ pub fn load_task_package_info(
     workspace: &std::path::Path,
     task_id: &str,
 ) -> Option<crate::features::tasks::TaskPackageInfo> {
-    let tasks_dir = workspace.join("tasks");
-    let mut task_path = tasks_dir.join(format!("{task_id}.md"));
-    if !task_path.is_file() {
-        if let Ok(entries) = std::fs::read_dir(&tasks_dir) {
-            for entry in entries.flatten() {
-                let p = entry.path();
-                if p.extension().is_some_and(|e| e == "md") {
-                    let stem = p.file_stem().and_then(|s| s.to_str()).unwrap_or("");
-                    if stem == task_id || stem.starts_with(&format!("{task_id}-")) {
-                        task_path = p;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    if task_path.is_file() {
-        crate::features::tasks::parse_task_file(&task_path).ok()
-    } else {
-        None
-    }
+    let task_path =
+        crate::features::tasks::resolve_task_file_path(workspace, Some(task_id)).ok()?;
+    crate::features::tasks::parse_task_file(&task_path).ok()
 }
 
 pub fn validate_staged_files_scope(

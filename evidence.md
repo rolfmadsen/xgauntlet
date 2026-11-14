@@ -191,6 +191,7 @@
 | `sess-79221d85` | `TDD Craftsman` | `REFACTOR` | `79221d8` | `2026-11-14T14:24:15Z` | `VALID` |
 | `sess-e6f903cd` | `Software Engineer` | `DONE` | `e6f903c` | `2026-11-14T14:27:33Z` | `VALID` |
 | `sess-1788ce30` | `System Architect` | `SPEC` | `1788ce3` | `2026-11-14T15:10:17Z` | `VALID` |
+| `sess-390a0cef` | `TDD Craftsman` | `RED` | `390a0ce` | `2026-11-14T15:11:15Z` | `VALID` |
 
 ---
 
@@ -363,5 +364,20 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_detect_next_task_number` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_slugify_and_formatting` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_scaffold_task_package_creates_valid_spec` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_scaffold_collision_fail_closed_without_force` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_parse_criteria_progress` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_git_telemetry_graceful_fallback` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_inspect_and_list_workspace_tasks` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_render_box_card_format_and_borders` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_render_box_card_progress_states` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_render_box_compact` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_render_box_card_long_strings_ellipsing_and_fixed_64_width` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_render_box_card_windows_path_normalization` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_recursive_task_discovery_and_global_id_increment` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_numeric_task_sorting_beyond_999_and_exact_prefix_priority` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
+| `test_scaffold_in_subdir_and_archive_done_tasks_updates_spec_links` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
 
 ---

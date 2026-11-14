@@ -5,7 +5,10 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::features::evidence::time::current_iso_utc;
-use crate::features::tasks::parser::TaskError;
+use crate::features::tasks::models::TaskStatus;
+use crate::features::tasks::parser::{
+    collect_task_files, extract_task_number, parse_task_file, resolve_task_file_path, TaskError,
+};
 
 /// Configuration options for scaffolding a new task package.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -29,35 +32,43 @@ pub struct TaskScaffoldResult {
     pub created: bool,
 }
 
+/// Configuration options for archiving completed (`DONE`) task packages into `tasks/archive/`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TaskArchiveOptions {
+    pub workspace: PathBuf,
+    pub task_id: Option<String>,
+    pub all_done: bool,
+    pub dry_run: bool,
+}
+
+/// Details of a single archived (or would-be archived) task package.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TaskArchiveEntry {
+    pub task_id: String,
+    pub from_path: PathBuf,
+    pub to_path: PathBuf,
+    pub updated_specs: Vec<String>,
+}
+
+/// Summary result returned by `TaskScaffolder::archive_tasks`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TaskArchiveResult {
+    pub archived: Vec<TaskArchiveEntry>,
+    pub skipped_count: usize,
+    pub dry_run: bool,
+}
+
 /// Engine for task package scaffolding and numbering.
 pub struct TaskScaffolder;
 
 impl TaskScaffolder {
-    /// Detects the next sequential task number by inspecting existing files in `tasks/`.
+    /// Detects the next sequential task number by inspecting existing files across `tasks/**`.
     pub fn detect_next_task_number(tasks_dir: &Path) -> u32 {
-        if !tasks_dir.is_dir() {
-            return 1;
-        }
-
-        let entries = match fs::read_dir(tasks_dir) {
-            Ok(e) => e,
-            Err(_) => return 1,
-        };
-
-        let mut max_id = 0u32;
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if path.extension().is_some_and(|ext| ext == "md") {
-                if let Some(stem) = path.file_stem().and_then(|s| s.to_str()) {
-                    let digits: String = stem.chars().take_while(|c| c.is_ascii_digit()).collect();
-                    if let Ok(num) = digits.parse::<u32>() {
-                        if num > max_id {
-                            max_id = num;
-                        }
-                    }
-                }
-            }
-        }
+        let max_id = collect_task_files(tasks_dir)
+            .into_iter()
+            .filter_map(|p| extract_task_number(&p))
+            .max()
+            .unwrap_or(0);
 
         max_id + 1
     }
@@ -268,6 +279,17 @@ test_refs:
         domain: Option<&str>,
         slice: Option<&str>,
     ) -> Result<TaskScaffoldResult, TaskError> {
+        Self::scaffold_in_subdir(options, domain, slice, None)
+    }
+
+    /// Scaffolds a new task package in `tasks/` (or an optional safe relative subdirectory under `tasks/`),
+    /// with optional `(subdomain/domain, slice)` living spec binding.
+    pub fn scaffold_in_subdir(
+        options: &ScaffoldTaskOptions,
+        domain: Option<&str>,
+        slice: Option<&str>,
+        subdir: Option<&str>,
+    ) -> Result<TaskScaffoldResult, TaskError> {
         let mut effective = options.clone();
         if let Some(s) = slice.map(|s| s.trim()).filter(|s| !s.is_empty()) {
             if !effective.name.contains(':') {
@@ -278,33 +300,60 @@ test_refs:
                 }
             }
         }
-        Self::scaffold(&effective)
+        Self::scaffold_internal(&effective, subdir)
     }
 
     /// Scaffolds a new task package in `tasks/`.
     pub fn scaffold(options: &ScaffoldTaskOptions) -> Result<TaskScaffoldResult, TaskError> {
+        Self::scaffold_internal(options, None)
+    }
+
+    fn resolve_target_subdir(tasks_dir: &Path, subdir: Option<&str>) -> Result<PathBuf, TaskError> {
+        let Some(raw) = subdir else {
+            return Ok(tasks_dir.to_path_buf());
+        };
+        let norm = raw.trim().replace('\\', "/");
+        if norm.is_empty() {
+            return Ok(tasks_dir.to_path_buf());
+        }
+        if norm.starts_with('/') || norm.contains(':') {
+            return Err(TaskError::InvalidSpecification(format!(
+                "Invalid task subdirectory '{raw}': must be a relative path inside tasks/"
+            )));
+        }
+        let mut dir = tasks_dir.to_path_buf();
+        for seg in norm.split('/') {
+            if seg.is_empty() || seg == "." || seg == ".." {
+                return Err(TaskError::InvalidSpecification(format!(
+                    "Invalid task subdirectory '{raw}': path traversal or empty segment is prohibited"
+                )));
+            }
+            dir = dir.join(seg);
+        }
+        Ok(dir)
+    }
+
+    fn scaffold_internal(
+        options: &ScaffoldTaskOptions,
+        subdir: Option<&str>,
+    ) -> Result<TaskScaffoldResult, TaskError> {
         let tasks_dir = options.workspace.join("tasks");
         fs::create_dir_all(&tasks_dir)?;
+        let target_dir = Self::resolve_target_subdir(&tasks_dir, subdir)?;
+        fs::create_dir_all(&target_dir)?;
 
         let (slice_info, clean_name) = Self::split_slice_prefix(&options.name);
         let raw_slug = Self::slugify(clean_name);
         let (specified_num, slug) = Self::extract_slug_and_number(&raw_slug);
 
-        // Check if a task with this slug already exists in tasks/
+        // Check recursively if a task with this slug already exists anywhere in tasks/**
         let mut existing_file = None;
-        if let Ok(entries) = fs::read_dir(&tasks_dir) {
-            for entry in entries.flatten() {
-                let p = entry.path();
-                if p.extension().is_some_and(|ext| ext == "md") {
-                    let stem = p.file_stem().and_then(|s| s.to_str()).unwrap_or("");
-                    if stem == slug || stem.ends_with(&format!("-{slug}")) {
-                        let digits: String =
-                            stem.chars().take_while(|c| c.is_ascii_digit()).collect();
-                        let num = digits.parse::<u32>().ok();
-                        existing_file = Some((p, num));
-                        break;
-                    }
-                }
+        for p in collect_task_files(&tasks_dir) {
+            let stem = p.file_stem().and_then(|s| s.to_str()).unwrap_or("");
+            if stem == slug || stem.ends_with(&format!("-{slug}")) {
+                let num = extract_task_number(&p);
+                existing_file = Some((p, num));
+                break;
             }
         }
 
@@ -321,7 +370,7 @@ test_refs:
             }
             (None, Some(num)) => {
                 let padded = Self::format_task_number(num);
-                let p = tasks_dir.join(format!("{padded}-{slug}.md"));
+                let p = target_dir.join(format!("{padded}-{slug}.md"));
                 if p.exists() && !options.force {
                     return Err(TaskError::InvalidSpecification(format!(
                         "Task file '{}' already exists. Use force to overwrite.",
@@ -333,7 +382,7 @@ test_refs:
             (None, None) => {
                 let num = Self::detect_next_task_number(&tasks_dir);
                 let padded = Self::format_task_number(num);
-                let p = tasks_dir.join(format!("{padded}-{slug}.md"));
+                let p = target_dir.join(format!("{padded}-{slug}.md"));
                 if p.exists() && !options.force {
                     return Err(TaskError::InvalidSpecification(format!(
                         "Task file '{}' already exists. Use force to overwrite.",
@@ -353,7 +402,7 @@ test_refs:
         let task_id = format!("{padded_num}-{slug}");
 
         if let Some((ref d, ref s)) = slice_info {
-            Self::sync_slice_spec_file(&options.workspace, d, s, &task_id, &full_title)?;
+            Self::sync_slice_spec_file(&options.workspace, d, s, &file_path, &full_title)?;
         }
 
         let intent = Self::format_intent(options.intent.as_deref());
@@ -368,17 +417,157 @@ test_refs:
         })
     }
 
+    /// Computes a POSIX relative link path from `from_dir` to `to_file` within `workspace`.
+    fn relative_link_from_dir(workspace: &Path, from_dir: &Path, to_file: &Path) -> String {
+        let rel_from = from_dir.strip_prefix(workspace).unwrap_or(from_dir);
+        let rel_to = to_file.strip_prefix(workspace).unwrap_or(to_file);
+        let depth = rel_from.components().count();
+        let mut prefix = String::new();
+        for _ in 0..depth {
+            prefix.push_str("../");
+        }
+        format!(
+            "{prefix}{}",
+            rel_to.display().to_string().replace('\\', "/")
+        )
+    }
+
+    fn collect_markdown_files_recursive(dir: &Path, out: &mut Vec<PathBuf>) {
+        let Ok(entries) = fs::read_dir(dir) else {
+            return;
+        };
+        for entry in entries.flatten() {
+            let p = entry.path();
+            if p.is_dir() {
+                Self::collect_markdown_files_recursive(&p, out);
+            } else if p.is_file() && p.extension().is_some_and(|e| e == "md") {
+                out.push(p);
+            }
+        }
+    }
+
+    /// Archives completed (`DONE` / `COMPLETED`) tasks into `tasks/archive/` and updates
+    /// relative task links inside `specs/**/*.md`.
+    pub fn archive_tasks(options: &TaskArchiveOptions) -> Result<TaskArchiveResult, TaskError> {
+        let tasks_dir = options.workspace.join("tasks");
+        let archive_dir = tasks_dir.join("archive");
+
+        if !tasks_dir.is_dir() {
+            if let Some(ref id) = options.task_id {
+                return Err(TaskError::TaskNotFound(id.clone()));
+            }
+            return Ok(TaskArchiveResult {
+                archived: Vec::new(),
+                skipped_count: 0,
+                dry_run: options.dry_run,
+            });
+        }
+
+        let mut candidates: Vec<(String, PathBuf)> = Vec::new();
+        let mut skipped_count = 0usize;
+
+        if let Some(ref id) = options.task_id {
+            let path = resolve_task_file_path(&options.workspace, Some(id))?;
+            let info = parse_task_file(&path)?;
+            if !matches!(info.status, TaskStatus::Done | TaskStatus::Completed) {
+                return Err(TaskError::InvalidSpecification(format!(
+                    "Task '{}' has status '{}' and cannot be archived (must be DONE or COMPLETED).",
+                    info.task_id,
+                    info.status.as_str()
+                )));
+            }
+            if path.starts_with(&archive_dir) {
+                skipped_count += 1;
+            } else {
+                candidates.push((info.task_id, path));
+            }
+        } else {
+            for path in collect_task_files(&tasks_dir) {
+                if path.starts_with(&archive_dir) {
+                    continue;
+                }
+                if let Ok(info) = parse_task_file(&path) {
+                    if matches!(info.status, TaskStatus::Done | TaskStatus::Completed) {
+                        candidates.push((info.task_id, path));
+                    }
+                }
+            }
+        }
+
+        let mut spec_files = Vec::new();
+        let specs_dir = options.workspace.join("specs");
+        if specs_dir.is_dir() {
+            Self::collect_markdown_files_recursive(&specs_dir, &mut spec_files);
+            spec_files.sort();
+        }
+
+        let mut archived = Vec::new();
+        for (task_id, from_path) in candidates {
+            let file_name = from_path
+                .file_name()
+                .ok_or_else(|| TaskError::InvalidSpecification("Invalid task filename".into()))?;
+            let to_path = archive_dir.join(file_name);
+
+            if to_path.exists() {
+                return Err(TaskError::InvalidSpecification(format!(
+                    "Archive destination '{}' already exists.",
+                    to_path.display()
+                )));
+            }
+
+            let mut updated_specs = Vec::new();
+            for spec_path in &spec_files {
+                let spec_dir = spec_path.parent().unwrap_or(&specs_dir);
+                let old_rel =
+                    Self::relative_link_from_dir(&options.workspace, spec_dir, &from_path);
+                let new_rel = Self::relative_link_from_dir(&options.workspace, spec_dir, &to_path);
+                if let Ok(content) = fs::read_to_string(spec_path) {
+                    if content.contains(&old_rel) {
+                        if !options.dry_run {
+                            let updated = content.replace(&old_rel, &new_rel);
+                            fs::write(spec_path, updated)?;
+                        }
+                        let rel_spec = spec_path
+                            .strip_prefix(&options.workspace)
+                            .unwrap_or(spec_path)
+                            .display()
+                            .to_string()
+                            .replace('\\', "/");
+                        updated_specs.push(rel_spec);
+                    }
+                }
+            }
+
+            if !options.dry_run {
+                fs::create_dir_all(&archive_dir)?;
+                fs::rename(&from_path, &to_path)?;
+            }
+
+            archived.push(TaskArchiveEntry {
+                task_id,
+                from_path,
+                to_path,
+                updated_specs,
+            });
+        }
+
+        Ok(TaskArchiveResult {
+            archived,
+            skipped_count,
+            dry_run: options.dry_run,
+        })
+    }
+
     fn sync_slice_spec_file(
         workspace: &Path,
         domain: &str,
         slice: &str,
-        task_id: &str,
+        task_file_path: &Path,
         full_title: &str,
     ) -> Result<(), TaskError> {
-        let (spec_path, rel_task_link, heading, metadata, layer_path) = if domain.is_empty() {
+        let (spec_path, heading, metadata, layer_path) = if domain.is_empty() {
             (
                 workspace.join("specs").join(format!("{slice}.md")),
-                format!("../tasks/{task_id}.md"),
                 slice.to_string(),
                 format!("- **Slice**: `{slice}`"),
                 format!("features/{slice}"),
@@ -389,12 +578,14 @@ test_refs:
                     .join("specs")
                     .join(domain)
                     .join(format!("{slice}.md")),
-                format!("../../tasks/{task_id}.md"),
                 format!("{domain} / {slice}"),
                 format!("- **Subdomain**: `{domain}`\n- **Slice**: `{slice}`"),
                 format!("features/{domain}/{slice}"),
             )
         };
+
+        let spec_dir = spec_path.parent().unwrap_or(workspace);
+        let rel_task_link = Self::relative_link_from_dir(workspace, spec_dir, task_file_path);
 
         let task_link_line = format!("- [{full_title}]({rel_task_link})");
         if !spec_path.exists() {

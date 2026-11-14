@@ -62,8 +62,9 @@ impl EnforcementContext {
         let mut allowed_test_targets = Vec::new();
 
         if let Some(ref tid) = active_task_id {
-            let task_file = workspace.join("tasks").join(format!("{tid}.md"));
-            if task_file.is_file() {
+            if let Ok(task_file) =
+                crate::features::tasks::resolve_task_file_path(workspace, Some(tid))
+            {
                 match crate::features::tasks::parse_task_file(&task_file) {
                     Ok(info) => {
                         has_active_task = true;

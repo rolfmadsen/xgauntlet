@@ -6,7 +6,7 @@ use std::path::Path;
 use crate::features::diagnostics::{DiagnosticFinding, FindingType};
 use crate::features::tasks::models::{AdrReadinessReport, SpecReadinessReport};
 use crate::features::tasks::okf::{parse_frontmatter, OkfError};
-use crate::features::tasks::parser::parse_task_content;
+use crate::features::tasks::parser::{collect_task_files, parse_task_content};
 
 /// Validates raw content of CONTEXT.md against Aristotle's formula (*definitio per genus et differentiam*).
 pub fn validate_context_content(content: &str) -> Vec<DiagnosticFinding> {
@@ -297,25 +297,14 @@ pub fn check_task_specification(task_path: &Path, workspace: &Path) -> SpecReadi
     report
 }
 
-/// Evaluates all task package files found in `tasks/`.
+/// Evaluates all task package files found recursively in `tasks/**`.
 pub fn check_all_tasks(workspace: &Path) -> Vec<SpecReadinessReport> {
     let tasks_dir = workspace.join("tasks");
     if !tasks_dir.is_dir() {
         return Vec::new();
     }
 
-    let entries = match fs::read_dir(&tasks_dir) {
-        Ok(e) => e,
-        Err(_) => return Vec::new(),
-    };
-
-    let mut paths: Vec<_> = entries
-        .filter_map(|e| e.ok().map(|d| d.path()))
-        .filter(|p| p.extension().is_some_and(|ext| ext == "md"))
-        .collect();
-    paths.sort();
-
-    paths
+    collect_task_files(&tasks_dir)
         .into_iter()
         .map(|p| check_task_specification(&p, workspace))
         .collect()

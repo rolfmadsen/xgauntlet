@@ -548,7 +548,7 @@ fn test_antigravity_blockquote_hud_rendering() {
 
     // Line 4: Explicit clickable editor links
     assert!(lines[3].contains("**Links**:"));
-    assert!(lines[3].contains("📋 [Task](tasks/)"));
+    assert!(lines[3].contains("📋 [Task](tasks/018-antigravity-preinvocation-hud-adapter.md)"));
     assert!(lines[3].contains("📄 [Spec](spec.md)"));
     assert!(lines[3].contains("📖 [Glossary](CONTEXT.md)"));
     assert!(lines[3].contains("🏛️ [ADR](docs/adr/README.md)"));

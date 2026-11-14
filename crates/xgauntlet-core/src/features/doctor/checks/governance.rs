@@ -260,14 +260,7 @@ pub fn check_governance(workspace: &Path) -> Vec<DoctorCheckItem> {
     let tasks_dir = workspace.join("tasks");
 
     if tasks_dir.is_dir() {
-        let entries = fs::read_dir(&tasks_dir)
-            .ok()
-            .map(|rd| {
-                rd.filter_map(|e| e.ok().map(|d| d.path()))
-                    .filter(|p| p.extension().is_some_and(|ext| ext == "md"))
-                    .collect::<Vec<_>>()
-            })
-            .unwrap_or_default();
+        let entries = crate::features::tasks::collect_task_files(&tasks_dir);
 
         let active_id = resolve_active_task_id(workspace);
         let duration = start.elapsed().as_millis() as u64;

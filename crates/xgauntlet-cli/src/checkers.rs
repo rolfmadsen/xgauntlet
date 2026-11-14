@@ -23,36 +23,17 @@ pub fn run_check_spec(
     }
 
     if let Some(target) = task_filter {
-        let mut target_path = None;
-        if tasks_dir.is_dir() {
-            for entry in std::fs::read_dir(&tasks_dir)?.flatten() {
-                let p = entry.path();
-                if p.extension().is_some_and(|ext| ext == "md") {
-                    let stem = p.file_stem().and_then(|s| s.to_str()).unwrap_or("");
-                    let name = p.file_name().and_then(|s| s.to_str()).unwrap_or("");
-                    if stem == target
-                        || name == target
-                        || stem.starts_with(&format!("{target}-"))
-                        || name.starts_with(&format!("{target}-"))
-                        || stem.contains(target)
-                    {
-                        target_path = Some(p);
-                        break;
-                    }
-                }
-            }
-        }
-
-        let p = target_path.unwrap_or_else(|| tasks_dir.join(format!("{target}.md")));
+        let p = xgauntlet_core::resolve_task_file_path(workspace, Some(target))
+            .unwrap_or_else(|_| tasks_dir.join(format!("{target}.md")));
         return Ok(vec![xgauntlet_core::check_task_specification(
             &p, workspace,
         )]);
     }
 
-    if let Some(active_id) = xgauntlet_core::resolve_active_task_id(workspace) {
-        let task_path = tasks_dir.join(format!("{active_id}.md"));
+    if let Some(active_path) = xgauntlet_core::resolve_active_task_path(workspace) {
         return Ok(vec![xgauntlet_core::check_task_specification(
-            &task_path, workspace,
+            &active_path,
+            workspace,
         )]);
     }
 
@@ -226,4 +207,121 @@ pub fn run_topology_export(workspace: &Path, format: &str, level: &str) -> anyho
         println!("{diagram}");
     }
     Ok(())
+}
+
+pub fn resolve_ws(workspace: &Path) -> std::path::PathBuf {
+    if workspace.is_absolute() {
+        workspace.to_path_buf()
+    } else {
+        std::env::current_dir()
+            .unwrap_or_else(|_| std::path::PathBuf::from("."))
+            .join(workspace)
+    }
+}
+
+pub(crate) fn handle_task_command(command: &crate::TaskCommands) -> anyhow::Result<()> {
+    match command {
+        crate::TaskCommands::New {
+            name,
+            title,
+            intent,
+            purpose,
+            domain,
+            slice,
+            subdir,
+            workspace,
+            force,
+            json,
+        } => {
+            let options = xgauntlet_core::ScaffoldTaskOptions {
+                name: name.clone(),
+                title: title.clone(),
+                intent: Some(intent.clone()),
+                purpose: purpose.clone(),
+                workspace: resolve_ws(workspace),
+                force: *force,
+            };
+            let res = xgauntlet_core::TaskScaffolder::scaffold_in_subdir(
+                &options,
+                domain.as_deref(),
+                slice.as_deref(),
+                subdir.as_deref(),
+            )?;
+            if *json {
+                println!("{}", serde_json::to_string_pretty(&res)?);
+            } else {
+                crate::render::render_task_scaffold_summary(&res);
+            }
+        }
+        crate::TaskCommands::Status {
+            task,
+            workspace,
+            json,
+        } => {
+            let ws = resolve_ws(workspace);
+            let telemetry = xgauntlet_core::inspect_task_telemetry(&ws, task.as_deref())?;
+            if *json {
+                println!("{}", serde_json::to_string_pretty(&telemetry)?);
+            } else {
+                crate::render::render_task_status_summary(&telemetry);
+            }
+        }
+        crate::TaskCommands::List { workspace, json } => {
+            let items = xgauntlet_core::list_workspace_tasks(&resolve_ws(workspace))?;
+            if *json {
+                println!("{}", serde_json::to_string_pretty(&items)?);
+            } else {
+                crate::render::render_task_list_summary(&items);
+            }
+        }
+        crate::TaskCommands::Archive {
+            task,
+            all_done,
+            dry_run,
+            workspace,
+            json,
+        } => {
+            let opts = xgauntlet_core::TaskArchiveOptions {
+                workspace: resolve_ws(workspace),
+                task_id: task.clone(),
+                all_done: *all_done || task.is_none(),
+                dry_run: *dry_run,
+            };
+            let res = xgauntlet_core::TaskScaffolder::archive_tasks(&opts)?;
+            if *json {
+                println!("{}", serde_json::to_string_pretty(&res)?);
+            } else {
+                render_task_archive_summary(&res);
+            }
+        }
+    }
+    Ok(())
+}
+
+pub fn render_task_archive_summary(res: &xgauntlet_core::TaskArchiveResult) {
+    if res.dry_run {
+        println!("[DRY RUN] Task archive preview:");
+    } else {
+        println!("📦 Task Archive Summary:");
+    }
+    if res.archived.is_empty() {
+        println!(
+            "   No DONE tasks eligible for archiving (skipped: {}).",
+            res.skipped_count
+        );
+        return;
+    }
+    for entry in &res.archived {
+        println!(
+            "   • {} -> {}",
+            entry.from_path.display(),
+            entry.to_path.display()
+        );
+        if !entry.updated_specs.is_empty() {
+            println!(
+                "     Updated spec links: {}",
+                entry.updated_specs.join(", ")
+            );
+        }
+    }
 }

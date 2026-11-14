@@ -225,12 +225,20 @@ impl AntigravityAdapter {
         } else {
             String::new()
         };
+        let task_link = {
+            let norm = telemetry.file_path.trim().replace('\\', "/");
+            if norm.is_empty() {
+                "tasks/".to_string()
+            } else {
+                norm
+            }
+        };
 
         format!(
             "> ### 🛡️ [Task: {task_label}] `[{intent}: {phase}]`\n\
              > **Status**: `Phase: {phase}` | `Gauntlet: {verdict}`{session_segment} | `Git: {}@{} • {git_state}`\n\
              > **Progress**: `Criteria: {}/{} {}` | `Scope: {scope}`\n\
-             > **Links**: 📋 [Task](tasks/) • 📄 [Spec](spec.md) • 📖 [Glossary](CONTEXT.md) • 🏛️ [ADR](docs/adr/README.md) • 🧪 [Evidence](evidence.md)\n\
+             > **Links**: 📋 [Task]({task_link}) • 📄 [Spec](spec.md) • 📖 [Glossary](CONTEXT.md) • 🏛️ [ADR](docs/adr/README.md) • 🧪 [Evidence](evidence.md)\n\
              > 💡 **Next Action:** {action}",
             telemetry.git.branch,
             telemetry.git.head_oid,

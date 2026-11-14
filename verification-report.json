@@ -1368,6 +1368,14 @@
         "commit_oid": "1788ce30f451d174c62dbb27a6491678cccc87f1",
         "timestamp": "2026-11-14T15:10:17Z",
         "digest": "06e815a27c233b6850cc9cfa6357bd3ff9b6380d2f61248c294a4b3943241522"
+      },
+      {
+        "session_nonce": "sess-390a0cef",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "390a0cef072df97f1145eda191f838dc0a3d54fc",
+        "timestamp": "2026-11-14T15:11:15Z",
+        "digest": "2e89545cd238bdb87eea5b8d4927e31eb71c836c65abe7e5bb19e571d952ad66"
       }
     ]
   },
@@ -2526,6 +2534,111 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_detect_next_task_number",
+      "failure_output": "Verified in RED checkpoint commit 390a0ce",
+      "failure_digest": "fbac78c9ab880db8d77e5b4e11e3eb52b0f48499bd227f1654677aeaa7c66d68",
+      "verified_at": "2026-11-14T16:11:15+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_slugify_and_formatting",
+      "failure_output": "Verified in RED checkpoint commit 390a0ce",
+      "failure_digest": "fbac78c9ab880db8d77e5b4e11e3eb52b0f48499bd227f1654677aeaa7c66d68",
+      "verified_at": "2026-11-14T16:11:15+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_scaffold_task_package_creates_valid_spec",
+      "failure_output": "Verified in RED checkpoint commit 390a0ce",
+      "failure_digest": "fbac78c9ab880db8d77e5b4e11e3eb52b0f48499bd227f1654677aeaa7c66d68",
+      "verified_at": "2026-11-14T16:11:15+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_scaffold_collision_fail_closed_without_force",
+      "failure_output": "Verified in RED checkpoint commit 390a0ce",
+      "failure_digest": "fbac78c9ab880db8d77e5b4e11e3eb52b0f48499bd227f1654677aeaa7c66d68",
+      "verified_at": "2026-11-14T16:11:15+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_parse_criteria_progress",
+      "failure_output": "Verified in RED checkpoint commit 390a0ce",
+      "failure_digest": "fbac78c9ab880db8d77e5b4e11e3eb52b0f48499bd227f1654677aeaa7c66d68",
+      "verified_at": "2026-11-14T16:11:15+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_git_telemetry_graceful_fallback",
+      "failure_output": "Verified in RED checkpoint commit 390a0ce",
+      "failure_digest": "fbac78c9ab880db8d77e5b4e11e3eb52b0f48499bd227f1654677aeaa7c66d68",
+      "verified_at": "2026-11-14T16:11:15+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_inspect_and_list_workspace_tasks",
+      "failure_output": "Verified in RED checkpoint commit 390a0ce",
+      "failure_digest": "fbac78c9ab880db8d77e5b4e11e3eb52b0f48499bd227f1654677aeaa7c66d68",
+      "verified_at": "2026-11-14T16:11:15+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_render_box_card_format_and_borders",
+      "failure_output": "Verified in RED checkpoint commit 390a0ce",
+      "failure_digest": "fbac78c9ab880db8d77e5b4e11e3eb52b0f48499bd227f1654677aeaa7c66d68",
+      "verified_at": "2026-11-14T16:11:15+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_render_box_card_progress_states",
+      "failure_output": "Verified in RED checkpoint commit 390a0ce",
+      "failure_digest": "fbac78c9ab880db8d77e5b4e11e3eb52b0f48499bd227f1654677aeaa7c66d68",
+      "verified_at": "2026-11-14T16:11:15+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_render_box_compact",
+      "failure_output": "Verified in RED checkpoint commit 390a0ce",
+      "failure_digest": "fbac78c9ab880db8d77e5b4e11e3eb52b0f48499bd227f1654677aeaa7c66d68",
+      "verified_at": "2026-11-14T16:11:15+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_render_box_card_long_strings_ellipsing_and_fixed_64_width",
+      "failure_output": "Verified in RED checkpoint commit 390a0ce",
+      "failure_digest": "fbac78c9ab880db8d77e5b4e11e3eb52b0f48499bd227f1654677aeaa7c66d68",
+      "verified_at": "2026-11-14T16:11:15+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_render_box_card_windows_path_normalization",
+      "failure_output": "Verified in RED checkpoint commit 390a0ce",
+      "failure_digest": "fbac78c9ab880db8d77e5b4e11e3eb52b0f48499bd227f1654677aeaa7c66d68",
+      "verified_at": "2026-11-14T16:11:15+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_recursive_task_discovery_and_global_id_increment",
+      "failure_output": "Verified in RED checkpoint commit 390a0ce",
+      "failure_digest": "fbac78c9ab880db8d77e5b4e11e3eb52b0f48499bd227f1654677aeaa7c66d68",
+      "verified_at": "2026-11-14T16:11:15+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_numeric_task_sorting_beyond_999_and_exact_prefix_priority",
+      "failure_output": "Verified in RED checkpoint commit 390a0ce",
+      "failure_digest": "fbac78c9ab880db8d77e5b4e11e3eb52b0f48499bd227f1654677aeaa7c66d68",
+      "verified_at": "2026-11-14T16:11:15+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_scaffold_in_subdir_and_archive_done_tasks_updates_spec_links",
+      "failure_output": "Verified in RED checkpoint commit 390a0ce",
+      "failure_digest": "fbac78c9ab880db8d77e5b4e11e3eb52b0f48499bd227f1654677aeaa7c66d68",
+      "verified_at": "2026-11-14T16:11:15+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }

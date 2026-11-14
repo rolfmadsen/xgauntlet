@@ -315,22 +315,14 @@ pub async fn run_preflight_check(options: &CheckpointOptions) -> Result<(), Chec
 
     match options.phase {
         CheckpointPhase::Spec => {
-            let tasks_dir = options.workspace.join("tasks");
-            let mut task_path = tasks_dir.join(format!("{task_id}.md"));
-            if !task_path.is_file() {
-                if let Ok(entries) = std::fs::read_dir(&tasks_dir) {
-                    for entry in entries.flatten() {
-                        let p = entry.path();
-                        if p.extension().is_some_and(|e| e == "md") {
-                            let stem = p.file_stem().and_then(|s| s.to_str()).unwrap_or("");
-                            if stem == task_id || stem.starts_with(&format!("{task_id}-")) {
-                                task_path = p;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+            let task_path =
+                crate::features::tasks::resolve_task_file_path(&options.workspace, Some(&task_id))
+                    .unwrap_or_else(|_| {
+                        options
+                            .workspace
+                            .join("tasks")
+                            .join(format!("{task_id}.md"))
+                    });
             let report = check_task_specification(&task_path, &options.workspace);
             if !report.is_valid {
                 let msg = report
