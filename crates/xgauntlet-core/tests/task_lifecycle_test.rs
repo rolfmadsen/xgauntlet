@@ -903,3 +903,87 @@ fn test_task_081_feature_frontmatter_and_legacy_slice_compatibility() {
         rep.diagnostics
     );
 }
+
+#[test]
+fn test_task_087_archive_terminal_statuses_and_reject_non_terminal() {
+    let temp = TempDir::new("t087_archive_terminal");
+    let ws = temp.path();
+    setup_mock_glossary(ws);
+    fs::create_dir_all(ws.join("tasks")).unwrap();
+    fs::create_dir_all(ws.join("specs")).unwrap();
+
+    // AC1: TaskStatus::is_terminal classification
+    for st in [
+        TaskStatus::Done,
+        TaskStatus::Completed,
+        TaskStatus::Deprecated,
+        TaskStatus::Superseded,
+        TaskStatus::Rejected,
+    ] {
+        assert!(st.is_terminal(), "{st:?} must be terminal");
+    }
+    for st in [
+        TaskStatus::Draft,
+        TaskStatus::Active,
+        TaskStatus::InProgress,
+        TaskStatus::Wip,
+        TaskStatus::Todo,
+        TaskStatus::Reopened,
+        TaskStatus::Unknown,
+    ] {
+        assert!(!st.is_terminal(), "{st:?} must NOT be terminal");
+    }
+
+    let mk = |file: &str, yaml_st: &str, body_st: &str| {
+        let p = ws.join("tasks").join(file);
+        fs::write(
+            &p,
+            format!("---\ntype: Task Package\ntitle: \"Task\"\nstatus: {yaml_st}\ngenerated: {{ by: process:xgauntlet, at: \"2026-11-14T10:00:00Z\" }}\n---\n# Task\n**Status**: `{body_st}`\n"),
+        )
+        .unwrap();
+        p
+    };
+
+    let p001 = mk("001-dep.md", "deprecated", "DEPRECATED");
+    let p002 = mk("002-sup.md", "superseded", "SUPERSEDED");
+    let p003 = mk("003-rej.md", "rejected", "REJECTED");
+    let p004 = mk("004-draft.md", "draft", "DRAFT");
+    let p005 = mk("005-act.md", "active", "ACTIVE");
+    let p006 = mk("006-todo.md", "todo", "TODO");
+
+    fs::write(
+        ws.join("specs/tasks.md"),
+        "- [T1](../tasks/001-dep.md)\n- [T4](../tasks/004-draft.md)\n",
+    )
+    .unwrap();
+
+    // AC2: Bulk archive moves terminal tasks, preserves status, updates specs/, keeps non-terminal tasks
+    let res = TaskScaffolder::archive_tasks(&xgauntlet_core::TaskArchiveOptions {
+        workspace: ws.to_path_buf(),
+        task_id: None,
+        all_done: true,
+        dry_run: false,
+    })
+    .unwrap();
+    assert_eq!(res.archived.len(), 3, "Expected 3 terminal tasks archived");
+    assert!(!p001.exists() && !p002.exists() && !p003.exists());
+    assert!(p004.is_file() && p005.is_file() && p006.is_file());
+
+    let archived_dep = fs::read_to_string(ws.join("tasks/archive/001-dep.md")).unwrap();
+    assert!(archived_dep.contains("status: deprecated"));
+    assert!(!archived_dep.contains("status: done"));
+
+    let spec = fs::read_to_string(ws.join("specs/tasks.md")).unwrap();
+    assert!(spec.contains("../tasks/archive/001-dep.md"));
+    assert!(spec.contains("../tasks/004-draft.md"));
+
+    // Non-terminal explicit archive must fail closed
+    let err = TaskScaffolder::archive_tasks(&xgauntlet_core::TaskArchiveOptions {
+        workspace: ws.to_path_buf(),
+        task_id: Some("004".to_string()),
+        all_done: false,
+        dry_run: false,
+    })
+    .unwrap_err();
+    assert!(err.to_string().contains("DEPRECATED"));
+}
