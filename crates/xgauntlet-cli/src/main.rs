@@ -1493,11 +1493,7 @@ async fn main() -> anyhow::Result<()> {
                 no_archive,
                 json,
             } => {
-                let canonical_ws = if workspace.is_absolute() {
-                    workspace.clone()
-                } else {
-                    std::env::current_dir()?.join(workspace)
-                };
+                let (canonical_ws, current_version) = resolve_release_context(workspace, "0.1.0");
 
                 let bump: xgauntlet_core::SemverBump = match increment.parse() {
                     Ok(b) => b,
@@ -1506,22 +1502,6 @@ async fn main() -> anyhow::Result<()> {
                         std::process::exit(1);
                     }
                 };
-
-                let manifest_summary =
-                    match xgauntlet_core::extract_declared_versions(&canonical_ws) {
-                        Ok(m) => m,
-                        Err(e) => {
-                            eprintln!("🛑 Failed to inspect manifests: {e}");
-                            std::process::exit(1);
-                        }
-                    };
-
-                let current_version = manifest_summary
-                    .versions_by_source
-                    .values()
-                    .next()
-                    .cloned()
-                    .unwrap_or_else(|| "0.1.0".to_string());
 
                 let next_version = match xgauntlet_core::bump_semver(&current_version, bump) {
                     Ok(v) => v,
@@ -1547,27 +1527,7 @@ async fn main() -> anyhow::Result<()> {
                 no_archive,
                 json,
             } => {
-                let canonical_ws = if workspace.is_absolute() {
-                    workspace.clone()
-                } else {
-                    std::env::current_dir()?.join(workspace)
-                };
-
-                let manifest_summary =
-                    match xgauntlet_core::extract_declared_versions(&canonical_ws) {
-                        Ok(m) => m,
-                        Err(e) => {
-                            eprintln!("🛑 Failed to inspect manifests: {e}");
-                            std::process::exit(1);
-                        }
-                    };
-
-                let current_version = manifest_summary
-                    .versions_by_source
-                    .values()
-                    .next()
-                    .cloned()
-                    .unwrap_or_else(|| "0.0.0".to_string());
+                let (canonical_ws, current_version) = resolve_release_context(workspace, "0.0.0");
 
                 let clean_version = version.trim().trim_start_matches(['v', 'V']).to_string();
 

@@ -391,6 +391,27 @@ fn validate_wasm_toolchain(workspace: &std::path::Path) -> anyhow::Result<()> {
     Ok(())
 }
 
+pub fn resolve_release_context(
+    workspace: &std::path::Path,
+    fallback_version: &str,
+) -> (std::path::PathBuf, String) {
+    let canonical_ws = crate::checkers::resolve_ws(workspace);
+    let manifest_summary = match xgauntlet_core::extract_declared_versions(&canonical_ws) {
+        Ok(m) => m,
+        Err(e) => {
+            eprintln!("🛑 Failed to inspect manifests: {e}");
+            std::process::exit(1);
+        }
+    };
+    let current_version = manifest_summary
+        .versions_by_source
+        .values()
+        .next()
+        .cloned()
+        .unwrap_or_else(|| fallback_version.to_string());
+    (canonical_ws, current_version)
+}
+
 pub fn execute_release_workflow(
     workspace: &std::path::Path,
     current_version: &str,
