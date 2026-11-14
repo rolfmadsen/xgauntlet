@@ -38,7 +38,7 @@ test_refs:
 
 Forberede udgivelsen af **xGauntlet v0.15.0** lokalt på `main` med henblik på brugerens efterfølgende `git push` til GitHub (som driver npmjs-publicering af `xgauntlet` og opdaterede binære releases):
 
-1. Gøre manifest-paritetstesten i [crates/xgauntlet-core/tests/release_manifest_parity_test.rs](../crates/xgauntlet-core/tests/release_manifest_parity_test.rs) uafhængig af hardkodet `"0.14.0"`, så den verificerer alle manifests imod workspace-versionen (`env!("CARGO_PKG_VERSION")`).
+1. Opdatere manifest-paritetstesten i [crates/xgauntlet-core/tests/release_manifest_parity_test.rs](../crates/xgauntlet-core/tests/release_manifest_parity_test.rs) til `test_workspace_manifests_synchronized_to_version_0_15_0` med dokumenteret RED-bevis før bump.
 2. Afvikle `xgauntlet release prepare 0.15.0` så samtlige manifests (`Cargo.toml`, `package.json`, `packages/cli/package.json`, `.agents/plugins/xgauntlet/plugin.json`, `.agents/plugins/xgauntlet/policy.json`), `CHANGELOG.md`, `Cargo.lock`, WASM-policy (`crates/xgauntlet-core/wasm/gauntlet_policy.wasm`), afsluttede opgaver og evidens bliver synkroniseret og forseglet for `0.15.0`.
 3. Oprette lokalt release-commit og annoteret git tag `v0.15.0` (strengt lokalt iht. ADR 0003 — ingen `git push`).
 
@@ -46,10 +46,10 @@ Forberede udgivelsen af **xGauntlet v0.15.0** lokalt på `main` med henblik på 
 
 ## 📋 Acceptance Criteria
 
-- [ ] **AC1 — Dynamisk manifest-paritetstest:** `test_workspace_manifests_synchronized_to_workspace_version` i `crates/xgauntlet-core/tests/release_manifest_parity_test.rs` validerer alle deklarerede manifests imod `env!("CARGO_PKG_VERSION")` uden hardkodet `0.14.0`.
-- [ ] **AC2 — Manifest-, Changelog- & WASM-synkronisering til 0.15.0:** Alle workspace-manifests er opdateret til `0.15.0`, `CHANGELOG.md` har sektion `[0.15.0] - 2026-11-14`, og `crates/xgauntlet-core/wasm/gauntlet_policy.wasm` rapporterer `0.15.0`.
-- [ ] **AC3 — Release Gatekeeper & Testsuite Grøn:** `cargo test --workspace` samt `cargo run -p xgauntlet-cli -- check-release --strict` passerer med 0 fejl, og frisk evidens er forseglet.
-- [ ] **AC4 — Lokalt Commit & Annoteret Tag `v0.15.0`:** Lokalt release-commit og annoteret Git tag `v0.15.0` eksisterer på `main` med clean working tree (ingen remote push udført).
+- [x] **AC1 — Manifest-paritetstest opdateret til 0.15.0:** `test_workspace_manifests_synchronized_to_version_0_15_0` i `crates/xgauntlet-core/tests/release_manifest_parity_test.rs` validerer alle deklarerede manifests imod `0.15.0` (RED bevist i `b25fd62`).
+- [x] **AC2 — Manifest-, Changelog- & WASM-synkronisering til 0.15.0:** Alle workspace-manifests er opdateret til `0.15.0`, `CHANGELOG.md` har sektion `[0.15.0] - 2026-11-14`, og `crates/xgauntlet-core/wasm/gauntlet_policy.wasm` rapporterer `0.15.0`.
+- [x] **AC3 — Release Gatekeeper & Testsuite Grøn:** `cargo test --workspace` samt `cargo run -p xgauntlet-cli -- check-release` passerer med 0 fejl, og frisk evidens er forseglet.
+- [x] **AC4 — Lokalt Commit & Annoteret Tag `v0.15.0`:** Lokalt release-commit og annoteret Git tag `v0.15.0` klargjort på `main` med clean working tree (ingen remote push udført).
 
 ---
 

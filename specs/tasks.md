@@ -24,5 +24,5 @@ The `tasks` feature owns OKF v0.2 task parsing, specification readiness validati
 - [Task 078: Scope-Aware Slice Spec Mapping & Two-Way Spec-Feature-Task Traceability](../tasks/archive/078-scope-aware-slice-spec-and-traceability.md)
 - [Task 079: Recursive Task Subdirectories & Auto-Archiving in tasks/](../tasks/archive/079-recursive-task-subdirectories-and-archiving.md)
 - [Task 087: Archive Terminal Task Statuses (Deprecated, Superseded, Rejected)](../tasks/archive/087-archive-terminal-task-statuses.md)
-- [Task 088: Worktree-Isolated Multi-Agent & Subagent Supervision](../tasks/088-worktree-isolated-multi-agent-supervision.md)
+- [Task 088: Worktree-Isolated Multi-Agent & Subagent Supervision](../tasks/archive/088-worktree-isolated-multi-agent-supervision.md)
 

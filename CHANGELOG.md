@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-11-14
+
 ### 🚀 Added & Enhanced
 - **Worktree-Isolated Multi-Agent & Subagent Supervision (`Task 088`, `ADR 0014`, `wit/`, `crates/gauntlet-policy-engine`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`)**:
   - **Worktree-Local Active Task Binding:** Added `.xgauntlet/active_task` resolution priority with fail-closed invalid-binding protection and `xgauntlet task bind` / `unbind` CLI subcommands, enabling concurrent independent tasks in isolated `git worktree`s without `4037` collisions.

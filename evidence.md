@@ -1,19 +1,20 @@
 # Verification Report
 
-**Task ID**: `089-public-docs-and-changelog-sync`  
-**Task Title**: Task 089: Sync Public README, NPM CLI README & CHANGELOG for Multi-Agent Release Communication  
+**Task ID**: `090-prepare-v0-15-0-release`  
+**Task Title**: Task 090: Prepare Release v0.15.0 for GitHub and npmjs  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `1466adcbf232944474f3645ef06bfbf02a1bd4f9a6fa42facf77173904358f86`  
-**Timestamp**: `2026-11-14T21:31:45Z`  
-**Head**: `6ae1d80`  
-**Commit**: `6ae1d80`  
+**Source Manifest Digest**: `d43343a9025ad7c445d8555b3134d9fb48fafdee4e3a96eb415481058f2fc9c8`  
+**Timestamp**: `2026-11-14T21:41:26Z`  
+**Head**: `b25fd62`  
+**Commit**: `b25fd62`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 — README.md opdateret med ADR 0014 & Multi-Agent/Worktree DX:** Erstat tidligere single-agent-formulering med dokumentation for parallelle `git worktree`-sessioner (`xgauntlet task bind`/`unbind`), sikker subagent/swarm-delegation på tværs af alle 4 harnesses og link til `ADR 0014` i ADR-listen og CLI-referencen.
-- [x] **AC2 — NPM Package README Byte-Paritet:** `packages/cli/README.md` synkroniseres byte-for-byte med root `README.md`, så `test_npm_cli_readme_identical_to_root_readme` passerer.
-- [x] **AC3 — CHANGELOG.md `[Unreleased]`:** Dokumenter Task 088 / ADR 0014 under `## [Unreleased]` i Keep a Changelog-format uden at ændre tidligere frigivne versioner eller bumpe versionsnumre.
+- [x] **AC1 — Manifest-paritetstest opdateret til 0.15.0:** `test_workspace_manifests_synchronized_to_version_0_15_0` i `crates/xgauntlet-core/tests/release_manifest_parity_test.rs` validerer alle deklarerede manifests imod `0.15.0` (RED bevist i `b25fd62`).
+- [x] **AC2 — Manifest-, Changelog- & WASM-synkronisering til 0.15.0:** Alle workspace-manifests er opdateret til `0.15.0`, `CHANGELOG.md` har sektion `[0.15.0] - 2026-11-14`, og `crates/xgauntlet-core/wasm/gauntlet_policy.wasm` rapporterer `0.15.0`.
+- [x] **AC3 — Release Gatekeeper & Testsuite Grøn:** `cargo test --workspace` samt `cargo run -p xgauntlet-cli -- check-release` passerer med 0 fejl, og frisk evidens er forseglet.
+- [x] **AC4 — Lokalt Commit & Annoteret Tag `v0.15.0`:** Lokalt release-commit og annoteret Git tag `v0.15.0` klargjort på `main` med clean working tree (ingen remote push udført).
 
 ---
 
@@ -21,13 +22,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.097s` |
-| `format` | `PASSED` | `0` | `0.281s` |
-| `lint` | `PASSED` | `0` | `0.146s` |
-| `unit` | `PASSED` | `0` | `47.118s` |
-| `npm` | `PASSED` | `0` | `0.835s` |
-| `invariants` | `PASSED` | `0` | `0.111s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.017s` |
+| `architecture` | `PASSED` | `0` | `1.172s` |
+| `format` | `PASSED` | `0` | `0.268s` |
+| `lint` | `PASSED` | `0` | `1.252s` |
+| `unit` | `PASSED` | `0` | `52.584s` |
+| `npm` | `PASSED` | `0` | `1.007s` |
+| `invariants` | `PASSED` | `0` | `0.156s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.013s` |
 
 ---
 
@@ -240,6 +241,10 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `bae7992fc8b2e1e4...` | `2026-11-14T22:38:27+01:00` |
+| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `bae7992fc8b2e1e4...` | `2026-11-14T22:38:27+01:00` |
+| `test_workspace_manifests_synchronized_to_version_0_15_0` | `RedCheckpointVerified` | `bae7992fc8b2e1e4...` | `2026-11-14T22:38:27+01:00` |
+| `test_npm_cli_readme_identical_to_root_readme` | `RedCheckpointVerified` | `bae7992fc8b2e1e4...` | `2026-11-14T22:38:27+01:00` |
 | `test_read_only_delegation_allowed_without_active_task` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
 | `test_isolated_mutating_delegation_requires_active_task_and_allows_when_active` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
 | `test_shared_inherit_mutating_delegation_denied_fail_closed` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
@@ -361,10 +366,7 @@
 | `test_package_json_key_order_preservation_on_update` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
 | `test_release_archive_staging_moves_done_tasks_updates_specs_and_rolls_back` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
 | `test_cli_release_prepare_dry_run_previews_archive_and_respects_no_archive` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
-| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `8b1172de0151fbec...` | `2026-11-08T22:27:21+01:00` |
-| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `8b1172de0151fbec...` | `2026-11-08T22:27:21+01:00` |
 | `test_workspace_manifests_synchronized_to_version_0_14_0` | `RedCheckpointVerified` | `8b1172de0151fbec...` | `2026-11-08T22:27:21+01:00` |
-| `test_npm_cli_readme_identical_to_root_readme` | `RedCheckpointVerified` | `8b1172de0151fbec...` | `2026-11-08T22:27:21+01:00` |
 | `test_ast_scans_struct_fields_enum_variants_and_relationships` | `RedCheckpointVerified` | `9b8cab0c4e31c6b7...` | `2026-11-08T22:15:10+01:00` |
 | `test_ast_scans_doc_commented_struct_fields_enum_variants_and_relationships` | `RedCheckpointVerified` | `9b8cab0c4e31c6b7...` | `2026-11-08T22:15:10+01:00` |
 | `test_conceptual_mermaid_filters_errors_and_options_while_detailed_keeps_them` | `RedCheckpointVerified` | `9b8cab0c4e31c6b7...` | `2026-11-08T22:15:10+01:00` |

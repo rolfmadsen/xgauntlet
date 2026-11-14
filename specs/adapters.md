@@ -22,4 +22,4 @@ The `adapters` feature translates vendor-specific AI harness tool payloads, life
 - Keep `PreToolUse` hook evaluation sub-5ms without background daemons or network calls.
 
 ## 📋 Relaterede Tasks
-- [Task 088: Worktree-Isolated Multi-Agent & Subagent Supervision](../tasks/088-worktree-isolated-multi-agent-supervision.md)
+- [Task 088: Worktree-Isolated Multi-Agent & Subagent Supervision](../tasks/archive/088-worktree-isolated-multi-agent-supervision.md)
