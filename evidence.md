@@ -1,20 +1,20 @@
 # Verification Report
 
-**Task ID**: `081-replace-slice-terminology-with-feature`  
-**Task Title**: Task 081: Replace Slice Terminology with Feature Architecture  
+**Task ID**: `084-reduce-policy-and-checkpoint-sandbox-friction`  
+**Task Title**: Task 084: Reduce Policy Hook, Done-Transition & Sandbox Checkpoint Friction  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `f944aa78a396fd23f6a9ff623da8ed1c7248095012ca108a030118ca521efd0c`  
-**Timestamp**: `2026-11-14T16:43:00Z`  
-**Head**: `d778103`  
-**Commit**: `d778103`  
+**Source Manifest Digest**: `70734da3bbf09d363f5f9ca1e71e494e695d45ae80dc1468feca1b9b8177549b`  
+**Timestamp**: `2026-11-14T17:17:33Z`  
+**Head**: `084e538`  
+**Commit**: `084e538`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (ADR & Ubiquitous Language i `CONTEXT.md`):**
-- [x] **AC2 (Task Frontmatter, Validator & CLI med Bagudkompatibilitet):**
-- [x] **AC3 (`gauntlet.toml`, Architecture Gates, Specs & Skills):**
-- [x] **AC4 (Isolerede Tests):**
+- [x] **AC1 (Tokeniseret Read-Only Whitelist, `&&`-kæder & `cargo run -p xgauntlet-cli`):**
+- [x] **AC2 (Friktionsfri `DONE`-Overgang i `checkpoint --phase done`):**
+- [x] **AC3 (Fail-Fast `.git/` Skrivecheck før Verifikation):**
+- [x] **AC4 (`RED` Preflight for Flere `test_refs` & Skarp Diagnostik):**
 
 ---
 
@@ -22,13 +22,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.090s` |
-| `format` | `PASSED` | `0` | `0.255s` |
-| `lint` | `PASSED` | `0` | `0.122s` |
-| `unit` | `PASSED` | `0` | `31.573s` |
-| `npm` | `PASSED` | `0` | `0.755s` |
-| `invariants` | `PASSED` | `0` | `0.064s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.014s` |
+| `architecture` | `PASSED` | `0` | `0.085s` |
+| `format` | `PASSED` | `0` | `0.248s` |
+| `lint` | `PASSED` | `0` | `0.120s` |
+| `unit` | `PASSED` | `0` | `32.217s` |
+| `npm` | `PASSED` | `0` | `0.780s` |
+| `invariants` | `PASSED` | `0` | `0.089s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
 
 ---
 
@@ -208,6 +208,7 @@
 | `sess-379d1ca2` | `System Architect` | `SPEC` | `379d1ca` | `2026-11-14T17:08:48Z` | `VALID` |
 | `sess-488588b1` | `TDD Craftsman` | `RED` | `488588b` | `2026-11-14T17:10:10Z` | `VALID` |
 | `sess-4b9095a9` | `TDD Craftsman` | `GREEN` | `4b9095a` | `2026-11-14T17:12:40Z` | `VALID` |
+| `sess-084e5389` | `TDD Craftsman` | `REFACTOR` | `084e538` | `2026-11-14T17:15:50Z` | `VALID` |
 
 ---
 
@@ -215,6 +216,34 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_models_and_conventions` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_compose_commit_message_variations` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_checkpoint_fails_without_active_task` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_spec_phase_checkpoint` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_red_phase_fails_when_test_passes` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_red_phase_succeeds_when_test_fails` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_autonomous_red_to_green_transition_checkpoint` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_green_phase_fails_when_test_fails` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_green_phase_succeeds_when_test_passes` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_refactor_phase_succeeds_when_green` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_skip_verify_override_bypasses_preflight` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_done_phase_succeeds_and_creates_chore_commit` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_cli_checkpoint_red_and_green_invariants` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_task_084_ac2_done_checkpoint_marks_task_done_and_commits` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_task_084_ac3_checkpoint_fails_fast_on_readonly_git_dir` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_task_084_ac4_red_preflight_allows_mixed_green_and_red_test_refs` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_wasm_policy_engine_cold_start` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_read_operations_unrestricted` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_read_only_workspace_blocks_modifications` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_documentation_and_tasks_writable_without_active_task` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_production_code_write_requires_active_task` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_destructive_commands_strictly_denied` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_verification_and_inspection_commands_whitelisted` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_policy_engine_enforces_task_allowed_scopes_and_test_targets` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_destructive_git_command_evasions_and_wrappers_denied` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_empty_task_scope_fails_closed_on_code_and_repo_mutations` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_empty_scope_with_test_targets_strictly_isolates_test_files` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
+| `test_task_084_ac1_readonly_inspection_and_chains_without_active_task` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
 | `test_ac1_architecture_config_toml_roundtrip_for_layers_slices_and_exemptions` | `RedCheckpointVerified` | `b458b0cc00ecfd26...` | `2026-11-14T17:31:11+01:00` |
 | `test_ac2_gate_a_layer_direction_violations_across_rust_ts_and_java` | `RedCheckpointVerified` | `b458b0cc00ecfd26...` | `2026-11-14T17:31:11+01:00` |
 | `test_ac2_gate_b_cross_slice_isolation_and_internal_slice_freedom` | `RedCheckpointVerified` | `b458b0cc00ecfd26...` | `2026-11-14T17:31:11+01:00` |
@@ -367,19 +396,6 @@
 | `test_check_all_adrs_skips_template_and_readme` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
 | `test_scaffold_template_includes_generated_and_verified` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
 | `test_xgauntlet_own_adrs_validate_cleanly` | `RedCheckpointVerified` | `808853cea2e5c9a3...` | `2026-10-25T17:01:02+01:00` |
-| `test_models_and_conventions` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
-| `test_compose_commit_message_variations` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
-| `test_checkpoint_fails_without_active_task` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
-| `test_spec_phase_checkpoint` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
-| `test_red_phase_fails_when_test_passes` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
-| `test_red_phase_succeeds_when_test_fails` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
-| `test_autonomous_red_to_green_transition_checkpoint` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
-| `test_green_phase_fails_when_test_fails` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
-| `test_green_phase_succeeds_when_test_passes` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
-| `test_refactor_phase_succeeds_when_green` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
-| `test_skip_verify_override_bypasses_preflight` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
-| `test_done_phase_succeeds_and_creates_chore_commit` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
-| `test_cli_checkpoint_red_and_green_invariants` | `RedCheckpointVerified` | `a8f350e1e23e3240...` | `2026-10-25T16:22:47+01:00` |
 | `test_extract_test_identifiers_polyglot` | `RedCheckpointVerified` | `b02ab9f2e3aea63d...` | `2026-10-25T15:50:03+01:00` |
 | `test_synchronous_case` | `RedCheckpointVerified` | `b02ab9f2e3aea63d...` | `2026-10-25T15:50:03+01:00` |
 | `test_asynchronous_worker` | `RedCheckpointVerified` | `b02ab9f2e3aea63d...` | `2026-10-25T15:50:03+01:00` |
@@ -398,20 +414,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_task_084_ac2_done_checkpoint_marks_task_done_and_commits` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
-| `test_task_084_ac3_checkpoint_fails_fast_on_readonly_git_dir` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
-| `test_task_084_ac4_red_preflight_allows_mixed_green_and_red_test_refs` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
-| `test_wasm_policy_engine_cold_start` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
-| `test_read_operations_unrestricted` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
-| `test_read_only_workspace_blocks_modifications` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
-| `test_documentation_and_tasks_writable_without_active_task` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
-| `test_production_code_write_requires_active_task` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
-| `test_destructive_commands_strictly_denied` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
-| `test_verification_and_inspection_commands_whitelisted` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
-| `test_policy_engine_enforces_task_allowed_scopes_and_test_targets` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
-| `test_destructive_git_command_evasions_and_wrappers_denied` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
-| `test_empty_task_scope_fails_closed_on_code_and_repo_mutations` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
-| `test_empty_scope_with_test_targets_strictly_isolates_test_files` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
-| `test_task_084_ac1_readonly_inspection_and_chains_without_active_task` | `RedCheckpointVerified` | `eb03a4191936a658...` | `2026-11-14T18:10:10+01:00` |
 
 ---
