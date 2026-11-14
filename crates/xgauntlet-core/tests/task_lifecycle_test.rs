@@ -548,3 +548,288 @@ fn test_render_box_card_windows_path_normalization() {
         ref_line
     );
 }
+
+#[test]
+fn test_recursive_task_discovery_and_global_id_increment() {
+    let temp = TempDir::new("task_recursive_discovery");
+    let ws = temp.path();
+    setup_mock_glossary(ws);
+
+    let tasks_dir = ws.join("tasks");
+    let archive_dir = tasks_dir.join("archive");
+    let infra_dir = tasks_dir.join("infra");
+    fs::create_dir_all(&archive_dir).unwrap();
+    fs::create_dir_all(&infra_dir).unwrap();
+
+    // Non-task markdown files that must be ignored
+    fs::write(tasks_dir.join("README.md"), "# Tasks Overview").unwrap();
+    fs::write(archive_dir.join("TEMPLATE.md"), "# Template").unwrap();
+
+    let done_task = r#"---
+type: Task Package
+title: "Task 042: Archived Done Task"
+description: "Done task in archive"
+status: done
+generated: { by: process:xgauntlet-task-init, at: "2026-11-14T12:00:00Z" }
+---
+
+# Task 042: Archived Done Task
+
+**Status**: `DONE`
+**Intent**: `🚀 NEW FEATURE`
+**Oprettet**: `2026-11-14`
+
+## 🎯 Formål
+Archived task purpose.
+
+## 📋 Acceptance Criteria
+- [x] Done item
+
+## 🚫 Must NOT
+- Keep backward compatibility.
+"#;
+    fs::write(archive_dir.join("042-archived-done.md"), done_task).unwrap();
+
+    let active_task = r#"---
+type: Task Package
+title: "Task 043: Subdir Active Task"
+description: "Active task in nested subdir"
+status: active
+generated: { by: process:xgauntlet-task-init, at: "2026-11-14T12:05:00Z" }
+scope:
+  - "crates/xgauntlet-core/src/features/tasks/**"
+test_refs:
+  - "crates/xgauntlet-core/tests/task_lifecycle_test.rs"
+---
+
+# Task 043: Subdir Active Task
+
+**Status**: `ACTIVE`
+**Intent**: `🔄 ENHANCEMENT`
+**Oprettet**: `2026-11-14`
+
+## 🎯 Formål
+Active task in infra subdir.
+
+## 📋 Acceptance Criteria
+- [ ] Recursive discovery works
+
+## 🚫 Must NOT
+- Reuse IDs.
+"#;
+    fs::write(infra_dir.join("043-subdir-active.md"), active_task).unwrap();
+
+    // 1. Global next ID across all subdirectories
+    assert_eq!(TaskScaffolder::detect_next_task_number(&tasks_dir), 44);
+
+    // 2. Recursive listing ignores README.md / TEMPLATE.md
+    let listed = list_workspace_tasks(ws).expect("list_workspace_tasks must succeed");
+    assert_eq!(listed.len(), 2);
+    assert_eq!(listed[0].task_id, "042-archived-done");
+    assert_eq!(listed[0].file_path, "tasks/archive/042-archived-done.md");
+    assert_eq!(listed[1].task_id, "043-subdir-active");
+    assert_eq!(listed[1].file_path, "tasks/infra/043-subdir-active.md");
+
+    // 3. Active/done resolution & contract resolution
+    assert!(xgauntlet_core::has_active_task(ws));
+    assert_eq!(
+        xgauntlet_core::resolve_active_task_id(ws).as_deref(),
+        Some("043-subdir-active")
+    );
+    assert_eq!(
+        xgauntlet_core::resolve_latest_done_task_id(ws).as_deref(),
+        Some("042-archived-done")
+    );
+
+    let contract = xgauntlet_core::resolve_task_contract(ws, None)
+        .expect("resolve_task_contract must find active task in subdir");
+    assert_eq!(contract.task_id, "043-subdir-active");
+
+    let archived_contract = xgauntlet_core::resolve_task_contract(ws, Some("042"))
+        .expect("resolve_task_contract must find archived task by short ID");
+    assert_eq!(archived_contract.task_id, "042-archived-done");
+
+    // 4. check_all_tasks inspects both subdir tasks (and skips README/TEMPLATE)
+    let reports = xgauntlet_core::check_all_tasks(ws);
+    assert_eq!(reports.len(), 2);
+    assert!(reports.iter().all(|r| r.is_valid));
+
+    // 5. EnforcementContext loads scope from active task in subdir
+    let ctx = xgauntlet_core::EnforcementContext::from_workspace(ws, false);
+    assert!(ctx.has_active_task);
+    assert_eq!(ctx.active_task_id, "043-subdir-active");
+    assert_eq!(
+        ctx.allowed_scopes,
+        vec!["crates/xgauntlet-core/src/features/tasks/**".to_string()]
+    );
+
+    // 6. Telemetry & HUD link directly to task file path
+    let telemetry = inspect_task_telemetry(ws, None).expect("inspect telemetry in subdir");
+    assert_eq!(telemetry.file_path, "tasks/infra/043-subdir-active.md");
+    let hud = xgauntlet_core::AntigravityAdapter::render_blockquote_hud(&telemetry, None);
+    assert!(
+        hud.contains("[Task](tasks/infra/043-subdir-active.md)"),
+        "HUD must link directly to task file path: {hud}"
+    );
+}
+
+#[test]
+fn test_numeric_task_sorting_beyond_999_and_exact_prefix_priority() {
+    let temp = TempDir::new("task_numeric_1000");
+    let ws = temp.path();
+    setup_mock_glossary(ws);
+
+    let tasks_dir = ws.join("tasks");
+    let archive_dir = tasks_dir.join("archive");
+    fs::create_dir_all(&archive_dir).unwrap();
+
+    let make_task = |num: &str, slug: &str, status: &str| {
+        let upper = status.to_ascii_uppercase();
+        format!(
+            "---\ntype: Task Package\ntitle: \"Task {num}: {slug}\"\nstatus: {status}\ngenerated: {{ by: process:xgauntlet-task-init, at: \"2026-11-14T12:00:00Z\" }}\nscope:\n  - \"src/**\"\ntest_refs:\n  - \"tests/**\"\n---\n\n# Task {num}: {slug}\n\n**Status**: `{upper}`\n\n## 🎯 Formål\nPurpose {num}.\n\n## 📋 Acceptance Criteria\n- [ ] Crit {num}\n\n## 🚫 Must NOT\n- Break.\n"
+        )
+    };
+
+    fs::write(
+        archive_dir.join("001-initial.md"),
+        make_task("001", "initial", "done"),
+    )
+    .unwrap();
+    fs::write(
+        archive_dir.join("999-before-thousand.md"),
+        make_task("999", "before-thousand", "done"),
+    )
+    .unwrap();
+    fs::write(
+        archive_dir.join("1000-beyond-thousand.md"),
+        make_task("1000", "beyond-thousand", "done"),
+    )
+    .unwrap();
+    // 1001 contains "001" as substring - must NOT shadow 001!
+    fs::write(
+        tasks_dir.join("1001-active-newest.md"),
+        make_task("1001", "active-newest", "active"),
+    )
+    .unwrap();
+    fs::write(
+        tasks_dir.join("998-older-active.md"),
+        make_task("998", "older-active", "active"),
+    )
+    .unwrap();
+
+    assert_eq!(TaskScaffolder::detect_next_task_number(&tasks_dir), 1002);
+    assert_eq!(
+        xgauntlet_core::resolve_latest_done_task_id(ws).as_deref(),
+        Some("1000-beyond-thousand")
+    );
+    assert_eq!(
+        xgauntlet_core::resolve_active_task_id(ws).as_deref(),
+        Some("1001-active-newest")
+    );
+
+    // Exact prefix "001" must match 001-initial, NOT 1001-active-newest
+    let contract_001 = xgauntlet_core::resolve_task_contract(ws, Some("001")).unwrap();
+    assert_eq!(contract_001.task_id, "001-initial");
+
+    let tel_001 = inspect_task_telemetry(ws, Some("001")).unwrap();
+    assert_eq!(tel_001.task_id, "001-initial");
+}
+
+#[test]
+fn test_scaffold_in_subdir_and_archive_done_tasks_updates_spec_links() {
+    let temp = TempDir::new("task_archive_flow");
+    let ws = temp.path();
+    setup_mock_glossary(ws);
+
+    // 1. Scaffold a task in a custom subdir with slice spec link
+    let opt1 = ScaffoldTaskOptions {
+        name: "billing:invoice-export".to_string(),
+        title: Some("Invoice Export".to_string()),
+        intent: Some("feature".to_string()),
+        purpose: Some("Export invoices".to_string()),
+        workspace: ws.to_path_buf(),
+        force: false,
+    };
+    let res1 = TaskScaffolder::scaffold_in_subdir(&opt1, None, None, Some("billing-ops"))
+        .expect("scaffold_in_subdir must succeed");
+    assert_eq!(
+        res1.path,
+        ws.join("tasks/billing-ops/001-invoice-export.md")
+    );
+    assert!(res1.path.is_file());
+
+    // Verify specs/billing.md points to the actual subdir path
+    let spec_content = fs::read_to_string(ws.join("specs/billing.md")).unwrap();
+    assert!(
+        spec_content.contains("(../tasks/billing-ops/001-invoice-export.md)"),
+        "Living spec must link to actual subdir path: {spec_content}"
+    );
+
+    // 2. Reject path traversal in subdir
+    let bad = TaskScaffolder::scaffold_in_subdir(&opt1, None, None, Some("../escape"));
+    assert!(bad.is_err(), "Path traversal in subdir must be rejected");
+
+    // 3. Active task cannot be archived
+    let active_arch = TaskScaffolder::archive_tasks(&xgauntlet_core::TaskArchiveOptions {
+        workspace: ws.to_path_buf(),
+        task_id: Some("001".to_string()),
+        all_done: false,
+        dry_run: false,
+    });
+    assert!(
+        active_arch.is_err(),
+        "Archiving an ACTIVE task must be rejected"
+    );
+
+    // 4. Mark task 001 DONE and scaffold active task 002
+    let content_done = fs::read_to_string(&res1.path)
+        .unwrap()
+        .replace("status: active", "status: done")
+        .replace("**Status**: `ACTIVE`", "**Status**: `DONE`");
+    fs::write(&res1.path, content_done).unwrap();
+
+    let opt2 = ScaffoldTaskOptions {
+        name: "billing:active-followup".to_string(),
+        title: Some("Active Followup".to_string()),
+        intent: Some("feature".to_string()),
+        purpose: Some("Keep active".to_string()),
+        workspace: ws.to_path_buf(),
+        force: false,
+    };
+    let res2 = TaskScaffolder::scaffold(&opt2).unwrap();
+    assert_eq!(res2.task_number, 2);
+
+    // 5. Dry-run does not move files
+    let dry = TaskScaffolder::archive_tasks(&xgauntlet_core::TaskArchiveOptions {
+        workspace: ws.to_path_buf(),
+        task_id: None,
+        all_done: true,
+        dry_run: true,
+    })
+    .unwrap();
+    assert_eq!(dry.archived.len(), 1);
+    assert!(res1.path.is_file(), "dry_run must not move file");
+
+    // 6. Real archive moves DONE 001 to tasks/archive/, keeps active 002 in root, and updates specs/billing.md
+    let archived = TaskScaffolder::archive_tasks(&xgauntlet_core::TaskArchiveOptions {
+        workspace: ws.to_path_buf(),
+        task_id: None,
+        all_done: true,
+        dry_run: false,
+    })
+    .unwrap();
+    assert_eq!(archived.archived.len(), 1);
+    assert!(!res1.path.exists());
+    assert!(ws.join("tasks/archive/001-invoice-export.md").is_file());
+    assert!(res2.path.is_file(), "Active task 002 must stay in root");
+
+    let updated_spec = fs::read_to_string(ws.join("specs/billing.md")).unwrap();
+    assert!(
+        updated_spec.contains("(../tasks/archive/001-invoice-export.md)"),
+        "Living spec link must be updated after archive: {updated_spec}"
+    );
+    assert!(
+        updated_spec.contains("(../tasks/002-active-followup.md)"),
+        "Active task link must remain intact: {updated_spec}"
+    );
+}

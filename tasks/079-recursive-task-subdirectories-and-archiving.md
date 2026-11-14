@@ -11,6 +11,7 @@ tags: [tasks, dx, subdirectories, archiving, lifecycle]
 scope:
   - "specs/tasks.md"
   - "tasks/079-recursive-task-subdirectories-and-archiving.md"
+  - "crates/xgauntlet-core/src/lib.rs"
   - "crates/xgauntlet-core/src/features/tasks/mod.rs"
   - "crates/xgauntlet-core/src/features/tasks/parser.rs"
   - "crates/xgauntlet-core/src/features/tasks/lifecycle.rs"
