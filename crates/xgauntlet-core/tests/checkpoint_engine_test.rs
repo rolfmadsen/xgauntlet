@@ -610,3 +610,224 @@ optional = false
     let stderr_green = String::from_utf8_lossy(&output_green_fail.stderr);
     assert!(stderr_green.contains("GREEN phase unmet"));
 }
+
+#[tokio::test]
+async fn test_task_084_ac2_done_checkpoint_marks_task_done_and_commits() {
+    let temp = TempDir::new("task_084_done_transition");
+    init_git_repo(temp.path());
+    setup_mock_glossary(temp.path());
+    let tasks_dir = temp.path().join("tasks");
+    fs::create_dir_all(&tasks_dir).unwrap();
+    let task_md = r#"---
+type: Task Package
+title: "Task 084: Done Transition"
+description: "Test DONE transition"
+status: active
+scope:
+  - "crates/**"
+test_refs:
+  - "tests/**"
+---
+
+# Task 084: Done Transition
+
+**Status**: `ACTIVE`
+
+## 🎯 Formål
+Test DONE transition.
+
+## 📋 Acceptance Criteria
+- [x] Criterion 1
+- [x] Criterion 2
+
+## 🚫 Must NOT
+- Must not violate invariants.
+"#;
+    fs::write(tasks_dir.join("084-done-transition.md"), task_md).unwrap();
+
+    let passing_config = r#"
+stack = "rust"
+save_evidence = true
+[[layers]]
+name = "unit"
+command = ["true"]
+optional = false
+"#;
+    fs::write(temp.path().join("gauntlet.toml"), passing_config).unwrap();
+
+    // Seed RED commit so DONE phase progression invariant is satisfied
+    fs::create_dir_all(temp.path().join("crates")).unwrap();
+    fs::write(temp.path().join("crates/seed.txt"), "red").unwrap();
+    Command::new("git")
+        .args(["add", "-A"])
+        .current_dir(temp.path())
+        .status()
+        .unwrap();
+    Command::new("git")
+        .args(["commit", "-m", "test(084): add failing test [RED]"])
+        .current_dir(temp.path())
+        .status()
+        .unwrap();
+
+    fs::write(temp.path().join("crates/seed.txt"), "green").unwrap();
+
+    let opts = CheckpointOptions::new(CheckpointPhase::Done, temp.path());
+    let res = run_checkpoint(&opts)
+        .await
+        .expect("DONE checkpoint should succeed");
+    assert!(res.commit_oid.is_some());
+
+    let task_path = temp.path().join("tasks/084-done-transition.md");
+    let task_content = fs::read_to_string(&task_path).unwrap();
+    assert!(
+        task_content.contains("status: done"),
+        "Task frontmatter must be updated to status: done, got:\n{task_content}"
+    );
+    assert!(
+        task_content.contains("**Status**: `DONE`"),
+        "Task body must be updated to **Status**: `DONE`, got:\n{task_content}"
+    );
+
+    // Ensure the task status update was included inside the DONE commit (no uncommitted diff on task file)
+    let diff_out = Command::new("git")
+        .args(["diff", "--name-only", "HEAD", "--", "tasks/084-done-transition.md"])
+        .current_dir(temp.path())
+        .output()
+        .unwrap();
+    assert!(
+        String::from_utf8_lossy(&diff_out.stdout).trim().is_empty(),
+        "Updated task file must be committed as part of DONE checkpoint"
+    );
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn test_task_084_ac3_checkpoint_fails_fast_on_readonly_git_dir() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let temp = TempDir::new("task_084_readonly_git");
+    init_git_repo(temp.path());
+    setup_mock_glossary(temp.path());
+    setup_mock_task(temp.path(), "084-readonly-git", "active");
+
+    let marker = temp.path().join("verify_ran_marker.txt");
+    let marker_str = marker.to_string_lossy().to_string();
+    let marker_config = format!(
+        r#"
+stack = "rust"
+[[layers]]
+name = "unit"
+command = ["touch", "{marker_str}"]
+optional = false
+"#
+    );
+    fs::write(temp.path().join("gauntlet.toml"), marker_config).unwrap();
+
+    // Seed initial commit
+    Command::new("git")
+        .args(["add", "-A"])
+        .current_dir(temp.path())
+        .status()
+        .unwrap();
+    Command::new("git")
+        .args(["commit", "-m", "chore: initial"])
+        .current_dir(temp.path())
+        .status()
+        .unwrap();
+
+    fs::write(temp.path().join("change.txt"), "pending").unwrap();
+
+    // Make .git read-only to simulate sandbox .git/index.lock restriction
+    let git_dir = temp.path().join(".git");
+    fs::set_permissions(&git_dir, fs::Permissions::from_mode(0o555)).unwrap();
+
+    let opts = CheckpointOptions::new(CheckpointPhase::Green, temp.path());
+    let err = run_checkpoint(&opts)
+        .await
+        .expect_err("Checkpoint must fail fast when .git is read-only");
+
+    // Restore permissions before assertions / TempDir cleanup
+    let _ = fs::set_permissions(&git_dir, fs::Permissions::from_mode(0o755));
+
+    assert!(
+        !marker.exists(),
+        "Verification pipeline MUST NOT run when .git/ is read-only (fail-fast check failed)"
+    );
+    let err_msg = err.to_string().to_lowercase();
+    assert!(
+        err_msg.contains(".git") || err_msg.contains("read-only") || err_msg.contains("writable"),
+        "Expected clear read-only .git error message, got: {err}"
+    );
+}
+
+#[tokio::test]
+async fn test_task_084_ac4_red_preflight_allows_mixed_green_and_red_test_refs() {
+    let temp = TempDir::new("task_084_mixed_red_refs");
+    init_git_repo(temp.path());
+    setup_mock_glossary(temp.path());
+
+    let cargo_toml = r#"[package]
+name = "mixed_red_dummy"
+version = "0.1.0"
+edition = "2021"
+"#;
+    fs::write(temp.path().join("Cargo.toml"), cargo_toml).unwrap();
+    fs::create_dir_all(temp.path().join("src")).unwrap();
+    fs::write(temp.path().join("src/lib.rs"), "pub fn add(a: i32, b: i32) -> i32 { a + b }\n")
+        .unwrap();
+
+    fs::create_dir_all(temp.path().join("tests")).unwrap();
+    fs::write(
+        temp.path().join("tests/existing_green_test.rs"),
+        "#[test]\nfn regression_ok() { assert_eq!(mixed_red_dummy::add(1, 2), 3); }\n",
+    )
+    .unwrap();
+    fs::write(
+        temp.path().join("tests/new_feature_red_test.rs"),
+        "#[test]\nfn expected_red_failure() { assert_eq!(mixed_red_dummy::add(2, 2), 5); }\n",
+    )
+    .unwrap();
+
+    let gauntlet_toml = r#"
+stack = "rust"
+[[layers]]
+name = "unit"
+command = ["cargo", "test", "--workspace"]
+optional = false
+"#;
+    fs::write(temp.path().join("gauntlet.toml"), gauntlet_toml).unwrap();
+
+    let tasks_dir = temp.path().join("tasks");
+    fs::create_dir_all(&tasks_dir).unwrap();
+    let task_md = r#"---
+type: Task Package
+title: "Task 084: Mixed Red Refs"
+description: "Verify RED accepts at least one failing test_ref"
+status: active
+scope:
+  - "src/**"
+test_refs:
+  - "tests/existing_green_test.rs"
+  - "tests/new_feature_red_test.rs"
+---
+
+# Task 084: Mixed Red Refs
+
+**Status**: `ACTIVE`
+
+## 🎯 Formål
+Test mixed green and red test_refs.
+
+## 📋 Acceptance Criteria
+- [ ] Criterion 1
+
+## 🚫 Must NOT
+- Must not break invariants.
+"#;
+    fs::write(tasks_dir.join("084-mixed-red-refs.md"), task_md).unwrap();
+
+    let opts = CheckpointOptions::new(CheckpointPhase::Red, temp.path());
+    xgauntlet_core::features::checkpoint::run_preflight_check(&opts)
+        .await
+        .expect("RED preflight MUST pass when existing_green_test passes and new_feature_red_test fails");
+}

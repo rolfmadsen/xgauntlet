@@ -517,3 +517,76 @@ fn test_empty_scope_with_test_targets_strictly_isolates_test_files() {
     );
     assert_eq!(decision.reason_code, 4037);
 }
+
+#[test]
+fn test_task_084_ac1_readonly_inspection_and_chains_without_active_task() {
+    let mut engine = WasmPolicyEngine::new().unwrap();
+    let no_task_ctx = EnforcementContext {
+        workspace_id: "ws-084".into(),
+        has_active_task: false,
+        active_task_id: String::new(),
+        read_only: false,
+        ..Default::default()
+    };
+
+    let allowed_cmds = [
+        "grep -rn \"foo\" crates/",
+        "rg -n \"a|b\" crates/",
+        "rg -n \"foo -> bar\" crates/",
+        "git show --stat HEAD",
+        "git status -sb && git log -n 5 --oneline",
+        "git show --stat HEAD && cargo fmt --check",
+        "cargo run -p xgauntlet-cli -- verify",
+        "cargo run -p xgauntlet-cli -- check-spec -t 084",
+        "cargo run --package xgauntlet-cli -- checkpoint --phase done",
+        "xgauntlet checkpoint --phase done && xgauntlet verify",
+    ];
+
+    for cmd in allowed_cmds {
+        let req = CapabilityRequest {
+            action_type: ToolActionType::ExecuteCommand,
+            raw_tool_name: "run_command".into(),
+            target_resource: cmd.into(),
+            payload_json: "{}".into(),
+        };
+        let decision = engine.evaluate(&req, &no_task_ctx).unwrap();
+        assert_eq!(
+            decision.verdict,
+            DecisionVerdict::Allow,
+            "Safe read-only/verification command '{}' MUST be allowed without active task (got {:?}: {})",
+            cmd,
+            decision.verdict,
+            decision.reason
+        );
+        assert_eq!(decision.reason_code, 2004);
+    }
+
+    let denied_cmds = [
+        "rg --pre cat Cargo.toml",
+        "rg --pre-glob='*.rs' foo crates/",
+        "cargo run -p other-crate -- verify",
+        "cargo run -- verify",
+        "git status && rm -rf /tmp/x",
+        "git status > out.txt",
+        "git status; echo pwned",
+        "git status || echo fallback",
+        "git log | head -n 5",
+        "rg foo $(cat secret)",
+    ];
+
+    for cmd in denied_cmds {
+        let req = CapabilityRequest {
+            action_type: ToolActionType::ExecuteCommand,
+            raw_tool_name: "run_command".into(),
+            target_resource: cmd.into(),
+            payload_json: "{}".into(),
+        };
+        let decision = engine.evaluate(&req, &no_task_ctx).unwrap();
+        assert_eq!(
+            decision.verdict,
+            DecisionVerdict::Deny,
+            "Unsafe/mutating command '{}' MUST remain denied without active task",
+            cmd
+        );
+    }
+}
