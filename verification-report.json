@@ -2,39 +2,40 @@
   "$schema": "https://xgauntlet.dev/schemas/v2/verification-report.json",
   "schema_version": "2.0.0",
   "execution_origin": "LOCAL",
-  "verdict": "FAILED",
+  "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "082-archive-completed-tasks",
-    "task_title": "Task 082: Archive Completed Tasks to tasks/archive/",
-    "task_digest": "460443c2b5fceac0d193d4f4a99060058d875bdca591e1732dee8d67b7807e68",
+    "task_id": "083-auto-archive-done-tasks-on-release",
+    "task_title": "Task 083: Auto-Archive DONE Tasks During Release Preparation",
+    "task_digest": "4e9374fe76c7c112d7804d1764ce70168d6386c06d662a9dfce35daf55b19225",
     "acceptance_criteria": [
-      "**AC1 (Dry-Run Preview & Arkivering af Historiske `DONE`-Tasks):**",
-      "**AC2 (Bevarelse af `DRAFT`/`ACTIVE`-Tasks & Link-Integritet):**",
-      "**AC3 (Fuldt Verificeret Repo efter Oprydning):**"
+      "**AC1 (Auto-Archive i `release bump` & `release prepare`):**",
+      "**AC2 (Dry-Run & Transaktionel Rollback):**",
+      "**AC3 (Dokumentation & Release Skill):**",
+      "**AC4 (Isolerede Release-Tests):**"
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "bb8a7d3fadb9371ae8c8a42fd4b323ba35af829a060d2a1853a0a22536bf690c",
-    "source_manifest_digest_pre": "19a148327433fd88dc15536196a9f32f389bb4b8a3f7ad5949dd0a16691a77de",
-    "source_manifest_digest_post": "19a148327433fd88dc15536196a9f32f389bb4b8a3f7ad5949dd0a16691a77de",
+    "source_content_digest": "c162f349370795b8e36975012f8164f76048167713a0e36690dddec589c8c861",
+    "source_manifest_digest_pre": "bda034c51fb4eee17c61bf9b154c6111c08e313f4472743788f2021cf870a050",
+    "source_manifest_digest_post": "bda034c51fb4eee17c61bf9b154c6111c08e313f4472743788f2021cf870a050",
     "config_digest": "7bdeb99f18175c79f2b932b98c65a371655dda2a018c8d4c8ee4609c0f8f0f74",
-    "task_digest": "460443c2b5fceac0d193d4f4a99060058d875bdca591e1732dee8d67b7807e68",
+    "task_digest": "4e9374fe76c7c112d7804d1764ce70168d6386c06d662a9dfce35daf55b19225",
     "policy_digest": "8cd964a56c773721adcd91d621295a938fdb3f5a39bde7914a7331f359045370",
     "check_definitions_digest": "7b85613e7b7c24f03e0db6873ce7a93328152d05b26a6eea242f15f10f6063af",
-    "included_files_count": 292,
+    "included_files_count": 294,
     "vcs": {
       "type": "git",
-      "head": "757b05c",
-      "commit": "757b05c",
+      "head": "b30ef9f",
+      "commit": "b30ef9f",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-14T15:57:38Z",
-    "finished_at": "2026-11-14T15:58:14Z",
-    "total_duration_seconds": 35.760123773,
+    "started_at": "2026-11-14T16:23:10Z",
+    "finished_at": "2026-11-14T16:23:43Z",
+    "total_duration_seconds": 33.118194476,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -47,16 +48,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.122383871,
+      "duration_seconds": 0.172621319,
       "optional": false,
       "passed": true,
-      "log_digest": "ec8eb1e08d8494349b4e8bdaee16da5af51663d6e41438f20631f1e6f5eebf31"
+      "log_digest": "bd4776cf7283fcf17ecad99bafad4277a4f44df3f9beddbf56b252b1acec61e0"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.25420209,
+      "duration_seconds": 0.238656991,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -65,43 +66,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.102490828,
+      "duration_seconds": 0.11400525,
       "optional": false,
       "passed": true,
-      "log_digest": "fab8f054c630d779dae20ce8ada592894d00efd1007219ddf80384b015c97cbd"
+      "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 32.872036527,
+      "duration_seconds": 31.545853073,
       "optional": false,
       "passed": true,
-      "log_digest": "f35923618b6bdc9c4c26843d294f5ab7fcbb02057a319adc4e8c8adadadafcee"
+      "log_digest": "0b84dbae6f706ebc6cf1117d662c205fc158e615cba504a50719a7a7dae6de5f"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.904530221,
+      "duration_seconds": 0.762232549,
       "optional": false,
       "passed": true,
-      "log_digest": "51ebab99253fdda575eaeabbb7dd29068e3281d466778dd0458ee902e7f7dfe0"
+      "log_digest": "579dc93a81c5f13b6cf5eb853bdfc5602ba6e67b8e0e19ae60a28d3626c07cf8"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.210353444,
+      "duration_seconds": 0.080414182,
       "optional": false,
       "passed": true,
-      "log_digest": "15004f11767e416056101c20b71a83179e3d335616438eb95b5eb3711b07486b"
+      "log_digest": "6aae1a93826fb325e4d5dde0838be4f6e62e30df20ce8e05d34913283822c0ac"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.038504371,
+      "duration_seconds": 0.012017612,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -116,16 +117,6 @@
       "column_number": null,
       "message": "error: no such command: `mutants` | help: view all installed commands with `cargo --list` | help: find a package to install `mutants` with `cargo search cargo-mutants`",
       "remediation_hint": "Check full command output logs for root cause remediation.",
-      "raw_context": ""
-    },
-    {
-      "finding_type": "INVARIANT_VIOLATION",
-      "tool_name": "tdd-phase-provenance",
-      "file_path": "checkpoint",
-      "line_number": null,
-      "column_number": null,
-      "message": "Task '082-archive-completed-tasks' has no preceding RED commit and is not eligible for Fast-Track Bugfix Lane (intent: Some(\"🧹 CHORE\"), scope.len(): 4).",
-      "remediation_hint": "Follow standard TDD protocol: commit failing acceptance test in RED phase ('xgauntlet checkpoint --phase red') before implementation.",
       "raw_context": ""
     }
   ],
@@ -1434,10 +1425,130 @@
         "commit_oid": "95e5c648aa10f363a81f140d29934b967a2aa565",
         "timestamp": "2026-11-14T16:20:48Z",
         "digest": "b25a772f407f38c2ab067e463ff7b023100a55d4ca9ffbfa49501dd18b7793ef"
+      },
+      {
+        "session_nonce": "sess-b30ef9f1",
+        "role": "TDD Craftsman",
+        "phase": "REFACTOR",
+        "commit_oid": "b30ef9f165ca8dfaa59b7596da138dacef628f06",
+        "timestamp": "2026-11-14T16:22:05Z",
+        "digest": "2a3cf2bb7aa76d98c94ee50c7982881e1c5f1556ec0705f491f8461ee8937d61"
       }
     ]
   },
   "test_provenance": [
+    {
+      "test_identifier": "test_manifest_version_extraction_and_harmony",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_manifest_version_mismatch_detection",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_missing_changelog_detection",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_changelog_version_matching_and_allow_unreleased",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_adr_coverage_detection",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_changelog_parser_helper",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_real_workspace_release_readiness",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_cli_check_release_integration",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_unformatted_code_detection_in_release_gatekeeper",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_wasm_policy_version_mismatch_detection_in_release_gatekeeper",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_format_gate_fails_closed_when_formatter_missing",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_wasm_policy_fails_closed_on_corrupt_bytecode",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_strict_release_gate_fails_closed_when_evidence_report_missing",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_package_json_key_order_preservation_on_update",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_release_archive_staging_moves_done_tasks_updates_specs_and_rolls_back",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_cli_release_prepare_dry_run_previews_archive_and_respects_no_archive",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
+    },
     {
       "test_identifier": "test_detect_next_task_number",
       "failure_output": "Verified in RED checkpoint commit 390a0ce",
@@ -2104,104 +2215,6 @@
       "status": "red_checkpoint_verified"
     },
     {
-      "test_identifier": "test_manifest_version_extraction_and_harmony",
-      "failure_output": "Verified in RED checkpoint commit cb8a691",
-      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
-      "verified_at": "2026-11-01T14:43:34+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_manifest_version_mismatch_detection",
-      "failure_output": "Verified in RED checkpoint commit cb8a691",
-      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
-      "verified_at": "2026-11-01T14:43:34+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_missing_changelog_detection",
-      "failure_output": "Verified in RED checkpoint commit cb8a691",
-      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
-      "verified_at": "2026-11-01T14:43:34+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_changelog_version_matching_and_allow_unreleased",
-      "failure_output": "Verified in RED checkpoint commit cb8a691",
-      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
-      "verified_at": "2026-11-01T14:43:34+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_adr_coverage_detection",
-      "failure_output": "Verified in RED checkpoint commit cb8a691",
-      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
-      "verified_at": "2026-11-01T14:43:34+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_changelog_parser_helper",
-      "failure_output": "Verified in RED checkpoint commit cb8a691",
-      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
-      "verified_at": "2026-11-01T14:43:34+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_real_workspace_release_readiness",
-      "failure_output": "Verified in RED checkpoint commit cb8a691",
-      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
-      "verified_at": "2026-11-01T14:43:34+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_cli_check_release_integration",
-      "failure_output": "Verified in RED checkpoint commit cb8a691",
-      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
-      "verified_at": "2026-11-01T14:43:34+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_unformatted_code_detection_in_release_gatekeeper",
-      "failure_output": "Verified in RED checkpoint commit cb8a691",
-      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
-      "verified_at": "2026-11-01T14:43:34+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_wasm_policy_version_mismatch_detection_in_release_gatekeeper",
-      "failure_output": "Verified in RED checkpoint commit cb8a691",
-      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
-      "verified_at": "2026-11-01T14:43:34+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_format_gate_fails_closed_when_formatter_missing",
-      "failure_output": "Verified in RED checkpoint commit cb8a691",
-      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
-      "verified_at": "2026-11-01T14:43:34+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_wasm_policy_fails_closed_on_corrupt_bytecode",
-      "failure_output": "Verified in RED checkpoint commit cb8a691",
-      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
-      "verified_at": "2026-11-01T14:43:34+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_strict_release_gate_fails_closed_when_evidence_report_missing",
-      "failure_output": "Verified in RED checkpoint commit cb8a691",
-      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
-      "verified_at": "2026-11-01T14:43:34+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_package_json_key_order_preservation_on_update",
-      "failure_output": "Verified in RED checkpoint commit cb8a691",
-      "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
-      "verified_at": "2026-11-01T14:43:34+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
       "test_identifier": "test_in_flight_staging_skips_dirty_worktree_but_enforces_strict_verification",
       "failure_output": "Verified in RED checkpoint commit cb8a691",
       "failure_digest": "fc39acdeb3956d5882efdd094c3994d29a015fea978c44dbc170a8d243049c85",
@@ -2697,20 +2710,6 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
-    },
-    {
-      "test_identifier": "test_release_archive_staging_moves_done_tasks_updates_specs_and_rolls_back",
-      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
-      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
-      "verified_at": "2026-11-14T17:18:19+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_cli_release_prepare_dry_run_previews_archive_and_respects_no_archive",
-      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
-      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
-      "verified_at": "2026-11-14T17:18:19+01:00",
-      "status": "red_checkpoint_verified"
     }
   ]
 }

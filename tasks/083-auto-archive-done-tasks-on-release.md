@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 083: Auto-Archive DONE Tasks During Release Preparation"
 description: "Arkivér automatisk alle færdige (DONE/COMPLETED) tasks til tasks/archive/ og opdatér specs/**/*.md-links som led i xgauntlet release bump / release prepare før den endelige evidensforsegling."
-status: active
+status: done
 intent: enhancement
 slice: release
 spec_ref: "specs/release.md"
@@ -23,7 +23,7 @@ test_refs:
 
 # Task 083: Auto-Archive DONE Tasks During Release Preparation
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-14`
 
@@ -40,15 +40,15 @@ Eliminere behovet for at huske manuel `tasks/`-oprydning i hverdagen ved at inte
    - `--no-archive`-flag på `release bump` og `release prepare` gør det muligt at springe arkiveringen over i særlige tilfælde.
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (Auto-Archive i `release bump` & `release prepare`):**
+- [x] **AC1 (Auto-Archive i `release bump` & `release prepare`):**
   - `xgauntlet release bump <patch|minor|major>` og `xgauntlet release prepare <version>` arkiverer automatisk alle `DONE`/`COMPLETED` tasks til `tasks/archive/` (og opdaterer relative links i `specs/**/*.md`) før endelig evidensforsegling, medmindre `--no-archive` er angivet.
   - `verification-report.json` og `check-release --strict` viser **0 source drift** efter release-forberedelsen.
-- [ ] **AC2 (Dry-Run & Transaktionel Rollback):**
+- [x] **AC2 (Dry-Run & Transaktionel Rollback):**
   - `--dry-run` forhåndsviser de berørte `DONE`-tasks uden disk-mutationer.
   - Fejler efterfølgende release-gates, rulles også arkiverede task-filer og opdaterede `specs/*.md`-links tilbage via isoleret disk-staging uden `git reset --hard` eller `git clean -f`.
-- [ ] **AC3 (Dokumentation & Release Skill):**
+- [x] **AC3 (Dokumentation & Release Skill):**
   - [specs/release.md](../specs/release.md) og [.agents/plugins/xgauntlet/skills/release/SKILL.md](../.agents/plugins/xgauntlet/skills/release/SKILL.md) dokumenterer den automatiske release-arkivering og `--no-archive`.
-- [ ] **AC4 (Isolerede Release-Tests):**
+- [x] **AC4 (Isolerede Release-Tests):**
   - `crates/xgauntlet-core/tests/release_engine_test.rs` dækker automatisk arkivering ved `release prepare`/`bump`, `--no-archive`, `--dry-run`, bevaring af `ACTIVE`/`DRAFT`-tasks og 0 source drift.
 
 ## 🚫 Must NOT

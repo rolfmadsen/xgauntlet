@@ -1,19 +1,20 @@
 # Verification Report
 
-**Task ID**: `082-archive-completed-tasks`  
-**Task Title**: Task 082: Archive Completed Tasks to tasks/archive/  
-**Verdict**: `FAILED`  
+**Task ID**: `083-auto-archive-done-tasks-on-release`  
+**Task Title**: Task 083: Auto-Archive DONE Tasks During Release Preparation  
+**Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `19a148327433fd88dc15536196a9f32f389bb4b8a3f7ad5949dd0a16691a77de`  
-**Timestamp**: `2026-11-14T15:58:14Z`  
-**Head**: `757b05c`  
-**Commit**: `757b05c`  
+**Source Manifest Digest**: `bda034c51fb4eee17c61bf9b154c6111c08e313f4472743788f2021cf870a050`  
+**Timestamp**: `2026-11-14T16:23:43Z`  
+**Head**: `b30ef9f`  
+**Commit**: `b30ef9f`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (Dry-Run Preview & Arkivering af Historiske `DONE`-Tasks):**
-- [x] **AC2 (Bevarelse af `DRAFT`/`ACTIVE`-Tasks & Link-Integritet):**
-- [x] **AC3 (Fuldt Verificeret Repo efter Oprydning):**
+- [x] **AC1 (Auto-Archive i `release bump` & `release prepare`):**
+- [x] **AC2 (Dry-Run & Transaktionel Rollback):**
+- [x] **AC3 (Dokumentation & Release Skill):**
+- [x] **AC4 (Isolerede Release-Tests):**
 
 ---
 
@@ -21,13 +22,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.122s` |
-| `format` | `PASSED` | `0` | `0.254s` |
-| `lint` | `PASSED` | `0` | `1.102s` |
-| `unit` | `PASSED` | `0` | `32.872s` |
-| `npm` | `PASSED` | `0` | `0.905s` |
-| `invariants` | `PASSED` | `0` | `0.210s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.039s` |
+| `architecture` | `PASSED` | `0` | `0.173s` |
+| `format` | `PASSED` | `0` | `0.239s` |
+| `lint` | `PASSED` | `0` | `0.114s` |
+| `unit` | `PASSED` | `0` | `31.546s` |
+| `npm` | `PASSED` | `0` | `0.762s` |
+| `invariants` | `PASSED` | `0` | `0.080s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
 
 ---
 
@@ -198,6 +199,7 @@
 | `sess-c8473f7f` | `System Architect` | `SPEC` | `c8473f7` | `2026-11-14T16:17:37Z` | `VALID` |
 | `sess-2da5f7f8` | `TDD Craftsman` | `RED` | `2da5f7f` | `2026-11-14T16:18:19Z` | `VALID` |
 | `sess-95e5c648` | `TDD Craftsman` | `GREEN` | `95e5c64` | `2026-11-14T16:20:48Z` | `VALID` |
+| `sess-b30ef9f1` | `TDD Craftsman` | `REFACTOR` | `b30ef9f` | `2026-11-14T16:22:05Z` | `VALID` |
 
 ---
 
@@ -205,6 +207,22 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_manifest_version_extraction_and_harmony` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
+| `test_manifest_version_mismatch_detection` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
+| `test_missing_changelog_detection` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
+| `test_changelog_version_matching_and_allow_unreleased` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
+| `test_adr_coverage_detection` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
+| `test_changelog_parser_helper` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
+| `test_real_workspace_release_readiness` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
+| `test_cli_check_release_integration` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
+| `test_unformatted_code_detection_in_release_gatekeeper` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
+| `test_wasm_policy_version_mismatch_detection_in_release_gatekeeper` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
+| `test_format_gate_fails_closed_when_formatter_missing` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
+| `test_wasm_policy_fails_closed_on_corrupt_bytecode` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
+| `test_strict_release_gate_fails_closed_when_evidence_report_missing` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
+| `test_package_json_key_order_preservation_on_update` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
+| `test_release_archive_staging_moves_done_tasks_updates_specs_and_rolls_back` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
+| `test_cli_release_prepare_dry_run_previews_archive_and_respects_no_archive` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
 | `test_detect_next_task_number` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
 | `test_slugify_and_formatting` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
 | `test_scaffold_task_package_creates_valid_spec` | `RedCheckpointVerified` | `fbac78c9ab880db8...` | `2026-11-14T16:11:15+01:00` |
@@ -300,20 +318,6 @@
 | `test_antigravity_2_6_hook_handler_protocol` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
 | `test_antigravity_resolve_effective_workspace_and_containment` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
 | `test_antigravity_workspace_containment_denies_outside_repo` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_manifest_version_extraction_and_harmony` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_manifest_version_mismatch_detection` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_missing_changelog_detection` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_changelog_version_matching_and_allow_unreleased` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_adr_coverage_detection` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_changelog_parser_helper` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_real_workspace_release_readiness` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_cli_check_release_integration` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_unformatted_code_detection_in_release_gatekeeper` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_wasm_policy_version_mismatch_detection_in_release_gatekeeper` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_format_gate_fails_closed_when_formatter_missing` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_wasm_policy_fails_closed_on_corrupt_bytecode` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_strict_release_gate_fails_closed_when_evidence_report_missing` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_package_json_key_order_preservation_on_update` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
 | `test_in_flight_staging_skips_dirty_worktree_but_enforces_strict_verification` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
 | `test_ratchet_enforcement_rejects_unauthorized_ceiling_inflation` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
 | `test_ratchet_enforcement_accepts_authorized_ceiling_inflation` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
@@ -385,7 +389,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_release_archive_staging_moves_done_tasks_updates_specs_and_rolls_back` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
-| `test_cli_release_prepare_dry_run_previews_archive_and_respects_no_archive` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
 
 ---
