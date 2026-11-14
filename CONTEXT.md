@@ -279,6 +279,14 @@ _Avoid_: Markdown linter, spellcheck report, doc validator.
 An AST-derived structural graph representation, that models packages, modules, structs, enums, and their directed dependency edges.
 _Avoid_: Call tree, file list, import dump.
 
+**Worktree Task Binding**:
+A gitignored worktree-local task pointer (`.xgauntlet/active_task`), that binds an isolated Git worktree to a specific active Task Package independently of sibling worktrees.
+_Avoid_: Implicit-task-pick, shared-checkout-lock, global-active-task.
+
+**Agent Delegation**:
+A classified harness orchestration capability, that distinguishes read-only subagent inspection from isolated worktree worker spawning across Antigravity, Claude Code, Codex, and Mistral Vibe.
+_Avoid_: Unisolated-subagent, shared-checkout-swarm, raw-orchestration-passthrough.
+
 
 
 
