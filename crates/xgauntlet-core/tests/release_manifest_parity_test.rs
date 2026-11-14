@@ -175,7 +175,7 @@ version = "0.12.0"
 }
 
 #[test]
-fn test_workspace_manifests_synchronized_to_version_0_15_0() {
+fn test_workspace_manifests_synchronized_to_version_0_15_1() {
     let repo_root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .unwrap()
@@ -189,8 +189,8 @@ fn test_workspace_manifests_synchronized_to_version_0_15_0() {
     );
     for (file, ver) in &summary.versions_by_source {
         assert_eq!(
-            ver, "0.15.0",
-            "Manifest '{file}' must be synchronized to release version 0.15.0"
+            ver, "0.15.1",
+            "Manifest '{file}' must be synchronized to release version 0.15.1"
         );
     }
 }
