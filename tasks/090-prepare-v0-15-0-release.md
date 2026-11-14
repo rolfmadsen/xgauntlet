@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 090: Prepare Release v0.15.0 for GitHub and npmjs"
 description: "Opdaterer release-manifest paritetstest til dynamisk workspace-version (CARGO_PKG_VERSION), udfører xgauntlet release prepare 0.15.0 (manifests, CHANGELOG.md, WASM-bytecode, arkivering og evidensforsegling) og opretter lokalt commit samt annoteret git tag v0.15.0 klar til brugerens push."
-status: active
+status: done
 intent: enhancement
 generated: { by: process:antigravity-task-init, at: "2026-11-14T22:34:00Z" }
 tags: [release, v0.15.0, npm, cargo, wasm, tag]
@@ -28,7 +28,7 @@ test_refs:
 
 # Task 090: Prepare Release v0.15.0 for GitHub and npmjs
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-14`
 
