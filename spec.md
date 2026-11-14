@@ -34,11 +34,11 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
    - Autonomous TDD inner loop with boundary Human-in-the-Loop gates ([ADR 0009](docs/adr/0009-autonomous-tdd-inner-loop-and-boundary-human-gates.md)).
    - Fast-Track Bugfix Lane for bounded defects (`scope.len() <= 3`, zero ADR impact) via direct `RED → DONE` or isolated single-step Worktree Inverse Proof ([ADR 0011](docs/adr/0011-fast-track-worktree-inverse-proof-and-scoped-preflight.md)).
    - ADR-bound architectural exemptions and monotonic ratchet governance ([ADR 0010](docs/adr/0010-adr-bound-architectural-exemptions-and-monotonic-ratchets.md)).
-   - Deterministic 4-layer (`app -> features -> core -> shared`) and 1- or 2-level Vertical Slice boundary gates (`LayerDirectionViolation`, `CrossSliceImportViolation`, `ForbiddenCoreImportViolation`), living slice specifications (`specs/<slice>.md` or `specs/<subdomain>/<slice>.md`), glossary drift verification (`check-spec --context`), and 4-state ADR lifecycle governance ([ADR 0012](docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md)).
+   - Deterministic 4-layer (`app -> features -> core -> shared`) and 1- or 2-level Feature boundary gates (`LayerDirectionViolation`, `CrossFeatureImportViolation`, `ForbiddenCoreImportViolation`), living feature specifications (`specs/<feature>.md` or `specs/<subdomain>/<feature>.md`), glossary drift verification (`check-spec --context`), and 4-state ADR lifecycle governance ([ADR 0013](docs/adr/0013-feature-architecture-boundaries-and-living-specs.md)).
    - Multi-layer gauntlet: Linters, typecheckers, unit/feature tests, invariant tests, and mutation gauntlet (`cargo-mutants`).
 
 5. **Multi-Harness Native Support**:
-   - Autonomous vertical slices for Google Antigravity IDE, Claude Code, OpenAI Codex, and Mistral Vibe.
+   - Autonomous feature modules for Google Antigravity IDE, Claude Code, OpenAI Codex, and Mistral Vibe.
 
 ---
 
@@ -54,15 +54,15 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
   - `evidence`: Canonical workspace manifest, multi-session tamper-evident lineage trail, report generation, drift detection, and cryptographic release attestation verification (`xgauntlet check-attestation`).
   - `gauntlet`: Multi-layer process runner (`std::process::Command`), timeouts, exit code handling.
   - `diagnostics`: Actionable diagnostics parser transforming compiler/test output into structured LLM hints.
-  - `tasks`: OKF v0.2 Markdown parser, task binding, and Aristotelian glossary validation (`check-spec`). Living slice spec: [specs/tasks.md](specs/tasks.md).
-  - `adapters`: Vertical slices for Antigravity, Claude Code, OpenAI Codex, and Mistral Vibe with flat `PreInvocation` schema compliance and non-destructive scaffolding.
+  - `tasks`: OKF v0.2 Markdown parser, task binding, and Aristotelian glossary validation (`check-spec`). Living feature spec: [specs/tasks.md](specs/tasks.md).
+  - `adapters`: Autonomous feature modules for Antigravity, Claude Code, OpenAI Codex, and Mistral Vibe with flat `PreInvocation` schema compliance and non-destructive scaffolding.
   - `config`: Declarative `gauntlet.toml` schema and stack profiles.
   - `scaffold`: Safe, non-destructive project bootstrap engine (`xgauntlet init`).
   - `doctor`: Fast environment, Git, and toolchain diagnostics.
-  - `release`: Release readiness gatekeeper (`check-release --strict`), manifest version harmony, CHANGELOG.md verification, ADR coverage validation, and transactional SemVer release manager (`release bump`) with in-process wasm32 compilation and non-destructive disk-staging backup/rollback. Living slice spec: [specs/release.md](specs/release.md).
+  - `release`: Release readiness gatekeeper (`check-release --strict`), manifest version harmony, CHANGELOG.md verification, ADR coverage validation, and transactional SemVer release manager (`release bump`) with in-process wasm32 compilation and non-destructive disk-staging backup/rollback. Living feature spec: [specs/release.md](specs/release.md).
   - `plugin`: Global plugin distribution and embedded 6-skill sovereign suite (`xgauntlet plugin install`).
-  - `topology`: Deterministic AST codebase topology, graph traversals, and token-optimized blast-radius discovery engine (`xgauntlet topology`). Living slice spec: [specs/topology.md](specs/topology.md).
-  - `architecture`: Deterministic 4-layer and vertical slice boundary verification (`xgauntlet check-architecture`). Living slice spec: [specs/architecture.md](specs/architecture.md).
+  - `topology`: Deterministic AST codebase topology, graph traversals, and token-optimized blast-radius discovery engine (`xgauntlet topology`). Living feature spec: [specs/topology.md](specs/topology.md).
+  - `architecture`: Deterministic 4-layer and feature boundary verification (`xgauntlet check-architecture`). Living feature spec: [specs/architecture.md](specs/architecture.md).
 - `crates/xgauntlet-cli`: Native CLI frontend (`verify`, `check-spec`, `check-evidence`, `check-release`, `check-attestation`, `check-architecture`, `release bump`, `handoff`, `evidence lineage`).
 - `packages/cli`: Zero-dependency Node.js distribution launcher (`xgauntlet` / `npx xgauntlet`) with cryptographic Sigstore attestation integrity verification against GitHub Repository ID (`1359184794`) before caching/execution.
 

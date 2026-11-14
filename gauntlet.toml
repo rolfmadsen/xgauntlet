@@ -22,7 +22,7 @@ isolate_slices = true
 [[architecture.exemptions]]
 path = "crates/xgauntlet-core/src/features/**"
 reason = "Shared kernel & foundational core feature slices in xgauntlet-core jf. ADR 0001 and ADR 0012"
-adr = "docs/adr/0012-vertical-slice-boundaries-and-adr-lifecycle.md"
+adr = "docs/adr/0013-feature-architecture-boundaries-and-living-specs.md"
 allow_imports = ["crate::features::adapters", "crate::features::checkpoint", "crate::features::config", "crate::features::diagnostics", "crate::features::evidence", "crate::features::gauntlet", "crate::features::plugin", "crate::features::policy", "crate::features::scaffold", "crate::features::tasks", "crate::features::topology", "crate::features::wasm"]
 
 [[architecture.exemptions]]

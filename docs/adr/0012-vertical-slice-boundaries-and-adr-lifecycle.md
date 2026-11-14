@@ -1,7 +1,8 @@
 ---
 type: Architectural Decision Record
 title: 'ADR 0012: Deterministic Vertical Slice Boundary Gates, Living Slice Specifications, and ADR Lifecycle'
-status: accepted
+status: superseded
+superseded_by: "0013-feature-architecture-boundaries-and-living-specs.md"
 tags:
 - architecture
 - vsa
@@ -18,7 +19,7 @@ verified:
 
 # 12. Deterministic Vertical Slice Boundary Gates, Living Slice Specifications, and ADR Lifecycle
 
-**Status**: `accepted`  
+**Status**: `superseded` (`superseded_by`: [ADR 0013](0013-feature-architecture-boundaries-and-living-specs.md))  
 **Date**: `2026-11-07`  
 
 ## Context

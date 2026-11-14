@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 081: Replace Slice Terminology with Feature Architecture"
 description: "Afvikl det tvetydige 'slice'-begreb i xGauntlet og erstat det konsekvent med 'Feature' på tværs af CONTEXT.md, ADR, OKF-frontmatter, CLI, specs/ og check-architecture med 100% bagudkompatibilitet."
-status: draft
+status: active
 intent: refactor
 slice: architecture
 spec_ref: "specs/architecture.md"
@@ -12,28 +12,42 @@ scope:
   - "CONTEXT.md"
   - "spec.md"
   - "gauntlet.toml"
+  - "README.md"
+  - "packages/cli/README.md"
+  - "CODING_STANDARDS.md"
   - "docs/adr/**"
   - "specs/**"
   - "tasks/081-replace-slice-terminology-with-feature.md"
   - "crates/xgauntlet-core/src/features/architecture/**"
   - "crates/xgauntlet-core/src/features/config/models.rs"
+  - "crates/xgauntlet-core/src/features/config/loader.rs"
+  - "crates/xgauntlet-core/src/features/scaffold/templates.rs"
   - "crates/xgauntlet-core/src/features/tasks/models.rs"
   - "crates/xgauntlet-core/src/features/tasks/okf.rs"
+  - "crates/xgauntlet-core/src/features/tasks/parser.rs"
   - "crates/xgauntlet-core/src/features/tasks/validator.rs"
   - "crates/xgauntlet-core/src/features/tasks/lifecycle.rs"
   - "crates/xgauntlet-cli/src/main.rs"
   - "crates/xgauntlet-cli/src/checkers.rs"
   - "crates/xgauntlet-core/tests/slice_architecture_and_adr_lifecycle_test.rs"
   - "crates/xgauntlet-core/tests/task_lifecycle_test.rs"
+  - "crates/xgauntlet-core/tests/architecture_gate_test.rs"
+  - "crates/xgauntlet-core/tests/architecture_scaffold_template_test.rs"
+  - "crates/xgauntlet-core/tests/mermaid_and_glossary_drift_test.rs"
+  - "crates/xgauntlet-core/tests/fast_track_and_scoped_checkpoint_test.rs"
   - ".agents/plugins/xgauntlet/skills/**"
 test_refs:
   - "crates/xgauntlet-core/tests/slice_architecture_and_adr_lifecycle_test.rs"
   - "crates/xgauntlet-core/tests/task_lifecycle_test.rs"
+  - "crates/xgauntlet-core/tests/architecture_gate_test.rs"
+  - "crates/xgauntlet-core/tests/architecture_scaffold_template_test.rs"
+  - "crates/xgauntlet-core/tests/mermaid_and_glossary_drift_test.rs"
+  - "crates/xgauntlet-core/tests/fast_track_and_scoped_checkpoint_test.rs"
 ---
 
 # Task 081: Replace Slice Terminology with Feature Architecture
 
-**Status**: `DRAFT`
+**Status**: `ACTIVE`
 **Intent**: `🔄 REFACTOR`
 **Oprettet**: `2026-11-14`
 
