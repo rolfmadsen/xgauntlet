@@ -314,7 +314,8 @@ fn test_antigravity_exit_plan_mode_whitelist_and_fail_closed_other() {
     let (bad_code, bad_output) = adapter.handle_hook(ws, &unknown_payload.to_string());
     assert_eq!(bad_code, 1, "Unknown Other tools must remain denied");
     assert!(
-        bad_output.contains("\"decision\":\"deny\"") || bad_output.contains("\"decision\": \"deny\""),
+        bad_output.contains("\"decision\":\"deny\"")
+            || bad_output.contains("\"decision\": \"deny\""),
         "Expected deny decision for unknown tool, got: {bad_output}"
     );
 }

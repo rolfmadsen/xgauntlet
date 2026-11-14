@@ -1,20 +1,18 @@
 # Verification Report
 
-**Task ID**: `087-archive-terminal-task-statuses`  
-**Task Title**: Task 087: Archive Terminal Task Statuses (Deprecated, Superseded, Rejected)  
+**Task ID**: `086-antigravity-exit-plan-mode-hook-support`  
+**Task Title**: Task 086: Antigravity `exit_plan_mode` Hook Whitelist Support  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `dddec18544c6005ceba5db7a24f1e778f481f5a27b5941749e1e920e5e9ce321`  
-**Timestamp**: `2026-11-14T20:37:16Z`  
-**Head**: `328ea21`  
-**Commit**: `328ea21`  
+**Source Manifest Digest**: `d1da9db09d0260f34aa273e5a71960a44de1fe11d505f0827b13d4fcad8ef15f`  
+**Timestamp**: `2026-11-14T20:51:24Z`  
+**Head**: `771ea15`  
+**Commit**: `771ea15`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 — Terminal Status Helper (`TaskStatus::is_terminal`):**
-- [x] **AC2 — Arkivering af alle terminale tilstande i `TaskScaffolder::archive_tasks`:**
-- [x] **AC3 — CLI & Living Spec Opdatering:**
-- [x] **AC4 — Regressionstest:**
+- [x] **AC1 — Whitelist `exit_plan_mode` i AntigravityAdapter & HarnessAdapter:**
+- [x] **AC2 — Regressionstest i `antigravity_adapter_test.rs`:**
 
 ---
 
@@ -22,13 +20,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.082s` |
-| `format` | `PASSED` | `0` | `0.251s` |
-| `lint` | `PASSED` | `0` | `0.127s` |
-| `unit` | `PASSED` | `0` | `33.613s` |
-| `npm` | `PASSED` | `0` | `0.846s` |
-| `invariants` | `PASSED` | `0` | `0.076s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
+| `architecture` | `PASSED` | `0` | `0.084s` |
+| `format` | `PASSED` | `0` | `0.260s` |
+| `lint` | `PASSED` | `0` | `0.164s` |
+| `unit` | `PASSED` | `0` | `34.249s` |
+| `npm` | `PASSED` | `0` | `0.790s` |
+| `invariants` | `PASSED` | `0` | `1.011s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.016s` |
 
 ---
 
@@ -223,6 +221,7 @@
 | `sess-4f3d952d` | `TDD Craftsman` | `RED` | `4f3d952` | `2026-11-14T20:34:36Z` | `VALID` |
 | `sess-328ea217` | `TDD Craftsman` | `GREEN` | `328ea21` | `2026-11-14T20:35:47Z` | `VALID` |
 | `sess-1b217c03` | `Software Engineer` | `DONE` | `1b217c0` | `2026-11-14T20:37:17Z` | `VALID` |
+| `sess-771ea15d` | `TDD Craftsman` | `RED` | `771ea15` | `2026-11-14T20:49:27Z` | `VALID` |
 
 ---
 
@@ -230,6 +229,11 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_antigravity_2_6_tools_normalization` | `RedCheckpointVerified` | `771a8896bf67b412...` | `2026-11-14T21:49:27+01:00` |
+| `test_antigravity_2_6_hook_handler_protocol` | `RedCheckpointVerified` | `771a8896bf67b412...` | `2026-11-14T21:49:27+01:00` |
+| `test_antigravity_resolve_effective_workspace_and_containment` | `RedCheckpointVerified` | `771a8896bf67b412...` | `2026-11-14T21:49:27+01:00` |
+| `test_antigravity_workspace_containment_denies_outside_repo` | `RedCheckpointVerified` | `771a8896bf67b412...` | `2026-11-14T21:49:27+01:00` |
+| `test_antigravity_exit_plan_mode_whitelist_and_fail_closed_other` | `RedCheckpointVerified` | `771a8896bf67b412...` | `2026-11-14T21:49:27+01:00` |
 | `test_detect_next_task_number` | `RedCheckpointVerified` | `f1d6baab9f95ab4f...` | `2026-11-14T21:34:36+01:00` |
 | `test_slugify_and_formatting` | `RedCheckpointVerified` | `f1d6baab9f95ab4f...` | `2026-11-14T21:34:36+01:00` |
 | `test_scaffold_task_package_creates_valid_spec` | `RedCheckpointVerified` | `f1d6baab9f95ab4f...` | `2026-11-14T21:34:36+01:00` |
@@ -393,10 +397,6 @@
 | `test_hook_blocks_command_injection_and_unscoped_git_commit_without_task` | `RedCheckpointVerified` | `5971e55478f0a410...` | `2026-11-01T22:26:55+01:00` |
 | `test_fast_track_worktree_inverse_proof_born_green_rejection` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
 | `test_always_passes` | `RedCheckpointVerified` | `03220af534fef745...` | `2026-11-01T18:40:44+01:00` |
-| `test_antigravity_2_6_tools_normalization` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_antigravity_2_6_hook_handler_protocol` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_antigravity_resolve_effective_workspace_and_containment` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
-| `test_antigravity_workspace_containment_denies_outside_repo` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
 | `test_in_flight_staging_skips_dirty_worktree_but_enforces_strict_verification` | `RedCheckpointVerified` | `fc39acdeb3956d58...` | `2026-11-01T14:43:34+01:00` |
 | `test_ratchet_enforcement_rejects_unauthorized_ceiling_inflation` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |
 | `test_ratchet_enforcement_accepts_authorized_ceiling_inflation` | `RedCheckpointVerified` | `b62800e1576998b6...` | `2026-10-25T21:21:37+01:00` |

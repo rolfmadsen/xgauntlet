@@ -515,7 +515,11 @@ impl HarnessAdapter for AntigravityAdapter {
 
         if matches!(
             name_lower.as_str(),
-            "ask_question" | "list_plugin_accounts" | "search_marketplace" | "search_web"
+            "ask_question"
+                | "exit_plan_mode"
+                | "list_plugin_accounts"
+                | "search_marketplace"
+                | "search_web"
         ) {
             return NormalizedToolCall {
                 action_type: ToolActionType::ReadFile,

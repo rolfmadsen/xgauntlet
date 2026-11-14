@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 086: Antigravity exit_plan_mode Hook Whitelist Support"
 description: "Klassificer Antigravitys plan-mode kontrolværktøj ('exit_plan_mode') som sikker ikke-muterende handling i AntigravityAdapter::normalize_tool_call i stedet for ToolActionType::Other."
-status: active
+status: done
 intent: bug
 generated: { by: process:antigravity-task-init, at: "2026-11-14T18:44:00Z" }
 tags: [antigravity, adapter, hooks, bugfix, fast-track]
@@ -15,7 +15,7 @@ test_refs:
 
 # Task 086: Antigravity `exit_plan_mode` Hook Whitelist Support
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🐛 BUG FIX`
 **Oprettet**: `2026-11-14`
 
@@ -33,10 +33,10 @@ Når Orchestrator- eller Plan-modeller i Google Antigravity kalder `exit_plan_mo
 
 ## 📋 Acceptance Criteria
 
-- [ ] **AC1 — Whitelist `exit_plan_mode` i AntigravityAdapter & HarnessAdapter:**
+- [x] **AC1 — Whitelist `exit_plan_mode` i AntigravityAdapter & HarnessAdapter:**
   - `AntigravityAdapter::normalize_tool_call` i `crates/xgauntlet-core/src/features/adapters/antigravity/mod.rs` klassificerer `"exit_plan_mode"` som `ToolActionType::ReadFile` (sikker ikke-muterende kontrolhandling) i stedet for `ToolActionType::Other`.
   - `HarnessAdapter::evaluate_invocation` (`is_whitelisted_dialogue`) i `crates/xgauntlet-core/src/features/adapters/models.rs` tillader `"exit_plan_mode"` som ikke-filsystem kontrolhandling uden filsti (på linje med `"ask_question"`).
-- [ ] **AC2 — Regressionstest i `antigravity_adapter_test.rs`:**
+- [x] **AC2 — Regressionstest i `antigravity_adapter_test.rs`:**
   - `crates/xgauntlet-core/tests/antigravity_adapter_test.rs` verificerer, at `"exit_plan_mode"` normaliseres til `ToolActionType::ReadFile` og tillades af hook-politikken uden at lempe ukendte `Other`-værktøjer.
 
 ---

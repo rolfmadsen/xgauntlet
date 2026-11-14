@@ -144,6 +144,7 @@ pub trait HarnessAdapter: Send + Sync {
                 let is_whitelisted_dialogue = matches!(
                     raw_lower.as_str(),
                     "ask_question"
+                        | "exit_plan_mode"
                         | "manage_task"
                         | "search_web"
                         | "search_marketplace"
