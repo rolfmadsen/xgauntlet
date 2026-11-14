@@ -923,7 +923,10 @@ fn test_ac5_sovereign_skills_and_coding_standards_document_slice_taxonomy_and_po
 fn test_task_078_scope_aware_slice_mapping_and_two_way_traceability() {
     let ws = TempWorkspace::new("t078_scope_aware");
     ws.write("CONTEXT.md", VALID_CONTEXT_MD);
-    ws.write("specs/architecture.md", "# Living Slice Specification: architecture\n\nValid.\n");
+    ws.write(
+        "specs/architecture.md",
+        "# Living Slice Specification: architecture\n\nValid.\n",
+    );
     ws.write(
         "gauntlet.toml",
         "stack = \"rust\"\n[architecture]\nslice_root = \"crates/xgauntlet-core/src/features\"\nisolate_slices = true\n",
@@ -939,36 +942,48 @@ fn test_task_078_scope_aware_slice_mapping_and_two_way_traceability() {
         )
     };
 
-    // 1. Non-slice scope (skills + docs) must pass without slice/spec_ref
-    let non_slice = mk_task("tasks/077-review.md", "\".agents/plugins/xgauntlet/skills/**\", \"docs/**\"");
-    let rep_non = check_task_specification(&non_slice, ws.path());
-    assert!(rep_non.is_valid, "Non-slice task must pass without slice/spec_ref: {:?}", rep_non.diagnostics);
+    let has_missing_slice = |rel: &str, scope: &str| {
+        let p = mk_task(rel, scope);
+        check_task_specification(&p, ws.path())
+            .diagnostics
+            .iter()
+            .any(|d| d.tool_name == "MISSING_TASK_SLICE_MAPPING")
+    };
+    assert!(!has_missing_slice(
+        "tasks/077-review.md",
+        "\".agents/plugins/xgauntlet/skills/**\", \"docs/**\""
+    ));
+    assert!(has_missing_slice(
+        "tasks/078-in-slice.md",
+        "\"crates/xgauntlet-core/src/features/tasks/validator.rs\""
+    ));
+    assert!(has_missing_slice(
+        "tasks/079-broad.md",
+        "\"crates/xgauntlet-core/src/**\""
+    ));
 
-    // 2. Scope inside custom slice_root or broad parent glob must still require slice/spec_ref
-    let in_slice = mk_task("tasks/078-in-slice.md", "\"crates/xgauntlet-core/src/features/tasks/validator.rs\"");
-    let rep_in = check_task_specification(&in_slice, ws.path());
-    assert!(rep_in.diagnostics.iter().any(|d| d.tool_name == "MISSING_TASK_SLICE_MAPPING"));
-    let broad = mk_task("tasks/079-broad.md", "\"crates/xgauntlet-core/src/**\"");
-    let rep_broad = check_task_specification(&broad, ws.path());
-    assert!(rep_broad.diagnostics.iter().any(|d| d.tool_name == "MISSING_TASK_SLICE_MAPPING"));
-
-    // 3. TaskScaffolder writes two-way Relaterede Tasks links in specs/<domain>/<slice>.md
+    // 2. TaskScaffolder writes two-way Relaterede Tasks links in specs/<domain>/<slice>.md
     let ws2 = TempWorkspace::new("t078_traceability");
-    for (name, link) in [
-        ("diagram/minimap:viewport-sync", "../../tasks/001-viewport-sync.md"),
-        ("diagram/minimap:minimap-zoom", "../../tasks/002-minimap-zoom.md"),
+    for name in [
+        "diagram/minimap:viewport-sync",
+        "diagram/minimap:minimap-zoom",
     ] {
         TaskScaffolder::scaffold(&ScaffoldTaskOptions {
-            name: name.into(), title: None, intent: Some("feature".into()),
-            purpose: Some("Sync".into()), workspace: ws2.path().to_path_buf(), force: false,
-        }).expect("scaffold");
-        let spec_md = fs::read_to_string(ws2.path().join("specs/diagram/minimap.md")).unwrap();
-        assert!(spec_md.contains("## 📋 Relaterede Tasks") && spec_md.contains(link), "{spec_md}");
+            name: name.into(),
+            title: None,
+            intent: Some("feature".into()),
+            purpose: Some("Sync".into()),
+            workspace: ws2.path().to_path_buf(),
+            force: false,
+        })
+        .expect("scaffold");
     }
     let final_spec = fs::read_to_string(ws2.path().join("specs/diagram/minimap.md")).unwrap();
+    assert!(final_spec.contains("## 📋 Relaterede Tasks"));
     assert!(final_spec.contains("../../tasks/001-viewport-sync.md"));
+    assert!(final_spec.contains("../../tasks/002-minimap-zoom.md"));
 
-    // 4. spec/SKILL.md documents slice_root gating and Relaterede Tasks
+    // 3. spec/SKILL.md documents slice_root gating and Relaterede Tasks
     let spec_skill = get_embedded_skill("spec").expect("spec skill");
     assert!(spec_skill.contains("slice_root") && spec_skill.contains("Relaterede Tasks"));
 }

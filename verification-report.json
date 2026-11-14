@@ -1336,6 +1336,14 @@
         "commit_oid": "e11943591ec76436144820d269704f6ea22749c0",
         "timestamp": "2026-11-14T14:21:06Z",
         "digest": "5260d84be0b044387aab55acf8d562289787f78a2a034e54825dffbb5e6c95d1"
+      },
+      {
+        "session_nonce": "sess-3d875738",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "3d875738a73e250dfa15c10e456b9a92e52c6ad7",
+        "timestamp": "2026-11-14T14:21:52Z",
+        "digest": "00391210ec1f57f527523a1625abcb3e04cd934df35c452d28f422431897a027"
       }
     ]
   },
@@ -2487,6 +2495,13 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_task_078_scope_aware_slice_mapping_and_two_way_traceability",
+      "failure_output": "Verified in RED checkpoint commit 3d87573",
+      "failure_digest": "d8b4713b9075ede308f9737e0e3d31460fdba8d09c9b61fa0fb2a62b52492a63",
+      "verified_at": "2026-11-14T15:21:52+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }

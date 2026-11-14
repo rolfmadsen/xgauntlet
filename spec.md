@@ -54,14 +54,15 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
   - `evidence`: Canonical workspace manifest, multi-session tamper-evident lineage trail, report generation, drift detection, and cryptographic release attestation verification (`xgauntlet check-attestation`).
   - `gauntlet`: Multi-layer process runner (`std::process::Command`), timeouts, exit code handling.
   - `diagnostics`: Actionable diagnostics parser transforming compiler/test output into structured LLM hints.
-  - `tasks`: OKF v0.2 Markdown parser, task binding, and Aristotelian glossary validation (`check-spec`).
+  - `tasks`: OKF v0.2 Markdown parser, task binding, and Aristotelian glossary validation (`check-spec`). Living slice spec: [specs/tasks.md](specs/tasks.md).
   - `adapters`: Vertical slices for Antigravity, Claude Code, OpenAI Codex, and Mistral Vibe with flat `PreInvocation` schema compliance and non-destructive scaffolding.
   - `config`: Declarative `gauntlet.toml` schema and stack profiles.
   - `scaffold`: Safe, non-destructive project bootstrap engine (`xgauntlet init`).
   - `doctor`: Fast environment, Git, and toolchain diagnostics.
-  - `release`: Release readiness gatekeeper (`check-release --strict`), manifest version harmony, CHANGELOG.md verification, ADR coverage validation, and transactional SemVer release manager (`release bump`) with in-process wasm32 compilation and non-destructive disk-staging backup/rollback.
+  - `release`: Release readiness gatekeeper (`check-release --strict`), manifest version harmony, CHANGELOG.md verification, ADR coverage validation, and transactional SemVer release manager (`release bump`) with in-process wasm32 compilation and non-destructive disk-staging backup/rollback. Living slice spec: [specs/release.md](specs/release.md).
   - `plugin`: Global plugin distribution and embedded 6-skill sovereign suite (`xgauntlet plugin install`).
-  - `topology`: Deterministic AST codebase topology, graph traversals, and token-optimized blast-radius discovery engine (`xgauntlet topology`).
+  - `topology`: Deterministic AST codebase topology, graph traversals, and token-optimized blast-radius discovery engine (`xgauntlet topology`). Living slice spec: [specs/topology.md](specs/topology.md).
+  - `architecture`: Deterministic 4-layer and vertical slice boundary verification (`xgauntlet check-architecture`). Living slice spec: [specs/architecture.md](specs/architecture.md).
 - `crates/xgauntlet-cli`: Native CLI frontend (`verify`, `check-spec`, `check-evidence`, `check-release`, `check-attestation`, `check-architecture`, `release bump`, `handoff`, `evidence lineage`).
 - `packages/cli`: Zero-dependency Node.js distribution launcher (`xgauntlet` / `npx xgauntlet`) with cryptographic Sigstore attestation integrity verification against GitHub Repository ID (`1359184794`) before caching/execution.
 

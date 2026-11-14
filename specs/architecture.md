@@ -18,3 +18,7 @@ The `architecture` slice enforces deterministic structural boundaries, monotonic
 ## 🚫 Invariants
 - Leaf files inside a slice folder (`models.rs`, `validator.rs`, `checker.rs`, etc.) are always internal to their owning slice and must never trigger `CrossSliceImportViolation` when importing sibling modules within the same slice.
 - Every `[[architecture.exemptions]]` entry must reference an accepted ADR in `docs/adr/` and supports both exact relative paths and `/**` directory glob prefixes for `allow_imports`.
+
+## 📋 Relaterede Tasks
+- [Task 057: Deterministic Slice Architecture Gates, Living Slice Specs & ADR Lifecycle](../tasks/057-slice-architecture-gates-and-adr-lifecycle.md)
+- [Task 069: Correct DDD/VSA Taxonomy, 1- and 2-Level Slice Isolation, and Dogfooding](../tasks/069-ddd-slice-taxonomy-and-dogfooding.md)

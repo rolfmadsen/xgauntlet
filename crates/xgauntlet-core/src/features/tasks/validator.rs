@@ -585,6 +585,47 @@ pub fn check_all_adrs(workspace: &Path) -> Vec<AdrReadinessReport> {
         .collect()
 }
 
+fn scope_touches_slice_root(scope: &[String], slice_root: &str) -> bool {
+    let norm_root = slice_root
+        .trim()
+        .replace('\\', "/")
+        .trim_start_matches("./")
+        .trim_end_matches('/')
+        .to_string();
+    if norm_root.is_empty() {
+        return false;
+    }
+
+    let root_prefix = format!("{norm_root}/");
+    scope.iter().any(|raw_pattern| {
+        let mut pat = raw_pattern
+            .trim()
+            .replace('\\', "/")
+            .trim_start_matches("./")
+            .to_string();
+        if pat == "*" || pat == "**" || pat == "." || pat == "./" {
+            return true;
+        }
+        let is_wildcard = pat.ends_with("/**") || pat.ends_with("/*");
+        while pat.ends_with("/**") || pat.ends_with("/*") || pat.ends_with('/') {
+            if let Some(s) = pat.strip_suffix("/**") {
+                pat = s.to_string();
+            } else if let Some(s) = pat.strip_suffix("/*") {
+                pat = s.to_string();
+            } else {
+                pat = pat.trim_end_matches('/').to_string();
+            }
+        }
+        if pat.is_empty() {
+            return is_wildcard;
+        }
+        if pat == norm_root || pat.starts_with(&root_prefix) {
+            return true;
+        }
+        is_wildcard && norm_root.starts_with(&format!("{pat}/"))
+    })
+}
+
 fn validate_task_slice_mapping(
     task_info: &crate::features::tasks::models::TaskPackageInfo,
     rel_task: &str,
@@ -603,12 +644,20 @@ fn validate_task_slice_mapping(
         || intent_lower.contains("enhancement")
         || intent_lower.contains("bug");
 
+    let config = crate::features::config::GauntletConfig::load(workspace).ok();
     let workspace_uses_slices = workspace.join("specs").is_dir()
-        || crate::features::config::GauntletConfig::load(workspace)
-            .map(|c| c.architecture.isolate_slices)
-            .unwrap_or(false);
+        || config
+            .as_ref()
+            .is_some_and(|c| c.architecture.isolate_slices);
+    let slice_root = config
+        .as_ref()
+        .map(|c| c.architecture.slice_root.as_str())
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or("src/features");
 
-    if !has_any_slice_field && !(is_slice_intent && workspace_uses_slices) {
+    let touches_slice_root = scope_touches_slice_root(&task_info.scope, slice_root);
+
+    if !has_any_slice_field && !(is_slice_intent && workspace_uses_slices && touches_slice_root) {
         return;
     }
 

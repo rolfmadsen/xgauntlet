@@ -18,3 +18,9 @@ The `topology` slice provides sub-5ms deterministic code topology analysis, AST 
 - Must operate strictly under a sub-5ms cold start per file with zero external background daemons or language servers (Zero-Daemon Invariant).
 - Must emit 100% deterministic, sorted Mermaid class diagram outputs to prevent non-reproducible git diffs.
 - Must separate conceptual domain models from infrastructure boilerplate when `MermaidLevel::Conceptual` is requested.
+
+## 📋 Relaterede Tasks
+- [Task 021: AST Topology and Codebase Discovery Engine](../tasks/021-ast-topology-and-codebase-discovery-engine.md)
+- [Task 071: Domain AST Field & Relationship Extraction for Mermaid](../tasks/071-domain-ast-mermaid-fields-and-relationships.md)
+- [Task 074: Domain Relationship Completeness and Trait Realization](../tasks/074-domain-relationship-completeness-and-trait-realization.md)
+- [Task 075: Domain Orphan Resolution and AST Symbol Unification](../tasks/075-domain-orphan-resolution-and-ast-symbol-unification.md)

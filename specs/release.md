@@ -17,3 +17,9 @@ The `release` slice enforces mechanical release readiness (`check-release`) and 
 ## 🚫 Invariants
 - Never invokes destructive Git commands (`git reset --hard`, `git clean -f`) during release rollback; uses isolated disk-staging backup.
 - Never executes `git push` automatically.
+
+## 📋 Relaterede Tasks
+- [Task 036: Release Gatekeeper Fail-Closed Hardening](../tasks/036-release-gatekeeper-fail-closed-hardening.md)
+- [Task 042: Release Engine Hardening and Strict Gatekeeper](../tasks/042-release-engine-hardening-and-strict-gatekeeper.md)
+- [Task 058: Release Manifest Parity and Global Distribution Clarity](../tasks/058-release-manifest-parity-and-global-distribution-clarity.md)
+- [Task 076: Release v0.14.0](../tasks/076-release-v0-14-0.md)
