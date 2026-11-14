@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 081: Replace Slice Terminology with Feature Architecture"
 description: "Afvikl det tvetydige 'slice'-begreb i xGauntlet og erstat det konsekvent med 'Feature' på tværs af CONTEXT.md, ADR, OKF-frontmatter, CLI, specs/ og check-architecture med 100% bagudkompatibilitet."
-status: active
+status: done
 intent: refactor
 feature: architecture
 spec_ref: "specs/architecture.md"
@@ -43,7 +43,7 @@ test_refs:
 
 # Task 081: Replace Slice Terminology with Feature Architecture
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 REFACTOR`
 **Oprettet**: `2026-11-14`
 

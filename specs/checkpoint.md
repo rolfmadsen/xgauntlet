@@ -28,5 +28,5 @@ The `checkpoint` feature enforces phase-bound TDD invariant verification (`SPEC`
 - [Task 052: DX Fast-Track and Hook Hardening](../tasks/archive/052-dx-fast-track-and-hook-hardening.md)
 - [Task 056: Simplify Fast-Track and Retire Worktree Inverse Proof](../tasks/056-simplify-fast-track-and-retire-worktree-inverse-proof.md)
 - [Task 064: Static Checkpoint Commands and Harness Auto-Allow](../tasks/archive/064-static-checkpoint-commands-and-harness-auto-allow.md)
-- [Task 084: Reduce Policy Hook, Done-Transition & Sandbox Checkpoint Friction](../tasks/084-reduce-policy-and-checkpoint-sandbox-friction.md)
+- [Task 084: Reduce Policy Hook, Done-Transition & Sandbox Checkpoint Friction](../tasks/archive/084-reduce-policy-and-checkpoint-sandbox-friction.md)
 

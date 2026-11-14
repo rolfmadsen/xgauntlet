@@ -1,23 +1,32 @@
 ---
 type: Task Package
-title: "Task 056: Simplify Fast-Track Protocol & Retire Ephemeral Worktree Inverse Proof"
-description: "Forenkler Fast-Track bugfix-protokollen til et rent 2-trins RED -> DONE flow, udfaser det skrøbelige 1-trins Worktree Inverse Proof og eliminerer cold-cache compilat-overhead og krydsplatform filsystemsårbarheder."
+title: "Task 056: Simplify Fast-Track Protocol, Retire Worktree Inverse Proof & Ultralight Bugfix DX"
+description: "Forenkler Fast-Track bugfix-protokollen til et rent 2-trins RED -> DONE flow, udfaser 1-trins Worktree Inverse Proof og eliminerer ceremoni/friktion via ét-trins 'xgauntlet task new --intent bug --scope --test' og fritagelse for feature-spec mapping på små bugfixes (scope <= 3)."
 status: draft
 intent: refactor
+feature: checkpoint
+spec_ref: "specs/checkpoint.md"
 generated: { by: process:antigravity-task-init, at: "2026-11-02T07:58:00Z" }
-tags: [fast-track, dx, simplification, tdd, provenance, adr-0011, refactor]
+tags: [fast-track, bugfix, dx, simplification, tdd, provenance, adr-0011, refactor]
 scope:
   - "crates/xgauntlet-core/src/features/checkpoint/**"
+  - "crates/xgauntlet-core/src/features/tasks/lifecycle.rs"
+  - "crates/xgauntlet-core/src/features/tasks/validator.rs"
+  - "crates/xgauntlet-cli/src/main.rs"
   - "crates/xgauntlet-core/tests/fast_track_and_scoped_checkpoint_test.rs"
   - "docs/adr/0011-fast-track-worktree-inverse-proof-and-scoped-preflight.md"
   - "spec.md"
+  - "specs/checkpoint.md"
+  - "specs/tasks.md"
   - "CHANGELOG.md"
+  - ".agents/plugins/xgauntlet/skills/tdd/SKILL.md"
+  - ".agents/plugins/xgauntlet/skills/diagnose/SKILL.md"
   - "tasks/056-simplify-fast-track-and-retire-worktree-inverse-proof.md"
 test_refs:
   - "crates/xgauntlet-core/tests/fast_track_and_scoped_checkpoint_test.rs"
 ---
 
-# Task 056: Simplify Fast-Track Protocol & Retire Ephemeral Worktree Inverse Proof
+# Task 056: Simplify Fast-Track Protocol, Retire Worktree Inverse Proof & Ultralight Bugfix DX
 
 **Status**: `DRAFT`
 **Intent**: `🔄 REFACTOR`
@@ -27,16 +36,14 @@ test_refs:
 
 ## 🎯 Formål & Baggrund
 
-Audit af ændringerne fra `v0.10.0` til `v0.11.3` afslørede, at introduktionen af det 1-trins atomiske "Worktree Inverse Proof" i Task 052 / ADR 0011 skabte utilsigtet arkitektonisk over-engineering og krydsplatform-ustabilitet:
-1. **Cold-Cache Kompileringslatens:** 1-trins inverse proof afvikler tests i en midlertidig `git worktree` med `CARGO_TARGET_DIR = target/xgauntlet-preflight`. Dette tvinger en genkompilering af hele dependency-træet i en separat target-mappe, hvilket forlænger udviklingstiden med 30–60 sekunder i stedet for at spare tid.
-2. **Skrøbelighed & Dominoeffekt på OS-niveau:** Dynamisk håndtering af worktrees i midlertidige mapper udløste tre akutte releases på 24 timer:
-   - `v0.11.1` (Task 053): Windows CI-fejl på `USERPROFILE` og backslash-normalisering.
-   - `v0.11.2` (Task 054): macOS CI-fejl pga. mikrosekund-uropløsning i worktree-sti-kollisioner og `/var` $\to$ `/private/var` symlink-afvigelser.
-   - `v0.11.3` (Task 055): Windows CI Clippy-fejl på Unix-specifikke imports i den nye paritets-testsuite.
-3. **API-inkompatibilitet ved nye signaturer:** Hvis en regressionstest introducerer en ny type eller hjælpefunktion, fejler 1-trins worktree inverse proof mod `HEAD` alligevel med en opfordring til at bruge det eksplicitte 2-trins flow.
-4. **TDD-Harmoni:** Det 2-trins flow (`RED` commit $\to$ implementation $\to$ `DONE` verify/commit) er i perfekt overensstemmelse med xGauntlets TDD-kernefilosofi, genbruger den varme lokale compiler-cache og garanterer ægte negativ testevne uden behov for flygtige worktrees.
+Audit af ændringerne fra `v0.10.0` til `v0.11.3` samt daglig brug af Fast-Track Bugfix Lane viste to sider af samme problem — unødig kompleksitet og ceremoni ved små fejlrettelser (`intent: bug`, `scope.len() <= 3`):
+1. **Cold-Cache Kompileringslatens:** 1-trins `evaluate_fast_track_inverse_proof` afvikler tests i en midlertidig `git worktree` med `CARGO_TARGET_DIR = target/xgauntlet-preflight`, hvilket tvinger en genkompilering af hele dependency-træet i en separat target-mappe (+30–60 sekunder).
+2. **Skrøbelighed & Dominoeffekt på OS-niveau:** Dynamisk håndtering af worktrees i midlertidige mapper udløste tre akutte releases på 24 timer (`v0.11.1` Task 053 Windows path/env, `v0.11.2` Task 054 macOS `/var` -> `/private/var` og timestamp-kollisioner, `v0.11.3` Task 055 Windows Clippy-fejl).
+3. **API-inkompatibilitet ved nye signaturer:** Hvis en regressionstest introducerer en ny type eller hjælpefunktion, fejler 1-trins worktree inverse proof mod `HEAD` alligevel med opfordring til 2-trins flow.
+4. **Høj oprettelses- og spec-ceremoni på små bugfixes:** `xgauntlet task new` mangler `--scope` og `--test` til ét-trins bugfix-scaffolding, og `validate_task_feature_mapping` blokerer stadig `intent: bug` tasks med `MISSING_TASK_FEATURE_MAPPING` / `MISSING_FEATURE_SPEC_FILE`, selv om en fejlrettelse genskaber eksisterende adfærd frem for at indføre en ny feature.
+5. **TDD-Harmoni:** Det rene 2-trins flow (`task new --intent bug` -> `RED` commit -> bugfix i `scope` -> `DONE` verify/commit) er i perfekt overensstemmelse med xGauntlets TDD-kernefilosofi, genbruger den varme lokale compiler-cache og garanterer ægte negativ testevne uden flygtige worktrees.
 
-Formålet med Task 056 er at forenkle Fast-Track Bugfix Lane til det transparente 2-trins flow, udfase 1-trins worktree inverse proof i `checkpoint`, opdatere ADR 0011 og `spec.md`, og fjerne unødig kompleksitet.
+Formålet med Task 056 (sammenlagt med bugfix-DX delen fra Task 080) er at standardisere Fast-Track Bugfix Lane på det transparente 2-trins flow, udfase 1-trins `evaluate_fast_track_inverse_proof`, indføre ét-trins bugfix-scaffolding og fritage små bugfixes (`scope.len() <= 3`) for feature-spec mapping.
 
 ---
 
@@ -49,20 +56,25 @@ Formålet med Task 056 er at forenkle Fast-Track Bugfix Lane til det transparent
     3. `xgauntlet checkpoint -p done` eller `xgauntlet verify --save` (verificerer og forsegler evidens baseret på bekræftet `RedCheckpointVerified` provenance).
   - Forsøg på at køre `checkpoint -p done` på en opgave uden forudgående `RED`-commit for Fast-Track opgaver afvises klart og fail-closed med vejledning om at køre `xgauntlet checkpoint -p red` først.
 - [ ] **AC2 — Udfasning af 1-Trins `evaluate_fast_track_inverse_proof`:**
-  - Fjern den flygtige `target/xgauntlet-preflight`-kompilering og worktree-synkronisering fra fast-track valideringsstien i `crates/xgauntlet-core/src/features/checkpoint/`.
-  - Bevar isoleret worktree-funktionalitet udelukkende hvor den er strengt nødvendig (Task 047 / defensiv verifikation mod eksisterende commits), men isolér den fra den daglige TDD inner-loop.
-- [ ] **AC3 — Opdatering af Governance & Dokumentation (ADR 0011 & `spec.md`):**
-  - Opdater [ADR 0011](docs/adr/0011-fast-track-worktree-inverse-proof-and-scoped-preflight.md) og `spec.md` til at afspejle, at Fast-Track Bugfix Lane defineres som det deterministiske 2-trins flow (`RED -> DONE`) uden skjult worktree-rekompilering.
-- [ ] **AC4 — Regressionstest & Paritet:**
-  - Tilpas `crates/xgauntlet-core/tests/fast_track_and_scoped_checkpoint_test.rs` til det forenklede flow, og bevis at samtlige tests i workspace passerer rent uden parallelle worktree-kollisioner.
+  - Fjern den flygtige `target/xgauntlet-preflight`-kompilering og worktree-synkronisering fra fast-track valideringsstien (`evaluate_fast_track_inverse_proof`) i `crates/xgauntlet-core/src/features/checkpoint/`.
+  - Bevar isoleret worktree-funktionalitet (`verify_inverse_test_failure`) udelukkende hvor den er strengt nødvendig (Task 047 / defensiv verifikation mod eksisterende commits i `Green`/`Refactor`), isoleret fra Fast-Track `Done`-stien.
+- [ ] **AC3 — Kompakt CLI One-Liner til Bugfixes (`task new`):**
+  - `xgauntlet task new <slug> --intent bug --scope <path> --test <test_path>` (med støtte for gentagne `--scope`/`--test` eller kommaseparerede stier samt aktivering til `ACTIVE`) opretter en gyldig `ACTIVE` bugfix-task i ét skridt, som straks består `check-spec`.
+- [ ] **AC4 — Ingen Feature-Spec Blokering på Små Bugfixes:**
+  - Bugfix-tasks med `intent: bug` og `scope.len() <= 3` blokeres ikke af `MISSING_TASK_FEATURE_MAPPING` / `MISSING_FEATURE_SPEC_FILE` i `tasks/validator.rs`, når de blot udbedrer en defekt i eksisterende kode (med mindre tasken eksplicit angiver `feature`/`spec_ref`).
+- [ ] **AC5 — Opdatering af Governance, Living Specs & Skills:**
+  - Opdater [ADR 0011](docs/adr/0011-fast-track-worktree-inverse-proof-and-scoped-preflight.md), `spec.md`, `specs/checkpoint.md` og `specs/tasks.md` til at afspejle, at Fast-Track Bugfix Lane defineres som det deterministiske 2-trins flow (`RED -> DONE`) uden skjult worktree-rekompilering.
+  - Opdater `.agents/plugins/xgauntlet/skills/diagnose/SKILL.md` og `.agents/plugins/xgauntlet/skills/tdd/SKILL.md` så de dokumenterer det hurtige 2-trins flow (`task new --intent bug` -> `checkpoint -p red` -> fix -> `checkpoint -p done`) og fjerner 1-trins worktree inverse proof.
+- [ ] **AC6 — Regressionstest & Paritet:**
+  - Tilpas `crates/xgauntlet-core/tests/fast_track_and_scoped_checkpoint_test.rs` (og relevante CLI/validator-tests) til det forenklede flow og `task new --intent bug` / validator-undtagelsen, og bevis at samtlige tests i workspace passerer rent uden parallelle worktree-kollisioner.
 
 ---
 
 ## 🚫 Must NOT
 
-- **Må IKKE** slække på reglen om, at regressionstests skal bevises røde (ingen "født grønne" tests tilladt).
-- **Må IKKE** ændre på den scoped `test_refs` preflight i `checkpoint -p red/green/refactor` (denne tidsbesparelse skal bevares intakt).
-- **Må IKKE** tillade `Fast-Track` for opgaver med `intent: feature`, `intent: refactor`, `scope.len() > 3` eller opgaver der rører `docs/adr/` eller `gauntlet.toml`.
+- **Må IKKE** slække på reglen om, at regressionstests skal bevises røde via `checkpoint -p red` (ingen "født grønne" tests tilladt).
+- **Må IKKE** ændre på den scoped `test_refs` preflight i `checkpoint -p red/green/refactor` eller Task 047's `verify_inverse_test_failure` i `Green`/`Refactor` (denne sikkerheds- og tidsbesparelse skal bevares intakt).
+- **Må IKKE** tillade `Fast-Track` for opgaver med `intent: feature`, `intent: enhancement`, `intent: refactor`, `scope.len() > 3` eller opgaver der rører `docs/adr/` eller `gauntlet.toml`.
 - **Må IKKE** udføre remote publication (`git push`) jf. ADR 0003.
 
 ---
@@ -70,12 +82,13 @@ Formålet med Task 056 er at forenkle Fast-Track Bugfix Lane til det transparent
 ## 📝 Revisions
 
 - 2026-11-02: Oprettet Task 056 på baggrund af DX- og nødvendigheds-audit for v0.10.0..v0.11.3.
+- 2026-11-14: Sammenlagt med Fast-Track/bugfix-DX kravene fra Task 080 (`task new --intent bug --scope --test`, fritagelse for `MISSING_TASK_FEATURE_MAPPING`, opdatering af `diagnose`/`tdd` skills); `exit_plan_mode` (tidl. 080 AC3) skilt ud til selvstændig opgave.
 
 ---
 
 ## 🧪 Verifikation
 
-- `./target/release/xgauntlet check-spec -t 056`
+- `cargo run -p xgauntlet-cli -- check-spec -t 056`
 - `cargo test -p xgauntlet-core --test fast_track_and_scoped_checkpoint_test`
 - `cargo test --workspace`
 - `cargo clippy --workspace --all-targets -- -D warnings`

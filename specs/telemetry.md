@@ -22,5 +22,5 @@ The `telemetry` feature delivers zero-daemon, deterministic Just-In-Time (JIT) p
 ## 📋 Relaterede Tasks
 - [Task 023: Pipeline JIT Governance & Global Plugin Distribution](../tasks/archive/023-pipeline-jit-governance-and-global-plugin-distribution.md)
 - [Task 044: Session Health, Turn & Token Telemetry](../tasks/archive/044-session-health-turn-and-token-telemetry.md)
-- [Task 085: HUD Start/End Protocol & Active Session Telemetry Wiring](../tasks/085-hud-start-end-protocol-and-session-telemetry-wiring.md)
+- [Task 085: HUD Start/End Protocol & Active Session Telemetry Wiring](../tasks/archive/085-hud-start-end-protocol-and-session-telemetry-wiring.md)
 
