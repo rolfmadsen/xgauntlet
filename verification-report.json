@@ -4,36 +4,39 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "086-antigravity-exit-plan-mode-hook-support",
-    "task_title": "Task 086: Antigravity `exit_plan_mode` Hook Whitelist Support",
-    "task_digest": "0cfa715de41be3d2894beb8faf0763a9b3664d6e4f9d44f3bf2c14fbe401ad40",
+    "task_id": "088-worktree-isolated-multi-agent-supervision",
+    "task_title": "Task 088: Worktree-Isolated Multi-Agent & Subagent Supervision",
+    "task_digest": "a0fac5e756cd3f56b6115b1183824fff3e76f9dd9832e93c716620a33535cfdc",
     "acceptance_criteria": [
-      "**AC1 — Whitelist `exit_plan_mode` i AntigravityAdapter & HarnessAdapter:**",
-      "**AC2 — Regressionstest i `antigravity_adapter_test.rs`:**"
+      "**AC1 — Worktree-Lokal Task-Binding (`.xgauntlet/active_task`):**",
+      "**AC2 — Fælles Payload-Bevidst Worktree-Opløsning for Alle 4 Harnesses:**",
+      "**AC3 — Kanonisk Klassifikation & WASM-Policy for Agent Delegation:**",
+      "**AC4 — Workspace- & Sessions-Scopet Telemetri (Zero-Daemon):**",
+      "**AC5 — Levende Specifikationer & Multi-Harness Kontrakt-Tests:**"
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "1c2deed722a041585691fb6ff7e79aad27bbdcefe3f3fa6ff0112612094dcc91",
-    "source_manifest_digest_pre": "d1da9db09d0260f34aa273e5a71960a44de1fe11d505f0827b13d4fcad8ef15f",
-    "source_manifest_digest_post": "d1da9db09d0260f34aa273e5a71960a44de1fe11d505f0827b13d4fcad8ef15f",
+    "source_content_digest": "b9bda1947ef4c749621f641b6f752000549647d5cb951ed515fd6a2a0aee3f1e",
+    "source_manifest_digest_pre": "da0f55685cc72f9f81a40256b68cc0e5d32adad698fcea1c06b3b2929e3b80cb",
+    "source_manifest_digest_post": "da0f55685cc72f9f81a40256b68cc0e5d32adad698fcea1c06b3b2929e3b80cb",
     "config_digest": "a3f507c9ca50b7aa18c350a8d917d280bd3a413a6f3d0cecf26dd8f176b00d71",
-    "task_digest": "0cfa715de41be3d2894beb8faf0763a9b3664d6e4f9d44f3bf2c14fbe401ad40",
-    "policy_digest": "9c774b77165249cf534754eb77cce81d4601d4be7691e73e5898b02c0e4af46d",
+    "task_digest": "a0fac5e756cd3f56b6115b1183824fff3e76f9dd9832e93c716620a33535cfdc",
+    "policy_digest": "70a1edb5a700b34cc838ac0fbc907e611da63ea88a33038268ad8bf7e53a90ae",
     "check_definitions_digest": "7b85613e7b7c24f03e0db6873ce7a93328152d05b26a6eea242f15f10f6063af",
-    "included_files_count": 302,
+    "included_files_count": 309,
     "vcs": {
       "type": "git",
-      "head": "771ea15",
-      "commit": "771ea15",
+      "head": "e63c112",
+      "commit": "e63c112",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-14T20:50:47Z",
-    "finished_at": "2026-11-14T20:51:24Z",
-    "total_duration_seconds": 36.788366807,
+    "started_at": "2026-11-14T21:25:45Z",
+    "finished_at": "2026-11-14T21:26:33Z",
+    "total_duration_seconds": 48.907170174,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -46,16 +49,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.083866355,
+      "duration_seconds": 0.08893714,
       "optional": false,
       "passed": true,
-      "log_digest": "57d6eb90f5a3625a5b4e7a6aaa5265ba7d809bff4013096ff4f520af0b1fef18"
+      "log_digest": "b5919e6475ae7596749b0570b50586faafa3da0710f3db3fdb20556ff3947807"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.260192317,
+      "duration_seconds": 0.261715948,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -64,43 +67,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.164226282,
+      "duration_seconds": 0.092238874,
       "optional": false,
       "passed": true,
-      "log_digest": "feca478274cb2053152d8da543f9e0b0a132dfea4ffcaea187d9968707654971"
+      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 34.249398792,
+      "duration_seconds": 47.319054974,
       "optional": false,
       "passed": true,
-      "log_digest": "c1b3515a813a3ab52a9443295fd69957f92d2a727d6b789647e1d424a893087c"
+      "log_digest": "f8516b5aefc9d98b71636070b63a2a2d1258cb6a15f166ef81480c31ab7f03b3"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.78998802,
+      "duration_seconds": 0.803945766,
       "optional": false,
       "passed": true,
-      "log_digest": "395a6d8e313a8f7186af065773e7f42d47395d48b1f4a76b0bea287cb35b591a"
+      "log_digest": "1a6775b89a75a9e7de2b4fd1bb67b33d284bee5811b0851a2b1903ac48c06414"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.010933812,
+      "duration_seconds": 0.120722465,
       "optional": false,
       "passed": true,
-      "log_digest": "20b9af66a328772f541890857ed7bd10720e2446b50a41af8e3636c78a689d46"
+      "log_digest": "509c942459e75814191e1ca9e67e424ab4a1e25334650c0bb8a9d91bc28793e6"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.015854239,
+      "duration_seconds": 0.012296991,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -1655,10 +1658,74 @@
         "commit_oid": "8a9e1d13682f0b4c6cbf933f91ab02ae8600e88a",
         "timestamp": "2026-11-14T21:19:18Z",
         "digest": "41878a1b5dc69fb566f5f757bef54114a3393e89fd0adaa8dd022d2671c7de9b"
+      },
+      {
+        "session_nonce": "sess-e63c1120",
+        "role": "TDD Craftsman",
+        "phase": "REFACTOR",
+        "commit_oid": "e63c11205d4abed15daafa4183aa618db25dcb35",
+        "timestamp": "2026-11-14T21:20:27Z",
+        "digest": "aac5729a3e6a24e0ce21de7c7a984e23cc5fc3746dfdd4a4a373319a891dde14"
       }
     ]
   },
   "test_provenance": [
+    {
+      "test_identifier": "test_read_only_delegation_allowed_without_active_task",
+      "failure_output": "Verified in RED checkpoint commit d2fc06a",
+      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
+      "verified_at": "2026-11-14T22:11:35+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_isolated_mutating_delegation_requires_active_task_and_allows_when_active",
+      "failure_output": "Verified in RED checkpoint commit d2fc06a",
+      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
+      "verified_at": "2026-11-14T22:11:35+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_shared_inherit_mutating_delegation_denied_fail_closed",
+      "failure_output": "Verified in RED checkpoint commit d2fc06a",
+      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
+      "verified_at": "2026-11-14T22:11:35+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_read_only_context_blocks_isolated_mutating_delegation",
+      "failure_output": "Verified in RED checkpoint commit d2fc06a",
+      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
+      "verified_at": "2026-11-14T22:11:35+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_worktree_local_active_task_binding_overrides_highest_number",
+      "failure_output": "Verified in RED checkpoint commit d2fc06a",
+      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
+      "verified_at": "2026-11-14T22:11:35+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_payload_worktree_resolution_across_all_four_harnesses",
+      "failure_output": "Verified in RED checkpoint commit d2fc06a",
+      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
+      "verified_at": "2026-11-14T22:11:35+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_antigravity_and_claude_delegation_tools_enforced_by_policy",
+      "failure_output": "Verified in RED checkpoint commit d2fc06a",
+      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
+      "verified_at": "2026-11-14T22:11:35+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_session_telemetry_isolated_per_session_id",
+      "failure_output": "Verified in RED checkpoint commit d2fc06a",
+      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
+      "verified_at": "2026-11-14T22:11:35+01:00",
+      "status": "red_checkpoint_verified"
+    },
     {
       "test_identifier": "test_antigravity_2_6_tools_normalization",
       "failure_output": "Verified in RED checkpoint commit 771ea15",
@@ -3240,63 +3307,6 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
-    },
-    {
-      "test_identifier": "test_read_only_delegation_allowed_without_active_task",
-      "failure_output": "Verified in RED checkpoint commit d2fc06a",
-      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
-      "verified_at": "2026-11-14T22:11:35+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_isolated_mutating_delegation_requires_active_task_and_allows_when_active",
-      "failure_output": "Verified in RED checkpoint commit d2fc06a",
-      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
-      "verified_at": "2026-11-14T22:11:35+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_shared_inherit_mutating_delegation_denied_fail_closed",
-      "failure_output": "Verified in RED checkpoint commit d2fc06a",
-      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
-      "verified_at": "2026-11-14T22:11:35+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_read_only_context_blocks_isolated_mutating_delegation",
-      "failure_output": "Verified in RED checkpoint commit d2fc06a",
-      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
-      "verified_at": "2026-11-14T22:11:35+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_worktree_local_active_task_binding_overrides_highest_number",
-      "failure_output": "Verified in RED checkpoint commit d2fc06a",
-      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
-      "verified_at": "2026-11-14T22:11:35+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_payload_worktree_resolution_across_all_four_harnesses",
-      "failure_output": "Verified in RED checkpoint commit d2fc06a",
-      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
-      "verified_at": "2026-11-14T22:11:35+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_antigravity_and_claude_delegation_tools_enforced_by_policy",
-      "failure_output": "Verified in RED checkpoint commit d2fc06a",
-      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
-      "verified_at": "2026-11-14T22:11:35+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_session_telemetry_isolated_per_session_id",
-      "failure_output": "Verified in RED checkpoint commit d2fc06a",
-      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
-      "verified_at": "2026-11-14T22:11:35+01:00",
-      "status": "red_checkpoint_verified"
     }
-  ],
-  "proof_mode": "fast_track_red_to_done"
+  ]
 }

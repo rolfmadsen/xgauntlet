@@ -1,18 +1,21 @@
 # Verification Report
 
-**Task ID**: `086-antigravity-exit-plan-mode-hook-support`  
-**Task Title**: Task 086: Antigravity `exit_plan_mode` Hook Whitelist Support  
+**Task ID**: `088-worktree-isolated-multi-agent-supervision`  
+**Task Title**: Task 088: Worktree-Isolated Multi-Agent & Subagent Supervision  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `d1da9db09d0260f34aa273e5a71960a44de1fe11d505f0827b13d4fcad8ef15f`  
-**Timestamp**: `2026-11-14T20:51:24Z`  
-**Head**: `771ea15`  
-**Commit**: `771ea15`  
+**Source Manifest Digest**: `da0f55685cc72f9f81a40256b68cc0e5d32adad698fcea1c06b3b2929e3b80cb`  
+**Timestamp**: `2026-11-14T21:26:33Z`  
+**Head**: `e63c112`  
+**Commit**: `e63c112`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 — Whitelist `exit_plan_mode` i AntigravityAdapter & HarnessAdapter:**
-- [x] **AC2 — Regressionstest i `antigravity_adapter_test.rs`:**
+- [x] **AC1 — Worktree-Lokal Task-Binding (`.xgauntlet/active_task`):**
+- [x] **AC2 — Fælles Payload-Bevidst Worktree-Opløsning for Alle 4 Harnesses:**
+- [x] **AC3 — Kanonisk Klassifikation & WASM-Policy for Agent Delegation:**
+- [x] **AC4 — Workspace- & Sessions-Scopet Telemetri (Zero-Daemon):**
+- [x] **AC5 — Levende Specifikationer & Multi-Harness Kontrakt-Tests:**
 
 ---
 
@@ -20,13 +23,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.084s` |
-| `format` | `PASSED` | `0` | `0.260s` |
-| `lint` | `PASSED` | `0` | `0.164s` |
-| `unit` | `PASSED` | `0` | `34.249s` |
-| `npm` | `PASSED` | `0` | `0.790s` |
-| `invariants` | `PASSED` | `0` | `1.011s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.016s` |
+| `architecture` | `PASSED` | `0` | `0.089s` |
+| `format` | `PASSED` | `0` | `0.262s` |
+| `lint` | `PASSED` | `0` | `0.092s` |
+| `unit` | `PASSED` | `0` | `47.319s` |
+| `npm` | `PASSED` | `0` | `0.804s` |
+| `invariants` | `PASSED` | `0` | `0.121s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
 
 ---
 
@@ -226,6 +229,7 @@
 | `sess-185a1649` | `System Architect` | `SPEC` | `185a164` | `2026-11-14T21:09:26Z` | `VALID` |
 | `sess-d2fc06a1` | `TDD Craftsman` | `RED` | `d2fc06a` | `2026-11-14T21:11:35Z` | `VALID` |
 | `sess-8a9e1d13` | `TDD Craftsman` | `GREEN` | `8a9e1d1` | `2026-11-14T21:19:18Z` | `VALID` |
+| `sess-e63c1120` | `TDD Craftsman` | `REFACTOR` | `e63c112` | `2026-11-14T21:20:27Z` | `VALID` |
 
 ---
 
@@ -233,6 +237,14 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_read_only_delegation_allowed_without_active_task` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
+| `test_isolated_mutating_delegation_requires_active_task_and_allows_when_active` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
+| `test_shared_inherit_mutating_delegation_denied_fail_closed` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
+| `test_read_only_context_blocks_isolated_mutating_delegation` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
+| `test_worktree_local_active_task_binding_overrides_highest_number` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
+| `test_payload_worktree_resolution_across_all_four_harnesses` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
+| `test_antigravity_and_claude_delegation_tools_enforced_by_policy` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
+| `test_session_telemetry_isolated_per_session_id` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
 | `test_antigravity_2_6_tools_normalization` | `RedCheckpointVerified` | `771a8896bf67b412...` | `2026-11-14T21:49:27+01:00` |
 | `test_antigravity_2_6_hook_handler_protocol` | `RedCheckpointVerified` | `771a8896bf67b412...` | `2026-11-14T21:49:27+01:00` |
 | `test_antigravity_resolve_effective_workspace_and_containment` | `RedCheckpointVerified` | `771a8896bf67b412...` | `2026-11-14T21:49:27+01:00` |
@@ -459,13 +471,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_read_only_delegation_allowed_without_active_task` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
-| `test_isolated_mutating_delegation_requires_active_task_and_allows_when_active` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
-| `test_shared_inherit_mutating_delegation_denied_fail_closed` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
-| `test_read_only_context_blocks_isolated_mutating_delegation` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
-| `test_worktree_local_active_task_binding_overrides_highest_number` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
-| `test_payload_worktree_resolution_across_all_four_harnesses` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
-| `test_antigravity_and_claude_delegation_tools_enforced_by_policy` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
-| `test_session_telemetry_isolated_per_session_id` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
 
 ---
