@@ -310,7 +310,7 @@ pub fn render_task_archive_summary(res: &xgauntlet_core::TaskArchiveResult) {
     }
     if res.archived.is_empty() {
         println!(
-            "   No DONE tasks eligible for archiving (skipped: {}).",
+            "   No terminal tasks eligible for archiving (skipped: {}).",
             res.skipped_count
         );
         return;

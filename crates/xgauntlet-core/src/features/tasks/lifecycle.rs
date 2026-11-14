@@ -5,7 +5,6 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::features::evidence::time::current_iso_utc;
-use crate::features::tasks::models::TaskStatus;
 use crate::features::tasks::parser::{
     collect_task_files, extract_task_number, parse_task_file, resolve_task_file_path, TaskError,
 };
@@ -513,8 +512,8 @@ tags: [task-lifecycle, intent, scaffolding, rust]
         }
     }
 
-    /// Archives completed (`DONE` / `COMPLETED`) tasks into `tasks/archive/` and updates
-    /// relative task links inside `specs/**/*.md`.
+    /// Archives terminal tasks (`DONE`, `COMPLETED`, `DEPRECATED`, `SUPERSEDED`, `REJECTED`)
+    /// into `tasks/archive/` and updates relative task links inside `specs/**/*.md`.
     pub fn archive_tasks(options: &TaskArchiveOptions) -> Result<TaskArchiveResult, TaskError> {
         let tasks_dir = options.workspace.join("tasks");
         let archive_dir = tasks_dir.join("archive");
@@ -536,9 +535,9 @@ tags: [task-lifecycle, intent, scaffolding, rust]
         if let Some(ref id) = options.task_id {
             let path = resolve_task_file_path(&options.workspace, Some(id))?;
             let info = parse_task_file(&path)?;
-            if !matches!(info.status, TaskStatus::Done | TaskStatus::Completed) {
+            if !info.status.is_terminal() {
                 return Err(TaskError::InvalidSpecification(format!(
-                    "Task '{}' has status '{}' and cannot be archived (must be DONE or COMPLETED).",
+                    "Task '{}' has status '{}' and cannot be archived (must be DONE, COMPLETED, DEPRECATED, SUPERSEDED, or REJECTED).",
                     info.task_id,
                     info.status.as_str()
                 )));
@@ -554,7 +553,7 @@ tags: [task-lifecycle, intent, scaffolding, rust]
                     continue;
                 }
                 if let Ok(info) = parse_task_file(&path) {
-                    if matches!(info.status, TaskStatus::Done | TaskStatus::Completed) {
+                    if info.status.is_terminal() {
                         candidates.push((info.task_id, path));
                     }
                 }

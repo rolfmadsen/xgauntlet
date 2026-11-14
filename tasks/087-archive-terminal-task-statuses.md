@@ -36,14 +36,14 @@ Formålet er at udvide `TaskStatus` og `TaskScaffolder::archive_tasks` til at be
 ---
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 — Terminal Status Helper (`TaskStatus::is_terminal`):**
+- [x] **AC1 — Terminal Status Helper (`TaskStatus::is_terminal`):**
   - Tilføj `TaskStatus::is_terminal(&self) -> bool` i `crates/xgauntlet-core/src/features/tasks/models.rs`, som returnerer `true` for `Done`, `Completed`, `Deprecated`, `Superseded` og `Rejected`, og `false` for alle ikke-terminale tilstande (`Draft`, `Active`, `InProgress`, `Wip`, `Todo`, `Reopened`, `Unknown`).
-- [ ] **AC2 — Arkivering af alle terminale tilstande i `TaskScaffolder::archive_tasks`:**
+- [x] **AC2 — Arkivering af alle terminale tilstande i `TaskScaffolder::archive_tasks`:**
   - Opdater `TaskScaffolder::archive_tasks` i `crates/xgauntlet-core/src/features/tasks/lifecycle.rs` til at bruge `info.status.is_terminal()` ved både enkelt-task (`task_id: Some(...)`) og samlet arkivering (`task_id: None`), inklusiv link-opdatering i `specs/**/*.md` og `--dry-run`-adfærd.
   - Ikke-terminale opgaver (`Draft`, `Active`, `InProgress`, `Wip`, `Todo`, `Reopened`, `Unknown`) afvises fortsat fail-closed ved eksplicit `--task`, med opdateret fejltekst der lister de godkendte terminale statusser.
-- [ ] **AC3 — CLI & Living Spec Opdatering:**
+- [x] **AC3 — CLI & Living Spec Opdatering:**
   - Bevar `--all-done`-flaget på `xgauntlet task archive` af hensyn til bagudkompatibilitet, og opdater hjælpetekster samt `render_task_archive_summary` i `crates/xgauntlet-cli/src/{main.rs,checkers.rs}` og `specs/tasks.md` til at afspejle arkivering af terminale opgaver.
-- [ ] **AC4 — Regressionstest:**
+- [x] **AC4 — Regressionstest:**
   - Udvid `crates/xgauntlet-core/tests/task_lifecycle_test.rs` med tests, der beviser at `DEPRECATED`, `SUPERSEDED` og `REJECTED` tasks arkiveres til `tasks/archive/` (med `specs/`-linkopdatering), mens `DRAFT`, `ACTIVE` og `TODO` forbliver uarkiverede og afvises ved eksplicit arkivering.
 
 ---

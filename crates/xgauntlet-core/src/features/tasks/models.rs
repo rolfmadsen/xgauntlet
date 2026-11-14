@@ -55,6 +55,14 @@ impl TaskStatus {
         )
     }
 
+    /// Checks if this status represents a terminal lifecycle state eligible for archiving.
+    pub fn is_terminal(&self) -> bool {
+        matches!(
+            self,
+            Self::Done | Self::Completed | Self::Deprecated | Self::Superseded | Self::Rejected
+        )
+    }
+
     /// Returns string representation.
     pub fn as_str(&self) -> &'static str {
         match self {

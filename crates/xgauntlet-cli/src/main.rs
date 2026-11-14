@@ -588,13 +588,13 @@ pub(crate) enum TaskCommands {
         #[arg(long)]
         json: bool,
     },
-    /// Archive DONE task packages into tasks/archive/ and update relative specs/ links
+    /// Archive terminal task packages (DONE, COMPLETED, DEPRECATED, SUPERSEDED, REJECTED) into tasks/archive/ and update relative specs/ links
     Archive {
-        /// Specific DONE task identifier to archive (archives all DONE tasks if omitted)
+        /// Specific terminal task identifier to archive (archives all terminal tasks if omitted)
         #[arg(short, long)]
         task: Option<String>,
 
-        /// Archive all DONE/COMPLETED tasks outside tasks/archive/
+        /// Archive all terminal tasks (DONE, COMPLETED, DEPRECATED, SUPERSEDED, REJECTED) outside tasks/archive/
         #[arg(long)]
         all_done: bool,
 
