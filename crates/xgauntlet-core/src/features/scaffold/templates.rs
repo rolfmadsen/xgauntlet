@@ -276,9 +276,9 @@ Dette repository følger **Evidence-First Development & Clean Craftsmanship** me
 ---
 
 ## 📊 Standard Response HUD Protocol
-Formatér altid toppen af samtlige synlige agent-svar med det transparente Cockpit Task HUD kort (maks. 5 linjer):
+Vis det transparente Cockpit Task HUD kort (maks. 5 linjer) øverst i svaret **kun** ved **start** (opgave- eller sessionsaktivering), ved **eskalering** (spørgsmål, afklaring eller godkendelse fra brugeren) og ved **afslutning** (`DONE` / `SESSION HANDOFF`). Udelad HUD-kortet på mellemliggende svar uden brugerbeslutning (f.eks. *"afventer baggrundsopgave"* eller rent interne statustrin), mens `PreInvocation`-telemetrien fortsat leveres internt til modellen:
 > ### 🛡️ [Task: <Task Title / ID>] `[<Task Type>: <Phase>]`
-> **Status**: `Phase: <SPEC | RED | GREEN | REFACTOR | GAUNTLET | DONE>` | `Gauntlet: <PASS | FAIL | PENDING>` | `Git: <branch>@<oid> • <clean | dirty: N files>`
+> **Status**: `Phase: <SPEC | RED | GREEN | REFACTOR | GAUNTLET | DONE>` | `Gauntlet: <PASS | FAIL | PENDING>` | `Session: <Optimal|Aging|Saturated> (<N> turns • ~<tok>)` | `Git: <branch>@<oid> • <clean | dirty: N files>`
 > **Progress**: `Criteria: X/Y [■■□□□]` | `Scope: <affected crates/paths>`
 > **Links**: 📋 [Task](tasks/) • 📄 [Spec](spec.md) • 📖 [Glossary](CONTEXT.md) • 🏛️ [ADR](docs/adr/README.md) • 🧪 [Evidence](evidence.md)
 > 💡 **Next Action:** <kort beskrivelse af næste umiddelbare handling>

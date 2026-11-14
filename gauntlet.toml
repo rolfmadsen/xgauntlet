@@ -23,7 +23,7 @@ isolate_features = true
 path = "crates/xgauntlet-core/src/features/**"
 reason = "Shared kernel & foundational core feature modules in xgauntlet-core jf. ADR 0001 and ADR 0013"
 adr = "docs/adr/0013-feature-architecture-boundaries-and-living-specs.md"
-allow_imports = ["crate::features::adapters", "crate::features::checkpoint", "crate::features::config", "crate::features::diagnostics", "crate::features::evidence", "crate::features::gauntlet", "crate::features::plugin", "crate::features::policy", "crate::features::scaffold", "crate::features::tasks", "crate::features::topology", "crate::features::wasm"]
+allow_imports = ["crate::features::adapters", "crate::features::checkpoint", "crate::features::config", "crate::features::diagnostics", "crate::features::evidence", "crate::features::gauntlet", "crate::features::plugin", "crate::features::policy", "crate::features::scaffold", "crate::features::tasks", "crate::features::telemetry", "crate::features::topology", "crate::features::wasm"]
 
 [[architecture.exemptions]]
 path = "crates/xgauntlet-cli/src/main.rs"

@@ -236,3 +236,194 @@ pub fn reset_session_health(workspace: &Path, _task_id: &str) -> Result<(), std:
     }
     Ok(())
 }
+
+/// Records a monotonic session snapshot without quadratic accumulation across repeated hooks.
+pub fn record_session_snapshot(
+    workspace: &Path,
+    task_id: &str,
+    snapshot_turns: Option<usize>,
+    snapshot_payload_bytes: Option<usize>,
+    snapshot_tokens: Option<usize>,
+) -> Result<SessionHealth, std::io::Error> {
+    let existing = SessionTracker::load(workspace, task_id)?;
+    let turns_count = match (existing.as_ref(), snapshot_turns) {
+        (Some(e), Some(t)) => e.turns_count.max(t),
+        (None, Some(t)) => t.max(1),
+        (Some(e), None) => e.turns_count + 1,
+        (None, None) => 1,
+    };
+    let payload_bytes = match (existing.as_ref(), snapshot_payload_bytes) {
+        (Some(e), Some(b)) => e.payload_bytes.max(b),
+        (None, Some(b)) => b,
+        (Some(e), None) => e.payload_bytes,
+        (None, None) => 0,
+    };
+    let estimated_tokens = match (existing.as_ref(), snapshot_tokens) {
+        (Some(e), Some(tok)) => e.estimated_tokens.max(tok),
+        (None, Some(tok)) => tok,
+        (Some(e), None) => e.estimated_tokens,
+        (None, None) => estimate_tokens_from_chars(payload_bytes),
+    };
+
+    let state = SessionTrackerState {
+        task_id: task_id.to_string(),
+        turns_count,
+        payload_bytes,
+        estimated_tokens,
+    };
+    SessionTracker::save(workspace, &state)?;
+
+    Ok(SessionHealth::new(
+        turns_count,
+        payload_bytes,
+        estimated_tokens,
+    ))
+}
+
+fn json_value_char_len(val: &serde_json::Value) -> usize {
+    match val {
+        serde_json::Value::String(s) => s.chars().count(),
+        serde_json::Value::Null => 0,
+        other => other.to_string().chars().count(),
+    }
+}
+
+fn is_model_transcript_step(val: &serde_json::Value) -> bool {
+    let type_match = val
+        .get("type")
+        .and_then(|v| v.as_str())
+        .map(|s| {
+            s.eq_ignore_ascii_case("PLANNER_RESPONSE")
+                || s.eq_ignore_ascii_case("assistant")
+                || s.eq_ignore_ascii_case("model")
+        })
+        .unwrap_or(false);
+    let role_match = val
+        .get("role")
+        .and_then(|v| v.as_str())
+        .map(|s| s.eq_ignore_ascii_case("assistant") || s.eq_ignore_ascii_case("model"))
+        .unwrap_or(false);
+    let source_match = val
+        .get("source")
+        .and_then(|v| v.as_str())
+        .map(|s| s.eq_ignore_ascii_case("MODEL"))
+        .unwrap_or(false);
+    type_match || role_match || source_match
+}
+
+fn extract_step_chars(val: &serde_json::Value) -> usize {
+    let mut total = 0usize;
+    for key in ["content", "thinking", "tool_calls"] {
+        if let Some(field) = val.get(key) {
+            total += json_value_char_len(field);
+        }
+    }
+    total
+}
+
+/// Parses a local JSONL transcript file into `(turns_count, total_chars, estimated_tokens)`.
+fn parse_transcript_snapshot(transcript_path: &Path) -> Option<(usize, usize, usize)> {
+    if !transcript_path.is_file() {
+        return None;
+    }
+    let content = fs::read_to_string(transcript_path).ok()?;
+    let mut model_turns = 0usize;
+    let mut model_chars = 0usize;
+    let mut total_json_lines = 0usize;
+    let mut all_chars = 0usize;
+
+    for line in content.lines() {
+        let trimmed = line.trim();
+        if trimmed.is_empty() {
+            continue;
+        }
+        if let Ok(val) = serde_json::from_str::<serde_json::Value>(trimmed) {
+            total_json_lines += 1;
+            let step_chars = extract_step_chars(&val);
+            all_chars += step_chars;
+            if is_model_transcript_step(&val) {
+                model_turns += 1;
+                model_chars += step_chars;
+            }
+        }
+    }
+
+    if model_turns > 0 {
+        Some((
+            model_turns,
+            model_chars,
+            estimate_tokens_from_chars(model_chars),
+        ))
+    } else if total_json_lines > 0 {
+        Some((
+            total_json_lines,
+            all_chars,
+            estimate_tokens_from_chars(all_chars),
+        ))
+    } else {
+        None
+    }
+}
+
+fn extract_explicit_snapshot_tokens(payload: &serde_json::Value) -> Option<usize> {
+    payload
+        .get("total_tokens")
+        .or_else(|| payload.get("token_count"))
+        .or_else(|| payload.get("tokens"))
+        .or_else(|| payload.get("usage").and_then(|u| u.get("total_tokens")))
+        .and_then(|v| v.as_u64())
+        .map(|v| v as usize)
+}
+
+fn extract_transcript_path(payload: &serde_json::Value) -> Option<std::path::PathBuf> {
+    payload
+        .get("transcript_path")
+        .or_else(|| payload.get("transcriptPath"))
+        .and_then(|v| v.as_str())
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .map(std::path::PathBuf::from)
+}
+
+/// Records or enriches session health from a hook payload using snapshot semantics when
+/// `transcript_path` or explicit token counts are available, falling back to payload bytes.
+pub fn record_session_from_hook_payload(
+    workspace: &Path,
+    task_id: &str,
+    payload: Option<&serde_json::Value>,
+    raw_payload: &str,
+) -> Result<SessionHealth, std::io::Error> {
+    if let Some(val) = payload {
+        let transcript_snap = extract_transcript_path(val)
+            .as_deref()
+            .and_then(parse_transcript_snapshot);
+        let explicit_tokens = extract_explicit_snapshot_tokens(val);
+
+        if transcript_snap.is_some() || explicit_tokens.is_some() {
+            let (snap_turns, snap_chars, snap_tokens) = match transcript_snap {
+                Some((t, chars, tok)) => (Some(t), Some(chars.max(raw_payload.len())), Some(tok)),
+                None => (None, Some(raw_payload.len()), None),
+            };
+            let effective_tokens = explicit_tokens.or(snap_tokens);
+            return record_session_snapshot(
+                workspace,
+                task_id,
+                snap_turns,
+                snap_chars,
+                effective_tokens,
+            );
+        }
+    }
+
+    record_session_turn(workspace, task_id, raw_payload.len(), None)
+}
+
+/// Synchronizes session telemetry on `PreInvocation` only when an active task exists.
+pub fn sync_active_session_for_pre_invocation(
+    workspace: &Path,
+    payload: Option<&serde_json::Value>,
+    raw_payload: &str,
+) -> Option<SessionHealth> {
+    let active_task_id = crate::features::tasks::resolve_active_task_id(workspace)?;
+    record_session_from_hook_payload(workspace, &active_task_id, payload, raw_payload).ok()
+}

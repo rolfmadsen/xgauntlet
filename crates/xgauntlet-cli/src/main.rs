@@ -1143,13 +1143,15 @@ async fn main() -> anyhow::Result<()> {
                 "antigravity-hook" | "antigravity"
             );
 
+            let mut stdin_raw = String::new();
+            let mut stdin_json: Option<serde_json::Value> = None;
+
             if is_antigravity_hook {
                 use std::io::IsTerminal;
                 if !std::io::stdin().is_terminal() {
                     use std::io::Read;
-                    let mut stdin_buf = String::new();
-                    if std::io::stdin().read_to_string(&mut stdin_buf).is_ok() {
-                        let clean = xgauntlet_core::clean_stdin(&stdin_buf);
+                    if std::io::stdin().read_to_string(&mut stdin_raw).is_ok() {
+                        let clean = xgauntlet_core::clean_stdin(&stdin_raw);
                         if !clean.trim().is_empty() {
                             if let Ok(val) = serde_json::from_str::<serde_json::Value>(clean) {
                                 canonical_ws =
@@ -1157,10 +1159,24 @@ async fn main() -> anyhow::Result<()> {
                                         &canonical_ws,
                                         &val,
                                     );
+                                stdin_json = Some(val);
                             }
                         }
                     }
                 }
+
+                let payload =
+                    match xgauntlet_core::AntigravityAdapter::prepare_pre_invocation_payload(
+                        &canonical_ws,
+                        task.as_deref(),
+                        stdin_json.as_ref(),
+                        &stdin_raw,
+                    ) {
+                        Ok(p) => p,
+                        Err(_) => serde_json::json!({ "injectSteps": [] }),
+                    };
+                println!("{}", serde_json::to_string_pretty(&payload)?);
+                return Ok(());
             }
 
             let telemetry =
@@ -1366,6 +1382,10 @@ async fn main() -> anyhow::Result<()> {
                     std::process::exit(1);
                 }
             };
+            let _ = xgauntlet_core::features::telemetry::reset_session_health(
+                &canonical_ws,
+                &target_task,
+            );
 
             if *json {
                 println!("{}", serde_json::to_string_pretty(&handoff)?);

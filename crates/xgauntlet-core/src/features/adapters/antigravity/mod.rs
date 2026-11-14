@@ -12,9 +12,14 @@ use crate::features::adapters::models::{
 };
 use crate::features::policy::ToolActionType;
 
+pub mod telemetry;
 pub mod validation;
 pub mod workspace;
 
+pub use telemetry::{
+    extract_telemetry_state_key, prepare_pre_invocation_payload,
+    should_suppress_duplicate_telemetry,
+};
 pub use validation::VALID_ANTIGRAVITY_EVENTS;
 pub use workspace::resolve_effective_workspace;
 
@@ -23,82 +28,6 @@ pub const CANONICAL_PRE_INVOCATION_CMD: &str = "xgauntlet telemetry --format ant
 
 /// Alias for the canonical Antigravity PreInvocation command.
 pub const ANTIGRAVITY_PRE_INVOCATION_CMD: &str = CANONICAL_PRE_INVOCATION_CMD;
-
-fn should_suppress_duplicate_telemetry(message: &str) -> bool {
-    // Never suppress telemetry during test execution
-    if cfg!(test)
-        || std::env::var("XGAUNTLET_TEST_MODE").is_ok()
-        || std::env::current_exe()
-            .map(|p| {
-                let s = p.to_string_lossy();
-                s.contains("/deps/") || s.contains("test")
-            })
-            .unwrap_or(false)
-    {
-        return false;
-    }
-
-    use sha2::{Digest, Sha256};
-    use std::sync::atomic::{AtomicU64, Ordering};
-    use std::time::{SystemTime, UNIX_EPOCH};
-
-    static DEDUP_TMP_COUNTER: AtomicU64 = AtomicU64::new(1);
-
-    let user = std::env::var("USER")
-        .or_else(|_| std::env::var("USERNAME"))
-        .unwrap_or_else(|_| "default".to_string());
-    let temp_root = std::env::temp_dir();
-    let cache_file = temp_root.join(format!("xgauntlet_telemetry_dedup_{user}.json"));
-
-    let now = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map(|d| d.as_millis())
-        .unwrap_or(0);
-
-    let current_digest = format!("{:x}", Sha256::digest(message.as_bytes()));
-    // Extract semantic state key: line 2 ("Task: ... | Phase: ... | Verdict: ...")
-    let current_state_key = message.lines().nth(1).unwrap_or(message).trim().to_string();
-
-    if let Ok(content) = std::fs::read_to_string(&cache_file) {
-        if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
-            let last_digest = val.get("digest").and_then(|d| d.as_str()).unwrap_or("");
-            let last_state_key = val.get("state_key").and_then(|s| s.as_str()).unwrap_or("");
-            let last_ts = val
-                .get("timestamp_ms")
-                .and_then(|t| t.as_u64())
-                .unwrap_or(0) as u128;
-
-            let is_same_state = last_digest == current_digest
-                || (!last_state_key.is_empty() && last_state_key == current_state_key);
-
-            // 1. Rapid duplicate hook suppress (< 1500ms, e.g. duplicate global + workspace hooks)
-            if is_same_state && now.saturating_sub(last_ts) < 1500 {
-                return true;
-            }
-
-            // 2. Semantic state-diffing: if Task, Phase, and Verdict have not changed within 120s, suppress
-            if is_same_state && now.saturating_sub(last_ts) < 120_000 {
-                return true;
-            }
-        }
-    }
-
-    let payload = serde_json::json!({
-        "digest": current_digest,
-        "state_key": current_state_key,
-        "timestamp_ms": now,
-    });
-    let seq = DEDUP_TMP_COUNTER.fetch_add(1, Ordering::Relaxed);
-    let tmp_file = temp_root.join(format!(
-        "xgauntlet_telemetry_dedup_{user}.{}.{seq}.tmp",
-        std::process::id()
-    ));
-    if std::fs::write(&tmp_file, payload.to_string()).is_ok() {
-        let _ = std::fs::rename(&tmp_file, &cache_file);
-        let _ = std::fs::remove_file(&tmp_file);
-    }
-    false
-}
 
 #[derive(Debug, Default, Clone)]
 pub struct AntigravityAdapter;
@@ -114,6 +43,16 @@ impl AntigravityAdapter {
     /// Resolves the true workspace directory from stdin hook payload, falling back to workspace or path ancestor traversal.
     pub fn resolve_effective_workspace(workspace: &Path, payload: &Value) -> std::path::PathBuf {
         workspace::resolve_effective_workspace(workspace, payload)
+    }
+
+    /// Synchronizes active task session telemetry and builds the canonical Antigravity `PreInvocation` payload.
+    pub fn prepare_pre_invocation_payload(
+        workspace: &Path,
+        explicit_task: Option<&str>,
+        stdin_json: Option<&Value>,
+        raw_stdin: &str,
+    ) -> Result<serde_json::Value, crate::features::tasks::TaskError> {
+        telemetry::prepare_pre_invocation_payload(workspace, explicit_task, stdin_json, raw_stdin)
     }
 
     /// Formats the canonical Google Antigravity PreInvocation JSON payload on stdout with injectSteps.
@@ -670,10 +609,15 @@ impl HarnessAdapter for AntigravityAdapter {
                 .unwrap_or(false);
 
         if is_pre_invocation {
-            let telemetry =
-                match crate::features::tasks::inspect_task_telemetry(&effective_ws, None) {
-                    Ok(t) => t,
-                    Err(_) => crate::features::tasks::TaskTelemetry {
+            let out_payload = match Self::prepare_pre_invocation_payload(
+                &effective_ws,
+                None,
+                Some(&payload),
+                content,
+            ) {
+                Ok(p) => p,
+                Err(_) => {
+                    let fallback = crate::features::tasks::TaskTelemetry {
                         task_id: "NONE".to_string(),
                         title: "No active task".to_string(),
                         status: crate::features::tasks::TaskStatus::Todo,
@@ -692,12 +636,13 @@ impl HarnessAdapter for AntigravityAdapter {
                         evidence: Some("pending".to_string()),
                         phase: Some("SPEC".to_string()),
                         session_health: None,
-                    },
-                };
-            let ephemeral = Self::format_ephemeral_telemetry(&telemetry);
-            let payload = Self::format_pre_invocation_payload(&ephemeral);
-            let json_str =
-                serde_json::to_string_pretty(&payload).unwrap_or_else(|_| payload.to_string());
+                    };
+                    let ephemeral = Self::format_ephemeral_telemetry(&fallback);
+                    Self::format_pre_invocation_payload(&ephemeral)
+                }
+            };
+            let json_str = serde_json::to_string_pretty(&out_payload)
+                .unwrap_or_else(|_| out_payload.to_string());
             return (0, json_str);
         }
 

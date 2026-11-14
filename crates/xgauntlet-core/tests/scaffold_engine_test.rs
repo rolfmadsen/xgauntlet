@@ -490,7 +490,8 @@ fn test_task_085_ac1_ac3_agents_md_start_end_hud_and_session_metric() {
     assert!(result.is_success);
 
     let scaffolded_agents = fs::read_to_string(ws.join(".agents/AGENTS.md")).unwrap();
-    let repo_agents_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.agents/AGENTS.md");
+    let repo_agents_path =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.agents/AGENTS.md");
     let repo_agents = fs::read_to_string(&repo_agents_path).unwrap();
 
     for (label, content) in [

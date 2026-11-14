@@ -85,6 +85,7 @@ pub fn validate_staged_files_scope(
             || norm_file == "gauntlet.toml"
             || norm_file.starts_with(".agents/")
             || norm_file.starts_with(".github/")
+            || norm_file.starts_with(".xgauntlet/")
         {
             continue;
         }
@@ -166,7 +167,9 @@ pub async fn run_checkpoint(
     };
 
     let handoff = if options.phase == super::models::CheckpointPhase::Done {
-        super::models::SessionHandoff::generate(&options.workspace, &task_id, None).ok()
+        let h = super::models::SessionHandoff::generate(&options.workspace, &task_id, None).ok();
+        let _ = crate::features::telemetry::reset_session_health(&options.workspace, &task_id);
+        h
     } else {
         None
     };
