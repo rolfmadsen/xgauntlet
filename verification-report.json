@@ -4,39 +4,37 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "088-worktree-isolated-multi-agent-supervision",
-    "task_title": "Task 088: Worktree-Isolated Multi-Agent & Subagent Supervision",
-    "task_digest": "a0fac5e756cd3f56b6115b1183824fff3e76f9dd9832e93c716620a33535cfdc",
+    "task_id": "089-public-docs-and-changelog-sync",
+    "task_title": "Task 089: Sync Public README, NPM CLI README & CHANGELOG for Multi-Agent Release Communication",
+    "task_digest": "8b0ed4b109fcbe039e10f1b530c0ad583961370f147149622eb5a0b8f6db4812",
     "acceptance_criteria": [
-      "**AC1 — Worktree-Lokal Task-Binding (`.xgauntlet/active_task`):**",
-      "**AC2 — Fælles Payload-Bevidst Worktree-Opløsning for Alle 4 Harnesses:**",
-      "**AC3 — Kanonisk Klassifikation & WASM-Policy for Agent Delegation:**",
-      "**AC4 — Workspace- & Sessions-Scopet Telemetri (Zero-Daemon):**",
-      "**AC5 — Levende Specifikationer & Multi-Harness Kontrakt-Tests:**"
+      "**AC1 — README.md opdateret med ADR 0014 & Multi-Agent/Worktree DX:** Erstat tidligere single-agent-formulering med dokumentation for parallelle `git worktree`-sessioner (`xgauntlet task bind`/`unbind`), sikker subagent/swarm-delegation på tværs af alle 4 harnesses og link til `ADR 0014` i ADR-listen og CLI-referencen.",
+      "**AC2 — NPM Package README Byte-Paritet:** `packages/cli/README.md` synkroniseres byte-for-byte med root `README.md`, så `test_npm_cli_readme_identical_to_root_readme` passerer.",
+      "**AC3 — CHANGELOG.md `[Unreleased]`:** Dokumenter Task 088 / ADR 0014 under `## [Unreleased]` i Keep a Changelog-format uden at ændre tidligere frigivne versioner eller bumpe versionsnumre."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "b9bda1947ef4c749621f641b6f752000549647d5cb951ed515fd6a2a0aee3f1e",
-    "source_manifest_digest_pre": "da0f55685cc72f9f81a40256b68cc0e5d32adad698fcea1c06b3b2929e3b80cb",
-    "source_manifest_digest_post": "da0f55685cc72f9f81a40256b68cc0e5d32adad698fcea1c06b3b2929e3b80cb",
+    "source_content_digest": "871b8b4a3390d5414ec402c3df4e81a423463470d2513f5eac0f8254dc957989",
+    "source_manifest_digest_pre": "1466adcbf232944474f3645ef06bfbf02a1bd4f9a6fa42facf77173904358f86",
+    "source_manifest_digest_post": "1466adcbf232944474f3645ef06bfbf02a1bd4f9a6fa42facf77173904358f86",
     "config_digest": "a3f507c9ca50b7aa18c350a8d917d280bd3a413a6f3d0cecf26dd8f176b00d71",
-    "task_digest": "a0fac5e756cd3f56b6115b1183824fff3e76f9dd9832e93c716620a33535cfdc",
+    "task_digest": "8b0ed4b109fcbe039e10f1b530c0ad583961370f147149622eb5a0b8f6db4812",
     "policy_digest": "70a1edb5a700b34cc838ac0fbc907e611da63ea88a33038268ad8bf7e53a90ae",
     "check_definitions_digest": "7b85613e7b7c24f03e0db6873ce7a93328152d05b26a6eea242f15f10f6063af",
-    "included_files_count": 309,
+    "included_files_count": 310,
     "vcs": {
       "type": "git",
-      "head": "e63c112",
-      "commit": "e63c112",
+      "head": "6ae1d80",
+      "commit": "6ae1d80",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-14T21:25:45Z",
-    "finished_at": "2026-11-14T21:26:33Z",
-    "total_duration_seconds": 48.907170174,
+    "started_at": "2026-11-14T21:30:56Z",
+    "finished_at": "2026-11-14T21:31:45Z",
+    "total_duration_seconds": 48.825354243,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -49,16 +47,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.08893714,
+      "duration_seconds": 0.097090292,
       "optional": false,
       "passed": true,
-      "log_digest": "b5919e6475ae7596749b0570b50586faafa3da0710f3db3fdb20556ff3947807"
+      "log_digest": "33d9b213d2717256696e0d416e2da28e9cc102a43a0e424972cd275c19f6fd1d"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.261715948,
+      "duration_seconds": 0.280838069,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -67,43 +65,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.092238874,
+      "duration_seconds": 0.146429007,
       "optional": false,
       "passed": true,
-      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
+      "log_digest": "289729016806427a0f46aca5a3ccd3d4c6656c595d114e1f56b73e86e2985026"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 47.319054974,
+      "duration_seconds": 47.117996166,
       "optional": false,
       "passed": true,
-      "log_digest": "f8516b5aefc9d98b71636070b63a2a2d1258cb6a15f166ef81480c31ab7f03b3"
+      "log_digest": "9f44a040495bf978354058209af6b34247837267b47716e160712b5401b5e675"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.803945766,
+      "duration_seconds": 0.834563707,
       "optional": false,
       "passed": true,
-      "log_digest": "1a6775b89a75a9e7de2b4fd1bb67b33d284bee5811b0851a2b1903ac48c06414"
+      "log_digest": "b6c759c91cfb3b9dd07c13151bb018a5f7b81458ebad27f36e3075c4934a5111"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.120722465,
+      "duration_seconds": 0.111369209,
       "optional": false,
       "passed": true,
-      "log_digest": "509c942459e75814191e1ca9e67e424ab4a1e25334650c0bb8a9d91bc28793e6"
+      "log_digest": "eab727a5bb2e34d4a83cb7cab81e194be77e254348ae9a0688257894bb434e56"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.012296991,
+      "duration_seconds": 0.017480749,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -1690,6 +1688,14 @@
         "commit_oid": "b8fd9d44123c88dea6cb9f8f8927269ddf62fdf1",
         "timestamp": "2026-11-14T21:28:13Z",
         "digest": "06722111c258edb192df389ee996b43522712cae3b08423468df1fead89c3a73"
+      },
+      {
+        "session_nonce": "sess-6ae1d802",
+        "role": "TDD Craftsman",
+        "phase": "GREEN",
+        "commit_oid": "6ae1d802ec8da630bfd5a4ae74b6c349229a05b7",
+        "timestamp": "2026-11-14T21:28:39Z",
+        "digest": "448291ab7639ad9f7553bf6254036ae79e428185e734c031c7782c225427ef54"
       }
     ]
   },

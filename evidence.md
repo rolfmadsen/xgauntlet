@@ -1,21 +1,19 @@
 # Verification Report
 
-**Task ID**: `088-worktree-isolated-multi-agent-supervision`  
-**Task Title**: Task 088: Worktree-Isolated Multi-Agent & Subagent Supervision  
+**Task ID**: `089-public-docs-and-changelog-sync`  
+**Task Title**: Task 089: Sync Public README, NPM CLI README & CHANGELOG for Multi-Agent Release Communication  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `da0f55685cc72f9f81a40256b68cc0e5d32adad698fcea1c06b3b2929e3b80cb`  
-**Timestamp**: `2026-11-14T21:26:33Z`  
-**Head**: `e63c112`  
-**Commit**: `e63c112`  
+**Source Manifest Digest**: `1466adcbf232944474f3645ef06bfbf02a1bd4f9a6fa42facf77173904358f86`  
+**Timestamp**: `2026-11-14T21:31:45Z`  
+**Head**: `6ae1d80`  
+**Commit**: `6ae1d80`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 — Worktree-Lokal Task-Binding (`.xgauntlet/active_task`):**
-- [x] **AC2 — Fælles Payload-Bevidst Worktree-Opløsning for Alle 4 Harnesses:**
-- [x] **AC3 — Kanonisk Klassifikation & WASM-Policy for Agent Delegation:**
-- [x] **AC4 — Workspace- & Sessions-Scopet Telemetri (Zero-Daemon):**
-- [x] **AC5 — Levende Specifikationer & Multi-Harness Kontrakt-Tests:**
+- [x] **AC1 — README.md opdateret med ADR 0014 & Multi-Agent/Worktree DX:** Erstat tidligere single-agent-formulering med dokumentation for parallelle `git worktree`-sessioner (`xgauntlet task bind`/`unbind`), sikker subagent/swarm-delegation på tværs af alle 4 harnesses og link til `ADR 0014` i ADR-listen og CLI-referencen.
+- [x] **AC2 — NPM Package README Byte-Paritet:** `packages/cli/README.md` synkroniseres byte-for-byte med root `README.md`, så `test_npm_cli_readme_identical_to_root_readme` passerer.
+- [x] **AC3 — CHANGELOG.md `[Unreleased]`:** Dokumenter Task 088 / ADR 0014 under `## [Unreleased]` i Keep a Changelog-format uden at ændre tidligere frigivne versioner eller bumpe versionsnumre.
 
 ---
 
@@ -23,13 +21,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.089s` |
-| `format` | `PASSED` | `0` | `0.262s` |
-| `lint` | `PASSED` | `0` | `0.092s` |
-| `unit` | `PASSED` | `0` | `47.319s` |
-| `npm` | `PASSED` | `0` | `0.804s` |
-| `invariants` | `PASSED` | `0` | `0.121s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
+| `architecture` | `PASSED` | `0` | `0.097s` |
+| `format` | `PASSED` | `0` | `0.281s` |
+| `lint` | `PASSED` | `0` | `0.146s` |
+| `unit` | `PASSED` | `0` | `47.118s` |
+| `npm` | `PASSED` | `0` | `0.835s` |
+| `invariants` | `PASSED` | `0` | `0.111s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.017s` |
 
 ---
 
@@ -233,6 +231,7 @@
 | `sess-6d3a1566` | `Software Engineer` | `DONE` | `6d3a156` | `2026-11-14T21:26:34Z` | `VALID` |
 | `sess-6a8bdf81` | `System Architect` | `SPEC` | `6a8bdf8` | `2026-11-14T21:27:50Z` | `VALID` |
 | `sess-b8fd9d44` | `TDD Craftsman` | `RED` | `b8fd9d4` | `2026-11-14T21:28:13Z` | `VALID` |
+| `sess-6ae1d802` | `TDD Craftsman` | `GREEN` | `6ae1d80` | `2026-11-14T21:28:39Z` | `VALID` |
 
 ---
 

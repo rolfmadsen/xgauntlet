@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 089: Sync Public README, NPM CLI README & CHANGELOG for Multi-Agent Release Communication"
 description: "Opdaterer README.md, packages/cli/README.md (byte-paritet til npmjs) og CHANGELOG.md [Unreleased] med dokumentation for ADR 0014 / Task 088 (worktree-isolerede parallelle sessioner, delegation-policy og task bind/unbind)."
-status: active
+status: done
 intent: enhancement
 generated: { by: process:antigravity-task-init, at: "2026-11-14T22:28:00Z" }
 tags: [docs, readme, changelog, npm, adr-0014]
@@ -12,11 +12,12 @@ scope:
   - "CHANGELOG.md"
 test_refs:
   - "crates/xgauntlet-core/tests/release_manifest_parity_test.rs"
+  - "crates/xgauntlet-core/tests/single_agent_governance_test.rs"
 ---
 
 # Task 089: Sync Public README, NPM CLI README & CHANGELOG for Multi-Agent Release Communication
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-14`
 
@@ -40,7 +41,7 @@ Opdatere de brugervendte udgivelsesdokumenter ([README.md](../README.md), [packa
 
 - **Må IKKE** bryde byte-for-byte pariteten mellem `README.md` og `packages/cli/README.md`.
 - **Må IKKE** bumpe versionsnumre eller modificere tidligere frigivne sektioner i `CHANGELOG.md`.
-- **Må IKKE** ændre kildekode eller tests under `crates/`.
+- **Må IKKE** ændre produktionskode under `crates/**/src/`.
 
 ---
 

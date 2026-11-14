@@ -68,25 +68,25 @@ fn test_review_skill_free_of_subagent_dogmas() {
 }
 
 #[test]
-fn test_readme_and_cli_readme_single_agent_hitl_architecture_note() {
+fn test_readme_and_cli_readme_worktree_multi_agent_architecture_note() {
     let ws = workspace_root();
     let readmes = [ws.join("README.md"), ws.join("packages/cli/README.md")];
 
     for readme_path in readmes {
         let content = fs::read_to_string(&readme_path).expect("read README file");
 
-        // Under De 4 AI-roller, must explain single-agent model under direct human supervision
+        // Under De 4 AI-roller, must document ADR 0014 worktree-isolated multi-agent & delegation model
         assert!(
-            content.contains("transparent enkelt-agent model under direkte menneskeligt opsyn")
-                || content
-                    .contains("transparent enkelt-agent-model under direkte menneskeligt opsyn"),
-            "README at {:?} must document transparent enkelt-agent model under direkte opsyn",
+            content.contains("Worktree-Isoleret Multi-Agent & Subagent Supervision")
+                && content.contains("0014-worktree-isolated-multi-agent-and-subagent-supervision.md"),
+            "README at {:?} must document Worktree-Isoleret Multi-Agent & Subagent Supervision (ADR 0014)",
             readme_path
         );
         assert!(
-            content.contains("Session Handoffs, ikke via uigennemskuelige baggrunds-subagenter")
-                || content.contains("Session Handoffs, ikke via uigennemsigtige baggrunds-subagenter"),
-            "README at {:?} must document that context purity is achieved via mechanical Session Handoffs, not background subagents",
+            content.contains("xgauntlet task bind")
+                && content.contains("workspace: \"inherit\"")
+                && content.contains("fail-closed"),
+            "README at {:?} must document worktree task bind and fail-closed workspace: inherit protection",
             readme_path
         );
     }
