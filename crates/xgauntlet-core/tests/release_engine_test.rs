@@ -810,3 +810,131 @@ fn test_package_json_key_order_preservation_on_update() {
         ]
     );
 }
+
+#[test]
+fn test_release_archive_staging_moves_done_tasks_updates_specs_and_rolls_back() {
+    let (_guard, ws) = create_temp_workspace();
+    fs::create_dir_all(ws.join("tasks")).unwrap();
+    fs::create_dir_all(ws.join("specs")).unwrap();
+
+    fs::write(
+        ws.join("tasks/001-done.md"),
+        "---\ntype: Task Package\ntitle: \"Task 001\"\nstatus: done\n---\n# Done\n",
+    )
+    .unwrap();
+    fs::write(
+        ws.join("tasks/002-active.md"),
+        "---\ntype: Task Package\ntitle: \"Task 002\"\nstatus: active\n---\n# Active\n",
+    )
+    .unwrap();
+    fs::write(
+        ws.join("tasks/003-draft.md"),
+        "---\ntype: Task Package\ntitle: \"Task 003\"\nstatus: draft\n---\n# Draft\n",
+    )
+    .unwrap();
+    fs::write(
+        ws.join("specs/demo.md"),
+        "# Demo\n- [Task 001](../tasks/001-done.md)\n",
+    )
+    .unwrap();
+
+    // 1. no_archive skips archiving completely
+    let skipped = xgauntlet_core::stage_done_tasks_for_release(&ws, false, true).unwrap();
+    assert!(skipped.archive_result().archived.is_empty());
+    assert!(ws.join("tasks/001-done.md").is_file());
+
+    // 2. dry_run previews without mutating files
+    let dry = xgauntlet_core::stage_done_tasks_for_release(&ws, true, false).unwrap();
+    assert_eq!(dry.archive_result().archived.len(), 1);
+    assert!(ws.join("tasks/001-done.md").is_file());
+    assert!(!ws.join("tasks/archive/001-done.md").exists());
+
+    // 3. Real staging archives DONE, preserves ACTIVE/DRAFT, updates specs, and rolls back cleanly
+    let staged = xgauntlet_core::stage_done_tasks_for_release(&ws, false, false).unwrap();
+    assert_eq!(staged.archive_result().archived.len(), 1);
+    assert!(!ws.join("tasks/001-done.md").exists());
+    assert!(ws.join("tasks/archive/001-done.md").is_file());
+    assert!(ws.join("tasks/002-active.md").is_file());
+    assert!(ws.join("tasks/003-draft.md").is_file());
+    let spec_after = fs::read_to_string(ws.join("specs/demo.md")).unwrap();
+    assert!(spec_after.contains("../tasks/archive/001-done.md"));
+
+    let touched = staged.touched_relative_paths(&ws);
+    assert!(touched.contains(&"tasks/001-done.md".to_string()));
+    assert!(touched.contains(&"tasks/archive/001-done.md".to_string()));
+    assert!(touched.contains(&"specs/demo.md".to_string()));
+
+    staged.rollback();
+    assert!(ws.join("tasks/001-done.md").is_file());
+    assert!(!ws.join("tasks/archive/001-done.md").exists());
+    assert!(!ws.join("tasks/archive").exists());
+    let spec_restored = fs::read_to_string(ws.join("specs/demo.md")).unwrap();
+    assert!(spec_restored.contains("../tasks/001-done.md"));
+    assert!(!spec_restored.contains("../tasks/archive/001-done.md"));
+}
+
+#[test]
+fn test_cli_release_prepare_dry_run_previews_archive_and_respects_no_archive() {
+    let bin = find_xgauntlet_binary();
+    if !bin.is_file() {
+        return;
+    }
+
+    let (_guard, ws) = create_temp_workspace();
+    fs::create_dir_all(ws.join("tasks")).unwrap();
+    fs::create_dir_all(ws.join("specs")).unwrap();
+    fs::write(
+        ws.join("Cargo.toml"),
+        "[package]\nname = \"demo\"\nversion = \"1.0.0\"\n",
+    )
+    .unwrap();
+    fs::write(
+        ws.join("CHANGELOG.md"),
+        "# Changelog\n\n## [Unreleased]\n- Feat\n",
+    )
+    .unwrap();
+    fs::write(
+        ws.join("tasks/001-done.md"),
+        "---\ntype: Task Package\ntitle: \"Task 001\"\nstatus: done\n---\n# Done\n",
+    )
+    .unwrap();
+    fs::write(
+        ws.join("specs/demo.md"),
+        "# Demo\n- [Task 001](../tasks/001-done.md)\n",
+    )
+    .unwrap();
+
+    let out = std::process::Command::new(&bin)
+        .args([
+            "release",
+            "prepare",
+            "1.0.1",
+            "--workspace",
+            ws.to_str().unwrap(),
+            "--dry-run",
+            "--json",
+        ])
+        .output()
+        .expect("CLI release prepare dry-run failed");
+    assert!(out.status.success());
+    let val: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(val["archived_tasks"].as_array().unwrap().len(), 1);
+    assert!(ws.join("tasks/001-done.md").is_file());
+
+    let out_skip = std::process::Command::new(&bin)
+        .args([
+            "release",
+            "prepare",
+            "1.0.1",
+            "--workspace",
+            ws.to_str().unwrap(),
+            "--dry-run",
+            "--no-archive",
+            "--json",
+        ])
+        .output()
+        .expect("CLI release prepare --no-archive failed");
+    assert!(out_skip.status.success());
+    let val_skip: serde_json::Value = serde_json::from_slice(&out_skip.stdout).unwrap();
+    assert_eq!(val_skip["archived_tasks"].as_array().unwrap().len(), 0);
+}
