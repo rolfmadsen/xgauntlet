@@ -236,6 +236,7 @@
 | `sess-6479ff91` | `Software Engineer` | `DONE` | `6479ff9` | `2026-11-14T21:31:45Z` | `VALID` |
 | `sess-f5d94226` | `Software Engineer` | `DONE` | `f5d9422` | `2026-11-14T21:42:51Z` | `VALID` |
 | `sess-bd492f28` | `System Architect` | `SPEC` | `bd492f2` | `2026-11-14T21:51:32Z` | `VALID` |
+| `sess-d17ee4cc` | `TDD Craftsman` | `RED` | `d17ee4c` | `2026-11-14T21:52:26Z` | `VALID` |
 
 ---
 
@@ -478,5 +479,12 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_cli_check_attestation_help` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
+| `test_cli_check_attestation_help_within_1mb_stack_limit` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
+| `test_cli_check_attestation_fails_closed_on_missing_bundle` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
+| `test_cli_check_attestation_succeeds_with_valid_bundle_and_json_output` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
+| `test_cli_check_attestation_fails_closed_on_digest_mismatch` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
+| `test_cli_check_attestation_fails_closed_on_repo_id_mismatch` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
+| `test_cli_check_attestation_resolves_attestation_json_fallback_when_bundle_missing` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
 
 ---

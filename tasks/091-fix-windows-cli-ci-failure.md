@@ -32,9 +32,9 @@ Diagnosticere og rette årsagen til at Windows CI (`windows-latest`, `rustc 1.10
 
 ## 📋 Acceptance Criteria
 
-- [ ] **AC1 — Empirisk reproduktion & root-cause verificeret:** Årsagen til at `xgauntlet` fejler på Windows (herunder 1 MB debug-stack / `async fn main()` future-størrelse) er reproduceret og bevist i test (`RED`).
-- [ ] **AC2 — Minimal & robust CLI-rettelse:** `xgauntlet` CLI'en eksekverer `Cli::parse()` og alle subkommandoer (inkl. `check-attestation --help` og fulde testscenarier) stabilt inden for en 1 MB debug-stak uden unødvendig `tokio`-runtime eller gigantisk monolitisk async state machine.
-- [ ] **AC3 — Forbedret test-diagnostik & grøn verifikation:** `check_attestation_test.rs` logger stdout/stderr/exit-status ved fejl, og hele `cargo test --workspace` + `cargo clippy --workspace --all-targets -- -D warnings` + `cargo fmt --check` passerer.
+- [x] **AC1 — Empirisk reproduktion & root-cause verificeret:** Årsagen til at `xgauntlet` fejler på Windows (herunder 1 MB debug-stack / `async fn main()` future-størrelse) er reproduceret og bevist i test (`RED`).
+- [x] **AC2 — Minimal & robust CLI-rettelse:** `xgauntlet` CLI'en eksekverer `Cli::parse()` og alle subkommandoer (inkl. `check-attestation --help` og fulde testscenarier) stabilt inden for en 1 MB debug-stak uden unødvendig `tokio`-runtime eller gigantisk monolitisk async state machine.
+- [x] **AC3 — Forbedret test-diagnostik & grøn verifikation:** `check_attestation_test.rs` logger stdout/stderr/exit-status ved fejl, og hele `cargo test --workspace` + `cargo clippy --workspace --all-targets -- -D warnings` + `cargo fmt --check` passerer.
 
 ---
 
@@ -49,6 +49,7 @@ Diagnosticere og rette årsagen til at Windows CI (`windows-latest`, `rustc 1.10
 ## 📝 Revisions
 
 - 2026-11-14: Oprettet fejlsøgnings- og rettelsesopgave på baggrund af Windows CI-log for `v0.15.0`.
+- 2026-11-14: Reproducerede 1 MB stack overflow (`prlimit --stack=1048576` -> exit 134), udskilte `handlers.rs` (438 linjer), gjorde `fn main()` synkron på en eksplicit 8 MiB tråd og isolerede async `verify`/`checkpoint` til `run_async_on_large_stack`. Verificeret helt ned til `262144` bytes (256 KB) hovedtråd-stak og grøn `cargo test --workspace`.
 
 ---
 
@@ -58,3 +59,4 @@ Diagnosticere og rette årsagen til at Windows CI (`windows-latest`, `rustc 1.10
 - `cargo test -p xgauntlet-cli --test cli_args_test`
 - `cargo test --workspace`
 - `cargo clippy --workspace --all-targets -- -D warnings`
+
