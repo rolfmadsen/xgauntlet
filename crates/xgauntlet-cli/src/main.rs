@@ -610,6 +610,30 @@ pub(crate) enum TaskCommands {
         #[arg(long)]
         json: bool,
     },
+    /// Bind a specific ACTIVE task to this workspace/worktree (.xgauntlet/active_task)
+    Bind {
+        /// Task identifier or file stem to bind (e.g. 088)
+        #[arg(short, long)]
+        task: String,
+
+        /// Path to repository or git worktree workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Output binding result in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
+    /// Unbind the worktree-local active task (.xgauntlet/active_task)
+    Unbind {
+        /// Path to repository or git worktree workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Output unbinding result in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
 }
 
 #[tokio::main]

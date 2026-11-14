@@ -25,10 +25,10 @@ pub use okf::{
     SourceEntry, VerifiedEntry,
 };
 pub use parser::{
-    collect_task_files, extract_task_number, has_active_task, is_task_active, parse_task_content,
-    parse_task_file, parse_task_status, resolve_active_task_id, resolve_active_task_path,
-    resolve_latest_done_task_id, resolve_latest_done_task_path, resolve_task_contract,
-    resolve_task_file_path, TaskError,
+    bind_active_task, collect_task_files, extract_task_number, has_active_task, is_task_active,
+    parse_task_content, parse_task_file, parse_task_status, resolve_active_task_id,
+    resolve_active_task_path, resolve_latest_done_task_id, resolve_latest_done_task_path,
+    resolve_task_contract, resolve_task_file_path, unbind_active_task, TaskError, ACTIVE_TASK_FILE,
 };
 pub use telemetry::{
     collect_git_telemetry, inspect_task_telemetry, list_workspace_tasks, parse_criteria_progress,

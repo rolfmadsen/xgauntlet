@@ -548,6 +548,17 @@ impl HarnessAdapter for AntigravityAdapter {
             }
         }
 
+        if let Some(classification) =
+            crate::features::adapters::classify_delegation_tool(&tool_name, &args)
+        {
+            return NormalizedToolCall {
+                action_type: ToolActionType::Delegate,
+                target_resource: classification.to_string(),
+                raw_tool_name: tool_name,
+                payload: args,
+            };
+        }
+
         NormalizedToolCall {
             action_type: ToolActionType::Other,
             target_resource: String::new(),
@@ -675,8 +686,12 @@ impl HarnessAdapter for AntigravityAdapter {
                 .and_then(|t| t.phase.as_deref())
                 .unwrap_or("SPEC");
 
-            let recovery = if verdict.reason.contains("scope") || verdict.reason_code == Some(4037)
-            {
+            let recovery = if verdict.reason_code == Some(4040) {
+                "Specify workspace: \"share\" or \"branch\" (or isolation: \"worktree\") to run mutating workers in isolated git worktrees".to_string()
+            } else if verdict.reason_code == Some(4034) {
+                "Create or bind an ACTIVE task before delegating mutating subagent or swarm work"
+                    .to_string()
+            } else if verdict.reason.contains("scope") || verdict.reason_code == Some(4037) {
                 format!(
                     "Add target path to 'scope: [...]' in tasks/{task_id}.md or restrict modifications to declared scope"
                 )

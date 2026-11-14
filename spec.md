@@ -55,7 +55,7 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
   - `gauntlet`: Multi-layer process runner (`std::process::Command`), timeouts, exit code handling.
   - `diagnostics`: Actionable diagnostics parser transforming compiler/test output into structured LLM hints.
   - `tasks`: OKF v0.2 Markdown parser, task binding, and Aristotelian glossary validation (`check-spec`). Living feature spec: [specs/tasks.md](specs/tasks.md).
-  - `adapters`: Autonomous feature modules for Antigravity, Claude Code, OpenAI Codex, and Mistral Vibe with flat `PreInvocation` schema compliance and non-destructive scaffolding.
+  - `adapters`: Autonomous feature modules for Antigravity, Claude Code, OpenAI Codex, and Mistral Vibe with flat `PreInvocation` schema compliance, git-worktree-isolated multi-agent & delegation supervision ([ADR 0014](docs/adr/0014-worktree-isolated-multi-agent-and-subagent-supervision.md)), and non-destructive scaffolding. Living feature spec: [specs/adapters.md](specs/adapters.md).
   - `config`: Declarative `gauntlet.toml` schema and stack profiles.
   - `scaffold`: Safe, non-destructive project bootstrap engine (`xgauntlet init`).
   - `doctor`: Fast environment, Git, and toolchain diagnostics.

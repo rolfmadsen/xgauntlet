@@ -27,11 +27,36 @@ fn current_username() -> String {
         .unwrap_or_else(|_| "default".to_string())
 }
 
-fn dedup_cache_file() -> PathBuf {
-    std::env::temp_dir().join(format!(
-        "xgauntlet_telemetry_dedup_{}.json",
-        current_username()
+fn scope_hash(workspace: Option<&Path>, session_id: Option<&str>) -> String {
+    let ws_key = workspace
+        .map(|p| {
+            p.canonicalize()
+                .unwrap_or_else(|_| p.to_path_buf())
+                .to_string_lossy()
+                .into_owned()
+        })
+        .unwrap_or_default();
+    let sess_key = session_id.unwrap_or("default").trim();
+    let full = format!("{ws_key}\0{sess_key}");
+    let hex = format!("{:x}", Sha256::digest(full.as_bytes()));
+    hex.chars().take(16).collect()
+}
+
+fn scoped_dedup_cache_file(
+    cache_dir: &Path,
+    workspace: Option<&Path>,
+    session_id: Option<&str>,
+) -> PathBuf {
+    let hash = scope_hash(workspace, session_id);
+    cache_dir.join(format!(
+        "xgauntlet_telemetry_dedup_{}_{}.json",
+        current_username(),
+        hash
     ))
+}
+
+fn dedup_cache_file() -> PathBuf {
+    scoped_dedup_cache_file(&std::env::temp_dir(), None, None)
 }
 
 fn read_dedup_cache(cache_file: &Path) -> Option<Value> {
@@ -79,17 +104,10 @@ pub fn extract_telemetry_state_key(message: &str) -> String {
     }
 }
 
-/// Checks whether another PreInvocation hook fired within the last 1500ms
-/// (e.g., duplicate global + workspace hook entries), preventing double-counting.
-pub fn is_rapid_duplicate_pre_invocation() -> bool {
-    if is_test_runtime() {
-        return false;
-    }
-
-    let cache_file = dedup_cache_file();
+fn check_rapid_duplicate_in_file(cache_file: &Path) -> bool {
     let now = now_millis();
 
-    if let Some(val) = read_dedup_cache(&cache_file) {
+    if let Some(val) = read_dedup_cache(cache_file) {
         let last_ts = val
             .get("timestamp_ms")
             .and_then(|t| t.as_u64())
@@ -102,18 +120,33 @@ pub fn is_rapid_duplicate_pre_invocation() -> bool {
     false
 }
 
-/// Suppresses duplicate or semantically unchanged PreInvocation injections within 120s.
-pub fn should_suppress_duplicate_telemetry(message: &str) -> bool {
+/// Checks whether another PreInvocation hook fired within the last 1500ms
+/// (e.g., duplicate global + workspace hook entries), preventing double-counting.
+pub fn is_rapid_duplicate_pre_invocation() -> bool {
     if is_test_runtime() {
         return false;
     }
 
-    let cache_file = dedup_cache_file();
+    check_rapid_duplicate_in_file(&dedup_cache_file())
+}
+
+/// Checks whether another PreInvocation hook fired within 1500ms for the exact workspace + session pair.
+pub fn is_rapid_duplicate_for_session(workspace: &Path, session_id: &str) -> bool {
+    if is_test_runtime() {
+        return false;
+    }
+
+    let cache_file =
+        scoped_dedup_cache_file(&std::env::temp_dir(), Some(workspace), Some(session_id));
+    check_rapid_duplicate_in_file(&cache_file)
+}
+
+fn suppress_and_update_in_file(cache_file: &Path, message: &str) -> bool {
     let now = now_millis();
     let current_digest = format!("{:x}", Sha256::digest(message.as_bytes()));
     let current_state_key = extract_telemetry_state_key(message);
 
-    if let Some(val) = read_dedup_cache(&cache_file) {
+    if let Some(val) = read_dedup_cache(cache_file) {
         let last_digest = val.get("digest").and_then(|d| d.as_str()).unwrap_or("");
         let last_state_key = val.get("state_key").and_then(|s| s.as_str()).unwrap_or("");
         let last_ts = val
@@ -136,18 +169,60 @@ pub fn should_suppress_duplicate_telemetry(message: &str) -> bool {
         "timestamp_ms": now,
     });
     let seq = DEDUP_TMP_COUNTER.fetch_add(1, Ordering::Relaxed);
-    let tmp_file = std::env::temp_dir().join(format!(
+    let tmp_dir = cache_file
+        .parent()
+        .map(Path::to_path_buf)
+        .unwrap_or_else(std::env::temp_dir);
+    let tmp_file = tmp_dir.join(format!(
         "xgauntlet_telemetry_dedup_{user}.{}.{seq}.tmp",
         std::process::id()
     ));
     if std::fs::write(&tmp_file, payload.to_string()).is_ok() {
-        let _ = std::fs::rename(&tmp_file, &cache_file);
+        let _ = std::fs::rename(&tmp_file, cache_file);
         let _ = std::fs::remove_file(&tmp_file);
     }
     false
 }
 
-/// Synchronizes active task session telemetry (guarding against <1500ms rapid duplicates)
+/// Suppresses duplicate or semantically unchanged PreInvocation injections within 120s.
+pub fn should_suppress_duplicate_telemetry(message: &str) -> bool {
+    if is_test_runtime() {
+        return false;
+    }
+
+    suppress_and_update_in_file(&dedup_cache_file(), message)
+}
+
+/// Workspace- and session-scoped telemetry deduplication using an explicit cache directory.
+pub fn should_suppress_duplicate_telemetry_in_dir(
+    cache_dir: &Path,
+    workspace: &Path,
+    session_id: &str,
+    message: &str,
+) -> bool {
+    let cache_file = scoped_dedup_cache_file(cache_dir, Some(workspace), Some(session_id));
+    suppress_and_update_in_file(&cache_file, message)
+}
+
+/// Suppresses duplicate PreInvocation injections scoped strictly to `(workspace, session_id)`.
+pub fn should_suppress_duplicate_telemetry_for_session(
+    workspace: &Path,
+    session_id: &str,
+    message: &str,
+) -> bool {
+    if is_test_runtime() {
+        return false;
+    }
+
+    should_suppress_duplicate_telemetry_in_dir(
+        &std::env::temp_dir(),
+        workspace,
+        session_id,
+        message,
+    )
+}
+
+/// Synchronizes active task session telemetry (guarding against <1500ms rapid duplicates per workspace+session)
 /// and builds the canonical Antigravity `PreInvocation` JSON payload.
 pub fn prepare_pre_invocation_payload(
     workspace: &Path,
@@ -155,7 +230,8 @@ pub fn prepare_pre_invocation_payload(
     stdin_json: Option<&Value>,
     raw_stdin: &str,
 ) -> Result<Value, crate::features::tasks::TaskError> {
-    if !is_rapid_duplicate_pre_invocation() {
+    let session_id = crate::features::telemetry::extract_session_id(stdin_json);
+    if !is_rapid_duplicate_for_session(workspace, &session_id) {
         crate::features::telemetry::sync_active_session_for_pre_invocation(
             workspace, stdin_json, raw_stdin,
         );
@@ -163,7 +239,17 @@ pub fn prepare_pre_invocation_payload(
 
     let telemetry = crate::features::tasks::inspect_task_telemetry(workspace, explicit_task)?;
     let ephemeral = AntigravityAdapter::format_ephemeral_telemetry(&telemetry);
-    Ok(AntigravityAdapter::format_pre_invocation_payload(
-        &ephemeral,
-    ))
+    if should_suppress_duplicate_telemetry_for_session(workspace, &session_id, &ephemeral) {
+        return Ok(serde_json::json!({
+            "injectSteps": []
+        }));
+    }
+
+    Ok(serde_json::json!({
+        "injectSteps": [
+            {
+                "ephemeralMessage": ephemeral
+            }
+        ]
+    }))
 }

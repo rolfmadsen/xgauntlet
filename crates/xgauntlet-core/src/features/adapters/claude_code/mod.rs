@@ -194,6 +194,17 @@ impl HarnessAdapter for ClaudeCodeAdapter {
             };
         }
 
+        if let Some(classification) =
+            crate::features::adapters::classify_delegation_tool(&tool_name, &args)
+        {
+            return NormalizedToolCall {
+                action_type: ToolActionType::Delegate,
+                target_resource: classification.to_string(),
+                raw_tool_name: tool_name,
+                payload: args,
+            };
+        }
+
         NormalizedToolCall {
             action_type: ToolActionType::Other,
             target_resource: String::new(),
@@ -272,7 +283,9 @@ impl HarnessAdapter for ClaudeCodeAdapter {
             }
         };
 
-        let verdict = self.evaluate_invocation(workspace, &payload);
+        let effective_ws =
+            crate::features::adapters::resolve_effective_workspace(workspace, &payload);
+        let verdict = self.evaluate_invocation(&effective_ws, &payload);
         if verdict.allowed {
             let res = serde_json::json!({
                 "hookSpecificOutput": {
@@ -285,9 +298,11 @@ impl HarnessAdapter for ClaudeCodeAdapter {
             let tool_name = payload
                 .get("tool_name")
                 .or_else(|| payload.get("toolName"))
+                .or_else(|| payload.get("name"))
                 .and_then(|n| n.as_str())
                 .unwrap_or("unknown");
-            let task_info = crate::features::tasks::inspect_task_telemetry(workspace, None).ok();
+            let task_info =
+                crate::features::tasks::inspect_task_telemetry(&effective_ws, None).ok();
             let task_id = task_info
                 .as_ref()
                 .map(|t| t.task_id.as_str())

@@ -10,7 +10,7 @@
 ## 🎯 Purpose & Capability Boundary
 The `telemetry` feature delivers zero-daemon, deterministic Just-In-Time (JIT) phase directives and advisory session health tracking across isolated AI harness invocations:
 - **JIT Governance Directives (`jit.rs`)**: Maps TDD pipeline phases (`PipelinePhase`) to compact role, target, gate, and skill pointer blocks (`JitPhaseDirective`) injected via `PreInvocation` telemetry without permanent system-prompt bloat.
-- **Session Health & Token Telemetry (`session.rs`)**: Tracks interaction turn counts, payload bytes, and deterministic BPE character-heuristic token estimates (`~1 token ≈ 3.8 chars`), categorizing session health (`Optimal`, `Aging`, `Saturated`) in `.xgauntlet/session_state.json` and resetting cleanly on `handoff`.
+- **Session Health & Token Telemetry (`session.rs`)**: Tracks interaction turn counts, payload bytes, and deterministic BPE character-heuristic token estimates (`~1 token ≈ 3.8 chars`), categorizing session health (`Optimal`, `Aging`, `Saturated`) per `session_id`/`conversation_id` inside `.xgauntlet/session_state.json` (with legacy single-session fallback), isolating Antigravity `PreInvocation` dedup caches by `(canonical_workspace, session_id)` hash, and resetting cleanly on `handoff`.
 - **Snapshot-Safe Payload & Transcript Enrichment**: Optionally derives monotonic snapshots (`turns_count`, `estimated_tokens`) from explicit hook token fields or a local JSONL `transcript_path` without network calls, daemons, or quadratic double-counting across repeated `PreInvocation` hooks.
 
 ## 🚫 Invariants
@@ -23,4 +23,5 @@ The `telemetry` feature delivers zero-daemon, deterministic Just-In-Time (JIT) p
 - [Task 023: Pipeline JIT Governance & Global Plugin Distribution](../tasks/archive/023-pipeline-jit-governance-and-global-plugin-distribution.md)
 - [Task 044: Session Health, Turn & Token Telemetry](../tasks/archive/044-session-health-turn-and-token-telemetry.md)
 - [Task 085: HUD Start/End Protocol & Active Session Telemetry Wiring](../tasks/archive/085-hud-start-end-protocol-and-session-telemetry-wiring.md)
+- [Task 088: Worktree-Isolated Multi-Agent & Subagent Supervision](../tasks/088-worktree-isolated-multi-agent-supervision.md)
 

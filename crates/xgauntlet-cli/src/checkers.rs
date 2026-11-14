@@ -298,6 +298,47 @@ pub(crate) fn handle_task_command(command: &crate::TaskCommands) -> anyhow::Resu
                 render_task_archive_summary(&res);
             }
         }
+        crate::TaskCommands::Bind {
+            task,
+            workspace,
+            json,
+        } => {
+            let ws = resolve_ws(workspace);
+            let canonical_id = xgauntlet_core::features::tasks::bind_active_task(&ws, task)?;
+            if *json {
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&serde_json::json!({
+                        "bound_task": canonical_id,
+                        "workspace": ws,
+                        "binding_file": ws.join(xgauntlet_core::features::tasks::ACTIVE_TASK_FILE),
+                    }))?
+                );
+            } else {
+                println!(
+                    "📌 Bound active task '{}' to workspace '{}'",
+                    canonical_id,
+                    ws.display()
+                );
+            }
+        }
+        crate::TaskCommands::Unbind { workspace, json } => {
+            let ws = resolve_ws(workspace);
+            let removed = xgauntlet_core::features::tasks::unbind_active_task(&ws)?;
+            if *json {
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&serde_json::json!({
+                        "unbound": removed,
+                        "workspace": ws,
+                    }))?
+                );
+            } else if removed {
+                println!("🔓 Unbound active task from workspace '{}'", ws.display());
+            } else {
+                println!("ℹ️  No worktree task binding present in '{}'", ws.display());
+            }
+        }
     }
     Ok(())
 }

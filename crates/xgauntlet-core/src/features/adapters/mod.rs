@@ -6,17 +6,21 @@
 pub mod antigravity;
 pub mod claude_code;
 pub mod codex;
+pub mod delegation;
 pub mod mistral;
 pub mod models;
+pub mod workspace;
 
 pub use antigravity::AntigravityAdapter;
 pub use claude_code::ClaudeCodeAdapter;
 pub use codex::CodexAdapter;
+pub use delegation::classify_delegation_tool;
 pub use mistral::MistralAdapter;
 pub use models::{
     AdapterHookVerdict, AdapterValidationResult, HarnessAdapter, NormalizedToolCall,
     ValidationIssue, ValidationSeverity,
 };
+pub use workspace::{is_same_git_repo_worktree, is_valid_workspace, resolve_effective_workspace};
 
 /// Canonical list of all supported agent harness environments.
 pub const SUPPORTED_HARNESSES: &[&str] = &["antigravity", "claude_code", "codex", "mistral"];

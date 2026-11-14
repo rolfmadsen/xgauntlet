@@ -142,8 +142,30 @@ pub fn collect_task_files(tasks_dir: &Path) -> Vec<PathBuf> {
     paths
 }
 
-/// Resolves the path of the highest-numbered active task across `tasks/**`.
+/// Relative path to the worktree-local active task binding file.
+pub const ACTIVE_TASK_FILE: &str = ".xgauntlet/active_task";
+
+/// Resolves the path of the worktree-bound active task (`.xgauntlet/active_task`) or falls back to the highest-numbered active task across `tasks/**`.
+///
+/// Fail-closed: if `.xgauntlet/active_task` exists with a non-empty identifier that does not resolve to an `ACTIVE` task, returns `None` instead of falling back.
 pub fn resolve_active_task_path(workspace: &Path) -> Option<PathBuf> {
+    let binding_path = workspace.join(ACTIVE_TASK_FILE);
+    if binding_path.is_file() {
+        if let Ok(raw) = fs::read_to_string(&binding_path) {
+            let bound_id = raw.trim();
+            if !bound_id.is_empty() {
+                if let Ok(path) = resolve_task_file_path(workspace, Some(bound_id)) {
+                    if let Ok(content) = fs::read_to_string(&path) {
+                        if is_task_active(&content) {
+                            return Some(path);
+                        }
+                    }
+                }
+                return None;
+            }
+        }
+    }
+
     let tasks_dir = workspace.join("tasks");
     let paths = collect_task_files(&tasks_dir);
 
@@ -156,6 +178,40 @@ pub fn resolve_active_task_path(workspace: &Path) -> Option<PathBuf> {
     }
 
     None
+}
+
+/// Binds a specific active task identifier to the given workspace/worktree via `.xgauntlet/active_task`.
+pub fn bind_active_task(workspace: &Path, task_id: &str) -> Result<String, TaskError> {
+    let path = resolve_task_file_path(workspace, Some(task_id))?;
+    let content = fs::read_to_string(&path)?;
+    if !is_task_active(&content) {
+        return Err(TaskError::InvalidSpecification(format!(
+            "Task '{task_id}' is not ACTIVE and cannot be bound to a workspace"
+        )));
+    }
+    let canonical_id = path
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or(task_id)
+        .to_string();
+
+    let binding_path = workspace.join(ACTIVE_TASK_FILE);
+    if let Some(parent) = binding_path.parent() {
+        fs::create_dir_all(parent)?;
+    }
+    fs::write(&binding_path, format!("{canonical_id}\n"))?;
+    Ok(canonical_id)
+}
+
+/// Removes the worktree-local `.xgauntlet/active_task` binding, restoring default task resolution.
+pub fn unbind_active_task(workspace: &Path) -> Result<bool, TaskError> {
+    let binding_path = workspace.join(ACTIVE_TASK_FILE);
+    if binding_path.is_file() {
+        fs::remove_file(&binding_path)?;
+        Ok(true)
+    } else {
+        Ok(false)
+    }
 }
 
 /// Resolves the path of the highest-numbered done task across `tasks/**`.

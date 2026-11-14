@@ -5,6 +5,7 @@
 //! or background daemons.
 
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 
@@ -143,21 +144,96 @@ pub struct SessionTrackerState {
     pub estimated_tokens: usize,
 }
 
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+struct MultiSessionStore {
+    #[serde(default)]
+    active_session_id: String,
+    #[serde(default)]
+    sessions: BTreeMap<String, SessionTrackerState>,
+}
+
+/// Extracts a stable session identifier from a hook payload, falling back to `"default"`.
+pub fn extract_session_id(payload: Option<&serde_json::Value>) -> String {
+    if let Some(val) = payload {
+        for key in [
+            "session_id",
+            "sessionId",
+            "conversation_id",
+            "conversationId",
+        ] {
+            if let Some(s) = val.get(key).and_then(|v| v.as_str()) {
+                let trimmed = s.trim();
+                if !trimmed.is_empty() {
+                    return trimmed.to_string();
+                }
+            }
+        }
+    }
+    "default".to_string()
+}
+
+fn read_session_store(workspace: &Path) -> Result<Option<MultiSessionStore>, std::io::Error> {
+    let state_path = workspace.join(SESSION_STATE_FILE);
+    if !state_path.is_file() {
+        return Ok(None);
+    }
+
+    let content = fs::read_to_string(&state_path)?;
+    if let Ok(store) = serde_json::from_str::<MultiSessionStore>(&content) {
+        if !store.sessions.is_empty() || !store.active_session_id.is_empty() {
+            return Ok(Some(store));
+        }
+    }
+
+    if let Ok(legacy) = serde_json::from_str::<SessionTrackerState>(&content) {
+        let mut sessions = BTreeMap::new();
+        sessions.insert("default".to_string(), legacy);
+        return Ok(Some(MultiSessionStore {
+            active_session_id: "default".to_string(),
+            sessions,
+        }));
+    }
+
+    Ok(None)
+}
+
+fn write_session_store(workspace: &Path, store: &MultiSessionStore) -> Result<(), std::io::Error> {
+    let state_path = workspace.join(SESSION_STATE_FILE);
+    if let Some(parent) = state_path.parent() {
+        fs::create_dir_all(parent)?;
+    }
+    let json = serde_json::to_string_pretty(store).map_err(std::io::Error::other)?;
+    fs::write(state_path, json)?;
+    Ok(())
+}
+
 /// File-based session state tracker.
 pub struct SessionTracker;
 
 impl SessionTracker {
-    /// Loads active session health if the recorded state matches the requested task_id.
-    pub fn load(workspace: &Path, task_id: &str) -> Result<Option<SessionHealth>, std::io::Error> {
-        let state_path = workspace.join(SESSION_STATE_FILE);
-        if !state_path.is_file() {
+    /// Loads active session health for an explicit session identifier, or falls back to the most recent session in `.xgauntlet/session_state.json`.
+    pub fn load_for_session(
+        workspace: &Path,
+        task_id: &str,
+        session_id: Option<&str>,
+    ) -> Result<Option<SessionHealth>, std::io::Error> {
+        let Some(store) = read_session_store(workspace)? else {
             return Ok(None);
-        }
+        };
 
-        let content = fs::read_to_string(&state_path)?;
-        let state: SessionTrackerState = match serde_json::from_str(&content) {
-            Ok(s) => s,
-            Err(_) => return Ok(None),
+        let key = session_id
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .unwrap_or_else(|| {
+                if store.active_session_id.is_empty() {
+                    "default"
+                } else {
+                    store.active_session_id.as_str()
+                }
+            });
+
+        let Some(state) = store.sessions.get(key) else {
+            return Ok(None);
         };
 
         let short_target = crate::features::checkpoint::extract_short_task_id(task_id);
@@ -174,26 +250,43 @@ impl SessionTracker {
         }
     }
 
+    /// Loads active session health if the recorded state matches the requested task_id.
+    pub fn load(workspace: &Path, task_id: &str) -> Result<Option<SessionHealth>, std::io::Error> {
+        Self::load_for_session(workspace, task_id, None)
+    }
+
+    /// Persists session tracking state for a specific session identifier in `.xgauntlet/session_state.json`.
+    pub fn save_for_session(
+        workspace: &Path,
+        session_id: &str,
+        state: &SessionTrackerState,
+    ) -> Result<(), std::io::Error> {
+        let mut store = read_session_store(workspace)?.unwrap_or_default();
+        let key = if session_id.trim().is_empty() {
+            "default".to_string()
+        } else {
+            session_id.trim().to_string()
+        };
+        store.active_session_id = key.clone();
+        store.sessions.insert(key, state.clone());
+        write_session_store(workspace, &store)
+    }
+
     /// Persists session tracking state to `.xgauntlet/session_state.json`.
     pub fn save(workspace: &Path, state: &SessionTrackerState) -> Result<(), std::io::Error> {
-        let state_path = workspace.join(SESSION_STATE_FILE);
-        if let Some(parent) = state_path.parent() {
-            fs::create_dir_all(parent)?;
-        }
-        let json = serde_json::to_string_pretty(state).map_err(std::io::Error::other)?;
-        fs::write(state_path, json)?;
-        Ok(())
+        Self::save_for_session(workspace, "default", state)
     }
 }
 
-/// Records a turn interaction and updates session telemetry in `.xgauntlet/session_state.json`.
-pub fn record_session_turn(
+/// Records a turn interaction for a specific session and updates `.xgauntlet/session_state.json`.
+pub fn record_session_turn_for_session(
     workspace: &Path,
     task_id: &str,
+    session_id: &str,
     additional_payload_bytes: usize,
     explicit_tokens: Option<usize>,
 ) -> Result<SessionHealth, std::io::Error> {
-    let existing = SessionTracker::load(workspace, task_id)?;
+    let existing = SessionTracker::load_for_session(workspace, task_id, Some(session_id))?;
     let (turns_count, payload_bytes, estimated_tokens) = match existing {
         Some(h) => {
             let next_turns = h.turns_count + 1;
@@ -219,13 +312,29 @@ pub fn record_session_turn(
         payload_bytes,
         estimated_tokens,
     };
-    SessionTracker::save(workspace, &state)?;
+    SessionTracker::save_for_session(workspace, session_id, &state)?;
 
     Ok(SessionHealth::new(
         turns_count,
         payload_bytes,
         estimated_tokens,
     ))
+}
+
+/// Records a turn interaction and updates session telemetry in `.xgauntlet/session_state.json`.
+pub fn record_session_turn(
+    workspace: &Path,
+    task_id: &str,
+    additional_payload_bytes: usize,
+    explicit_tokens: Option<usize>,
+) -> Result<SessionHealth, std::io::Error> {
+    record_session_turn_for_session(
+        workspace,
+        task_id,
+        "default",
+        additional_payload_bytes,
+        explicit_tokens,
+    )
 }
 
 /// Resets session health state for the active task.
@@ -237,15 +346,16 @@ pub fn reset_session_health(workspace: &Path, _task_id: &str) -> Result<(), std:
     Ok(())
 }
 
-/// Records a monotonic session snapshot without quadratic accumulation across repeated hooks.
-pub fn record_session_snapshot(
+/// Records a monotonic session snapshot for a specific session identifier without cross-session interference.
+pub fn record_session_snapshot_for_session(
     workspace: &Path,
     task_id: &str,
+    session_id: &str,
     snapshot_turns: Option<usize>,
     snapshot_payload_bytes: Option<usize>,
     snapshot_tokens: Option<usize>,
 ) -> Result<SessionHealth, std::io::Error> {
-    let existing = SessionTracker::load(workspace, task_id)?;
+    let existing = SessionTracker::load_for_session(workspace, task_id, Some(session_id))?;
     let turns_count = match (existing.as_ref(), snapshot_turns) {
         (Some(e), Some(t)) => e.turns_count.max(t),
         (None, Some(t)) => t.max(1),
@@ -271,13 +381,31 @@ pub fn record_session_snapshot(
         payload_bytes,
         estimated_tokens,
     };
-    SessionTracker::save(workspace, &state)?;
+    SessionTracker::save_for_session(workspace, session_id, &state)?;
 
     Ok(SessionHealth::new(
         turns_count,
         payload_bytes,
         estimated_tokens,
     ))
+}
+
+/// Records a monotonic session snapshot without quadratic accumulation across repeated hooks.
+pub fn record_session_snapshot(
+    workspace: &Path,
+    task_id: &str,
+    snapshot_turns: Option<usize>,
+    snapshot_payload_bytes: Option<usize>,
+    snapshot_tokens: Option<usize>,
+) -> Result<SessionHealth, std::io::Error> {
+    record_session_snapshot_for_session(
+        workspace,
+        task_id,
+        "default",
+        snapshot_turns,
+        snapshot_payload_bytes,
+        snapshot_tokens,
+    )
 }
 
 fn json_value_char_len(val: &serde_json::Value) -> usize {
@@ -393,6 +521,7 @@ pub fn record_session_from_hook_payload(
     payload: Option<&serde_json::Value>,
     raw_payload: &str,
 ) -> Result<SessionHealth, std::io::Error> {
+    let session_id = extract_session_id(payload);
     if let Some(val) = payload {
         let transcript_snap = extract_transcript_path(val)
             .as_deref()
@@ -405,9 +534,10 @@ pub fn record_session_from_hook_payload(
                 None => (None, Some(raw_payload.len()), None),
             };
             let effective_tokens = explicit_tokens.or(snap_tokens);
-            return record_session_snapshot(
+            return record_session_snapshot_for_session(
                 workspace,
                 task_id,
+                &session_id,
                 snap_turns,
                 snap_chars,
                 effective_tokens,
@@ -415,7 +545,7 @@ pub fn record_session_from_hook_payload(
         }
     }
 
-    record_session_turn(workspace, task_id, raw_payload.len(), None)
+    record_session_turn_for_session(workspace, task_id, &session_id, raw_payload.len(), None)
 }
 
 /// Synchronizes session telemetry on `PreInvocation` only when an active task exists.

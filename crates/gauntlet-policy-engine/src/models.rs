@@ -6,6 +6,7 @@ pub enum ToolActionType {
     ReadFile,
     WriteFile,
     ExecuteCommand,
+    Delegate,
     Other,
 }
 
@@ -15,6 +16,7 @@ impl ToolActionType {
             Self::ReadFile => "read_file",
             Self::WriteFile => "write_file",
             Self::ExecuteCommand => "execute_command",
+            Self::Delegate => "delegate",
             Self::Other => "other",
         }
     }

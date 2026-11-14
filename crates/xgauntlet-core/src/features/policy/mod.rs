@@ -285,6 +285,7 @@ pub fn evaluate_reference(req: &CapabilityRequest, ctx: &EnforcementContext) -> 
             ToolActionType::ExecuteCommand => {
                 gauntlet_policy_engine::ToolActionType::ExecuteCommand
             }
+            ToolActionType::Delegate => gauntlet_policy_engine::ToolActionType::Delegate,
             ToolActionType::Other => gauntlet_policy_engine::ToolActionType::Other,
         },
         raw_tool_name: req.raw_tool_name.clone(),
@@ -383,6 +384,51 @@ mod tests {
                     raw_tool_name: "bash".into(),
                     target_resource: "git push origin main".into(),
                     payload_json: "{}".into(),
+                },
+                EnforcementContext {
+                    workspace_id: "w1".into(),
+                    has_active_task: true,
+                    active_task_id: "T-1".into(),
+                    read_only: false,
+                    ..Default::default()
+                },
+            ),
+            (
+                CapabilityRequest {
+                    action_type: ToolActionType::Delegate,
+                    raw_tool_name: "invoke_subagent".into(),
+                    target_resource: "read_only".into(),
+                    payload_json: "{\"TypeName\":\"research\"}".into(),
+                },
+                EnforcementContext {
+                    workspace_id: "w1".into(),
+                    has_active_task: false,
+                    active_task_id: String::new(),
+                    read_only: false,
+                    ..Default::default()
+                },
+            ),
+            (
+                CapabilityRequest {
+                    action_type: ToolActionType::Delegate,
+                    raw_tool_name: "swarm".into(),
+                    target_resource: "shared_inherit".into(),
+                    payload_json: "{\"action\":\"add\",\"workspace\":\"inherit\"}".into(),
+                },
+                EnforcementContext {
+                    workspace_id: "w1".into(),
+                    has_active_task: true,
+                    active_task_id: "T-1".into(),
+                    read_only: false,
+                    ..Default::default()
+                },
+            ),
+            (
+                CapabilityRequest {
+                    action_type: ToolActionType::Delegate,
+                    raw_tool_name: "swarm".into(),
+                    target_resource: "isolated".into(),
+                    payload_json: "{\"action\":\"add\",\"workspace\":\"share\"}".into(),
                 },
                 EnforcementContext {
                     workspace_id: "w1".into(),

@@ -249,10 +249,9 @@ fn test_payload_worktree_resolution_across_all_four_harnesses() {
             "args": { "TargetFile": "crates/beta/mod.rs" }
         }
     });
-    let (evil_code, evil_out) =
-        get_adapter("antigravity")
-            .unwrap()
-            .handle_hook(&parent_repo, &evil_payload.to_string());
+    let (evil_code, evil_out) = get_adapter("antigravity")
+        .unwrap()
+        .handle_hook(&parent_repo, &evil_payload.to_string());
     assert_ne!(
         evil_code, 0,
         "Unrelated repo in payload.cwd must NOT bypass parent_repo scope: {evil_out}"
@@ -278,7 +277,10 @@ fn test_antigravity_and_claude_delegation_tools_enforced_by_policy() {
         }
     });
     let (code, out) = ag.handle_hook(&ws, &research_payload.to_string());
-    assert_eq!(code, 0, "Read-only research subagent must be allowed without active task: {out}");
+    assert_eq!(
+        code, 0,
+        "Read-only research subagent must be allowed without active task: {out}"
+    );
 
     let list_payload = serde_json::json!({
         "hookEventName": "PreToolUse",
@@ -305,7 +307,10 @@ fn test_antigravity_and_claude_delegation_tools_enforced_by_policy() {
     write_active_task(&ws, "088-test", "crates/**");
 
     let (code, out) = ag.handle_hook(&ws, &swarm_share_payload.to_string());
-    assert_eq!(code, 0, "Swarm add with workspace=share and active task must be allowed: {out}");
+    assert_eq!(
+        code, 0,
+        "Swarm add with workspace=share and active task must be allowed: {out}"
+    );
 
     let swarm_inherit_payload = serde_json::json!({
         "hookEventName": "PreToolUse",
@@ -325,21 +330,30 @@ fn test_antigravity_and_claude_delegation_tools_enforced_by_policy() {
         "input": { "subagent_type": "Explore", "prompt": "Inspect crates" }
     });
     let (code, out) = cc.handle_hook(&ws, &cc_explore.to_string());
-    assert_eq!(code, 0, "Claude Code Explore subagent must be allowed: {out}");
+    assert_eq!(
+        code, 0,
+        "Claude Code Explore subagent must be allowed: {out}"
+    );
 
     let cc_worktree = serde_json::json!({
         "name": "Agent",
         "input": { "subagent_type": "general-purpose", "isolation": "worktree", "prompt": "Implement feature" }
     });
     let (code, out) = cc.handle_hook(&ws, &cc_worktree.to_string());
-    assert_eq!(code, 0, "Claude Code isolated worktree Agent must be allowed: {out}");
+    assert_eq!(
+        code, 0,
+        "Claude Code isolated worktree Agent must be allowed: {out}"
+    );
 
     let cc_unisolated = serde_json::json!({
         "name": "Agent",
         "input": { "subagent_type": "general-purpose", "prompt": "Edit files directly" }
     });
     let (code, out) = cc.handle_hook(&ws, &cc_unisolated.to_string());
-    assert_ne!(code, 0, "Claude Code unisolated mutating Agent must be denied: {out}");
+    assert_ne!(
+        code, 0,
+        "Claude Code unisolated mutating Agent must be denied: {out}"
+    );
 
     let _ = fs::remove_dir_all(&ws);
 }

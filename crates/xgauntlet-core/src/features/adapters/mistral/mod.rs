@@ -180,7 +180,15 @@ impl HarnessAdapter for MistralAdapter {
                     .to_string();
                 (ToolActionType::ReadFile, path)
             }
-            _ => (ToolActionType::Other, String::new()),
+            _ => {
+                if let Some(classification) =
+                    crate::features::adapters::classify_delegation_tool(&tool_name, &raw_args)
+                {
+                    (ToolActionType::Delegate, classification.to_string())
+                } else {
+                    (ToolActionType::Other, String::new())
+                }
+            }
         };
 
         NormalizedToolCall {
@@ -250,6 +258,8 @@ impl HarnessAdapter for MistralAdapter {
             }
         };
 
+        let effective_ws =
+            crate::features::adapters::resolve_effective_workspace(workspace, &payload);
         let event = payload
             .get("hook_event_name")
             .and_then(|v| v.as_str())
@@ -257,7 +267,7 @@ impl HarnessAdapter for MistralAdapter {
 
         match event {
             "pre_tool" => {
-                let verdict = self.evaluate_invocation(workspace, &payload);
+                let verdict = self.evaluate_invocation(&effective_ws, &payload);
                 if verdict.allowed {
                     let resp = serde_json::json!({
                         "decision": "allow"
@@ -270,7 +280,7 @@ impl HarnessAdapter for MistralAdapter {
                         .and_then(|n| n.as_str())
                         .unwrap_or("unknown");
                     let task_info =
-                        crate::features::tasks::inspect_task_telemetry(workspace, None).ok();
+                        crate::features::tasks::inspect_task_telemetry(&effective_ws, None).ok();
                     let task_id = task_info
                         .as_ref()
                         .map(|t| t.task_id.as_str())

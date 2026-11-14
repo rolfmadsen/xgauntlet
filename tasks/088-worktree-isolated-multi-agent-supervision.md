@@ -23,9 +23,11 @@ scope:
   - "docs/adr/0014-worktree-isolated-multi-agent-and-subagent-supervision.md"
   - "docs/adr/README.md"
   - "CONTEXT.md"
+  - "spec.md"
 test_refs:
   - "crates/xgauntlet-core/tests/multi_agent_worktree_test.rs"
   - "crates/gauntlet-policy-engine/tests/delegation_policy_test.rs"
+  - "crates/xgauntlet-core/tests/antigravity_adapter_test.rs"
 ---
 
 # Task 088: Worktree-Isolated Multi-Agent & Subagent Supervision

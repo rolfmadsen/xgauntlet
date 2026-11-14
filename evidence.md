@@ -224,6 +224,7 @@
 | `sess-771ea15d` | `TDD Craftsman` | `RED` | `771ea15` | `2026-11-14T20:49:27Z` | `VALID` |
 | `sess-6162c02d` | `Software Engineer` | `DONE` | `6162c02` | `2026-11-14T20:51:24Z` | `VALID` |
 | `sess-185a1649` | `System Architect` | `SPEC` | `185a164` | `2026-11-14T21:09:26Z` | `VALID` |
+| `sess-d2fc06a1` | `TDD Craftsman` | `RED` | `d2fc06a` | `2026-11-14T21:11:35Z` | `VALID` |
 
 ---
 
@@ -457,5 +458,13 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_read_only_delegation_allowed_without_active_task` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
+| `test_isolated_mutating_delegation_requires_active_task_and_allows_when_active` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
+| `test_shared_inherit_mutating_delegation_denied_fail_closed` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
+| `test_read_only_context_blocks_isolated_mutating_delegation` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
+| `test_worktree_local_active_task_binding_overrides_highest_number` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
+| `test_payload_worktree_resolution_across_all_four_harnesses` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
+| `test_antigravity_and_claude_delegation_tools_enforced_by_policy` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
+| `test_session_telemetry_isolated_per_session_id` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
 
 ---

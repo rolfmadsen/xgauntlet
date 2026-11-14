@@ -92,13 +92,25 @@ fn test_antigravity_2_6_tools_normalization() {
         assert_eq!(n.target_resource, "");
     }
 
-    // Subagent, daemon, messaging and mutating manage_task tools -> Other (fail-closed)
+    // Daemon/cron schedule remains Other (fail-closed)
+    let schedule_payload = serde_json::json!({
+        "toolCall": {
+            "name": "schedule",
+            "args": { "DurationSeconds": 60, "Prompt": "check" }
+        }
+    });
+    assert_eq!(
+        adapter.normalize_tool_call(&schedule_payload).action_type,
+        ToolActionType::Other,
+        "tool schedule must map to Other"
+    );
+
+    // Delegation & subagent coordination tools -> ToolActionType::Delegate (ADR 0014)
     for tool in [
         "invoke_subagent",
         "define_subagent",
         "manage_subagents",
         "send_message",
-        "schedule",
     ] {
         let payload = serde_json::json!({
             "toolCall": {
@@ -109,8 +121,8 @@ fn test_antigravity_2_6_tools_normalization() {
         let n = adapter.normalize_tool_call(&payload);
         assert_eq!(
             n.action_type,
-            ToolActionType::Other,
-            "tool {tool} must map to Other"
+            ToolActionType::Delegate,
+            "tool {tool} must map to Delegate"
         );
     }
 

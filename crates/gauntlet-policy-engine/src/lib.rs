@@ -1,7 +1,9 @@
 pub mod command;
+pub mod delegation;
 pub mod models;
 
 pub use command::*;
+pub use delegation::*;
 pub use models::*;
 
 pub const POLICY_VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -431,6 +433,7 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
                 }
             }
         }
+        ToolActionType::Delegate => delegation::evaluate_delegation(req, ctx),
         ToolActionType::Other => PolicyDecision {
             verdict: DecisionVerdict::Deny,
             reason: "Unrecognized or unspecified capability request (fail-closed).".into(),

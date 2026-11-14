@@ -13,7 +13,7 @@ The `adapters` feature translates vendor-specific AI harness tool payloads, life
 - **Claude Code (`claude_code/`)**: `PreToolUse` / `PostToolUse` hook contract, tool payload normalization, and `.claude/settings.json` scaffolding.
 - **OpenAI Codex (`codex/`)**: `PreToolUse` / `PostToolUse` hook contract, function/patch normalization, and `.codex/hooks.json` scaffolding.
 - **Mistral Vibe (`mistral/`)**: `pre_tool` / `post_tool` TOML hook contract and tool payload normalization.
-- **Shared Adapter Contract (`models.rs`, `workspace`)**: Payload-aware worktree workspace resolution, path sanitization (`WorkspaceRelativePath`), trusted `EnforcementContext` derivation, and embedded WASM policy evaluation.
+- **Shared Adapter Contract (`models.rs`, `workspace.rs`, `delegation.rs`)**: Payload-aware git worktree resolution (`resolve_effective_workspace` verifying matching git common-dir), unified multi-harness agent delegation classification (`classify_delegation_tool` → `ToolActionType::Delegate`), path sanitization (`WorkspaceRelativePath`), trusted `EnforcementContext` derivation, and embedded WASM policy evaluation.
 
 ## 🚫 Invariants
 - Never trust caller-supplied authority parameters (`has_active_task`, `read_only`, `allowed_scopes`) from hook payloads ([ADR 0006](../docs/adr/0006-multi-harness-policy-adapter-contract.md)).

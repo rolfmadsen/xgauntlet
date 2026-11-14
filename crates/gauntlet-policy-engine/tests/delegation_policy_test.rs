@@ -2,7 +2,10 @@ use gauntlet_policy_engine::{
     evaluate, parse_capability_request, DecisionVerdict, EnforcementContext,
 };
 
-fn eval_json_req(req_json: &str, ctx: &EnforcementContext) -> gauntlet_policy_engine::PolicyDecision {
+fn eval_json_req(
+    req_json: &str,
+    ctx: &EnforcementContext,
+) -> gauntlet_policy_engine::PolicyDecision {
     let req = parse_capability_request(req_json);
     evaluate(&req, ctx)
 }

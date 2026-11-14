@@ -1639,6 +1639,14 @@
         "commit_oid": "185a164969c7d39470e414db722f6470857eef87",
         "timestamp": "2026-11-14T21:09:26Z",
         "digest": "74a1ea634f458d6fdfb3b4dc58bee228e8487d38eafbcc743b3b67ad2736cfd2"
+      },
+      {
+        "session_nonce": "sess-d2fc06a1",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "d2fc06a1504f52b01e8a1f3bf194a9dedc8a99c6",
+        "timestamp": "2026-11-14T21:11:35Z",
+        "digest": "80ce63fba5b13dc1c579ac72f7bdbc5e3f1a2175828a35fe98ace3ccdb0c015e"
       }
     ]
   },
@@ -3224,6 +3232,62 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_read_only_delegation_allowed_without_active_task",
+      "failure_output": "Verified in RED checkpoint commit d2fc06a",
+      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
+      "verified_at": "2026-11-14T22:11:35+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_isolated_mutating_delegation_requires_active_task_and_allows_when_active",
+      "failure_output": "Verified in RED checkpoint commit d2fc06a",
+      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
+      "verified_at": "2026-11-14T22:11:35+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_shared_inherit_mutating_delegation_denied_fail_closed",
+      "failure_output": "Verified in RED checkpoint commit d2fc06a",
+      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
+      "verified_at": "2026-11-14T22:11:35+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_read_only_context_blocks_isolated_mutating_delegation",
+      "failure_output": "Verified in RED checkpoint commit d2fc06a",
+      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
+      "verified_at": "2026-11-14T22:11:35+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_worktree_local_active_task_binding_overrides_highest_number",
+      "failure_output": "Verified in RED checkpoint commit d2fc06a",
+      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
+      "verified_at": "2026-11-14T22:11:35+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_payload_worktree_resolution_across_all_four_harnesses",
+      "failure_output": "Verified in RED checkpoint commit d2fc06a",
+      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
+      "verified_at": "2026-11-14T22:11:35+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_antigravity_and_claude_delegation_tools_enforced_by_policy",
+      "failure_output": "Verified in RED checkpoint commit d2fc06a",
+      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
+      "verified_at": "2026-11-14T22:11:35+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_session_telemetry_isolated_per_session_id",
+      "failure_output": "Verified in RED checkpoint commit d2fc06a",
+      "failure_digest": "661b6da179dff9b63fea9091c6492d3a41af4a5577fc38075b8ee598bdd4d6d8",
+      "verified_at": "2026-11-14T22:11:35+01:00",
+      "status": "red_checkpoint_verified"
     }
   ],
   "proof_mode": "fast_track_red_to_done"

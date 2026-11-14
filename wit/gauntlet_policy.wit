@@ -5,6 +5,7 @@ enum tool-action-type {
     read-file,
     write-file,
     execute-command,
+    delegate,
     other
 }
 

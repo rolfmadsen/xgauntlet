@@ -185,6 +185,17 @@ impl HarnessAdapter for CodexAdapter {
             };
         }
 
+        if let Some(classification) =
+            crate::features::adapters::classify_delegation_tool(&tool_name, &resolved_args)
+        {
+            return NormalizedToolCall {
+                action_type: ToolActionType::Delegate,
+                target_resource: classification.to_string(),
+                raw_tool_name: tool_name,
+                payload: resolved_args,
+            };
+        }
+
         NormalizedToolCall {
             action_type: ToolActionType::Other,
             target_resource: String::new(),
@@ -292,7 +303,9 @@ impl HarnessAdapter for CodexAdapter {
             }
         };
 
-        let verdict = self.evaluate_invocation(workspace, &payload);
+        let effective_ws =
+            crate::features::adapters::resolve_effective_workspace(workspace, &payload);
+        let verdict = self.evaluate_invocation(&effective_ws, &payload);
         if verdict.allowed {
             let res = serde_json::json!({
                 "decision": "allow"
@@ -304,7 +317,8 @@ impl HarnessAdapter for CodexAdapter {
                 .or_else(|| payload.get("name"))
                 .and_then(|n| n.as_str())
                 .unwrap_or("unknown");
-            let task_info = crate::features::tasks::inspect_task_telemetry(workspace, None).ok();
+            let task_info =
+                crate::features::tasks::inspect_task_telemetry(&effective_ws, None).ok();
             let task_id = task_info
                 .as_ref()
                 .map(|t| t.task_id.as_str())
