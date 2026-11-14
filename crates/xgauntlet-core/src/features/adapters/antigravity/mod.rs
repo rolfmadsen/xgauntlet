@@ -686,32 +686,14 @@ impl HarnessAdapter for AntigravityAdapter {
                 .and_then(|t| t.phase.as_deref())
                 .unwrap_or("SPEC");
 
-            let recovery = if verdict.reason_code == Some(4040) {
-                "Specify workspace: \"share\" or \"branch\" (or isolation: \"worktree\") to run mutating workers in isolated git worktrees".to_string()
-            } else if verdict.reason_code == Some(4034) {
-                "Create or bind an ACTIVE task before delegating mutating subagent or swarm work"
-                    .to_string()
-            } else if verdict.reason.contains("scope") || verdict.reason_code == Some(4037) {
-                format!(
-                    "Add target path to 'scope: [...]' in tasks/{task_id}.md or restrict modifications to declared scope"
-                )
-            } else if verdict.reason.contains("push")
-                || verdict.reason.contains("hard")
-                || verdict.reason_code == Some(4038)
-                || verdict.reason_code == Some(4039)
-            {
-                "Destructive operations and remote push are strictly prohibited by ADR 0003"
-                    .to_string()
-            } else if verdict.reason.contains("read-only") {
-                "Mutations are prohibited during read-only phase".to_string()
-            } else {
-                "Inspect active task invariants in CONTEXT.md and spec.md before proceeding"
-                    .to_string()
-            };
+            let recovery = crate::features::adapters::format_recovery_hint(task_id, &verdict);
 
-            let formatted_denial = format!(
-                "[XGAUNTLET POLICY BLOCKED] Tool: {tool_name} | Task: {task_id} (Phase: {phase}) | Reason: {} | Recovery: {recovery}",
-                verdict.reason
+            let formatted_denial = crate::features::adapters::format_policy_denial(
+                tool_name,
+                task_id,
+                phase,
+                &verdict.reason,
+                &recovery,
             );
 
             let res = serde_json::json!({

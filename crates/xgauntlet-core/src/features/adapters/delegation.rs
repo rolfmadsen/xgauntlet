@@ -2,7 +2,7 @@
 
 use serde_json::Value;
 
-fn str_field<'a>(args: &'a Value, keys: &[&str]) -> String {
+fn str_field(args: &Value, keys: &[&str]) -> String {
     for key in keys {
         if let Some(s) = args.get(*key).and_then(|v| v.as_str()) {
             return s.trim().to_ascii_lowercase();

@@ -289,11 +289,8 @@ impl HarnessAdapter for MistralAdapter {
                         .as_ref()
                         .and_then(|t| t.phase.as_deref())
                         .unwrap_or("SPEC");
-                    let recovery = if verdict.reason.contains("scope") {
-                        format!("Add target path to 'scope: [...]' in tasks/{task_id}.md")
-                    } else {
-                        "Adhere to active task scope and invariants".to_string()
-                    };
+                    let recovery =
+                        crate::features::adapters::format_recovery_hint(task_id, &verdict);
                     let formatted_denial = crate::features::adapters::format_policy_denial(
                         tool_name,
                         task_id,

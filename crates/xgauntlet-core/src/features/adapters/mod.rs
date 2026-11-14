@@ -176,3 +176,27 @@ pub fn format_policy_denial(
         "[XGAUNTLET POLICY BLOCKED] Tool: {tool_name} | Task: {task_id} (Phase: {phase}) | Reason: {reason} | Recovery: {recovery}"
     )
 }
+
+/// Derives an actionable, policy-code-aware recovery instruction shared across all harness adapters.
+pub fn format_recovery_hint(task_id: &str, verdict: &AdapterHookVerdict) -> String {
+    if verdict.reason_code == Some(4040) {
+        "Specify workspace: \"share\" or \"branch\" (or isolation: \"worktree\") to run mutating workers in isolated git worktrees".to_string()
+    } else if verdict.reason_code == Some(4034) {
+        "Create or bind an ACTIVE task before delegating mutating subagent or swarm work"
+            .to_string()
+    } else if verdict.reason.contains("scope") || verdict.reason_code == Some(4037) {
+        format!(
+            "Add target path to 'scope: [...]' in tasks/{task_id}.md or restrict modifications to declared scope"
+        )
+    } else if verdict.reason.contains("push")
+        || verdict.reason.contains("hard")
+        || verdict.reason_code == Some(4038)
+        || verdict.reason_code == Some(4039)
+    {
+        "Destructive operations and remote push are strictly prohibited by ADR 0003".to_string()
+    } else if verdict.reason.contains("read-only") {
+        "Mutations are prohibited during read-only phase".to_string()
+    } else {
+        "Adhere to active task scope and invariants in CONTEXT.md and spec.md".to_string()
+    }
+}

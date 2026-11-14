@@ -221,16 +221,15 @@ impl SessionTracker {
             return Ok(None);
         };
 
+        let fallback_key = if store.active_session_id.is_empty() {
+            "default"
+        } else {
+            store.active_session_id.as_str()
+        };
         let key = session_id
             .map(str::trim)
             .filter(|s| !s.is_empty())
-            .unwrap_or_else(|| {
-                if store.active_session_id.is_empty() {
-                    "default"
-                } else {
-                    store.active_session_id.as_str()
-                }
-            });
+            .unwrap_or(fallback_key);
 
         let Some(state) = store.sessions.get(key) else {
             return Ok(None);
