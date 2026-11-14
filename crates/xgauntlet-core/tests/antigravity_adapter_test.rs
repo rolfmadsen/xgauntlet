@@ -265,3 +265,56 @@ fn test_antigravity_workspace_containment_denies_outside_repo() {
         "Expected deny decision, got: {output}"
     );
 }
+
+#[test]
+fn test_antigravity_exit_plan_mode_whitelist_and_fail_closed_other() {
+    let adapter = get_adapter("antigravity").expect("antigravity adapter");
+    let temp = TempDir::new("exit_plan_mode_test");
+    let ws = &temp.path;
+
+    // 1. exit_plan_mode normalizes to ReadFile with empty target_resource
+    for tool_name in ["exit_plan_mode", "Exit_Plan_Mode"] {
+        let payload = serde_json::json!({
+            "toolCall": {
+                "name": tool_name,
+                "args": {}
+            }
+        });
+        let normalized = adapter.normalize_tool_call(&payload);
+        assert_eq!(
+            normalized.action_type,
+            ToolActionType::ReadFile,
+            "{tool_name} must normalize to ToolActionType::ReadFile"
+        );
+        assert_eq!(normalized.target_resource, "");
+
+        // 2. Full hook evaluation must allow exit_plan_mode
+        let hook_payload = payload.to_string();
+        let (code, output) = adapter.handle_hook(ws, &hook_payload);
+        assert_eq!(
+            code, 0,
+            "{tool_name} must be allowed by PreToolUse hook policy, got: {output}"
+        );
+        assert!(
+            output.contains("\"decision\":\"allow\"") || output.contains("\"decision\": \"allow\""),
+            "Expected allow decision for {tool_name}, got: {output}"
+        );
+    }
+
+    // 3. Unknown Other tools must still normalize to Other and remain blocked fail-closed
+    let unknown_payload = serde_json::json!({
+        "toolCall": {
+            "name": "unknown_control_tool",
+            "args": {}
+        }
+    });
+    let unknown_norm = adapter.normalize_tool_call(&unknown_payload);
+    assert_eq!(unknown_norm.action_type, ToolActionType::Other);
+
+    let (bad_code, bad_output) = adapter.handle_hook(ws, &unknown_payload.to_string());
+    assert_eq!(bad_code, 1, "Unknown Other tools must remain denied");
+    assert!(
+        bad_output.contains("\"decision\":\"deny\"") || bad_output.contains("\"decision\": \"deny\""),
+        "Expected deny decision for unknown tool, got: {bad_output}"
+    );
+}
