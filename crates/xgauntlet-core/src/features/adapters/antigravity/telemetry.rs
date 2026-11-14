@@ -21,11 +21,22 @@ fn is_test_runtime() -> bool {
             .unwrap_or(false)
 }
 
-fn dedup_cache_file() -> PathBuf {
-    let user = std::env::var("USER")
+fn current_username() -> String {
+    std::env::var("USER")
         .or_else(|_| std::env::var("USERNAME"))
-        .unwrap_or_else(|_| "default".to_string());
-    std::env::temp_dir().join(format!("xgauntlet_telemetry_dedup_{user}.json"))
+        .unwrap_or_else(|_| "default".to_string())
+}
+
+fn dedup_cache_file() -> PathBuf {
+    std::env::temp_dir().join(format!(
+        "xgauntlet_telemetry_dedup_{}.json",
+        current_username()
+    ))
+}
+
+fn read_dedup_cache(cache_file: &Path) -> Option<Value> {
+    let content = std::fs::read_to_string(cache_file).ok()?;
+    serde_json::from_str::<Value>(&content).ok()
 }
 
 fn now_millis() -> u128 {
@@ -78,15 +89,13 @@ pub fn is_rapid_duplicate_pre_invocation() -> bool {
     let cache_file = dedup_cache_file();
     let now = now_millis();
 
-    if let Ok(content) = std::fs::read_to_string(&cache_file) {
-        if let Ok(val) = serde_json::from_str::<Value>(&content) {
-            let last_ts = val
-                .get("timestamp_ms")
-                .and_then(|t| t.as_u64())
-                .unwrap_or(0) as u128;
-            if now.saturating_sub(last_ts) < 1500 {
-                return true;
-            }
+    if let Some(val) = read_dedup_cache(&cache_file) {
+        let last_ts = val
+            .get("timestamp_ms")
+            .and_then(|t| t.as_u64())
+            .unwrap_or(0) as u128;
+        if now.saturating_sub(last_ts) < 1500 {
+            return true;
         }
     }
 
@@ -104,27 +113,23 @@ pub fn should_suppress_duplicate_telemetry(message: &str) -> bool {
     let current_digest = format!("{:x}", Sha256::digest(message.as_bytes()));
     let current_state_key = extract_telemetry_state_key(message);
 
-    if let Ok(content) = std::fs::read_to_string(&cache_file) {
-        if let Ok(val) = serde_json::from_str::<Value>(&content) {
-            let last_digest = val.get("digest").and_then(|d| d.as_str()).unwrap_or("");
-            let last_state_key = val.get("state_key").and_then(|s| s.as_str()).unwrap_or("");
-            let last_ts = val
-                .get("timestamp_ms")
-                .and_then(|t| t.as_u64())
-                .unwrap_or(0) as u128;
+    if let Some(val) = read_dedup_cache(&cache_file) {
+        let last_digest = val.get("digest").and_then(|d| d.as_str()).unwrap_or("");
+        let last_state_key = val.get("state_key").and_then(|s| s.as_str()).unwrap_or("");
+        let last_ts = val
+            .get("timestamp_ms")
+            .and_then(|t| t.as_u64())
+            .unwrap_or(0) as u128;
 
-            let is_same_state = last_digest == current_digest
-                || (!last_state_key.is_empty() && last_state_key == current_state_key);
+        let is_same_state = last_digest == current_digest
+            || (!last_state_key.is_empty() && last_state_key == current_state_key);
 
-            if is_same_state && now.saturating_sub(last_ts) < 120_000 {
-                return true;
-            }
+        if is_same_state && now.saturating_sub(last_ts) < 120_000 {
+            return true;
         }
     }
 
-    let user = std::env::var("USER")
-        .or_else(|_| std::env::var("USERNAME"))
-        .unwrap_or_else(|_| "default".to_string());
+    let user = current_username();
     let payload = serde_json::json!({
         "digest": current_digest,
         "state_key": current_state_key,
