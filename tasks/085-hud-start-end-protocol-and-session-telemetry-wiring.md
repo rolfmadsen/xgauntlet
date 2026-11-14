@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 085: HUD Start/End Protocol & Active Session Telemetry Wiring"
 description: "Begræns visuelt Cockpit Task HUD til start, eskalering og slut (ingen HUD på mellemliggende baggrunds-ventesvar), og kobl Session Health / token-telemetri aktivt på PreInvocation-hooks og HUD-skabelonen."
-status: active
+status: done
 intent: enhancement
 feature: telemetry
 spec_ref: "specs/telemetry.md"
@@ -35,7 +35,7 @@ test_refs:
 
 # Task 085: HUD Start/End Protocol & Active Session Telemetry Wiring
 
-**Status**: `ACTIVE`  
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`  
 **Oprettet**: `2026-11-14`
 
@@ -54,16 +54,16 @@ Løse to dokumenterede mangler ved Cockpit Task HUD observeret i Task 081-sessio
    - Turn-tælling kobles deterministisk på `PreInvocation` (aldrig `PreToolUse`, jf. `<5ms` koldstart og korrekt turn-granularitet), `.xgauntlet/` ignoreres i Git og `checkpoint`, og `handoff` nulstiller session-tilstanden mellem sessioner.
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (HUD Start/Eskalering/Slut-Regel i `.agents/AGENTS.md` & Scaffold):**
+- [x] **AC1 (HUD Start/Eskalering/Slut-Regel i `.agents/AGENTS.md` & Scaffold):**
   - `.agents/AGENTS.md` og `render_agents_md` i `crates/xgauntlet-core/src/features/scaffold/templates.rs` definerer utvetydigt, at det 5-linjers HUD-kort **kun** vises ved start/aktivering af opgave/session, ved brugerrettet spørgsmål/eskalering/godkendelse og ved afslutning (`DONE` / `SESSION HANDOFF`), og **udelades** på mellemliggende svar uden brugerbeslutning (herunder *"afventer baggrundsopgave"*).
-- [ ] **AC2 (Aktiv `PreInvocation` Session-Wiring, Dedup & `.xgauntlet/` Isolation):**
+- [x] **AC2 (Aktiv `PreInvocation` Session-Wiring, Dedup & `.xgauntlet/` Isolation):**
   - `Commands::Telemetry --format antigravity-hook` i `crates/xgauntlet-cli/src/main.rs` og `PreInvocation`-grenen i `AntigravityAdapter::handle_hook` kalder en fælles helper i `features/telemetry/` for den **aktive** task (`status: active`) **efter** `< 1500ms` duplikat-check (og aldrig i `PreToolUse` / `Commands::Hook`), så `.xgauntlet/session_state.json` opdateres én gang pr. reel model-invocation.
   - `should_suppress_duplicate_telemetry` inkluderer `SessionHealthStatus` (`Optimal` / `Aging` / `Saturated`) i sin state-sammenligning, så overgange til `Aging`/`Saturated` og handoff-anbefalingen ikke skjules af 120s-undertrykkelse.
   - `.gitignore` ignorerer `.xgauntlet/`, `checkpoint/engine.rs` (`validate_staged_files_scope`) undtager `.xgauntlet/`, og `Commands::Handoff` kalder `reset_session_health` efter generering af handoff-kort.
-- [ ] **AC3 (Synkroniseret HUD-Skabelon med `Session:`-Metrik):**
+- [x] **AC3 (Synkroniseret HUD-Skabelon med `Session:`-Metrik):**
   - HUD-skabelonen i `.agents/AGENTS.md` og `scaffold/templates.rs` inkluderer `` | `Session: <Optimal|Aging|Saturated> (<N> turns • ~<tok>)` `` i statuslinjen på linje med `AntigravityAdapter::render_blockquote_hud` (stadig præcis 5 blockquote-linjer).
   - `AntigravityAdapter::render_blockquote_hud` bevarer bagudkompatibel fallback (udelader `Session:` når `session_health` er `None`, og viser den når `Some`).
-- [ ] **AC4 (Snapshot-Sikker Transcript-/Payload-Berigelse uden Dæmon eller Netværk):**
+- [x] **AC4 (Snapshot-Sikker Transcript-/Payload-Berigelse uden Dæmon eller Netværk):**
   - En ren helper i `features/telemetry/` beriger session-tilstanden fra stdin-hook-payloaden med **snapshot-semantik** (aldrig kvadratisk akkumulering af snapshots):
     - Hvis payloaden indeholder eksplicitte token-felter (`total_tokens` / `token_count`) eller en eksisterende lokal `transcript_path` / `transcriptPath` (JSONL med `PLANNER_RESPONSE`/`assistant`-trin og tekstfelter som `content`, `thinking`, `tool_calls`), beregnes turns og `estimate_tokens_from_chars` deterministisk som monotont snapshot (`max(existing, parsed)`).
     - Hvis ingen af delene findes, faldes deterministisk tilbage til `record_session_turn` baseret på stdin-payloadens byte-størrelse.
@@ -79,6 +79,7 @@ Løse to dokumenterede mangler ved Cockpit Task HUD observeret i Task 081-sessio
 ## 📝 Revisions
 - 2026-11-14: Oprettet draft task baseret på session-analyse (7 unødige baggrunds-HUD'er og ubrugt `record_session_turn` fra Task 044).
 - 2026-11-14: Præciseret AC1–AC4 efter arkitektursparring (`.gitignore` + `checkpoint`-undtagelse for `.xgauntlet/`, `PreInvocation`-only turn-tælling + status-bevidst dedup + `handoff`-reset, snapshot-semantik i AC4, samt filstørrelseslofter i `Must NOT`), oprettet `specs/telemetry.md` og aktiveret opgaven (`status: active`).
+- 2026-11-14: Implementeret og refaktoreret AC1–AC4 (`.gitignore`, `gauntlet.toml`, `session.rs`, `adapters/antigravity/telemetry.rs`, `checkpoint/engine.rs`, `scaffold/templates.rs`, `.agents/AGENTS.md`, `cli/main.rs`) med grønne tests.
 
 ## 🧪 Verifikation
 - `cargo run -p xgauntlet-cli -- check-spec -t 085`
