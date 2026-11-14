@@ -1,6 +1,8 @@
 //! Orchestrator for Phase-Bound TDD Checkpoint operations.
 
-use super::git::{compose_commit_message, execute_git_commit, stage_workspace_changes};
+use super::git::{
+    compose_commit_message, ensure_git_dir_writable, execute_git_commit, stage_workspace_changes,
+};
 use super::models::{CheckpointError, CheckpointOptions, CheckpointResult};
 use super::preflight::run_preflight_check;
 use crate::features::tasks::{resolve_active_task_id, resolve_latest_done_task_id};
@@ -117,21 +119,51 @@ pub async fn run_checkpoint(
 ) -> Result<CheckpointResult, CheckpointError> {
     let task_id = resolve_checkpoint_task_id(options).ok_or(CheckpointError::NoActiveTask)?;
 
+    // AC3: Fail fast before running verification if .git/ is read-only
+    ensure_git_dir_writable(&options.workspace)?;
+
     if !options.skip_verify {
         run_preflight_check(options).await?;
     }
 
-    let staged_files = stage_workspace_changes(&options.workspace)?;
-    if staged_files.is_empty() && !options.allow_empty {
-        return Err(CheckpointError::NothingToCommit);
-    }
+    // AC2: Transition task file to DONE after preflight/verify passes and before staging/committing
+    let task_backup = if options.phase == super::models::CheckpointPhase::Done {
+        Some(
+            crate::features::tasks::lifecycle::mark_task_done(&options.workspace, &task_id)
+                .map_err(|e| {
+                    CheckpointError::DonePhaseUnmet(format!("Failed to mark task as DONE: {e}"))
+                })?,
+        )
+    } else {
+        None
+    };
 
-    validate_staged_files_scope(&options.workspace, &task_id, &staged_files)?;
+    let commit_outcome: Result<(Vec<String>, String, String), CheckpointError> = (|| {
+        let staged_files = stage_workspace_changes(&options.workspace)?;
+        if staged_files.is_empty() && !options.allow_empty {
+            return Err(CheckpointError::NothingToCommit);
+        }
 
-    let commit_message =
-        compose_commit_message(options.phase, &task_id, options.message.as_deref());
+        validate_staged_files_scope(&options.workspace, &task_id, &staged_files)?;
 
-    let commit_oid = execute_git_commit(&options.workspace, &commit_message, options.allow_empty)?;
+        let commit_message =
+            compose_commit_message(options.phase, &task_id, options.message.as_deref());
+
+        let commit_oid =
+            execute_git_commit(&options.workspace, &commit_message, options.allow_empty)?;
+
+        Ok((staged_files, commit_message, commit_oid))
+    })();
+
+    let (staged_files, commit_message, commit_oid) = match commit_outcome {
+        Ok(res) => res,
+        Err(err) => {
+            if let Some((path, original)) = task_backup {
+                let _ = std::fs::write(path, original);
+            }
+            return Err(err);
+        }
+    };
 
     let handoff = if options.phase == super::models::CheckpointPhase::Done {
         super::models::SessionHandoff::generate(&options.workspace, &task_id, None).ok()

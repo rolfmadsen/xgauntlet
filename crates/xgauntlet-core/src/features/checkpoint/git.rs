@@ -216,3 +216,58 @@ pub fn is_worktree_clean(workspace: &Path) -> Result<bool, CheckpointError> {
     let stdout = String::from_utf8_lossy(&output.stdout);
     Ok(stdout.trim().is_empty())
 }
+
+/// Verifies write access to the repository's Git directory before expensive pre-flight checks.
+///
+/// Resolves `.git` via `git rev-parse --git-dir` (worktree-compatible) and tests write access with
+/// a unique `create_new(true)` temporary probe file without touching any active `.git/index.lock`.
+pub fn ensure_git_dir_writable(workspace: &Path) -> Result<(), CheckpointError> {
+    let git_dir_out = Command::new("git")
+        .args(["rev-parse", "--git-dir"])
+        .current_dir(workspace)
+        .output()
+        .map_err(|e| CheckpointError::GitError(format!("Failed to resolve .git directory: {e}")))?;
+
+    if !git_dir_out.status.success() {
+        let stderr = String::from_utf8_lossy(&git_dir_out.stderr);
+        return Err(CheckpointError::GitError(format!(
+            "Unable to resolve .git directory in '{}': {}",
+            workspace.display(),
+            stderr.trim()
+        )));
+    }
+
+    let raw_git_dir = String::from_utf8_lossy(&git_dir_out.stdout)
+        .trim()
+        .to_string();
+    let git_dir = if Path::new(&raw_git_dir).is_absolute() {
+        std::path::PathBuf::from(&raw_git_dir)
+    } else {
+        workspace.join(&raw_git_dir)
+    };
+
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_nanos())
+        .unwrap_or(0);
+    let probe_path = git_dir.join(format!(
+        ".xgauntlet-write-probe-{}-{nanos}",
+        std::process::id()
+    ));
+
+    match std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&probe_path)
+    {
+        Ok(file) => {
+            drop(file);
+            let _ = std::fs::remove_file(&probe_path);
+            Ok(())
+        }
+        Err(e) => Err(CheckpointError::GitError(format!(
+            "Git directory '{}' is read-only or not writable (cannot create .git/index.lock): {e}. Re-run checkpoint outside the read-only sandbox.",
+            git_dir.display()
+        ))),
+    }
+}

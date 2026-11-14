@@ -337,15 +337,14 @@ pub async fn run_preflight_check(options: &CheckpointOptions) -> Result<(), Chec
         }
         CheckpointPhase::Red => {
             let layers = resolve_preflight_test_layers(&options.workspace, &task_id);
+            let mut passed_layers = Vec::new();
+            let mut failed_layers = Vec::new();
+
             for layer in layers {
                 let res = execute_layer(&layer, &options.workspace).await;
                 if res.passed {
-                    return Err(CheckpointError::RedPhaseUnmet {
-                        details: format!(
-                            "Expected failing test assertions in RED phase for '{}', but tests passed",
-                            layer.name
-                        ),
-                    });
+                    passed_layers.push(layer.name);
+                    continue;
                 }
                 // AC1: Differentiate between a test assertion failure / missing symbol in test vs syntax/manifest failure in production code
                 let output = &res.output;
@@ -366,6 +365,16 @@ pub async fn run_preflight_check(options: &CheckpointOptions) -> Result<(), Chec
                         ),
                     });
                 }
+                failed_layers.push(layer.name);
+            }
+
+            if failed_layers.is_empty() {
+                return Err(CheckpointError::RedPhaseUnmet {
+                    details: format!(
+                        "Expected failing test assertions in RED phase for at least one target, but all passed: [{}]",
+                        passed_layers.join(", ")
+                    ),
+                });
             }
             Ok(())
         }

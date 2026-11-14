@@ -169,6 +169,134 @@ pub fn is_shell_executable(norm_exe: &str) -> bool {
     )
 }
 
+/// Checks for unsafe shell metacharacters (`>`, `<`, `;`, `|`, `||`, single `&`, `$(`, `` ` ``)
+/// while permitting `&&` outside quotes and literal characters inside quotes.
+pub fn has_unsafe_shell_metachars(cmd: &str) -> bool {
+    let chars: Vec<char> = cmd.chars().collect();
+    let len = chars.len();
+    let mut i = 0;
+    let mut in_single_quote = false;
+    let mut in_double_quote = false;
+    let mut escaped = false;
+
+    while i < len {
+        let ch = chars[i];
+        if escaped {
+            escaped = false;
+            i += 1;
+            continue;
+        }
+        if ch == '\\' && !in_single_quote {
+            escaped = true;
+            i += 1;
+            continue;
+        }
+        if ch == '\'' && !in_double_quote {
+            in_single_quote = !in_single_quote;
+            i += 1;
+            continue;
+        }
+        if ch == '"' && !in_single_quote {
+            in_double_quote = !in_double_quote;
+            i += 1;
+            continue;
+        }
+        if in_single_quote {
+            i += 1;
+            continue;
+        }
+        if ch == '`' || (ch == '$' && i + 1 < len && chars[i + 1] == '(') {
+            return true;
+        }
+        if in_double_quote {
+            i += 1;
+            continue;
+        }
+        if ch == '&' && i + 1 < len && chars[i + 1] == '&' {
+            i += 2;
+            continue;
+        }
+        if matches!(ch, '>' | '<' | ';' | '|' | '&') {
+            return true;
+        }
+        i += 1;
+    }
+    false
+}
+
+/// Checks if any chained command segment invokes a shell or unsafe network/deletion binary.
+pub fn has_unsafe_chained_executable(segments: &[Vec<String>]) -> bool {
+    segments.iter().any(|seg| {
+        seg.first().is_some_and(|exe| {
+            let norm = normalize_executable(exe);
+            matches!(norm.as_str(), "curl" | "wget" | "rm") || is_shell_executable(&norm)
+        })
+    })
+}
+
+fn is_safe_xgauntlet_subcommand(sub: &str) -> bool {
+    matches!(
+        sub,
+        "verify"
+            | "doctor"
+            | "check-evidence"
+            | "check-spec"
+            | "check-release"
+            | "check-adr"
+            | "check-architecture"
+            | "handoff"
+            | "lineage"
+            | "checkpoint"
+    )
+}
+
+fn is_safe_cargo_run_xgauntlet(args: &[String]) -> bool {
+    let mut i = 0;
+    let mut targets_xgauntlet_cli = false;
+    while i < args.len() {
+        let arg = args[i].as_str();
+        if arg == "--" {
+            return targets_xgauntlet_cli
+                && args
+                    .get(i + 1)
+                    .is_some_and(|sub| is_safe_xgauntlet_subcommand(sub));
+        }
+        if arg == "-p" || arg == "--package" {
+            let Some(pkg) = args.get(i + 1) else {
+                return false;
+            };
+            if pkg != "xgauntlet-cli" {
+                return false;
+            }
+            targets_xgauntlet_cli = true;
+            i += 2;
+        } else if let Some(pkg) = arg
+            .strip_prefix("--package=")
+            .or_else(|| arg.strip_prefix("-p"))
+        {
+            if pkg != "xgauntlet-cli" {
+                return false;
+            }
+            targets_xgauntlet_cli = true;
+            i += 1;
+        } else if matches!(
+            arg,
+            "-q" | "--quiet"
+                | "--release"
+                | "--locked"
+                | "--offline"
+                | "--frozen"
+                | "-v"
+                | "--verbose"
+        ) {
+            i += 1;
+        } else {
+            return false;
+        }
+    }
+    false
+}
+
 pub fn is_safe_command_segment(tokens: &[String]) -> bool {
     if tokens.is_empty() {
         return false;
@@ -176,20 +304,27 @@ pub fn is_safe_command_segment(tokens: &[String]) -> bool {
     let norm_exe = normalize_executable(&tokens[0]);
     match norm_exe.as_str() {
         "git" => {
-            if let Some((sub, _)) = resolve_git_subcommand(&tokens[1..]) {
-                matches!(sub, "status" | "diff" | "log")
+            if let Some((sub, sub_args)) = resolve_git_subcommand(&tokens[1..]) {
+                matches!(sub, "status" | "diff" | "log" | "show")
+                    && !sub_args
+                        .iter()
+                        .any(|a| a == "--output" || a.starts_with("--output="))
             } else {
                 false
             }
         }
-        "ls" | "pwd" | "echo" | "which" | "pytest" => true,
-        "cargo" => {
-            if tokens.len() > 1 {
-                matches!(tokens[1].as_str(), "check" | "test" | "clippy" | "fmt")
-            } else {
-                false
-            }
-        }
+        "rg" => !tokens[1..].iter().any(|a| {
+            a == "--pre"
+                || a.starts_with("--pre=")
+                || a == "--pre-glob"
+                || a.starts_with("--pre-glob=")
+        }),
+        "grep" | "ls" | "pwd" | "echo" | "which" | "pytest" => true,
+        "cargo" => match tokens.get(1).map(|s| s.as_str()) {
+            Some("check" | "test" | "clippy" | "fmt") => true,
+            Some("run") => is_safe_cargo_run_xgauntlet(&tokens[2..]),
+            _ => false,
+        },
         "npm" => {
             if tokens.len() > 1 {
                 tokens[1] == "test"
@@ -198,39 +333,11 @@ pub fn is_safe_command_segment(tokens: &[String]) -> bool {
                 false
             }
         }
-        "xgauntlet" => {
-            if tokens.len() > 1 {
-                matches!(
-                    tokens[1].as_str(),
-                    "verify"
-                        | "doctor"
-                        | "check-evidence"
-                        | "check-spec"
-                        | "check-release"
-                        | "check-adr"
-                        | "check-architecture"
-                        | "handoff"
-                        | "lineage"
-                        | "checkpoint"
-                )
-            } else {
-                false
-            }
-        }
+        "xgauntlet" => tokens
+            .get(1)
+            .is_some_and(|sub| is_safe_xgauntlet_subcommand(sub)),
         "npx" if tokens.len() > 2 && tokens[1] == "xgauntlet" => {
-            matches!(
-                tokens[2].as_str(),
-                "verify"
-                    | "doctor"
-                    | "check-evidence"
-                    | "check-spec"
-                    | "check-release"
-                    | "check-adr"
-                    | "check-architecture"
-                    | "handoff"
-                    | "lineage"
-                    | "checkpoint"
-            )
+            is_safe_xgauntlet_subcommand(&tokens[2])
         }
         _ => false,
     }

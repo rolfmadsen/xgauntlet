@@ -360,13 +360,7 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
             }
 
             // Command chaining with unsafe primitives
-            if has_chaining
-                && (cmd.contains("curl ")
-                    || cmd.contains("wget ")
-                    || cmd.contains("bash")
-                    || cmd.contains("sh")
-                    || cmd.contains("rm "))
-            {
+            if segments.len() > 1 && has_unsafe_chained_executable(&segments) {
                 return PolicyDecision {
                     verdict: DecisionVerdict::Deny,
                     reason:
@@ -376,17 +370,10 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
                 };
             }
 
-            let has_shell_metachars = cmd.contains('>')
-                || cmd.contains('<')
-                || cmd.contains("$(")
-                || cmd.contains('`')
-                || cmd.contains('&');
-
-            // Safe verification and inspection commands (only when not chained and free of shell redirection/substitution)
-            if !has_chaining
-                && !has_shell_metachars
-                && segments.len() == 1
-                && is_safe_command_segment(&segments[0])
+            // Safe verification and inspection commands (single or &&-chained safe segments without unsafe shell metachars)
+            if !has_unsafe_shell_metachars(cmd)
+                && !segments.is_empty()
+                && segments.iter().all(|seg| is_safe_command_segment(seg))
             {
                 return PolicyDecision {
                     verdict: DecisionVerdict::Allow,
@@ -395,11 +382,12 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
                 };
             }
 
-            // Backward compatibility with safe_prefixes strings
+            // Backward compatibility with safe_prefixes strings (single unchained commands only)
             let safe_prefixes = [
                 "git status",
                 "git diff",
                 "git log",
+                "git show",
                 "ls",
                 "pwd",
                 "echo",
@@ -418,7 +406,7 @@ pub fn evaluate(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDeci
                 "xgauntlet check-spec",
             ];
             if !has_chaining
-                && !has_shell_metachars
+                && !has_unsafe_shell_metachars(cmd)
                 && safe_prefixes.iter().any(|prefix| cmd.starts_with(prefix))
             {
                 return PolicyDecision {

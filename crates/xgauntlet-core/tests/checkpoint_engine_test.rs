@@ -690,7 +690,13 @@ optional = false
 
     // Ensure the task status update was included inside the DONE commit (no uncommitted diff on task file)
     let diff_out = Command::new("git")
-        .args(["diff", "--name-only", "HEAD", "--", "tasks/084-done-transition.md"])
+        .args([
+            "diff",
+            "--name-only",
+            "HEAD",
+            "--",
+            "tasks/084-done-transition.md",
+        ])
         .current_dir(temp.path())
         .output()
         .unwrap();
@@ -773,8 +779,11 @@ edition = "2021"
 "#;
     fs::write(temp.path().join("Cargo.toml"), cargo_toml).unwrap();
     fs::create_dir_all(temp.path().join("src")).unwrap();
-    fs::write(temp.path().join("src/lib.rs"), "pub fn add(a: i32, b: i32) -> i32 { a + b }\n")
-        .unwrap();
+    fs::write(
+        temp.path().join("src/lib.rs"),
+        "pub fn add(a: i32, b: i32) -> i32 { a + b }\n",
+    )
+    .unwrap();
 
     fs::create_dir_all(temp.path().join("tests")).unwrap();
     fs::write(

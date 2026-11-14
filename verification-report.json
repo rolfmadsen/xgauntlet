@@ -1481,6 +1481,14 @@
         "commit_oid": "379d1ca20aea056551230ab63cab7c4caf4a6b4e",
         "timestamp": "2026-11-14T17:08:48Z",
         "digest": "cd99bbf9239df94c7a1321ae2aacc59f673549e7745817473b3cfe72d02ec2a7"
+      },
+      {
+        "session_nonce": "sess-488588b1",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "488588b1b1eb8f53d4021261f299ec87590db5c5",
+        "timestamp": "2026-11-14T17:10:10Z",
+        "digest": "4db7198638ca2d478a414b576405031365590f298f9297debd8efd1d58298cc6"
       }
     ]
   },
@@ -2765,6 +2773,111 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_task_084_ac2_done_checkpoint_marks_task_done_and_commits",
+      "failure_output": "Verified in RED checkpoint commit 488588b",
+      "failure_digest": "eb03a4191936a658b68d875683a7659eccffb6baf8cf2c2353fd44be20b96ce6",
+      "verified_at": "2026-11-14T18:10:10+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_task_084_ac3_checkpoint_fails_fast_on_readonly_git_dir",
+      "failure_output": "Verified in RED checkpoint commit 488588b",
+      "failure_digest": "eb03a4191936a658b68d875683a7659eccffb6baf8cf2c2353fd44be20b96ce6",
+      "verified_at": "2026-11-14T18:10:10+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_task_084_ac4_red_preflight_allows_mixed_green_and_red_test_refs",
+      "failure_output": "Verified in RED checkpoint commit 488588b",
+      "failure_digest": "eb03a4191936a658b68d875683a7659eccffb6baf8cf2c2353fd44be20b96ce6",
+      "verified_at": "2026-11-14T18:10:10+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_wasm_policy_engine_cold_start",
+      "failure_output": "Verified in RED checkpoint commit 488588b",
+      "failure_digest": "eb03a4191936a658b68d875683a7659eccffb6baf8cf2c2353fd44be20b96ce6",
+      "verified_at": "2026-11-14T18:10:10+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_read_operations_unrestricted",
+      "failure_output": "Verified in RED checkpoint commit 488588b",
+      "failure_digest": "eb03a4191936a658b68d875683a7659eccffb6baf8cf2c2353fd44be20b96ce6",
+      "verified_at": "2026-11-14T18:10:10+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_read_only_workspace_blocks_modifications",
+      "failure_output": "Verified in RED checkpoint commit 488588b",
+      "failure_digest": "eb03a4191936a658b68d875683a7659eccffb6baf8cf2c2353fd44be20b96ce6",
+      "verified_at": "2026-11-14T18:10:10+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_documentation_and_tasks_writable_without_active_task",
+      "failure_output": "Verified in RED checkpoint commit 488588b",
+      "failure_digest": "eb03a4191936a658b68d875683a7659eccffb6baf8cf2c2353fd44be20b96ce6",
+      "verified_at": "2026-11-14T18:10:10+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_production_code_write_requires_active_task",
+      "failure_output": "Verified in RED checkpoint commit 488588b",
+      "failure_digest": "eb03a4191936a658b68d875683a7659eccffb6baf8cf2c2353fd44be20b96ce6",
+      "verified_at": "2026-11-14T18:10:10+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_destructive_commands_strictly_denied",
+      "failure_output": "Verified in RED checkpoint commit 488588b",
+      "failure_digest": "eb03a4191936a658b68d875683a7659eccffb6baf8cf2c2353fd44be20b96ce6",
+      "verified_at": "2026-11-14T18:10:10+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_verification_and_inspection_commands_whitelisted",
+      "failure_output": "Verified in RED checkpoint commit 488588b",
+      "failure_digest": "eb03a4191936a658b68d875683a7659eccffb6baf8cf2c2353fd44be20b96ce6",
+      "verified_at": "2026-11-14T18:10:10+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_policy_engine_enforces_task_allowed_scopes_and_test_targets",
+      "failure_output": "Verified in RED checkpoint commit 488588b",
+      "failure_digest": "eb03a4191936a658b68d875683a7659eccffb6baf8cf2c2353fd44be20b96ce6",
+      "verified_at": "2026-11-14T18:10:10+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_destructive_git_command_evasions_and_wrappers_denied",
+      "failure_output": "Verified in RED checkpoint commit 488588b",
+      "failure_digest": "eb03a4191936a658b68d875683a7659eccffb6baf8cf2c2353fd44be20b96ce6",
+      "verified_at": "2026-11-14T18:10:10+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_empty_task_scope_fails_closed_on_code_and_repo_mutations",
+      "failure_output": "Verified in RED checkpoint commit 488588b",
+      "failure_digest": "eb03a4191936a658b68d875683a7659eccffb6baf8cf2c2353fd44be20b96ce6",
+      "verified_at": "2026-11-14T18:10:10+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_empty_scope_with_test_targets_strictly_isolates_test_files",
+      "failure_output": "Verified in RED checkpoint commit 488588b",
+      "failure_digest": "eb03a4191936a658b68d875683a7659eccffb6baf8cf2c2353fd44be20b96ce6",
+      "verified_at": "2026-11-14T18:10:10+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_task_084_ac1_readonly_inspection_and_chains_without_active_task",
+      "failure_output": "Verified in RED checkpoint commit 488588b",
+      "failure_digest": "eb03a4191936a658b68d875683a7659eccffb6baf8cf2c2353fd44be20b96ce6",
+      "verified_at": "2026-11-14T18:10:10+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }

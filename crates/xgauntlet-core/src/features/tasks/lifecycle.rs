@@ -634,3 +634,44 @@ test_refs:
         out
     }
 }
+
+/// Marks the specified task file as `DONE` (`status: done` in frontmatter and `**Status**: \`DONE\``
+/// in the body), returning its path and original content for transactional rollback.
+pub fn mark_task_done(workspace: &Path, task_id: &str) -> Result<(PathBuf, String), TaskError> {
+    let task_path = resolve_task_file_path(workspace, Some(task_id))?;
+    let original = fs::read_to_string(&task_path)?;
+    let line_ending = if original.contains("\r\n") {
+        "\r\n"
+    } else {
+        "\n"
+    };
+
+    let mut lines: Vec<String> = original.lines().map(|l| l.to_string()).collect();
+    let mut in_frontmatter = false;
+    let mut frontmatter_closed = false;
+
+    for (idx, line) in lines.iter_mut().enumerate() {
+        let trimmed = line.trim();
+        if idx == 0 && trimmed == "---" {
+            in_frontmatter = true;
+            continue;
+        }
+        if in_frontmatter && trimmed == "---" {
+            in_frontmatter = false;
+            frontmatter_closed = true;
+            continue;
+        }
+        if in_frontmatter && !frontmatter_closed && trimmed.starts_with("status:") {
+            *line = "status: done".to_string();
+        } else if !in_frontmatter && trimmed.starts_with("**Status**:") {
+            *line = "**Status**: `DONE`".to_string();
+        }
+    }
+
+    let mut updated = lines.join(line_ending);
+    if original.ends_with('\n') {
+        updated.push_str(line_ending);
+    }
+    fs::write(&task_path, &updated)?;
+    Ok((task_path, original))
+}
