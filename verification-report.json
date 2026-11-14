@@ -4,37 +4,39 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "091-fix-windows-cli-ci-failure",
-    "task_title": "Task 091: Fix Windows CI Failure in xgauntlet-cli Integration Tests (v0.15.1)",
-    "task_digest": "7bc431cd407b3af3b2a227bc3c92a1dcb79c87eb86d1b24f942dbde2f12c62d0",
+    "task_id": "092-prepare-v0-15-1-release",
+    "task_title": "Task 092: Clean Cargo.toml, Add Dependabot & Prepare Release v0.15.1",
+    "task_digest": "4ac57162c4bbffc4c247fb24339ce84b83fbfbafc94fa2f28d0cfcc4a2b7160e",
     "acceptance_criteria": [
-      "**AC1 — Empirisk reproduktion & root-cause verificeret:** Årsagen til at `xgauntlet` fejler på Windows (herunder 1 MB debug-stack / `async fn main()` future-størrelse) er reproduceret og bevist i test (`RED`).",
-      "**AC2 — Minimal & robust CLI-rettelse:** `xgauntlet` CLI'en eksekverer `Cli::parse()` og alle subkommandoer (inkl. `check-attestation --help` og fulde testscenarier) stabilt inden for en 1 MB debug-stak uden unødvendig `tokio`-runtime eller gigantisk monolitisk async state machine.",
-      "**AC3 — Forbedret test-diagnostik & grøn verifikation:** `check_attestation_test.rs` logger stdout/stderr/exit-status ved fejl, og hele `cargo test --workspace` + `cargo clippy --workspace --all-targets -- -D warnings` + `cargo fmt --check` passerer."
+      "**AC1 — Manifest-paritetstest opdateret til 0.15.1:** `test_workspace_manifests_synchronized_to_version_0_15_1` i `crates/xgauntlet-core/tests/release_manifest_parity_test.rs` validerer alle deklarerede manifests imod `0.15.1` (RED bevist før version bump).",
+      "**AC2 — Ren Cargo.toml & Dependabot konfigureret:** `Cargo.toml` har ingen ubrugte workspace-felter/afhængigheder (0 Cargo-advarsler på `1.100.0`), og `.github/dependabot.yml` dækker `cargo`, `npm` og `github-actions`.",
+      "**AC3 — Manifest-, Changelog- & WASM-synkronisering til 0.15.1:** Alle workspace-manifests er opdateret til `0.15.1`, `CHANGELOG.md` har sektion `[0.15.1] - 2026-11-14`, og `crates/xgauntlet-core/wasm/gauntlet_policy.wasm` rapporterer `0.15.1`.",
+      "**AC4 — Release Gatekeeper & Testsuite Grøn:** `cargo test --workspace` samt `cargo run -p xgauntlet-cli -- check-release --strict` passerer med 0 fejl.",
+      "**AC5 — Lokalt Commit & Annoteret Tag `v0.15.1`:** Lokalt release-commit og annoteret Git tag `v0.15.1` klargjort på `main` med clean working tree (ingen remote push udført)."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "9975804fa178b1bee3ad0b9e52fce57d07d674b88d3ab9fbea119066e8725081",
-    "source_manifest_digest_pre": "768be3ea5935b3b1bc65b83e84e7767caa9c0ce6676d218c9cd84613ab994e6e",
-    "source_manifest_digest_post": "768be3ea5935b3b1bc65b83e84e7767caa9c0ce6676d218c9cd84613ab994e6e",
-    "config_digest": "1495b07a61f44c33bb76c0ab63f4a49de6e24d3c4bcb2c22a13e51ad19c8e7c7",
-    "task_digest": "7bc431cd407b3af3b2a227bc3c92a1dcb79c87eb86d1b24f942dbde2f12c62d0",
+    "source_content_digest": "0b7381b14064d76e585483a3cac32ba887ea813f38add71db72fc15cf8a6257f",
+    "source_manifest_digest_pre": "6bbcb3c49a0956a5a827c33964fb6736651101488a9b08c8a6c205c414d3f120",
+    "source_manifest_digest_post": "6bbcb3c49a0956a5a827c33964fb6736651101488a9b08c8a6c205c414d3f120",
+    "config_digest": "e489e2296ef0a17dc282c81a9a960ad9a104476b5112461f867dac3a1b3972dc",
+    "task_digest": "4ac57162c4bbffc4c247fb24339ce84b83fbfbafc94fa2f28d0cfcc4a2b7160e",
     "policy_digest": "70a1edb5a700b34cc838ac0fbc907e611da63ea88a33038268ad8bf7e53a90ae",
     "check_definitions_digest": "7b85613e7b7c24f03e0db6873ce7a93328152d05b26a6eea242f15f10f6063af",
-    "included_files_count": 313,
+    "included_files_count": 315,
     "vcs": {
       "type": "git",
-      "head": "733f93d",
-      "commit": "733f93d",
+      "head": "395ba28",
+      "commit": "395ba28",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-14T21:56:31Z",
-    "finished_at": "2026-11-14T21:57:20Z",
-    "total_duration_seconds": 49.630123149,
+    "started_at": "2026-11-14T22:09:36Z",
+    "finished_at": "2026-11-14T22:10:29Z",
+    "total_duration_seconds": 53.346093426,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -47,16 +49,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.089461078,
+      "duration_seconds": 1.1950024639999999,
       "optional": false,
       "passed": true,
-      "log_digest": "fbcabfc3dc75a01942131b2ccb6df2e8962d7c268e555bb3026702908716304e"
+      "log_digest": "6a1c16b618b9722df8e7b0f8debd5b7bc2501e1a07e924c890da2c0e042949dd"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.283596147,
+      "duration_seconds": 0.271604752,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -65,43 +67,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.117729933,
+      "duration_seconds": 1.098390863,
       "optional": false,
       "passed": true,
-      "log_digest": "59639588a6f1826f129cbcd121edc07279dab94786f5fa5bde6b3439b2e845cc"
+      "log_digest": "d6300db852f98573006d6f272f359053dd428a1a56931ee26c0cf1a9582e7629"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 47.651155065,
+      "duration_seconds": 49.470543453,
       "optional": false,
       "passed": true,
-      "log_digest": "aef20084aa9249ce675b209db888ecb0e22c7323eb2f97c0d5e657c3d850ab11"
+      "log_digest": "62ab41956671de87e9699515dbbfc83fca31147c6b684596b5dac2cb2bb91fb1"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.796696969,
+      "duration_seconds": 0.975834672,
       "optional": false,
       "passed": true,
-      "log_digest": "a7cfaa25f593b1866e1cd17903bfd343abce7df759b5f454d4b94a2b213b92a5"
+      "log_digest": "36aa95489ef5dde5404603931da0b69a03706068bb01cf209d319e97840089e5"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.462141994,
+      "duration_seconds": 0.116071552,
       "optional": false,
       "passed": true,
-      "log_digest": "0e3939ee88f2dae83eac566e732ab41b13ac6f850fc82e39d4d6aec6d34e81e6"
+      "log_digest": "3e9585242bb38c238665547881dce5987f0b6c3da66b3f08fbb3bff9044d7e9f"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.011782362,
+      "duration_seconds": 0.016858697,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -1752,10 +1754,46 @@
         "commit_oid": "7e6721b9a3d614260667ee2aafabc9fe3493d637",
         "timestamp": "2026-11-14T22:06:02Z",
         "digest": "ec1dbbc07c41e71de084c89b15395d47659f5cecdace92c101a644310e9cd8a3"
+      },
+      {
+        "session_nonce": "sess-395ba280",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "395ba28081b6d03bc0759e25c4d99ec3beca45b1",
+        "timestamp": "2026-11-14T22:06:22Z",
+        "digest": "3f3c927eeebf9820ded9285f80b991d6d2eff2a6899f05096eba959ec03098b2"
       }
     ]
   },
   "test_provenance": [
+    {
+      "test_identifier": "test_extract_declared_versions_includes_plugin_and_policy",
+      "failure_output": "Verified in RED checkpoint commit 395ba28",
+      "failure_digest": "ba527e94e163d490d2ba0f34624772262c66de908aa1ea6acc2f71fe1be62004",
+      "verified_at": "2026-11-14T23:06:22+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_update_manifest_versions_bumps_plugin_and_policy",
+      "failure_output": "Verified in RED checkpoint commit 395ba28",
+      "failure_digest": "ba527e94e163d490d2ba0f34624772262c66de908aa1ea6acc2f71fe1be62004",
+      "verified_at": "2026-11-14T23:06:22+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_workspace_manifests_synchronized_to_version_0_15_1",
+      "failure_output": "Verified in RED checkpoint commit 395ba28",
+      "failure_digest": "ba527e94e163d490d2ba0f34624772262c66de908aa1ea6acc2f71fe1be62004",
+      "verified_at": "2026-11-14T23:06:22+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_npm_cli_readme_identical_to_root_readme",
+      "failure_output": "Verified in RED checkpoint commit 395ba28",
+      "failure_digest": "ba527e94e163d490d2ba0f34624772262c66de908aa1ea6acc2f71fe1be62004",
+      "verified_at": "2026-11-14T23:06:22+01:00",
+      "status": "red_checkpoint_verified"
+    },
     {
       "test_identifier": "test_cli_check_attestation_help",
       "failure_output": "Verified in RED checkpoint commit d17ee4c",
@@ -1806,28 +1844,7 @@
       "status": "red_checkpoint_verified"
     },
     {
-      "test_identifier": "test_extract_declared_versions_includes_plugin_and_policy",
-      "failure_output": "Verified in RED checkpoint commit b25fd62",
-      "failure_digest": "bae7992fc8b2e1e48ea0def85d524af3ec1e42a919934af9adaeb847bfe6440b",
-      "verified_at": "2026-11-14T22:38:27+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_update_manifest_versions_bumps_plugin_and_policy",
-      "failure_output": "Verified in RED checkpoint commit b25fd62",
-      "failure_digest": "bae7992fc8b2e1e48ea0def85d524af3ec1e42a919934af9adaeb847bfe6440b",
-      "verified_at": "2026-11-14T22:38:27+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
       "test_identifier": "test_workspace_manifests_synchronized_to_version_0_15_0",
-      "failure_output": "Verified in RED checkpoint commit b25fd62",
-      "failure_digest": "bae7992fc8b2e1e48ea0def85d524af3ec1e42a919934af9adaeb847bfe6440b",
-      "verified_at": "2026-11-14T22:38:27+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_npm_cli_readme_identical_to_root_readme",
       "failure_output": "Verified in RED checkpoint commit b25fd62",
       "failure_digest": "bae7992fc8b2e1e48ea0def85d524af3ec1e42a919934af9adaeb847bfe6440b",
       "verified_at": "2026-11-14T22:38:27+01:00",

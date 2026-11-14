@@ -1,19 +1,21 @@
 # Verification Report
 
-**Task ID**: `091-fix-windows-cli-ci-failure`  
-**Task Title**: Task 091: Fix Windows CI Failure in xgauntlet-cli Integration Tests (v0.15.1)  
+**Task ID**: `092-prepare-v0-15-1-release`  
+**Task Title**: Task 092: Clean Cargo.toml, Add Dependabot & Prepare Release v0.15.1  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `768be3ea5935b3b1bc65b83e84e7767caa9c0ce6676d218c9cd84613ab994e6e`  
-**Timestamp**: `2026-11-14T21:57:20Z`  
-**Head**: `733f93d`  
-**Commit**: `733f93d`  
+**Source Manifest Digest**: `6bbcb3c49a0956a5a827c33964fb6736651101488a9b08c8a6c205c414d3f120`  
+**Timestamp**: `2026-11-14T22:10:29Z`  
+**Head**: `395ba28`  
+**Commit**: `395ba28`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 — Empirisk reproduktion & root-cause verificeret:** Årsagen til at `xgauntlet` fejler på Windows (herunder 1 MB debug-stack / `async fn main()` future-størrelse) er reproduceret og bevist i test (`RED`).
-- [x] **AC2 — Minimal & robust CLI-rettelse:** `xgauntlet` CLI'en eksekverer `Cli::parse()` og alle subkommandoer (inkl. `check-attestation --help` og fulde testscenarier) stabilt inden for en 1 MB debug-stak uden unødvendig `tokio`-runtime eller gigantisk monolitisk async state machine.
-- [x] **AC3 — Forbedret test-diagnostik & grøn verifikation:** `check_attestation_test.rs` logger stdout/stderr/exit-status ved fejl, og hele `cargo test --workspace` + `cargo clippy --workspace --all-targets -- -D warnings` + `cargo fmt --check` passerer.
+- [x] **AC1 — Manifest-paritetstest opdateret til 0.15.1:** `test_workspace_manifests_synchronized_to_version_0_15_1` i `crates/xgauntlet-core/tests/release_manifest_parity_test.rs` validerer alle deklarerede manifests imod `0.15.1` (RED bevist før version bump).
+- [x] **AC2 — Ren Cargo.toml & Dependabot konfigureret:** `Cargo.toml` har ingen ubrugte workspace-felter/afhængigheder (0 Cargo-advarsler på `1.100.0`), og `.github/dependabot.yml` dækker `cargo`, `npm` og `github-actions`.
+- [x] **AC3 — Manifest-, Changelog- & WASM-synkronisering til 0.15.1:** Alle workspace-manifests er opdateret til `0.15.1`, `CHANGELOG.md` har sektion `[0.15.1] - 2026-11-14`, og `crates/xgauntlet-core/wasm/gauntlet_policy.wasm` rapporterer `0.15.1`.
+- [x] **AC4 — Release Gatekeeper & Testsuite Grøn:** `cargo test --workspace` samt `cargo run -p xgauntlet-cli -- check-release --strict` passerer med 0 fejl.
+- [x] **AC5 — Lokalt Commit & Annoteret Tag `v0.15.1`:** Lokalt release-commit og annoteret Git tag `v0.15.1` klargjort på `main` med clean working tree (ingen remote push udført).
 
 ---
 
@@ -21,13 +23,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.089s` |
-| `format` | `PASSED` | `0` | `0.284s` |
-| `lint` | `PASSED` | `0` | `0.118s` |
-| `unit` | `PASSED` | `0` | `47.651s` |
-| `npm` | `PASSED` | `0` | `0.797s` |
-| `invariants` | `PASSED` | `0` | `0.462s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
+| `architecture` | `PASSED` | `0` | `1.195s` |
+| `format` | `PASSED` | `0` | `0.272s` |
+| `lint` | `PASSED` | `0` | `1.098s` |
+| `unit` | `PASSED` | `0` | `49.471s` |
+| `npm` | `PASSED` | `0` | `0.976s` |
+| `invariants` | `PASSED` | `0` | `0.116s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.017s` |
 
 ---
 
@@ -239,6 +241,7 @@
 | `sess-733f93da` | `TDD Craftsman` | `GREEN` | `733f93d` | `2026-11-14T21:56:16Z` | `VALID` |
 | `sess-1e8e23b6` | `Software Engineer` | `DONE` | `1e8e23b` | `2026-11-14T21:57:20Z` | `VALID` |
 | `sess-7e6721b9` | `System Architect` | `SPEC` | `7e6721b` | `2026-11-14T22:06:02Z` | `VALID` |
+| `sess-395ba280` | `TDD Craftsman` | `RED` | `395ba28` | `2026-11-14T22:06:22Z` | `VALID` |
 
 ---
 
@@ -246,6 +249,10 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `ba527e94e163d490...` | `2026-11-14T23:06:22+01:00` |
+| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `ba527e94e163d490...` | `2026-11-14T23:06:22+01:00` |
+| `test_workspace_manifests_synchronized_to_version_0_15_1` | `RedCheckpointVerified` | `ba527e94e163d490...` | `2026-11-14T23:06:22+01:00` |
+| `test_npm_cli_readme_identical_to_root_readme` | `RedCheckpointVerified` | `ba527e94e163d490...` | `2026-11-14T23:06:22+01:00` |
 | `test_cli_check_attestation_help` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
 | `test_cli_check_attestation_help_within_1mb_stack_limit` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
 | `test_cli_check_attestation_fails_closed_on_missing_bundle` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
@@ -253,10 +260,7 @@
 | `test_cli_check_attestation_fails_closed_on_digest_mismatch` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
 | `test_cli_check_attestation_fails_closed_on_repo_id_mismatch` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
 | `test_cli_check_attestation_resolves_attestation_json_fallback_when_bundle_missing` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
-| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `bae7992fc8b2e1e4...` | `2026-11-14T22:38:27+01:00` |
-| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `bae7992fc8b2e1e4...` | `2026-11-14T22:38:27+01:00` |
 | `test_workspace_manifests_synchronized_to_version_0_15_0` | `RedCheckpointVerified` | `bae7992fc8b2e1e4...` | `2026-11-14T22:38:27+01:00` |
-| `test_npm_cli_readme_identical_to_root_readme` | `RedCheckpointVerified` | `bae7992fc8b2e1e4...` | `2026-11-14T22:38:27+01:00` |
 | `test_read_only_delegation_allowed_without_active_task` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
 | `test_isolated_mutating_delegation_requires_active_task_and_allows_when_active` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |
 | `test_shared_inherit_mutating_delegation_denied_fail_closed` | `RedCheckpointVerified` | `661b6da179dff9b6...` | `2026-11-14T22:11:35+01:00` |

@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.1] - 2026-11-14
+
+### 🐛 Fixed
+- **Windows CLI 1 MiB Debug Stack Overflow (`Task 091`, `crates/xgauntlet-cli/src/main.rs`, `crates/xgauntlet-cli/src/handlers.rs`)**:
+  - Replaced `#[tokio::main] async fn main()` with a synchronous `fn main()` that runs `Cli::parse()` and `dispatch_command()` on an explicit **8 MiB stack** worker thread, extracting heavy subcommand handlers (`check-attestation`, `verify`, `checkpoint`) into [crates/xgauntlet-cli/src/handlers.rs](crates/xgauntlet-cli/src/handlers.rs) and running async `verify`/`checkpoint` futures inside `run_async_on_large_stack`.
+  - Resolves Windows CI failures (`rustc 1.100.0`) where unoptimized debug builds exceeded the 1 MiB Windows PE main-thread stack before printing `--help` or JSON output, verified down to 256 KB host stack (`prlimit --stack=262144`) and covered by `test_cli_check_attestation_help_within_1mb_stack_limit` in `crates/xgauntlet-cli/tests/check_attestation_test.rs`.
+- **Workspace Manifest Cleanup (`Task 092`, `Cargo.toml`)**:
+  - Removed unused `workspace.package.authors` and `workspace.dependencies.ed25519-dalek` entries flagged by `cargo 1.100.0`.
+
+### 🛠️ Tooling & Dependencies
+- **Dependabot Automation (`Task 092`, `.github/dependabot.yml`)**:
+  - Added weekly Dependabot monitoring and PR automation for `cargo`, `npm`, and `github-actions`.
+
 ## [0.15.0] - 2026-11-14
 
 ### 🚀 Added & Enhanced

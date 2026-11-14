@@ -47,11 +47,11 @@ Forberede patch release **xGauntlet v0.15.1** med Windows CLI-rettelsen fra Task
 
 ## 📋 Acceptance Criteria
 
-- [ ] **AC1 — Manifest-paritetstest opdateret til 0.15.1:** `test_workspace_manifests_synchronized_to_version_0_15_1` i `crates/xgauntlet-core/tests/release_manifest_parity_test.rs` validerer alle deklarerede manifests imod `0.15.1` (RED bevist før version bump).
-- [ ] **AC2 — Ren Cargo.toml & Dependabot konfigureret:** `Cargo.toml` har ingen ubrugte workspace-felter/afhængigheder (0 Cargo-advarsler på `1.100.0`), og `.github/dependabot.yml` dækker `cargo`, `npm` og `github-actions`.
-- [ ] **AC3 — Manifest-, Changelog- & WASM-synkronisering til 0.15.1:** Alle workspace-manifests er opdateret til `0.15.1`, `CHANGELOG.md` har sektion `[0.15.1] - 2026-11-14`, og `crates/xgauntlet-core/wasm/gauntlet_policy.wasm` rapporterer `0.15.1`.
-- [ ] **AC4 — Release Gatekeeper & Testsuite Grøn:** `cargo test --workspace` samt `cargo run -p xgauntlet-cli -- check-release --strict` passerer med 0 fejl.
-- [ ] **AC5 — Lokalt Commit & Annoteret Tag `v0.15.1`:** Lokalt release-commit og annoteret Git tag `v0.15.1` klargjort på `main` med clean working tree (ingen remote push udført).
+- [x] **AC1 — Manifest-paritetstest opdateret til 0.15.1:** `test_workspace_manifests_synchronized_to_version_0_15_1` i `crates/xgauntlet-core/tests/release_manifest_parity_test.rs` validerer alle deklarerede manifests imod `0.15.1` (RED bevist før version bump).
+- [x] **AC2 — Ren Cargo.toml & Dependabot konfigureret:** `Cargo.toml` har ingen ubrugte workspace-felter/afhængigheder (0 Cargo-advarsler på `1.100.0`), og `.github/dependabot.yml` dækker `cargo`, `npm` og `github-actions`.
+- [x] **AC3 — Manifest-, Changelog- & WASM-synkronisering til 0.15.1:** Alle workspace-manifests er opdateret til `0.15.1`, `CHANGELOG.md` har sektion `[0.15.1] - 2026-11-14`, og `crates/xgauntlet-core/wasm/gauntlet_policy.wasm` rapporterer `0.15.1`.
+- [x] **AC4 — Release Gatekeeper & Testsuite Grøn:** `cargo test --workspace` samt `cargo run -p xgauntlet-cli -- check-release --strict` passerer med 0 fejl.
+- [x] **AC5 — Lokalt Commit & Annoteret Tag `v0.15.1`:** Lokalt release-commit og annoteret Git tag `v0.15.1` klargjort på `main` med clean working tree (ingen remote push udført).
 
 ---
 
