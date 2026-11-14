@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 091: Fix Windows CI Failure in xgauntlet-cli Integration Tests (v0.15.1)"
 description: "Reproducerer og retter Windows-fejlen i xgauntlet-cli integrationstests (check_attestation_test.rs hvor xgauntlet.exe fejlede på alle subkommandoer inkl. --help) samt klargør patch release v0.15.1."
-status: active
+status: done
 intent: bug
 generated: { by: process:antigravity-task-init, at: "2026-11-14T22:53:00Z" }
 tags: [windows, ci, cli, bugfix, stack-size, v0.15.1]
@@ -18,7 +18,7 @@ test_refs:
 
 # Task 091: Fix Windows CI Failure in xgauntlet-cli Integration Tests (v0.15.1)
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🐛 BUG FIX`
 **Oprettet**: `2026-11-14`
 

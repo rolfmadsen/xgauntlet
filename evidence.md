@@ -1,20 +1,19 @@
 # Verification Report
 
-**Task ID**: `090-prepare-v0-15-0-release`  
-**Task Title**: Task 090: Prepare Release v0.15.0 for GitHub and npmjs  
+**Task ID**: `091-fix-windows-cli-ci-failure`  
+**Task Title**: Task 091: Fix Windows CI Failure in xgauntlet-cli Integration Tests (v0.15.1)  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `d43343a9025ad7c445d8555b3134d9fb48fafdee4e3a96eb415481058f2fc9c8`  
-**Timestamp**: `2026-11-14T21:42:51Z`  
-**Head**: `b4da8e8`  
-**Commit**: `b4da8e8`  
+**Source Manifest Digest**: `768be3ea5935b3b1bc65b83e84e7767caa9c0ce6676d218c9cd84613ab994e6e`  
+**Timestamp**: `2026-11-14T21:57:20Z`  
+**Head**: `733f93d`  
+**Commit**: `733f93d`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 — Manifest-paritetstest opdateret til 0.15.0:** `test_workspace_manifests_synchronized_to_version_0_15_0` i `crates/xgauntlet-core/tests/release_manifest_parity_test.rs` validerer alle deklarerede manifests imod `0.15.0` (RED bevist i `b25fd62`).
-- [x] **AC2 — Manifest-, Changelog- & WASM-synkronisering til 0.15.0:** Alle workspace-manifests er opdateret til `0.15.0`, `CHANGELOG.md` har sektion `[0.15.0] - 2026-11-14`, og `crates/xgauntlet-core/wasm/gauntlet_policy.wasm` rapporterer `0.15.0`.
-- [x] **AC3 — Release Gatekeeper & Testsuite Grøn:** `cargo test --workspace` samt `cargo run -p xgauntlet-cli -- check-release` passerer med 0 fejl, og frisk evidens er forseglet.
-- [x] **AC4 — Lokalt Commit & Annoteret Tag `v0.15.0`:** Lokalt release-commit og annoteret Git tag `v0.15.0` klargjort på `main` med clean working tree (ingen remote push udført).
+- [x] **AC1 — Empirisk reproduktion & root-cause verificeret:** Årsagen til at `xgauntlet` fejler på Windows (herunder 1 MB debug-stack / `async fn main()` future-størrelse) er reproduceret og bevist i test (`RED`).
+- [x] **AC2 — Minimal & robust CLI-rettelse:** `xgauntlet` CLI'en eksekverer `Cli::parse()` og alle subkommandoer (inkl. `check-attestation --help` og fulde testscenarier) stabilt inden for en 1 MB debug-stak uden unødvendig `tokio`-runtime eller gigantisk monolitisk async state machine.
+- [x] **AC3 — Forbedret test-diagnostik & grøn verifikation:** `check_attestation_test.rs` logger stdout/stderr/exit-status ved fejl, og hele `cargo test --workspace` + `cargo clippy --workspace --all-targets -- -D warnings` + `cargo fmt --check` passerer.
 
 ---
 
@@ -23,12 +22,12 @@
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
 | `architecture` | `PASSED` | `0` | `0.089s` |
-| `format` | `PASSED` | `0` | `0.265s` |
-| `lint` | `PASSED` | `0` | `0.120s` |
-| `unit` | `PASSED` | `0` | `47.408s` |
-| `npm` | `PASSED` | `0` | `0.838s` |
-| `invariants` | `PASSED` | `0` | `0.062s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.018s` |
+| `format` | `PASSED` | `0` | `0.284s` |
+| `lint` | `PASSED` | `0` | `0.118s` |
+| `unit` | `PASSED` | `0` | `47.651s` |
+| `npm` | `PASSED` | `0` | `0.797s` |
+| `invariants` | `PASSED` | `0` | `0.462s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
 
 ---
 
@@ -237,6 +236,7 @@
 | `sess-f5d94226` | `Software Engineer` | `DONE` | `f5d9422` | `2026-11-14T21:42:51Z` | `VALID` |
 | `sess-bd492f28` | `System Architect` | `SPEC` | `bd492f2` | `2026-11-14T21:51:32Z` | `VALID` |
 | `sess-d17ee4cc` | `TDD Craftsman` | `RED` | `d17ee4c` | `2026-11-14T21:52:26Z` | `VALID` |
+| `sess-733f93da` | `TDD Craftsman` | `GREEN` | `733f93d` | `2026-11-14T21:56:16Z` | `VALID` |
 
 ---
 
@@ -244,6 +244,13 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_cli_check_attestation_help` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
+| `test_cli_check_attestation_help_within_1mb_stack_limit` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
+| `test_cli_check_attestation_fails_closed_on_missing_bundle` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
+| `test_cli_check_attestation_succeeds_with_valid_bundle_and_json_output` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
+| `test_cli_check_attestation_fails_closed_on_digest_mismatch` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
+| `test_cli_check_attestation_fails_closed_on_repo_id_mismatch` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
+| `test_cli_check_attestation_resolves_attestation_json_fallback_when_bundle_missing` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
 | `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `bae7992fc8b2e1e4...` | `2026-11-14T22:38:27+01:00` |
 | `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `bae7992fc8b2e1e4...` | `2026-11-14T22:38:27+01:00` |
 | `test_workspace_manifests_synchronized_to_version_0_15_0` | `RedCheckpointVerified` | `bae7992fc8b2e1e4...` | `2026-11-14T22:38:27+01:00` |
@@ -479,12 +486,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_cli_check_attestation_help` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
-| `test_cli_check_attestation_help_within_1mb_stack_limit` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
-| `test_cli_check_attestation_fails_closed_on_missing_bundle` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
-| `test_cli_check_attestation_succeeds_with_valid_bundle_and_json_output` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
-| `test_cli_check_attestation_fails_closed_on_digest_mismatch` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
-| `test_cli_check_attestation_fails_closed_on_repo_id_mismatch` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
-| `test_cli_check_attestation_resolves_attestation_json_fallback_when_bundle_missing` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
 
 ---
