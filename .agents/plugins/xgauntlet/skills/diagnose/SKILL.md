@@ -74,13 +74,14 @@ Each probe must map to a specific prediction from Phase 3. **Change one variable
 
 ---
 
-## Phase 5: Fix + regression test
+## Phase 5: Fix + regression test (Fast-Track 2-Step `RED -> DONE`)
 
 Write the regression test **before the fix**, but only if there is a **correct seam** for it.
-1. Turn the minimised repro into a failing test at that seam.
-2. Watch it fail.
-3. Apply the fix.
-4. Watch it pass.
+For bounded bugfixes (`<= 3` concrete files, zero ADR/`gauntlet.toml` changes), use xGauntlet's Fast-Track 2-step flow:
+1. Scaffold active task in one step: `xgauntlet task new <slug> --intent bug --scope <file> --test <test_file>`.
+2. Turn the minimised repro into a failing test at that seam and lock it with `xgauntlet checkpoint -p red` (proves the test fails against baseline).
+3. Apply the fix inside `scope`.
+4. Watch it pass and seal full verification with `xgauntlet checkpoint -p done`.
 5. Re-run the Phase 1 feedback loop against the original (un-minimised) scenario.
 
 ---

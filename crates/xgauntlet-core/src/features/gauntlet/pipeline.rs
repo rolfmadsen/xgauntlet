@@ -195,54 +195,47 @@ pub async fn execute_gauntlet_pipeline(
         environment: env_map,
     };
 
-    // 10. Fast-Track Worktree Inverse Proof evaluation
+    // 10. Fast-Track 2-step (RED -> DONE) & TDD Phase Provenance verification
     let mut proof_mode = None;
-    let mut fast_track_evidences = None;
     if let Some(ref tc) = task_contract {
         if let Some(info) =
             crate::features::checkpoint::engine::load_task_package_info(workspace, &tc.task_id)
         {
             let has_red_commit =
                 crate::features::checkpoint::preflight::has_task_red_commit(workspace, &tc.task_id);
-            if !has_red_commit && !info.test_refs.is_empty() {
-                let changed =
-                    crate::features::checkpoint::preflight::get_working_tree_changed_files(
-                        workspace,
-                    )
+            let changed =
+                crate::features::checkpoint::preflight::get_working_tree_changed_files(workspace)
                     .unwrap_or_default();
-                if crate::features::checkpoint::provenance::is_fast_track_eligible(&info, &changed)
-                {
-                    match crate::features::checkpoint::provenance::evaluate_fast_track_inverse_proof(
-                        workspace,
-                        &info.test_refs,
-                    ) {
-                        Ok(evidences) => {
-                            proof_mode = Some("worktree_inverse_proof".to_string());
-                            fast_track_evidences = Some(evidences);
-                        }
-                        Err(e) => {
-                            all_findings.push(DiagnosticFinding::new(
-                                FindingType::InvariantViolation,
-                                "fast-track-inverse-proof",
-                                "worktree",
-                                format!("Worktree Inverse Proof failed: {e}"),
-                                "Ensure regression test fails against HEAD before production fix"
-                                    .to_string(),
-                            ));
-                        }
-                    }
+            let fast_track =
+                crate::features::checkpoint::provenance::is_fast_track_eligible(&info, &changed);
+
+            if !has_red_commit && !info.test_refs.is_empty() {
+                let (message, hint) = if fast_track {
+                    (
+                        format!(
+                            "Fast-Track bugfix task '{}' has no preceding RED commit (2-step flow: RED -> DONE).",
+                            tc.task_id
+                        ),
+                        "Run 'xgauntlet checkpoint -p red' first to prove the regression test fails against baseline before verification.".to_string(),
+                    )
                 } else {
-                    all_findings.push(DiagnosticFinding::new(
-                        FindingType::InvariantViolation,
-                        "tdd-phase-provenance",
-                        "checkpoint",
+                    (
                         format!(
                             "Task '{}' has no preceding RED commit and is not eligible for Fast-Track Bugfix Lane (intent: {:?}, scope.len(): {}).",
                             tc.task_id, info.intent, info.scope.len()
                         ),
                         "Follow standard TDD protocol: commit failing acceptance test in RED phase ('xgauntlet checkpoint --phase red') before implementation.".to_string(),
-                    ));
-                }
+                    )
+                };
+                all_findings.push(DiagnosticFinding::new(
+                    FindingType::InvariantViolation,
+                    "tdd-phase-provenance",
+                    "checkpoint",
+                    message,
+                    hint,
+                ));
+            } else if has_red_commit && fast_track {
+                proof_mode = Some("fast_track_red_to_done".to_string());
             }
         }
     }
@@ -309,13 +302,6 @@ pub async fn execute_gauntlet_pipeline(
                     for ex in existing {
                         if !list.iter().any(|p| p.test_identifier == ex.test_identifier) {
                             list.push(ex);
-                        }
-                    }
-                }
-                if let Some(ft_list) = fast_track_evidences {
-                    for ft in ft_list {
-                        if !list.iter().any(|p| p.test_identifier == ft.test_identifier) {
-                            list.push(ft);
                         }
                     }
                 }

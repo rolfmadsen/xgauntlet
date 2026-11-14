@@ -14,7 +14,7 @@ The `checkpoint` feature enforces phase-bound TDD invariant verification (`SPEC`
   - `SPEC`: Validates OKF v0.2 task specification readiness (`check_task_specification`).
   - `RED`: Runs scoped `test_refs` targets (`resolve_preflight_test_layers`) and verifies that expected test assertions fail rather than production syntax/manifest errors.
   - `GREEN` / `REFACTOR`: Verifies born-green test provenance (`detect_born_green_tests` + `verify_inverse_test_failure`), confirms all scoped `test_refs` pass, and enforces the Self-Mutation Invariant in `REFACTOR`.
-  - `DONE`: Confirms preceding `RED` commit or Fast-Track Bugfix eligibility (`intent: bug`, `scope.len() <= 3`) and runs the full `execute_gauntlet_pipeline` verification.
+  - `DONE`: Confirms preceding `RED` commit (for both standard TDD and 2-step Fast-Track `RED -> DONE` bugfixes with `intent: bug`, `scope.len() <= 3`, no wildcards) and runs the full `execute_gauntlet_pipeline` verification.
 - **Git & Provenance (`git.rs` & `provenance.rs`)**: Formats conventional commit messages (`compose_commit_message`), stages and commits locally without remote publication, and extracts/verifies test provenance.
 
 ## 🚫 Invariants

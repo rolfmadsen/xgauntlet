@@ -63,13 +63,17 @@ xgauntlet checkpoint --phase refactor
 
 ## ⚡ Fast-Track Bugfix Lane (`intent: bug`)
 
-For afgrænsede fejlrettelser understøttes en accelereret verifikationssti jf. [ADR 0011](docs/adr/0011-fast-track-worktree-inverse-proof-and-scoped-preflight.md):
+For afgrænsede fejlrettelser understøttes et deterministisk 2-trins flow jf. [ADR 0011](docs/adr/0011-fast-track-worktree-inverse-proof-and-scoped-preflight.md):
 - **Betingelser for Fast-Track**:
   1. Task intent er `bug` (`intent: bug` / `🐛 BUG FIX`).
-  2. `scope` indeholder højst 3 kildefiler (`scope.len() <= 3`).
+  2. `scope` indeholder højst 3 konkrete kildefiler (`!scope.is_empty() && scope.len() <= 3`, ingen `*`/`**`-wildcards).
   3. Ingen berøring af `docs/adr/` eller `gauntlet.toml`.
-- **2-trins Flow**: `checkpoint -p red` (kun `test_refs`) ➔ bugfix i `scope` ➔ `checkpoint -p done` (fuld verifikation og evidensforsegling). Separat `SPEC`- og `REFACTOR`-commit er valgfrie.
-- **1-trins Atomisk Worktree Inverse Proof**: Hvis test og fix leveres i ét trin, udfører xGauntlet automatisk invers verifikation i en isoleret midlertidig git worktree mod uændret HEAD. Testen skal fejle mod HEAD for at bevise sin negative evne; hvis den passerer mod HEAD, afvises den prompte som `BORN_GREEN_TEST`.
+- **2-trins Flow (`RED ➔ DONE`)**:
+  1. `xgauntlet task new <slug> --intent bug --scope <file> --test <test_file>` (opretter `ACTIVE` bugfix-task i ét trin uden feature-spec ceremoni).
+  2. Skriv regressionstest i `test_refs` og kør `xgauntlet checkpoint -p red` (kun `test_refs`, beviser fejlen mod baseline).
+  3. Implementer rettelsen i `scope`.
+  4. Kør `xgauntlet checkpoint -p done` (fuld verifikation og evidensforsegling med `proof_mode = "fast_track_red_to_done"`). Separat `SPEC`-, `GREEN`- og `REFACTOR`-commit er valgfrie.
+- **Fail-Closed Provenance**: `checkpoint -p done` og `verify` afvises uden forudgående `RED`-commit.
 
 ---
 

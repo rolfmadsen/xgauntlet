@@ -32,7 +32,7 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
    - Package-by-Feature (Screaming Architecture).
    - Strict Red -> Green -> Refactor lifecycle and RED-first test provenance enforcement (elimination of born-green and tautological tests).
    - Autonomous TDD inner loop with boundary Human-in-the-Loop gates ([ADR 0009](docs/adr/0009-autonomous-tdd-inner-loop-and-boundary-human-gates.md)).
-   - Fast-Track Bugfix Lane for bounded defects (`scope.len() <= 3`, zero ADR impact) via direct `RED → DONE` or isolated single-step Worktree Inverse Proof ([ADR 0011](docs/adr/0011-fast-track-worktree-inverse-proof-and-scoped-preflight.md)).
+   - Fast-Track Bugfix Lane for bounded defects (`intent: bug`, `scope.len() <= 3` konkrete stier uden wildcards, zero ADR impact) via deterministisk 2-trins `RED → DONE` flow ([ADR 0011](docs/adr/0011-fast-track-worktree-inverse-proof-and-scoped-preflight.md)).
    - ADR-bound architectural exemptions and monotonic ratchet governance ([ADR 0010](docs/adr/0010-adr-bound-architectural-exemptions-and-monotonic-ratchets.md)).
    - Deterministic 4-layer (`app -> features -> core -> shared`) and 1- or 2-level Feature boundary gates (`LayerDirectionViolation`, `CrossFeatureImportViolation`, `ForbiddenCoreImportViolation`), living feature specifications (`specs/<feature>.md` or `specs/<subdomain>/<feature>.md`), glossary drift verification (`check-spec --context`), and 4-state ADR lifecycle governance ([ADR 0013](docs/adr/0013-feature-architecture-boundaries-and-living-specs.md)).
    - Multi-layer gauntlet: Linters, typecheckers, unit/feature tests, invariant tests, and mutation gauntlet (`cargo-mutants`).

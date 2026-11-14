@@ -1,4 +1,7 @@
 use std::process::Command;
+use std::sync::atomic::{AtomicU64, Ordering};
+
+static TEST_COUNTER: AtomicU64 = AtomicU64::new(1);
 
 #[test]
 fn test_cli_task_id_alias_supported_on_verify() {
@@ -45,14 +48,14 @@ fn test_cli_task_id_alias_supported_on_handoff() {
 #[test]
 fn test_cli_task_new_bugfix_one_liner_with_scope_and_test() {
     let bin = env!("CARGO_BIN_EXE_xgauntlet");
+    let count = TEST_COUNTER.fetch_add(1, Ordering::Relaxed);
     let nanos = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
         .as_nanos();
     let ws = std::env::temp_dir().join(format!(
-        "xgauntlet_cli_task_new_bug_{}_{}",
+        "xgauntlet_cli_task_new_bug_{}_{count}_{nanos}",
         std::process::id(),
-        nanos
     ));
     std::fs::create_dir_all(ws.join("specs")).unwrap();
     std::fs::write(

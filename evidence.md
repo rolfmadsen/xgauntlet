@@ -216,6 +216,7 @@
 | `sess-d4caef32` | `TDD Craftsman` | `REFACTOR` | `d4caef3` | `2026-11-14T17:31:53Z` | `VALID` |
 | `sess-843483c9` | `Software Engineer` | `DONE` | `843483c` | `2026-11-14T17:35:43Z` | `VALID` |
 | `sess-c429cb45` | `System Architect` | `SPEC` | `c429cb4` | `2026-11-14T20:18:51Z` | `VALID` |
+| `sess-f2e6e4df` | `TDD Craftsman` | `RED` | `f2e6e4d` | `2026-11-14T20:20:03Z` | `VALID` |
 
 ---
 
@@ -437,5 +438,15 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_cli_task_id_alias_supported_on_verify` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_cli_task_id_alias_supported_on_check_spec` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_cli_task_id_alias_supported_on_handoff` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_cli_task_new_bugfix_one_liner_with_scope_and_test` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_rust_target_resolver_multi_crate_workspace` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_fast_track_done_without_red_commit_fails_closed` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_phase_machine_blocks_skipping_phases_for_non_fast_track` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_fast_track_two_step_red_to_done_pipeline` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_fixed_compute` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
+| `test_small_bugfix_exempt_from_feature_spec_mapping` | `RedCheckpointVerified` | `f972267d04aab147...` | `2026-11-14T21:20:03+01:00` |
 
 ---

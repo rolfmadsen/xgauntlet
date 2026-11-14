@@ -489,20 +489,24 @@ pub async fn run_preflight_check(options: &CheckpointOptions) -> Result<(), Chec
             Ok(())
         }
         CheckpointPhase::Done => {
-            // Blocker 1: Check phase progression invariants
+            // AC1: Both standard TDD and Fast-Track (2-step RED -> DONE) require a preceding RED commit.
             let task_info = super::engine::load_task_package_info(&options.workspace, &task_id);
             let has_red = has_task_red_commit(&options.workspace, &task_id);
 
             if !has_red {
-                if let Some(ref info) = task_info {
-                    let changed =
-                        get_working_tree_changed_files(&options.workspace).unwrap_or_default();
-                    if !super::provenance::is_fast_track_eligible(info, &changed) {
-                        return Err(CheckpointError::DonePhaseUnmet(
-                            "Skipping TDD phases (RED/GREEN) is only permitted for Fast-Track Bugfix Lane tasks (intent: bug, scope <= 3 files).".to_string(),
-                        ));
-                    }
+                let changed =
+                    get_working_tree_changed_files(&options.workspace).unwrap_or_default();
+                let is_fast_track = task_info
+                    .as_ref()
+                    .is_some_and(|info| super::provenance::is_fast_track_eligible(info, &changed));
+                if is_fast_track {
+                    return Err(CheckpointError::DonePhaseUnmet(
+                        "Fast-Track Bugfix Lane requires a preceding RED commit (2-step flow: RED -> DONE). Run 'xgauntlet checkpoint -p red' before 'xgauntlet checkpoint -p done'.".to_string(),
+                    ));
                 }
+                return Err(CheckpointError::DonePhaseUnmet(
+                    "Skipping TDD phases (RED/GREEN) is not permitted without a preceding RED commit. Run 'xgauntlet checkpoint -p red' first (Fast-Track bugfixes require RED -> DONE; other tasks require standard TDD).".to_string(),
+                ));
             }
 
             let outcome = execute_gauntlet_pipeline(

@@ -175,6 +175,16 @@ impl TaskScaffolder {
 
     /// Generates markdown content for a new task file adhering to OKF v0.2 and check-spec.
     pub fn generate_task_content(options: &ScaffoldTaskOptions, task_number: u32) -> String {
+        Self::generate_task_content_with_targets(options, task_number, &[], &[])
+    }
+
+    /// Generates markdown content for a new task file with optional explicit `scope` and `test_refs`.
+    pub fn generate_task_content_with_targets(
+        options: &ScaffoldTaskOptions,
+        task_number: u32,
+        explicit_scope: &[String],
+        explicit_test_refs: &[String],
+    ) -> String {
         let padded_num = Self::format_task_number(task_number);
         let (feature_info, clean_name) = Self::split_feature_prefix(&options.name);
         let raw_slug = Self::slugify(clean_name);
@@ -199,7 +209,20 @@ impl TaskScaffolder {
             _ => format!("Etablere {title} jf. spec.md og CONTEXT.md"),
         };
 
-        let (feature_yaml, scope_yaml) = if let Some((ref d, ref f)) = feature_info {
+        let custom_scope: Vec<String> = explicit_scope
+            .iter()
+            .map(|s| s.trim())
+            .filter(|s| !s.is_empty())
+            .map(|s| format!("  - \"{}\"", s.replace('"', "\\\"")))
+            .collect();
+        let custom_tests: Vec<String> = explicit_test_refs
+            .iter()
+            .map(|s| s.trim())
+            .filter(|s| !s.is_empty())
+            .map(|s| format!("  - \"{}\"", s.replace('"', "\\\"")))
+            .collect();
+
+        let (feature_yaml, default_scope_yaml) = if let Some((ref d, ref f)) = feature_info {
             if d.is_empty() {
                 (
                     format!("intent: {raw_intent}\nfeature: {f}\nspec_ref: \"specs/{f}.md\"\n"),
@@ -222,6 +245,18 @@ impl TaskScaffolder {
             )
         };
 
+        let scope_yaml = if custom_scope.is_empty() {
+            default_scope_yaml
+        } else {
+            format!("scope:\n{}", custom_scope.join("\n"))
+        };
+
+        let test_refs_yaml = if custom_tests.is_empty() {
+            "test_refs:\n  - \"tests/**\"".to_string()
+        } else {
+            format!("test_refs:\n{}", custom_tests.join("\n"))
+        };
+
         format!(
             r#"---
 type: Task Package
@@ -231,8 +266,7 @@ status: active
 {feature_yaml}generated: {{ by: process:xgauntlet-task-init, at: "{now_iso}" }}
 tags: [task-lifecycle, intent, scaffolding, rust]
 {scope_yaml}
-test_refs:
-  - "tests/**"
+{test_refs_yaml}
 ---
 
 # Task {padded_num}: {title}
@@ -304,6 +338,18 @@ test_refs:
         feature: Option<&str>,
         subdir: Option<&str>,
     ) -> Result<TaskScaffoldResult, TaskError> {
+        Self::scaffold_with_targets(options, domain, feature, subdir, &[], &[])
+    }
+
+    /// Scaffolds a new task package with explicit `scope` and `test_refs` targets (AC3).
+    pub fn scaffold_with_targets(
+        options: &ScaffoldTaskOptions,
+        domain: Option<&str>,
+        feature: Option<&str>,
+        subdir: Option<&str>,
+        explicit_scope: &[String],
+        explicit_test_refs: &[String],
+    ) -> Result<TaskScaffoldResult, TaskError> {
         let mut effective = options.clone();
         if let Some(f) = feature.map(|f| f.trim()).filter(|f| !f.is_empty()) {
             if !effective.name.contains(':') {
@@ -314,12 +360,12 @@ test_refs:
                 }
             }
         }
-        Self::scaffold_internal(&effective, subdir)
+        Self::scaffold_internal(&effective, subdir, explicit_scope, explicit_test_refs)
     }
 
     /// Scaffolds a new task package in `tasks/`.
     pub fn scaffold(options: &ScaffoldTaskOptions) -> Result<TaskScaffoldResult, TaskError> {
-        Self::scaffold_internal(options, None)
+        Self::scaffold_internal(options, None, &[], &[])
     }
 
     fn resolve_target_subdir(tasks_dir: &Path, subdir: Option<&str>) -> Result<PathBuf, TaskError> {
@@ -350,6 +396,8 @@ test_refs:
     fn scaffold_internal(
         options: &ScaffoldTaskOptions,
         subdir: Option<&str>,
+        explicit_scope: &[String],
+        explicit_test_refs: &[String],
     ) -> Result<TaskScaffoldResult, TaskError> {
         let tasks_dir = options.workspace.join("tasks");
         fs::create_dir_all(&tasks_dir)?;
@@ -407,7 +455,12 @@ test_refs:
             }
         };
 
-        let content = Self::generate_task_content(options, task_number);
+        let content = Self::generate_task_content_with_targets(
+            options,
+            task_number,
+            explicit_scope,
+            explicit_test_refs,
+        );
         fs::write(&file_path, content)?;
 
         let title = Self::format_title(&slug, options.title.as_deref());

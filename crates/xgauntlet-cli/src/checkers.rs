@@ -229,6 +229,8 @@ pub(crate) fn handle_task_command(command: &crate::TaskCommands) -> anyhow::Resu
             domain,
             feature,
             subdir,
+            scope,
+            test_refs,
             workspace,
             force,
             json,
@@ -241,11 +243,13 @@ pub(crate) fn handle_task_command(command: &crate::TaskCommands) -> anyhow::Resu
                 workspace: resolve_ws(workspace),
                 force: *force,
             };
-            let res = xgauntlet_core::TaskScaffolder::scaffold_in_subdir(
+            let res = xgauntlet_core::TaskScaffolder::scaffold_with_targets(
                 &options,
                 domain.as_deref(),
                 feature.as_deref(),
                 subdir.as_deref(),
+                scope,
+                test_refs,
             )?;
             if *json {
                 println!("{}", serde_json::to_string_pretty(&res)?);

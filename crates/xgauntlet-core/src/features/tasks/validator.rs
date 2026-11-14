@@ -629,9 +629,18 @@ fn validate_task_feature_mapping(
         .as_deref()
         .unwrap_or("")
         .to_ascii_lowercase();
-    let is_feature_intent = intent_lower.contains("feature")
-        || intent_lower.contains("enhancement")
-        || intent_lower.contains("bug");
+    let is_bug_intent = intent_lower.contains("bug");
+    let is_small_bounded_bugfix = is_bug_intent
+        && !task_info.scope.is_empty()
+        && task_info.scope.len() <= 3
+        && !task_info.scope.iter().any(|s| s.contains('*'));
+
+    if !has_any_feature_field && is_small_bounded_bugfix {
+        return;
+    }
+
+    let is_feature_intent =
+        intent_lower.contains("feature") || intent_lower.contains("enhancement") || is_bug_intent;
 
     let config = crate::features::config::GauntletConfig::load(workspace).ok();
     let workspace_uses_features = workspace.join("specs").is_dir()

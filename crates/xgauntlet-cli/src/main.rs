@@ -544,6 +544,14 @@ pub(crate) enum TaskCommands {
         #[arg(long)]
         subdir: Option<String>,
 
+        /// Explicit task scope file paths or globs (repeatable or comma-separated)
+        #[arg(long, value_delimiter = ',')]
+        scope: Vec<String>,
+
+        /// Explicit test reference paths (repeatable or comma-separated)
+        #[arg(long = "test", alias = "test-ref", value_delimiter = ',')]
+        test_refs: Vec<String>,
+
         /// Path to repository workspace root
         #[arg(short, long, default_value = ".")]
         workspace: std::path::PathBuf,

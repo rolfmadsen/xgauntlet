@@ -17,7 +17,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Barrier};
 
 use xgauntlet_core::features::checkpoint::provenance::{
-    evaluate_fast_track_inverse_proof, verify_inverse_test_failure, TestProvenanceStatus,
+    verify_inverse_test_failure, TestProvenanceStatus,
 };
 use xgauntlet_core::features::evidence::lineage::generate_session_nonce;
 
@@ -146,13 +146,6 @@ fn test_concurrent_worktree_inverse_preflight_and_nonce_uniqueness() {
                 evidences[0].status,
                 TestProvenanceStatus::InversePreflightVerified
             );
-
-            let ft_evidences =
-                evaluate_fast_track_inverse_proof(ws, &["tests/parity_test.rs".to_string()])
-                    .unwrap_or_else(|e| {
-                        panic!("Thread {idx} failed fast-track inverse proof under concurrency: {e:?}")
-                    });
-            assert_eq!(ft_evidences.len(), 1);
 
             let wt_out = Command::new("git")
                 .args(["worktree", "list", "--porcelain"])

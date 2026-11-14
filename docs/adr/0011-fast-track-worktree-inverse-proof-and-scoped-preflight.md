@@ -1,12 +1,10 @@
 ---
 type: Architectural Decision Record
-title: 'ADR 0011: Fast-Track Bugfix Protocol, Worktree Inverse Proof, and Scoped Preflight Execution'
+title: 'ADR 0011: Fast-Track Bugfix Protocol (2-Step RED -> DONE) and Scoped Preflight Execution'
 status: accepted
 tags:
 - fast-track
 - bugfix
-- inverse-proof
-- worktree
 - preflight
 - tdd
 - governance
@@ -16,9 +14,9 @@ generated:
 verified: []
 ---
 
-# 11. Fast-Track Bugfix Protocol, Worktree Inverse Proof, and Scoped Preflight Execution
+# 11. Fast-Track Bugfix Protocol (2-Step RED -> DONE) and Scoped Preflight Execution
 
-**Status**: `accepted` (Extends ADR 0003, ADR 0005, and ADR 0009)  
+**Status**: `accepted` (Extends ADR 0003, ADR 0005, and ADR 0009; updated 2026-11-14 by Task 056)  
 **Date**: `2026-11-01`  
 
 ## Context
@@ -37,17 +35,16 @@ Vi etablerer to komplementære verifikations- og optimeringsmekanismer:
 - Fuld multi-layer verifikation (`gauntlet.toml`) forbliver ufravigelig og komplet ved `xgauntlet verify` og `xgauntlet checkpoint -p done`.
 
 ### 2. Fast-Track Bugfix Lane (`intent: bug`)
-- Opgaver med `intent: bug` / `🐛 BUG FIX`, hvor `scope.len() <= 3` og uden berøring af `docs/adr/` eller `gauntlet.toml`, kvalificerer automatisk til Fast-Track.
-- Fast-Track tillader et forkortet 2-trins flow: `RED → DONE` (hvor `SPEC`- og `REFACTOR`-commits er valgfrie).
-- Alternativt tillades et 1-trins atomisk flow via **Worktree Inverse Proof**:
-  - `xgauntlet` opretter en isoleret midlertidig `git worktree` i OS temp directory baseret på uændret `HEAD`.
-  - Kun ændringerne fra `test_refs` (regressionstesten) kopieres over i worktreen, mens produktionskoden forbliver på `HEAD`.
-  - Regressionstesten afvikles mod `HEAD`. Hvis den passerer uden produktionsfixet, afvises opgaven prompte som `BORN_GREEN_TEST`.
-  - Hvis testen fejler mod `HEAD` (fejlen er reproduceret mekanisk) OG samtlige checks passerer i det aktive workspace, godkendes og forsegles evidensen som `worktree_inverse_proof`.
-  - Worktreen fjernes deterministisk under alle omstændigheder (succes, fejl, panic).
+- Opgaver med `intent: bug` / `🐛 BUG FIX`, hvor `scope` består af højst 3 konkrete filstier (`!scope.is_empty() && scope.len() <= 3`, uden `*`/`**`-wildcards) og uden berøring af `docs/adr/` eller `gauntlet.toml`, kvalificerer automatisk til Fast-Track.
+- Fast-Track standardiseres udelukkende på det deterministiske **2-trins flow (`RED → DONE`)** (hvor `SPEC`-, `GREEN`- og `REFACTOR`-commits er valgfrie):
+  1. `xgauntlet checkpoint -p red` afvikler scoped preflight mod baseline via `test_refs` og forsegler det fejlede regressionstest-commit (`RedCheckpointVerified`).
+  2. Rettelsen udføres i `scope`.
+  3. `xgauntlet checkpoint -p done` (eller `xgauntlet verify --save`) afvikler fuld multi-layer verifikation og forsegler evidens med `proof_mode = "fast_track_red_to_done"`.
+- Den tidligere 1-trins `Worktree Inverse Proof` (`evaluate_fast_track_inverse_proof` med separat `target/xgauntlet-preflight`) er udfaset af hensyn til compiler-cache-latens, cross-platform stabilitet og API-kompatibilitet. Forsøg på `checkpoint -p done` eller `verify` uden forudgående `RED`-commit afvises fail-closed.
+- Task 047's `verify_inverse_test_failure` bevares uændret i `GREEN`/`REFACTOR` til defensiv beskyttelse mod born-green tests i standard TDD-opgaver.
 
 ### 3. Invarianter
-- Må ALDRIG udføre `git stash`, `git checkout` eller `git reset` i udviklerens aktive working tree under inverse proof.
-- Må ALDRIG slække på verifikationskravene ved `DONE`.
-- Må ALDRIG tillade Fast-Track for opgaver med `scope.len() > 3` eller opgaver der ændrer `docs/adr/` eller `gauntlet.toml`.
+- Må ALDRIG udføre `git stash`, `git checkout` eller `git reset` i udviklerens aktive working tree under `verify_inverse_test_failure`.
+- Må ALDRIG slække på verifikationskravene ved `DONE` eller tillade `DONE` uden forudgående `RED`-commit.
+- Må ALDRIG tillade Fast-Track for opgaver med `scope.len() > 3`, wildcard-globs (`*`/`**`), eller opgaver der ændrer `docs/adr/` eller `gauntlet.toml`.
 

@@ -188,12 +188,8 @@ A non-destructive temporal verification mechanism, that executes suspected born-
 _Avoid_: Rollback test, baseline test, diff test, time travel test.
 
 **Fast-Track Bugfix Lane**:
-An accelerated two-phase verification workflow (`RED → DONE`) for bounded defect resolutions touching at most three source files without architectural modifications or ADR changes.
+An accelerated two-phase verification workflow (`RED → DONE`) for bounded defect resolutions touching at most three concrete source files without wildcards, architectural modifications, or ADR changes.
 _Avoid_: Shortcut fix, unverified patch, bypass lane, quick fix.
-
-**Worktree Inverse Proof**:
-A mechanical single-step inverse verification protocol, executed in an isolated temporary Git worktree against unchanged HEAD to prove that a regression test fails before accepting a concurrent production bugfix.
-_Avoid_: In-place rollback, stash test, manual checkout, dirty test.
 
 **Domain**:
 An overarching sphere of business knowledge and problem space, that defines the operational mission and subject area addressed by a software system.

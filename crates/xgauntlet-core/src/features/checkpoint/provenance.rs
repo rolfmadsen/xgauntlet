@@ -385,33 +385,9 @@ impl IsolatedWorktree {
         }
         Ok(())
     }
-
-    /// Mirrors only the specific declared test files into the worktree.
-    fn sync_scoped_test_files(&self, test_refs: &[String]) -> Result<(), CheckpointError> {
-        let io_err = |e: std::io::Error| {
-            CheckpointError::GitError(format!(
-                "Failed to stage scoped test files in preflight worktree: {e}"
-            ))
-        };
-        for test_ref in test_refs {
-            let rel = test_ref.replace('\\', "/");
-            let clean_rel = rel.trim_start_matches("./");
-            let src = self.repo.join(clean_rel);
-            let dst = self.path.join(clean_rel);
-            if src.is_file() {
-                if let Some(parent) = dst.parent() {
-                    fs::create_dir_all(parent).map_err(io_err)?;
-                }
-                fs::copy(&src, &dst).map_err(io_err)?;
-            } else if dst.exists() {
-                fs::remove_file(&dst).map_err(io_err)?;
-            }
-        }
-        Ok(())
-    }
 }
 
-/// Determines if a task qualifies for the Fast-Track Bugfix Lane (AC2 jf. ADR 0011).
+/// Determines if a task qualifies for the Fast-Track Bugfix Lane (AC1 jf. ADR 0011).
 pub fn is_fast_track_eligible(
     task: &crate::features::tasks::TaskPackageInfo,
     changed_files: &[String],
@@ -429,7 +405,7 @@ pub fn is_fast_track_eligible(
         return false;
     }
 
-    if task.scope.len() > 3 {
+    if task.scope.is_empty() || task.scope.len() > 3 || task.scope.iter().any(|s| s.contains('*')) {
         return false;
     }
 
@@ -441,90 +417,6 @@ pub fn is_fast_track_eligible(
     });
 
     !touches_disallowed
-}
-
-/// Executes single-step atomic Worktree Inverse Proof for Fast-Track Bugfix Lane.
-pub fn evaluate_fast_track_inverse_proof(
-    workspace: &Path,
-    test_refs: &[String],
-) -> Result<Vec<TestProvenanceEvidence>, CheckpointError> {
-    if test_refs.is_empty() {
-        return Err(CheckpointError::GitError(
-            "Fast-track inverse proof requires at least one test ref".to_string(),
-        ));
-    }
-
-    let worktree = IsolatedWorktree::create(workspace)?;
-    worktree.sync_scoped_test_files(test_refs)?;
-    let prefix = git_stdout(workspace, &["rev-parse", "--show-prefix"])?;
-    let exec_dir = worktree.path.join(prefix.trim());
-
-    let mut evidences = Vec::new();
-
-    for test_ref in test_refs {
-        let target = super::preflight::resolve_scoped_test_command(workspace, test_ref);
-        let mut test_cmd = Command::new(&target.command()[0]);
-        test_cmd.args(&target.command()[1..]);
-        test_cmd.current_dir(&exec_dir);
-        if std::env::var_os("CARGO_TARGET_DIR").is_none()
-            && worktree.repo.join("Cargo.toml").is_file()
-        {
-            test_cmd.env(
-                "CARGO_TARGET_DIR",
-                worktree.repo.join("target").join("xgauntlet-preflight"),
-            );
-        }
-
-        let test_output = test_cmd.output().map_err(|e| {
-            CheckpointError::GitError(format!(
-                "Failed to execute scoped test during fast-track inverse proof: {e}"
-            ))
-        })?;
-
-        // If the test passed against baseline HEAD without production code, it is BORN GREEN!
-        if test_output.status.success() {
-            return Err(CheckpointError::BornGreenTestDetected {
-                tests: vec![test_ref.clone()],
-            });
-        }
-
-        let stdout_str = String::from_utf8_lossy(&test_output.stdout);
-        let stderr_str = String::from_utf8_lossy(&test_output.stderr);
-        let failure_log = format!("{stdout_str}\n{stderr_str}").trim().to_string();
-
-        // AC2 bullet 3: If test cannot compile against HEAD due to new API signatures, fail with actionable guidance
-        if (failure_log.contains("cannot find function")
-            || failure_log.contains("cannot find value")
-            || failure_log.contains("no method named")
-            || failure_log.contains("unresolved import"))
-            && (failure_log.contains("error[E0425]")
-                || failure_log.contains("error[E0599]")
-                || failure_log.contains("error[E0432]"))
-        {
-            return Err(CheckpointError::DonePhaseUnmet(
-                "Fast-Track 1-step atomic inverse proof cannot compile against HEAD due to new API signatures. Please use explicit RED -> DONE 2-step flow.".to_string(),
-            ));
-        }
-
-        let timestamp = current_iso_utc();
-        let failure_digest = format!("{:x}", Sha256::digest(failure_log.as_bytes()));
-
-        evidences.push(TestProvenanceEvidence {
-            test_identifier: test_ref.clone(),
-            failure_output: failure_log,
-            failure_digest,
-            verified_at: timestamp,
-            status: TestProvenanceStatus::InversePreflightVerified,
-        });
-    }
-
-    if evidences.is_empty() {
-        return Err(CheckpointError::GitError(
-            "No test executed during fast-track inverse proof".to_string(),
-        ));
-    }
-
-    Ok(evidences)
 }
 
 impl Drop for IsolatedWorktree {

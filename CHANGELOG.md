@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🔄 Changed & Simplified
+- **Fast-Track 2-Step `RED -> DONE` & Ultralight Bugfix DX (`Task 056`, `ADR 0011`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`, `.agents/`)**:
+  - Retired the 1-step `Worktree Inverse Proof` (`evaluate_fast_track_inverse_proof` and `target/xgauntlet-preflight` recompilation) and standardized Fast-Track Bugfix Lane on the deterministic 2-step `RED -> DONE` flow (`proof_mode = "fast_track_red_to_done"`), requiring concrete non-wildcard `scope` (`<= 3` files) and a preceding `[RED]` commit.
+  - Added `--scope` and `--test` flags (repeatable and comma-separated) to `xgauntlet task new` for single-step `ACTIVE` bugfix task scaffolding.
+  - Exempted bounded small bugfixes (`intent: bug`, `scope.len() <= 3`, no wildcards, no explicit `feature`/`spec_ref`) from `MISSING_TASK_FEATURE_MAPPING` in `check-spec`.
+  - Updated `ADR 0011`, `CONTEXT.md`, `spec.md`, `specs/checkpoint.md`, `specs/tasks.md`, and bundled `tdd`/`diagnose` skills.
+
 ## [0.14.0] - 2026-11-08
 
 ### 🚀 Added & Enhanced
