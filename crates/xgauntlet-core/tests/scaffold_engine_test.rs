@@ -472,3 +472,47 @@ fn test_scaffold_agents_md_contains_dynamic_cockpit_hud_and_checkpoint_protocol(
         "agents.md must include Must NOT / invariant formulation in sparring"
     );
 }
+
+#[test]
+fn test_task_085_ac1_ac3_agents_md_start_end_hud_and_session_metric() {
+    let temp = TempDir::new("task_085_agents_hud");
+    let ws = temp.path();
+
+    let options = ScaffoldOptions {
+        workspace: ws.to_path_buf(),
+        stack: Some("rust".to_string()),
+        force: false,
+        dry_run: false,
+        project_name: Some("test-hud-085".to_string()),
+    };
+
+    let result = run_scaffold(&options).expect("scaffold should succeed");
+    assert!(result.is_success);
+
+    let scaffolded_agents = fs::read_to_string(ws.join(".agents/AGENTS.md")).unwrap();
+    let repo_agents_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.agents/AGENTS.md");
+    let repo_agents = fs::read_to_string(&repo_agents_path).unwrap();
+
+    for (label, content) in [
+        ("scaffolded .agents/AGENTS.md", &scaffolded_agents),
+        ("repo .agents/AGENTS.md", &repo_agents),
+    ] {
+        assert!(
+            !content.contains("samtlige synlige agent-svar"),
+            "{label} must NOT mandate HUD on every visible response"
+        );
+        let lower = content.to_lowercase();
+        assert!(
+            lower.contains("start") && lower.contains("eskalering") && lower.contains("afslutning"),
+            "{label} must define start/escalation/end HUD protocol"
+        );
+        assert!(
+            lower.contains("afventer baggrundsopgave"),
+            "{label} must explicitly omit HUD on intermediate background wait replies"
+        );
+        assert!(
+            content.contains("Session:"),
+            "{label} HUD template must include Session: metric in status line"
+        );
+    }
+}

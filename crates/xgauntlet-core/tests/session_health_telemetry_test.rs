@@ -4,6 +4,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use xgauntlet_core::features::adapters::antigravity::AntigravityAdapter;
+use xgauntlet_core::features::adapters::HarnessAdapter;
+use xgauntlet_core::features::tasks::inspect_task_telemetry;
 use xgauntlet_core::features::tasks::models::TaskStatus;
 use xgauntlet_core::features::tasks::telemetry::{CriteriaProgress, GitTelemetry, TaskTelemetry};
 use xgauntlet_core::features::telemetry::{
@@ -219,4 +221,39 @@ fn test_task_telemetry_integration_and_rendering() {
     let json_val = serde_json::to_value(&telemetry).unwrap();
     assert!(json_val.get("session_health").is_some());
     assert_eq!(json_val["session_health"]["status"], "Aging");
+}
+
+#[test]
+fn test_task_085_ac2_ac3_hook_persists_session_for_inspect_and_blockquote_hud() {
+    let temp = TempDir::new("task_085_e2e_session");
+    let root = temp.path();
+
+    fs::create_dir_all(root.join("tasks")).unwrap();
+    fs::write(
+        root.join("tasks/085-hud-wiring.md"),
+        "---\ntype: Task Package\ntitle: \"Task 085: HUD Wiring\"\ndescription: \"Test\"\nstatus: active\nscope:\n  - \"crates/**\"\n---\n\n# Task 085\n\n## 📋 Acceptance Criteria\n- [ ] AC1\n",
+    )
+    .unwrap();
+
+    let adapter = AntigravityAdapter::new();
+    let payload = serde_json::json!({
+        "hookEventName": "PreInvocation",
+        "cwd": root.to_string_lossy()
+    });
+    let (code, _) = adapter.handle_hook(root, &payload.to_string());
+    assert_eq!(code, 0);
+
+    let telemetry = inspect_task_telemetry(root, None).expect("inspect active task");
+    assert!(
+        telemetry.session_health.is_some(),
+        "inspect_task_telemetry must surface persisted session_health after PreInvocation"
+    );
+
+    let hud = AntigravityAdapter::render_blockquote_hud(&telemetry, None);
+    let lines: Vec<&str> = hud.lines().collect();
+    assert_eq!(lines.len(), 5, "HUD must remain strictly 5 lines");
+    assert!(
+        lines[1].contains("Session: 🟢 Optimal (1 turn"),
+        "HUD status line must render persisted Session metric, got:\n{hud}"
+    );
 }

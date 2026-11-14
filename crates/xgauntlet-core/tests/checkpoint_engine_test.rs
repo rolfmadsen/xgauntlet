@@ -840,3 +840,27 @@ Test mixed green and red test_refs.
         .await
         .expect("RED preflight MUST pass when existing_green_test passes and new_feature_red_test fails");
 }
+
+#[test]
+fn test_task_085_ac2_xgauntlet_runtime_dir_gitignored_and_exempt_from_scope_check() {
+    let temp = TempDir::new("task_085_xgauntlet_scope");
+    setup_mock_task(temp.path(), "085", "active");
+
+    let staged = vec![".xgauntlet/session_state.json".to_string()];
+    xgauntlet_core::features::checkpoint::engine::validate_staged_files_scope(
+        temp.path(),
+        "085",
+        &staged,
+    )
+    .expect(".xgauntlet/ runtime state must be exempt from checkpoint scope violations");
+
+    let repo_gitignore =
+        fs::read_to_string(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.gitignore"))
+            .unwrap();
+    assert!(
+        repo_gitignore
+            .lines()
+            .any(|l| l.trim() == ".xgauntlet/" || l.trim() == ".xgauntlet"),
+        "Repository .gitignore must ignore .xgauntlet/ so session_state.json never dirties git status"
+    );
+}
