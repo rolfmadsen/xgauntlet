@@ -22,3 +22,4 @@ The `architecture` feature enforces deterministic structural boundaries, monoton
 ## 📋 Relaterede Tasks
 - [Task 057: Deterministic Slice Architecture Gates, Living Slice Specs & ADR Lifecycle](../tasks/archive/057-slice-architecture-gates-and-adr-lifecycle.md)
 - [Task 069: Correct DDD/VSA Taxonomy, 1- and 2-Level Slice Isolation, and Dogfooding](../tasks/archive/069-ddd-slice-taxonomy-and-dogfooding.md)
+- [Task 081: Replace Slice Terminology with Feature Architecture](../tasks/081-replace-slice-terminology-with-feature.md)

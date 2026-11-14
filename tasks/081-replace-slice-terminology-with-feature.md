@@ -65,16 +65,16 @@ Fjerne sproglig og arkitektonisk forvirring omkring begrebet **"slice"** i `xGau
      - Opdatér Gate B-diagnostik og eksisterende `specs/*.md` samt `.agents/plugins/xgauntlet/skills/**` til konsekvent brug af `Feature`-terminologi.
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 (ADR & Ubiquitous Language i `CONTEXT.md`):**
+- [x] **AC1 (ADR & Ubiquitous Language i `CONTEXT.md`):**
   - Ny `accepted` ADR erstatter (`superseded_by`) `ADR 0012`'s `Vertical Slice`-terminologi med `Feature` (`Feature Module` & `Living Feature Specification`), og `docs/adr/README.md` + `spec.md` opdateres tilsvarende.
   - `CONTEXT.md` definerer `Feature` / `Living Feature Specification` efter Aristotelisk formel og fjerner `slice` som aktivt governance-begreb (`check-spec --context` passerer uden orphan models eller avoid-brud).
-- [ ] **AC2 (Task Frontmatter, Validator & CLI med Bagudkompatibilitet):**
+- [x] **AC2 (Task Frontmatter, Validator & CLI med Bagudkompatibilitet):**
   - OKF-parseren, `validator.rs` og `xgauntlet task new` bruger `feature` og `--feature` som primære navne ved scaffolding af nye tasks og `specs/<feature>.md`.
   - Eksisterende tasks (inkl. alle `status: done` tasks i `tasks/` og `tasks/archive/`) med `slice:` i YAML frontmatter fortsætter med at parse og validere uden fejl.
-- [ ] **AC3 (`gauntlet.toml`, Architecture Gates, Specs & Skills):**
+- [x] **AC3 (`gauntlet.toml`, Architecture Gates, Specs & Skills):**
   - `[architecture]` understøtter `feature_root` og `isolate_features` (med fallback til legacy `slice_root` og `isolate_slices`).
   - `specs/*.md` (herunder `specs/architecture.md`, `specs/tasks.md`, `specs/release.md`, `specs/topology.md`) og sovereign skills i `.agents/plugins/xgauntlet/skills/` er migreret til `Feature`-terminologi.
-- [ ] **AC4 (Isolerede Tests):**
+- [x] **AC4 (Isolerede Tests):**
   - Integrationstests i `slice_architecture_and_adr_lifecycle_test.rs` og `task_lifecycle_test.rs` verificerer både nye `feature` / `feature_root` / `--feature`-kontrakter og fuld bagudkompatibilitet med legacy `slice` / `slice_root`.
 
 ## 🚫 Must NOT
@@ -85,6 +85,7 @@ Fjerne sproglig og arkitektonisk forvirring omkring begrebet **"slice"** i `xGau
 
 ## 📝 Revisions
 - 2026-11-14: Oprettet `DRAFT`-opgavepakke efter arkitektur-sparring om forskellen på `Feature` (problem-/kapabilitetsniveau) og `slice` (event-/hændelsesniveau) samt konklusion om at fjerne `slice`-begrebet fra xGauntlet.
+- 2026-11-14: Fuldført migrering til `Feature`-terminologi (ADR 0013, `CONTEXT.md`, `feature_root` / `isolate_features`, `feature:` / `--feature` med fuld legacy `slice`-kompatibilitet, `specs/*.md`, skills og docs) samt forseglet verifikation.
 
 ## 🧪 Verifikation
 - `cargo run -p xgauntlet-cli -- check-spec --context -t 081`
