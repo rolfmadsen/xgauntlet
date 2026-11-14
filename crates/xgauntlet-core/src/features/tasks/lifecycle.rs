@@ -350,57 +350,68 @@ test_refs:
         let title = Self::format_title(&slug, options.title.as_deref());
         let padded_num = Self::format_task_number(task_number);
         let full_title = format!("Task {padded_num}: {title}");
+        let task_id = format!("{padded_num}-{slug}");
 
         if let Some((ref d, ref s)) = slice_info {
-            let (spec_path, rel_task_link) = if d.is_empty() {
-                (
-                    options.workspace.join("specs").join(format!("{s}.md")),
-                    format!("../tasks/{padded_num}-{slug}.md"),
-                )
-            } else {
-                (
-                    options
-                        .workspace
-                        .join("specs")
-                        .join(d)
-                        .join(format!("{s}.md")),
-                    format!("../../tasks/{padded_num}-{slug}.md"),
-                )
-            };
-            let task_link_line = format!("- [{full_title}]({rel_task_link})");
-            if !spec_path.exists() {
-                if let Some(parent) = spec_path.parent() {
-                    fs::create_dir_all(parent)?;
-                }
-                let slice_spec_template = if d.is_empty() {
-                    format!(
-                        "# Living Slice Specification: {s}\n\n## 🎯 Capability & Facade Contract\n- **Slice**: `{s}`\n- **Layer**: `features/{s}`\n\n## 🔌 Public Input / Action Contract\n- Dokumenter slicens offentlige state/input og udgående `Action`/event/result her.\n\n## 🛡️ Slice Invariants\n- Må IKKE importere opad fra `app`.\n- Må IKKE importere direkte fra andre slices i `features/`.\n\n## 📋 Relaterede Tasks\n{task_link_line}\n"
-                    )
-                } else {
-                    format!(
-                        "# Living Slice Specification: {d} / {s}\n\n## 🎯 Capability & Facade Contract\n- **Subdomain**: `{d}`\n- **Slice**: `{s}`\n- **Layer**: `features/{d}/{s}`\n\n## 🔌 Public Input / Action Contract\n- Dokumenter slicens offentlige state/input og udgående `Action`/event/result her.\n\n## 🛡️ Slice Invariants\n- Må IKKE importere opad fra `app`.\n- Må IKKE importere direkte fra andre slices i `features/`.\n\n## 📋 Relaterede Tasks\n{task_link_line}\n"
-                    )
-                };
-                fs::write(&spec_path, slice_spec_template)?;
-            } else if let Ok(existing) = fs::read_to_string(&spec_path) {
-                if !existing.contains(&rel_task_link) {
-                    let updated = Self::append_related_task_link(&existing, &task_link_line);
-                    fs::write(&spec_path, updated)?;
-                }
-            }
+            Self::sync_slice_spec_file(&options.workspace, d, s, &task_id, &full_title)?;
         }
 
         let intent = Self::format_intent(options.intent.as_deref());
-        let raw_slug_task_id = format!("{padded_num}-{slug}");
 
         Ok(TaskScaffoldResult {
-            task_id: raw_slug_task_id,
+            task_id,
             task_number,
             path: file_path,
             title: full_title,
             intent,
             created: true,
         })
+    }
+
+    fn sync_slice_spec_file(
+        workspace: &Path,
+        domain: &str,
+        slice: &str,
+        task_id: &str,
+        full_title: &str,
+    ) -> Result<(), TaskError> {
+        let (spec_path, rel_task_link, heading, metadata, layer_path) = if domain.is_empty() {
+            (
+                workspace.join("specs").join(format!("{slice}.md")),
+                format!("../tasks/{task_id}.md"),
+                slice.to_string(),
+                format!("- **Slice**: `{slice}`"),
+                format!("features/{slice}"),
+            )
+        } else {
+            (
+                workspace
+                    .join("specs")
+                    .join(domain)
+                    .join(format!("{slice}.md")),
+                format!("../../tasks/{task_id}.md"),
+                format!("{domain} / {slice}"),
+                format!("- **Subdomain**: `{domain}`\n- **Slice**: `{slice}`"),
+                format!("features/{domain}/{slice}"),
+            )
+        };
+
+        let task_link_line = format!("- [{full_title}]({rel_task_link})");
+        if !spec_path.exists() {
+            if let Some(parent) = spec_path.parent() {
+                fs::create_dir_all(parent)?;
+            }
+            let template = format!(
+                "# Living Slice Specification: {heading}\n\n## 🎯 Capability & Facade Contract\n{metadata}\n- **Layer**: `{layer_path}`\n\n## 🔌 Public Input / Action Contract\n- Dokumenter slicens offentlige state/input og udgående `Action`/event/result her.\n\n## 🛡️ Slice Invariants\n- Må IKKE importere opad fra `app`.\n- Må IKKE importere direkte fra andre slices i `features/`.\n\n## 📋 Relaterede Tasks\n{task_link_line}\n"
+            );
+            fs::write(&spec_path, template)?;
+        } else if let Ok(existing) = fs::read_to_string(&spec_path) {
+            if !existing.contains(&rel_task_link) {
+                let updated = Self::append_related_task_link(&existing, &task_link_line);
+                fs::write(&spec_path, updated)?;
+            }
+        }
+        Ok(())
     }
 
     fn append_related_task_link(existing: &str, task_link_line: &str) -> String {
