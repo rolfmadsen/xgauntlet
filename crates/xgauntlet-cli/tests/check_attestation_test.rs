@@ -104,7 +104,13 @@ fn test_cli_check_attestation_help() {
         .args(["check-attestation", "--help"])
         .output()
         .expect("failed to execute xgauntlet check-attestation --help");
-    assert!(output.status.success());
+    assert!(
+        output.status.success(),
+        "xgauntlet check-attestation --help failed (status={:?})\nstdout: {}\nstderr: {}",
+        output.status,
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(
         stdout.contains("check-attestation") || stdout.contains("attestation"),
@@ -121,6 +127,27 @@ fn test_cli_check_attestation_help() {
     assert!(
         stdout.contains("--expected-repo-id"),
         "check-attestation should have --expected-repo-id flag"
+    );
+}
+
+#[cfg(target_os = "linux")]
+#[test]
+fn test_cli_check_attestation_help_within_1mb_stack_limit() {
+    let bin = env!("CARGO_BIN_EXE_xgauntlet");
+    let output = match Command::new("prlimit")
+        .args(["--stack=1048576", bin, "check-attestation", "--help"])
+        .output()
+    {
+        Ok(out) => out,
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => return,
+        Err(err) => panic!("failed to invoke prlimit: {err}"),
+    };
+    assert!(
+        output.status.success(),
+        "CLI exceeded 1 MB stack limit (Windows default): status={:?}\nstdout: {}\nstderr: {}",
+        output.status,
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
     );
 }
 
@@ -170,7 +197,10 @@ fn test_cli_check_attestation_succeeds_with_valid_bundle_and_json_output() {
 
     assert!(
         output.status.success(),
-        "check-attestation must exit 0 on valid bundle and matching digest"
+        "check-attestation must exit 0 on valid bundle and matching digest (status={:?})\nstdout: {}\nstderr: {}",
+        output.status,
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
     );
     let stdout = String::from_utf8_lossy(&output.stdout);
     let json: serde_json::Value = serde_json::from_str(&stdout).expect("output must be valid JSON");
@@ -214,7 +244,10 @@ fn test_cli_check_attestation_fails_closed_on_digest_mismatch() {
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(
         stdout.contains("DIGEST_MISMATCH"),
-        "Output should report DIGEST_MISMATCH"
+        "Output should report DIGEST_MISMATCH (status={:?})\nstdout: {}\nstderr: {}",
+        output.status,
+        stdout,
+        String::from_utf8_lossy(&output.stderr)
     );
 }
 
@@ -250,7 +283,10 @@ fn test_cli_check_attestation_fails_closed_on_repo_id_mismatch() {
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(
         stdout.contains("REPOSITORY_ID_MISMATCH"),
-        "Output should report REPOSITORY_ID_MISMATCH"
+        "Output should report REPOSITORY_ID_MISMATCH (status={:?})\nstdout: {}\nstderr: {}",
+        output.status,
+        stdout,
+        String::from_utf8_lossy(&output.stderr)
     );
 }
 
@@ -284,7 +320,10 @@ fn test_cli_check_attestation_resolves_attestation_json_fallback_when_bundle_mis
 
     assert!(
         output.status.success(),
-        "check-attestation must transparently fallback to attestation.json when attestation.bundle is missing"
+        "check-attestation must transparently fallback to attestation.json when attestation.bundle is missing (status={:?})\nstdout: {}\nstderr: {}",
+        output.status,
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
     );
     let stdout = String::from_utf8_lossy(&output.stdout);
     let json: serde_json::Value = serde_json::from_str(&stdout).expect("output must be valid JSON");
