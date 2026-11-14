@@ -62,6 +62,7 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
   - `release`: Release readiness gatekeeper (`check-release --strict`), manifest version harmony, CHANGELOG.md verification, ADR coverage validation, and transactional SemVer release manager (`release bump`) with in-process wasm32 compilation and non-destructive disk-staging backup/rollback. Living feature spec: [specs/release.md](specs/release.md).
   - `plugin`: Global plugin distribution and embedded 6-skill sovereign suite (`xgauntlet plugin install`).
   - `topology`: Deterministic AST codebase topology, graph traversals, and token-optimized blast-radius discovery engine (`xgauntlet topology`). Living feature spec: [specs/topology.md](specs/topology.md).
+  - `telemetry`: Zero-daemon JIT phase directives and advisory session health / token telemetry (`SessionHealth`, `SessionTracker`). Living feature spec: [specs/telemetry.md](specs/telemetry.md).
   - `architecture`: Deterministic 4-layer and feature boundary verification (`xgauntlet check-architecture`). Living feature spec: [specs/architecture.md](specs/architecture.md).
 - `crates/xgauntlet-cli`: Native CLI frontend (`verify`, `check-spec`, `check-evidence`, `check-release`, `check-attestation`, `check-architecture`, `release bump`, `handoff`, `evidence lineage`).
 - `packages/cli`: Zero-dependency Node.js distribution launcher (`xgauntlet` / `npx xgauntlet`) with cryptographic Sigstore attestation integrity verification against GitHub Repository ID (`1359184794`) before caching/execution.
