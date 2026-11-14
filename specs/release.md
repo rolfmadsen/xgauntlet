@@ -9,8 +9,9 @@
 
 ## 🎯 Purpose & Capability Boundary
 The `release` slice enforces mechanical release readiness (`check-release`) and transactional SemVer version bumping (`release bump` / `release prepare`):
-- **Public Facade (`mod.rs` / `engine.rs`)**: `check_release_readiness(options)` $\to$ `Result<ReleaseReadinessReport, ReleaseError>` and `update_manifest_versions` / `prepare_changelog_release`.
+- **Public Facade (`mod.rs` / `engine.rs` / `archive.rs`)**: `check_release_readiness(options)` $\to$ `Result<ReleaseReadinessReport, ReleaseError>`, `update_manifest_versions`, `prepare_changelog_release`, and `stage_done_tasks_for_release`.
 - **Manifest Harmony**: Synchronizes and verifies version parity across `Cargo.toml`, crate manifests, `package.json`, `packages/cli/package.json`, `.agents/plugins/xgauntlet/plugin.json`, `.agents/plugins/xgauntlet/policy.json`, and embedded `gauntlet_policy.wasm`.
+- **Auto-Archive on Release**: `release bump` and `release prepare` automatically archive all `DONE`/`COMPLETED` tasks to `tasks/archive/` (updating relative links in `specs/**/*.md` and skipping `ACTIVE`/`DRAFT` tasks) **before** final evidence sealing and `check-release --strict`, with transactional rollback on failure and opt-out via `--no-archive`.
 - **Changelog & ADR Coverage**: Verifies Keep a Changelog section `[<version>]` and ensures all `accepted` ADRs in `docs/adr/` are referenced in `README.md` or `spec.md`.
 - **NPM README Parity & Zero-Drift Evidence**: Verifies `packages/cli/README.md` matches root `README.md` and `verification-report.json` matches the current workspace manifest with zero drift.
 

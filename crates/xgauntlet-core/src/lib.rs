@@ -66,12 +66,13 @@ pub use features::policy::{
     PolicyEvaluator, ToolActionType, WasmPolicyEngine, WorkspaceRelativePath,
 };
 pub use features::release::{
-    bump_semver, check_adr_coverage, check_release_readiness, extract_declared_versions,
-    generate_release_git_instructions, generate_release_git_instructions_with_files,
-    parse_changelog_versions, prepare_changelog_release, update_manifest_versions,
-    validate_changelog, AdrCoverageSummary, ManifestVersionSummary, ReleaseError, ReleaseFinding,
-    ReleaseFindingCategory, ReleaseReadinessEngine, ReleaseReadinessOptions,
-    ReleaseReadinessReport, SemverBump,
+    bump_semver, check_adr_coverage, check_release_readiness, collect_release_backup_candidates,
+    extract_declared_versions, generate_release_git_instructions,
+    generate_release_git_instructions_with_files, parse_changelog_versions,
+    prepare_changelog_release, stage_done_tasks_for_release, update_manifest_versions,
+    validate_changelog, AdrCoverageSummary, ManifestVersionSummary, ReleaseArchiveStaging,
+    ReleaseError, ReleaseFinding, ReleaseFindingCategory, ReleaseReadinessEngine,
+    ReleaseReadinessOptions, ReleaseReadinessReport, SemverBump,
 };
 pub use features::scaffold::{
     generate_templates, generate_templates_for_workspace, run_scaffold, ScaffoldAction,

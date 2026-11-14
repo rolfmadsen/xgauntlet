@@ -387,6 +387,10 @@ enum ReleaseCommands {
         #[arg(long)]
         dry_run: bool,
 
+        /// Skip automatic archiving of DONE tasks to tasks/archive/
+        #[arg(long)]
+        no_archive: bool,
+
         /// Output results in structured JSON format
         #[arg(long)]
         json: bool,
@@ -403,6 +407,10 @@ enum ReleaseCommands {
         /// Dry run without writing changes to disk
         #[arg(long)]
         dry_run: bool,
+
+        /// Skip automatic archiving of DONE tasks to tasks/archive/
+        #[arg(long)]
+        no_archive: bool,
 
         /// Output results in structured JSON format
         #[arg(long)]
@@ -1482,6 +1490,7 @@ async fn main() -> anyhow::Result<()> {
                 increment,
                 workspace,
                 dry_run,
+                no_archive,
                 json,
             } => {
                 let canonical_ws = if workspace.is_absolute() {
@@ -1527,6 +1536,7 @@ async fn main() -> anyhow::Result<()> {
                     &current_version,
                     &next_version,
                     *dry_run,
+                    *no_archive,
                     *json,
                 )?;
             }
@@ -1534,6 +1544,7 @@ async fn main() -> anyhow::Result<()> {
                 version,
                 workspace,
                 dry_run,
+                no_archive,
                 json,
             } => {
                 let canonical_ws = if workspace.is_absolute() {
@@ -1565,6 +1576,7 @@ async fn main() -> anyhow::Result<()> {
                     &current_version,
                     &clean_version,
                     *dry_run,
+                    *no_archive,
                     *json,
                 )?;
             }

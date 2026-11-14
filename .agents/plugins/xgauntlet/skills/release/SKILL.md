@@ -79,8 +79,8 @@ Viser:
 
 #### Niveau B: Eksplicit Release Session (Når en ny version skal frigives)
 KUN når brugeren specifikt anmoder om at udgive en version eller milepæl:
-1. **Deterministisk SemVer Bumping, Manifest Sync & Automatisk Evidensforsegling:**
-   Kør xGauntlets release manager (evaluerer SemVer 2.0.0, opdaterer manifester, roterer CHANGELOG.md, forsegler frisk evidens og validerer med strict gatekeeper):
+1. **Deterministisk SemVer Bumping, Auto-Arkivering & Automatisk Evidensforsegling:**
+   Kør xGauntlets release manager (evaluerer SemVer 2.0.0, opdaterer manifester, roterer CHANGELOG.md, arkiverer `DONE`-tasks til `tasks/archive/` med opdaterede `specs/**/*.md`-links før forsegling, forsegler frisk evidens og validerer med strict gatekeeper — brug `--no-archive` for at springe arkiveringen over):
    ```bash
    xgauntlet release bump patch   # for bagudkompatible fixes
    xgauntlet release bump minor   # for additive, bagudkompatible features

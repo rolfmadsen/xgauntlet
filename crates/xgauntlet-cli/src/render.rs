@@ -391,78 +391,19 @@ fn validate_wasm_toolchain(workspace: &std::path::Path) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn collect_candidate_files_for_backup(workspace: &std::path::Path) -> Vec<std::path::PathBuf> {
-    let mut files = Vec::new();
-    let root_cargo = workspace.join("Cargo.toml");
-    if root_cargo.is_file() {
-        files.push(root_cargo);
-    }
-    let cargo_lock = workspace.join("Cargo.lock");
-    if cargo_lock.is_file() {
-        files.push(cargo_lock);
-    }
-    let changelog = workspace.join("CHANGELOG.md");
-    if changelog.is_file() {
-        files.push(changelog);
-    }
-    let root_pkg = workspace.join("package.json");
-    if root_pkg.is_file() {
-        files.push(root_pkg);
-    }
-
-    let crates_dir = workspace.join("crates");
-    if crates_dir.is_dir() {
-        if let Ok(entries) = std::fs::read_dir(crates_dir) {
-            for entry in entries.flatten() {
-                let sub_cargo = entry.path().join("Cargo.toml");
-                if sub_cargo.is_file() {
-                    files.push(sub_cargo);
-                }
-            }
-        }
-    }
-
-    let packages_dir = workspace.join("packages");
-    if packages_dir.is_dir() {
-        if let Ok(entries) = std::fs::read_dir(packages_dir) {
-            for entry in entries.flatten() {
-                let sub_pkg = entry.path().join("package.json");
-                if sub_pkg.is_file() {
-                    files.push(sub_pkg);
-                }
-            }
-        }
-    }
-
-    let wasm_file = workspace.join("crates/xgauntlet-core/wasm/gauntlet_policy.wasm");
-    if wasm_file.is_file() {
-        files.push(wasm_file);
-    }
-
-    let vr = workspace.join("verification-report.json");
-    if vr.is_file() {
-        files.push(vr);
-    }
-    let ev = workspace.join("evidence.md");
-    if ev.is_file() {
-        files.push(ev);
-    }
-
-    files
-}
-
 pub fn execute_release_workflow(
     workspace: &std::path::Path,
     current_version: &str,
     target_version: &str,
     dry_run: bool,
+    no_archive: bool,
     json: bool,
 ) -> anyhow::Result<()> {
     let today = &xgauntlet_core::current_iso_utc()[..10];
     let branch = xgauntlet_core::features::checkpoint::git::get_current_branch(workspace)
         .unwrap_or_else(|_| "main".to_string());
 
-    let updated_files = if dry_run {
+    let (updated_files, archived_entries) = if dry_run {
         let mut dry_files = vec![
             "Cargo.toml (dry-run)".to_string(),
             "CHANGELOG.md (dry-run)".to_string(),
@@ -470,13 +411,18 @@ pub fn execute_release_workflow(
         if workspace.join("crates/gauntlet-policy-engine").is_dir() {
             dry_files.push("crates/xgauntlet-core/wasm/gauntlet_policy.wasm (dry-run)".to_string());
         }
-        dry_files
+        let dry_archive =
+            xgauntlet_core::stage_done_tasks_for_release(workspace, true, no_archive)?;
+        for rel in dry_archive.touched_relative_paths(workspace) {
+            dry_files.push(format!("{rel} (dry-run)"));
+        }
+        (dry_files, dry_archive.archive_result().archived.clone())
     } else {
         // 1. Preflight toolchain validation
         validate_wasm_toolchain(workspace)?;
 
         // 2. Disk-staging backup of all candidate manifest and artifact files
-        let candidates = collect_candidate_files_for_backup(workspace);
+        let candidates = xgauntlet_core::collect_release_backup_candidates(workspace);
         let backup_dir = workspace.join(format!(
             "target/.staging-backup-{}-{}",
             std::process::id(),
@@ -503,11 +449,17 @@ pub fn execute_release_workflow(
         }
 
         // 3. Execution closure with automatic rollback on error
+        let mut archive_staging_guard: Option<xgauntlet_core::ReleaseArchiveStaging> = None;
         let result = (|| -> anyhow::Result<Vec<String>> {
             let mut modified = xgauntlet_core::update_manifest_versions(workspace, target_version)?;
             if xgauntlet_core::prepare_changelog_release(workspace, target_version, today)? {
                 modified.push("CHANGELOG.md".to_string());
             }
+
+            let staged_archive =
+                xgauntlet_core::stage_done_tasks_for_release(workspace, false, no_archive)?;
+            modified.extend(staged_archive.touched_relative_paths(workspace));
+            archive_staging_guard = Some(staged_archive);
 
             // 4. Full WASM build against updated release workspace
             let policy_crate = workspace.join("crates/gauntlet-policy-engine");
@@ -685,12 +637,19 @@ pub fn execute_release_workflow(
             Ok(modified) => {
                 // Slet deterministisk disk-backup ved succes
                 let _ = std::fs::remove_dir_all(&backup_dir);
-                modified
+                let archived = archive_staging_guard
+                    .as_ref()
+                    .map(|s| s.archive_result().archived.clone())
+                    .unwrap_or_default();
+                (modified, archived)
             }
             Err(err) => {
                 // Transaktionel Rollback: Gendan alle filer til den uændrede tilstand
                 eprintln!("\n🛑 \x1b[31;1mRelease bump operation failed: {err}\x1b[0m");
                 eprintln!("🔄 \x1b[33mRolling back all modified manifests and artifacts from staging backup...\x1b[0m");
+                if let Some(ref staged) = archive_staging_guard {
+                    staged.rollback();
+                }
                 for (orig, backup) in &backed_up {
                     if backup.is_file() {
                         let _ = std::fs::copy(backup, orig);
@@ -719,7 +678,9 @@ pub fn execute_release_workflow(
             "target_version": target_version,
             "branch": branch,
             "dry_run": dry_run,
+            "no_archive": no_archive,
             "updated_files": updated_files,
+            "archived_tasks": archived_entries,
             "git_instructions": git_instructions,
         });
         println!("{}", serde_json::to_string_pretty(&res)?);
@@ -736,6 +697,9 @@ pub fn execute_release_workflow(
                 println!("   + {}", f);
             }
             println!();
+        }
+        if !archived_entries.is_empty() {
+            println!("Archived Tasks:   {} DONE task(s)", archived_entries.len());
         }
 
         println!(

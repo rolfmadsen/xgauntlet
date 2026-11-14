@@ -196,6 +196,7 @@
 | `sess-f70899d2` | `TDD Craftsman` | `REFACTOR` | `f70899d` | `2026-11-14T15:17:32Z` | `VALID` |
 | `sess-757b05c3` | `Software Engineer` | `DONE` | `757b05c` | `2026-11-14T15:19:16Z` | `VALID` |
 | `sess-c8473f7f` | `System Architect` | `SPEC` | `c8473f7` | `2026-11-14T16:17:37Z` | `VALID` |
+| `sess-2da5f7f8` | `TDD Craftsman` | `RED` | `2da5f7f` | `2026-11-14T16:18:19Z` | `VALID` |
 
 ---
 
@@ -383,5 +384,7 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_release_archive_staging_moves_done_tasks_updates_specs_and_rolls_back` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
+| `test_cli_release_prepare_dry_run_previews_archive_and_respects_no_archive` | `RedCheckpointVerified` | `1feae56ffad976cf...` | `2026-11-14T17:18:19+01:00` |
 
 ---

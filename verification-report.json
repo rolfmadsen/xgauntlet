@@ -1418,6 +1418,14 @@
         "commit_oid": "c8473f7f72c02acfe63f7a4d4664dd5bcad06cac",
         "timestamp": "2026-11-14T16:17:37Z",
         "digest": "eb287316346064508a1eb8f7ca7413dac95a080602351a78c53a091d5310600e"
+      },
+      {
+        "session_nonce": "sess-2da5f7f8",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "2da5f7f877549d6f285fd486a6fe12f230cfad16",
+        "timestamp": "2026-11-14T16:18:19Z",
+        "digest": "0c47764af41ad0506a6f450cd6ec89f6110eb1372f8dc9839077275267b2394e"
       }
     ]
   },
@@ -2681,6 +2689,20 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_release_archive_staging_moves_done_tasks_updates_specs_and_rolls_back",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_cli_release_prepare_dry_run_previews_archive_and_respects_no_archive",
+      "failure_output": "Verified in RED checkpoint commit 2da5f7f",
+      "failure_digest": "1feae56ffad976cfaf53715a88f7d24713f175bd92dc01c755eae76b97e98366",
+      "verified_at": "2026-11-14T17:18:19+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }
