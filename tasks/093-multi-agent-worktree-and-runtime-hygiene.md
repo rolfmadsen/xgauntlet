@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene"
 description: "Løser observationerne fra Kant-repoet efter Task 088 (v0.15.1): ekskluderer .xgauntlet/ og .worktrees/ fra verify-manifest og checkpoint-staging, sikrer clean working tree efter checkpoint --phase done, gør per-session telemetri race-fri (.xgauntlet/sessions/), udvider read-only/branch-klon-opløsning og tilføjer opt-in coordinated inherit + shared CARGO_TARGET_DIR samt xgauntlet worktree create."
-status: active
+status: done
 intent: feature
 generated: { by: process:antigravity-task-init, at: "2026-11-15T00:26:00Z" }
 tags: [multi-agent, worktree, adapters, evidence, checkpoint, telemetry, cargo-target-dir, adr-0014]
@@ -36,7 +36,7 @@ test_refs:
 
 # Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-11-15`
 
@@ -97,6 +97,7 @@ At bringe [Task 088](archive/088-worktree-isolated-multi-agent-supervision.md) o
 - 2026-11-15: Oprettet `DRAFT`-opgavepakke efter indledende `discover`-gennemgang og empirisk kodeanalyse af observationer fra Kant-repoet.
 - 2026-11-15: Indarbejdet indsigter fra Antigravity-dokumentationen (`Subagents`, `Orchestrator`, `/swarm`, `/boost`, `/teamwork`) samt race-condition-fund i `telemetry/session.rs`.
 - 2026-11-15: Bruger godkendte sammenkobling; design låst i `SPEC` og opgave aktiveret (`ACTIVE`) med opdatering af `ADR 0014` Addendum og `MultiAgentConfig`.
+- 2026-11-15: Implementeret AC1–AC5 (`GREEN`), udbedret alle 3 review-blokkere (`REFACTOR`, `8ffbb73`), bestået alle påkrævede Gauntlet-lag (`verify --task 093`, `cargo test --workspace`, `npm test --workspaces`) og forseglet som `DONE` efter Gate 2 godkendelse.
 
 ---
 

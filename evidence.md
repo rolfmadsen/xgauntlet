@@ -1,21 +1,21 @@
 # Verification Report
 
-**Task ID**: `092-prepare-v0-15-1-release`  
-**Task Title**: Task 092: Clean Cargo.toml, Add Dependabot & Prepare Release v0.15.1  
+**Task ID**: `093-multi-agent-worktree-and-runtime-hygiene`  
+**Task Title**: Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `6bbcb3c49a0956a5a827c33964fb6736651101488a9b08c8a6c205c414d3f120`  
-**Timestamp**: `2026-11-14T22:11:56Z`  
-**Head**: `eefb132`  
-**Commit**: `eefb132`  
+**Source Manifest Digest**: `ba57cef8a108e9365ce35e914e98acac8279591d947c41e21045c40af9b1294e`  
+**Timestamp**: `2026-11-15T12:05:26Z`  
+**Head**: `8ffbb73`  
+**Commit**: `8ffbb73`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 — Manifest-paritetstest opdateret til 0.15.1:** `test_workspace_manifests_synchronized_to_version_0_15_1` i `crates/xgauntlet-core/tests/release_manifest_parity_test.rs` validerer alle deklarerede manifests imod `0.15.1` (RED bevist før version bump).
-- [x] **AC2 — Ren Cargo.toml & Dependabot konfigureret:** `Cargo.toml` har ingen ubrugte workspace-felter/afhængigheder (0 Cargo-advarsler på `1.100.0`), og `.github/dependabot.yml` dækker `cargo`, `npm` og `github-actions`.
-- [x] **AC3 — Manifest-, Changelog- & WASM-synkronisering til 0.15.1:** Alle workspace-manifests er opdateret til `0.15.1`, `CHANGELOG.md` har sektion `[0.15.1] - 2026-11-14`, og `crates/xgauntlet-core/wasm/gauntlet_policy.wasm` rapporterer `0.15.1`.
-- [x] **AC4 — Release Gatekeeper & Testsuite Grøn:** `cargo test --workspace` samt `cargo run -p xgauntlet-cli -- check-release --strict` passerer med 0 fejl.
-- [x] **AC5 — Lokalt Commit & Annoteret Tag `v0.15.1`:** Lokalt release-commit og annoteret Git tag `v0.15.1` klargjort på `main` med clean working tree (ingen remote push udført).
+- [x] **AC1 — `.xgauntlet/` & `.worktrees/` ekskluderet fra Manifest & Checkpoint Staging:**
+- [x] **AC2 — Clean Working Tree efter `xgauntlet checkpoint --phase done`:**
+- [x] **AC3 — Race-Free Per-Session Telemetri:**
+- [x] **AC4 — Antigravity Read-Only Subagenter, `branch`-kloner & Coordinated `inherit` Opt-In:**
+- [x] **AC5 — Shared `CARGO_TARGET_DIR` & `xgauntlet worktree create`:**
 
 ---
 
@@ -23,13 +23,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.073s` |
-| `format` | `PASSED` | `0` | `0.252s` |
-| `lint` | `PASSED` | `0` | `0.106s` |
-| `unit` | `PASSED` | `0` | `45.371s` |
-| `npm` | `PASSED` | `0` | `0.754s` |
-| `invariants` | `PASSED` | `0` | `0.068s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.009s` |
+| `architecture` | `PASSED` | `0` | `0.084s` |
+| `format` | `PASSED` | `0` | `0.286s` |
+| `lint` | `PASSED` | `0` | `0.078s` |
+| `unit` | `PASSED` | `0` | `48.189s` |
+| `npm` | `PASSED` | `0` | `0.870s` |
+| `invariants` | `PASSED` | `0` | `0.103s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.017s` |
 
 ---
 
@@ -246,6 +246,7 @@
 | `sess-1b5c6d9c` | `System Architect` | `SPEC` | `1b5c6d9` | `2026-11-15T11:38:23Z` | `VALID` |
 | `sess-cd4dbc8d` | `TDD Craftsman` | `RED` | `cd4dbc8` | `2026-11-15T11:40:04Z` | `VALID` |
 | `sess-3e65552f` | `TDD Craftsman` | `GREEN` | `3e65552` | `2026-11-15T11:47:40Z` | `VALID` |
+| `sess-8ffbb73e` | `TDD Craftsman` | `REFACTOR` | `8ffbb73` | `2026-11-15T12:01:26Z` | `VALID` |
 
 ---
 
@@ -253,6 +254,15 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_ac5_cli_worktree_create_creates_in_repo_worktree_and_binds_task` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
+| `test_ac1_manifest_excludes_xgauntlet_and_worktrees` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
+| `test_ac1_checkpoint_stage_excludes_previously_tracked_xgauntlet` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
+| `test_ac2_checkpoint_done_leaves_clean_working_tree_when_evidence_tracked` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
+| `test_ac3_per_session_files_isolated_and_reset_preserves_other_tasks` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
+| `test_ac4_read_only_browser_and_custom_md_subagents_allowed_without_task` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
+| `test_ac4_workspace_branch_clone_resolved_safely` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
+| `test_ac4_allow_coordinated_inherit_opt_in_via_gauntlet_toml` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
+| `test_ac5_shared_cargo_target_dir_injected_in_linked_worktree` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
 | `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `ba527e94e163d490...` | `2026-11-14T23:06:22+01:00` |
 | `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `ba527e94e163d490...` | `2026-11-14T23:06:22+01:00` |
 | `test_workspace_manifests_synchronized_to_version_0_15_1` | `RedCheckpointVerified` | `ba527e94e163d490...` | `2026-11-14T23:06:22+01:00` |
@@ -496,15 +506,6 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_ac5_cli_worktree_create_creates_in_repo_worktree_and_binds_task` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
-| `test_ac1_manifest_excludes_xgauntlet_and_worktrees` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
-| `test_ac1_checkpoint_stage_excludes_previously_tracked_xgauntlet` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
-| `test_ac2_checkpoint_done_leaves_clean_working_tree_when_evidence_tracked` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
-| `test_ac3_per_session_files_isolated_and_reset_preserves_other_tasks` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
-| `test_ac4_read_only_browser_and_custom_md_subagents_allowed_without_task` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
-| `test_ac4_workspace_branch_clone_resolved_safely` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
-| `test_ac4_allow_coordinated_inherit_opt_in_via_gauntlet_toml` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
-| `test_ac5_shared_cargo_target_dir_injected_in_linked_worktree` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
 | `test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task` | `InversePreflightVerified` | `7a5b48276a775c44...` | `2026-11-15T12:01:16Z` |
 
 ---
