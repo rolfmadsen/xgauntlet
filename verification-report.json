@@ -4,38 +4,37 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "097-prepare-v0-16-0-release",
-    "task_title": "Task 097: Prepare Release v0.16.0 (Manifest Sync, Changelog, Archive & Local Tag)",
-    "task_digest": "0a0265205b135d74bfac951746518d7ce54c1ec7c65235baf255622fffcc0973",
+    "task_id": "098-fix-windows-worktree-verbatim-path",
+    "task_title": "Task 098: Fix Windows Verbatim Path (`\\\\?\\`) in `git worktree add`",
+    "task_digest": "6884bc7912595732baee010dc7b238c019ab78b3846e45b0725f9ff795e8f1d4",
     "acceptance_criteria": [
-      "**AC1 — Manifest-paritetstest opdateret til `0.16.0` (`RED`)**: `test_workspace_manifests_synchronized_to_version_0_16_0` i `release_manifest_parity_test.rs` verificerer `0.16.0` på tværs af alle deklarerede manifests (bevist rød før version bump).",
-      "**AC2 — Manifest-, WASM- & Changelog-synkronisering til `0.16.0`**: `Cargo.toml`, `Cargo.lock`, `package.json`, `packages/cli/package.json`, `.agents/plugins/xgauntlet/{plugin,policy}.json`, `crates/xgauntlet-core/wasm/gauntlet_policy.wasm` og `CHANGELOG.md` (`[0.16.0] - 2026-11-15` med Tasks `093`–`096`) er fuldt synkroniserede.",
-      "**AC3 — Strict Release Gatekeeper & Gauntlet Grøn**: `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo run -p xgauntlet-cli -- verify --task 097 --save` og `cargo run -p xgauntlet-cli -- check-release` passerer uden fejl.",
-      "**AC4 — Lokalt Release-Commit & Annoteret Tag `v0.16.0`**: Lokalt release-commit på `main` og annoteret tag `v0.16.0` oprettet med 100% clean working tree (ingen remote `git push` eller `npm publish` udført)."
+      "**AC1 (RED-test for Windows Verbatim Path Normalization)**: `crates/xgauntlet-cli/tests/worktree_cli_test.rs` verificerer via `strip_windows_verbatim_prefix`, at både drive-paths (`\\\\?\\C:\\...` → `C:\\...`), UNC-paths (`\\\\?\\UNC\\server\\share\\...` → `\\\\server\\share\\...`) og POSIX-stier (`/tmp/...` → `/tmp/...`) normaliseres uden at `git worktree`-argumenter indeholder `\\\\?\\`.",
+      "**AC2 (Fix i `worktree.rs`)**: `create_task_worktree` og `cleanup_failed_worktree` normaliserer `primary_root` og `worktree_path` via `strip_windows_verbatim_prefix` før `git worktree add` / `remove` og i returværdien `WorktreeCreateResult`.",
+      "**AC3 (Verification)**: `cargo test -p xgauntlet-cli --test worktree_cli_test` og `cargo run -p xgauntlet-cli -- verify --task 098 --save` passerer alle obligatoriske lag."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "7600d78b12285050d5e077e1ffd2f751ca69e473c0641661f4507565be90cc70",
-    "source_manifest_digest_pre": "1cb8d5aa89e266725d4bfe71973cec5ca35bbd315383ddb36d3dedf9dd9ac910",
-    "source_manifest_digest_post": "1cb8d5aa89e266725d4bfe71973cec5ca35bbd315383ddb36d3dedf9dd9ac910",
+    "source_content_digest": "04d6b5005652bde53a9247422e2ec8835ec70c3af643dbee442c6dff72c3ebc3",
+    "source_manifest_digest_pre": "8d70e51ac766cd1a8a0ede2bf8ad50a794f50913b41738eaf456a0178614de66",
+    "source_manifest_digest_post": "8d70e51ac766cd1a8a0ede2bf8ad50a794f50913b41738eaf456a0178614de66",
     "config_digest": "e5aad495b0ed71b7e6af13d7b4e0cc049a88d506df0c301e233549f7bb3e1acb",
-    "task_digest": "0a0265205b135d74bfac951746518d7ce54c1ec7c65235baf255622fffcc0973",
+    "task_digest": "6884bc7912595732baee010dc7b238c019ab78b3846e45b0725f9ff795e8f1d4",
     "policy_digest": "ee5dd372caf0dcddb566e02533a23316b876681da866bf3d4a20f32af57012ef",
     "check_definitions_digest": "7b85613e7b7c24f03e0db6873ce7a93328152d05b26a6eea242f15f10f6063af",
-    "included_files_count": 327,
+    "included_files_count": 328,
     "vcs": {
       "type": "git",
-      "head": "71e8b2d",
-      "commit": "71e8b2d",
+      "head": "6a721c4",
+      "commit": "6a721c4",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-15T14:54:07Z",
-    "finished_at": "2026-11-15T14:55:00Z",
-    "total_duration_seconds": 52.238750844,
+    "started_at": "2026-11-15T15:06:40Z",
+    "finished_at": "2026-11-15T15:07:42Z",
+    "total_duration_seconds": 61.806913426,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -48,7 +47,7 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.084767085,
+      "duration_seconds": 0.0772035,
       "optional": false,
       "passed": true,
       "log_digest": "29d01285336226d25089fd4ec1cfbaa6e3a13608605ea8479b7774c7767d7a94"
@@ -57,7 +56,7 @@
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.272340739,
+      "duration_seconds": 0.271547679,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -66,34 +65,34 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.090430833,
+      "duration_seconds": 0.936621212,
       "optional": false,
       "passed": true,
-      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
+      "log_digest": "bf47bfa16748d99d2fcb7c5b66bcefabe41e11ce96fa57c5d87a153eeeb78233"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 48.212395203,
+      "duration_seconds": 56.918827486,
       "optional": false,
       "passed": true,
-      "log_digest": "a70a9490aacc9066d5272b42a8676b58452526284de1744c0d392de42285fbfc"
+      "log_digest": "f67e02afda7f3f4ee55e0c81874494c61d123f08ecfe6233ddbba380792c2999"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 3.374319663,
+      "duration_seconds": 3.388486845,
       "optional": false,
       "passed": true,
-      "log_digest": "f8bafa51c7308562a4e5ab03390fe0642284618fabcf1f6e7e3ac102376b989a"
+      "log_digest": "060308d37e3635da4308795af29ddc16ba401fe31dab56d48367a3b521ec7511"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.054801402,
+      "duration_seconds": 0.059716589,
       "optional": false,
       "passed": true,
       "log_digest": "9c54f5b410a96aebd2b0efcc264a86643104a534d6e04a4a4cd675bdb5917f34"
@@ -102,7 +101,7 @@
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.010358315,
+      "duration_seconds": 0.009649416,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -1969,10 +1968,39 @@
         "commit_oid": "b34f8fd563624a576f7f5bfe2c11b70844b58cba",
         "timestamp": "2026-11-15T15:05:43Z",
         "digest": "696b882a4d0733a746cb750c593acc8824a8e2b00a6a040252128a8f8c01670c"
+      },
+      {
+        "session_nonce": "sess-6a721c4c",
+        "role": "TDD Craftsman",
+        "phase": "GREEN",
+        "commit_oid": "6a721c4c62b3e4c4eae8e4a3f5e36aeee128a97f",
+        "timestamp": "2026-11-15T15:06:18Z",
+        "digest": "b7249d238ccd98c7e3ae005d3eccbc974c4030ab44ac74e9710f7681e3d0c455"
       }
     ]
   },
   "test_provenance": [
+    {
+      "test_identifier": "test_ac5_cli_worktree_create_creates_in_repo_worktree_and_binds_task",
+      "failure_output": "Verified in RED checkpoint commit b34f8fd",
+      "failure_digest": "7bd7a75a3daf4993a9f7f4dcf42db7b7db5f7604f50b584245c80a8da123b3f5",
+      "verified_at": "2026-11-15T16:05:43+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task",
+      "failure_output": "Verified in RED checkpoint commit b34f8fd",
+      "failure_digest": "7bd7a75a3daf4993a9f7f4dcf42db7b7db5f7604f50b584245c80a8da123b3f5",
+      "verified_at": "2026-11-15T16:05:43+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_strip_windows_verbatim_prefix_normalizes_git_worktree_paths",
+      "failure_output": "Verified in RED checkpoint commit b34f8fd",
+      "failure_digest": "7bd7a75a3daf4993a9f7f4dcf42db7b7db5f7604f50b584245c80a8da123b3f5",
+      "verified_at": "2026-11-15T16:05:43+01:00",
+      "status": "red_checkpoint_verified"
+    },
     {
       "test_identifier": "test_extract_declared_versions_includes_plugin_and_policy",
       "failure_output": "Verified in RED checkpoint commit 0de5dbb",
@@ -2090,13 +2118,6 @@
       "failure_output": "Verified in RED checkpoint commit 47d4556",
       "failure_digest": "76bd05c31c3b7273735914294dfea44b825b1a842eab62e371570dba748c086d",
       "verified_at": "2026-11-15T14:22:25+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ac5_cli_worktree_create_creates_in_repo_worktree_and_binds_task",
-      "failure_output": "Verified in RED checkpoint commit cd4dbc8",
-      "failure_digest": "d91924fd15ae68f6dcc9ba569bd5a4793d84a4e9307c47569f87cbeba71fb5be",
-      "verified_at": "2026-11-15T12:40:04+01:00",
       "status": "red_checkpoint_verified"
     },
     {
@@ -3834,20 +3855,7 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
-    },
-    {
-      "test_identifier": "test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task",
-      "failure_output": "running 9 tests\ntest tests::test_empty_task_scope_fails_closed ... ok\ntest tests::test_git_push_strictly_denied ... ok\ntest tests::test_destructive_command_evasions_denied ... ok\ntest tests::test_read_is_unrestricted ... ok\ntest tests::test_json_roundtrip_evaluation ... ok\ntest tests::test_test_scope_isolation_blocks_source_code ... ok\ntest tests::test_write_with_task_allowed ... ok\ntest tests::test_write_without_task_denied ... ok\ntest tests::test_shell_metachars_and_governance_commands_without_task ... ok\n\ntest result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 4 tests\ntest test_read_only_context_blocks_isolated_mutating_delegation ... ok\ntest test_isolated_mutating_delegation_requires_active_task_and_allows_when_active ... ok\ntest test_read_only_delegation_allowed_without_active_task ... ok\ntest test_shared_inherit_mutating_delegation_denied_fail_closed ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 1 test\ntest tests::test_task_new_accepts_feature_and_legacy_slice_flags ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 7 tests\ntest test_cli_check_attestation_fails_closed_on_missing_bundle ... ok\ntest test_cli_check_attestation_help_within_1mb_stack_limit ... ok\ntest test_cli_check_attestation_help ... ok\ntest test_cli_check_attestation_succeeds_with_valid_bundle_and_json_output ... ok\ntest test_cli_check_attestation_fails_closed_on_digest_mismatch ... ok\ntest test_cli_check_attestation_fails_closed_on_repo_id_mismatch ... ok\ntest test_cli_check_attestation_resolves_attestation_json_fallback_when_bundle_missing ... ok\n\ntest result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 4 tests\ntest test_cli_task_id_alias_supported_on_check_spec ... ok\ntest test_cli_task_id_alias_supported_on_handoff ... ok\ntest test_cli_task_id_alias_supported_on_verify ... ok\ntest test_cli_task_new_bugfix_one_liner_with_scope_and_test ... ok\n\ntest result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n\nrunning 2 tests\nInitialised empty Git repository in /tmp/xgauntlet_wt_cli_rollback_92453_2/.git/\nInitialised empty Git repository in /tmp/xgauntlet_wt_cli_create_92453_1/.git/\n[master (root-commit) 407e745] init\n 2 files changed, 26 insertions(+)\n create mode 100644 gauntlet.toml\n create mode 100644 tasks/093-sample-task.md\n[master (root-commit) 407e745] init\n 2 files changed, 26 insertions(+)\n create mode 100644 gauntlet.toml\n create mode 100644 tasks/093-sample-task.md\n[master 49e8d30] add done task\n 1 file changed, 14 insertions(+)\n create mode 100644 tasks/094-done-task.md\ntest test_ac5_cli_worktree_create_creates_in_repo_worktree_and_binds_task ... ok\ntest test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task ... FAILED\n\nfailures:\n\n---- test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task stdout ----\n\nthread 'test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task' (92455) panicked at crates/xgauntlet-cli/tests/worktree_cli_test.rs:134:5:\nRejected DONE task must not leave .worktrees/094 behind\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task\n\ntest result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s\n\n\n   Compiling proc-macro2 v1.0.107\n   Compiling quote v1.0.47\n   Compiling unicode-ident v1.0.24\n   Compiling serde_core v1.0.229\n   Compiling serde v1.0.229\n   Compiling hashbrown v0.17.1\n   Compiling equivalent v1.0.2\n   Compiling log v0.4.34\n   Compiling cfg-if v1.0.4\n   Compiling libc v0.2.189\n   Compiling cranelift-assembler-x64-meta v0.117.2\n   Compiling pulley-interpreter v30.0.2\n   Compiling cranelift-bitset v0.117.2\n   Compiling foldhash v0.1.5\n   Compiling cranelift-isle v0.117.2\n   Compiling libm v0.2.16\n   Compiling memchr v2.8.3\n   Compiling cranelift-codegen-shared v0.117.2\n   Compiling bitflags v2.13.1\n   Compiling target-lexicon v0.13.5\n   Compiling thiserror v2.0.20\n   Compiling zmij v1.0.23\n   Compiling allocator-api2 v0.2.21\n   Compiling version_check v0.9.5\n   Compiling anyhow v1.0.104\n   Compiling crc32fast v1.5.1\n   Compiling wasmparser v0.224.1\n   Compiling arbitrary v1.4.2\n   Compiling rustc-hash v2.1.3\n   Compiling serde_json v1.0.151\n   Compiling wasm-encoder v0.224.1\n   Compiling hashbrown v0.15.5\n   Compiling typenum v1.20.1\n   Compiling itoa v1.0.18\n   Compiling object v0.36.7\n   Compiling semver v1.0.28\n   Compiling termcolor v1.4.1\n   Compiling leb128 v0.2.7\n   Compiling thiserror v1.0.69\n   Compiling parking_lot_core v0.9.12\n   Compiling find-msvc-tools v0.1.12\n   Compiling rustix v1.1.4\n   Compiling generic-array v0.14.7\n   Compiling shlex v2.0.1\n   Compiling scopeguard v1.2.0\n   Compiling bumpalo v3.20.3\n   Compiling linux-raw-sys v0.12.1\n   Compiling either v1.18.0\n   Compiling rustix v0.38.44\n   Compiling paste v1.0.15\n   Compiling cc v1.4.5\n   Compiling lock_api v0.4.14\n   Compiling linux-raw-sys v0.4.15\n   Compiling wasmtime-asm-macros v30.0.2\n   Compiling bytes v1.12.1\n   Compiling sptr v0.3.2\n   Compiling itertools v0.12.1\n   Compiling wasmtime-slab v30.0.2\n   Compiling cpufeatures v0.2.17\n   Compiling pin-project-lite v0.2.17\n   Compiling once_cell v1.21.4\n   Compiling utf8parse v0.2.2\n   Compiling colorchoice v1.0.5\n   Compiling anstyle-query v1.1.5\n   Compiling is_terminal_polyfill v1.70.2\n   Compiling anstyle v1.0.14\n   Compiling anstyle-parse v1.0.0\n   Compiling heck v0.5.0\n   Compiling clap_lex v1.1.0\n   Compiling strsim v0.11.1\n   Compiling cranelift-assembler-x64 v0.117.2\n   Compiling cranelift-control v0.117.2\n   Compiling anstream v1.0.0\n   Compiling syn v3.0.5\n   Compiling syn v2.0.119\n   Compiling clap_builder v4.6.6\n   Compiling block-buffer v0.10.4\n   Compiling crypto-common v0.1.7\n   Compiling digest v0.10.7\n   Compiling sha2 v0.10.9\n   Compiling wasmtime-math v30.0.2\n   Compiling errno v0.3.14\n   Compiling wasmtime-jit-icache-coherence v30.0.2\n   Compiling socket2 v0.6.5\n   Compiling mio v1.2.3\n   Compiling cranelift-codegen-meta v0.117.2\n   Compiling signal-hook-registry v1.4.8\n   Compiling memfd v0.6.6\n   Compiling indexmap v2.14.2\n   Compiling wasmtime-versioned-export-macros v30.0.2\n   Compiling thiserror-impl v1.0.69\n   Compiling serde_derive v1.0.229\n   Compiling thiserror-impl v2.0.20\n   Compiling tokio-macros v2.7.2\n   Compiling clap_derive v4.6.4\n   Compiling wasmtime v30.0.2\n   Compiling gimli v0.31.1\n   Compiling cranelift-codegen v0.117.2\n   Compiling cobs v0.3.0\n   Compiling clap v4.6.6\n   Compiling smallvec v1.16.0\n   Compiling postcard v1.1.3\n   Compiling gauntlet-policy-engine v0.15.1 (/tmp/xgauntlet-preflight-85663-1-1794744058909752536/crates/gauntlet-policy-engine)\n   Compiling cranelift-entity v0.117.2\n   Compiling regalloc2 v0.11.2\n   Compiling parking_lot v0.12.5\n   Compiling cranelift-bforest v0.117.2\n   Compiling tokio v1.53.1\n   Compiling wasmprinter v0.224.1\n   Compiling wasmtime-environ v30.0.2\n   Compiling cranelift-frontend v0.117.2\n   Compiling cranelift-native v0.117.2\n   Compiling wasmtime-cranelift v30.0.2\n   Compiling xgauntlet-core v0.15.1 (/tmp/xgauntlet-preflight-85663-1-1794744058909752536/crates/xgauntlet-core)\n   Compiling xgauntlet-cli v0.15.1 (/tmp/xgauntlet-preflight-85663-1-1794744058909752536/crates/xgauntlet-cli)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 17.32s\n     Running unittests src/lib.rs (/home/rolfmadsen/Github/xgauntlet/target/xgauntlet-preflight/debug/build/gauntlet-policy-engine/44c26d3c4a49b5e7/out/gauntlet_policy_engine-44c26d3c4a49b5e7)\n     Running tests/delegation_policy_test.rs (/home/rolfmadsen/Github/xgauntlet/target/xgauntlet-preflight/debug/build/gauntlet-policy-engine/da5aec47ed21916c/out/delegation_policy_test-da5aec47ed21916c)\n     Running unittests src/main.rs (/home/rolfmadsen/Github/xgauntlet/target/xgauntlet-preflight/debug/build/xgauntlet-cli/a71e2dbfff0feb39/out/xgauntlet-a71e2dbfff0feb39)\n     Running tests/check_attestation_test.rs (/home/rolfmadsen/Github/xgauntlet/target/xgauntlet-preflight/debug/build/xgauntlet-cli/8aca5ec903883643/out/check_attestation_test-8aca5ec903883643)\n     Running tests/cli_args_test.rs (/home/rolfmadsen/Github/xgauntlet/target/xgauntlet-preflight/debug/build/xgauntlet-cli/4089c8141574393a/out/cli_args_test-4089c8141574393a)\n     Running tests/worktree_cli_test.rs (/home/rolfmadsen/Github/xgauntlet/target/xgauntlet-preflight/debug/build/xgauntlet-cli/afd433a74dce66cb/out/worktree_cli_test-afd433a74dce66cb)\nhint: Using 'master' as the name for the initial branch. This default branch name\nhint: is subject to change. To configure the initial branch name to use in all\nhint: of your new repositories, which will suppress this warning, call:\nhint: \nhint: \tgit config --global init.defaultBranch <name>\nhint: \nhint: Names commonly chosen instead of 'master' are 'main', 'trunk' and\nhint: 'development'. The just-created branch can be renamed via this command:\nhint: \nhint: \tgit branch -m <name>\nhint: Using 'master' as the name for the initial branch. This default branch name\nhint: is subject to change. To configure the initial branch name to use in all\nhint: of your new repositories, which will suppress this warning, call:\nhint: \nhint: \tgit config --global init.defaultBranch <name>\nhint: \nhint: Names commonly chosen instead of 'master' are 'main', 'trunk' and\nhint: 'development'. The just-created branch can be renamed via this command:\nhint: \nhint: \tgit branch -m <name>\nerror: test failed, to rerun pass `-p xgauntlet-cli --test worktree_cli_test`",
-      "failure_digest": "7a5b48276a775c44feab4f4677b37e8b13ea274205695d88d32c429ca4f43427",
-      "verified_at": "2026-11-15T12:01:16Z",
-      "status": "inverse_preflight_verified"
-    },
-    {
-      "test_identifier": "test_strip_windows_verbatim_prefix_normalizes_git_worktree_paths",
-      "failure_output": "Verified in RED checkpoint commit b34f8fd",
-      "failure_digest": "7bd7a75a3daf4993a9f7f4dcf42db7b7db5f7604f50b584245c80a8da123b3f5",
-      "verified_at": "2026-11-15T16:05:43+01:00",
-      "status": "red_checkpoint_verified"
     }
-  ]
+  ],
+  "proof_mode": "fast_track_red_to_done"
 }

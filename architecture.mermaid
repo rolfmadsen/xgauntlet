@@ -683,54 +683,45 @@ classDiagram
     AntigravityAdapter ..|> HarnessAdapter
     MistralAdapter ..|> HarnessAdapter
     CodexAdapter ..|> HarnessAdapter
-    DoctorCheckItem *-- DoctorCategory : category
-    DoctorCheckItem *-- DoctorCheckStatus : status
-    MigrationReport *-- MigrationItem : items
     CapabilityRequest *-- ToolActionType : action_type
-    PolicyDecision *-- DecisionVerdict : verdict
-    PolicyDecision *-- EnforcementContext : context
-    StackProfile *-- LayerConfig : default_layers
-    PluginTargetInstallReport *-- PluginInstallStatus : status
-    DiagnosticReport *-- DiagnosticFinding : findings
-    ArchitectureConfig *-- ArchitectureExemption : exemptions
-    CheckpointResult *-- CheckpointPhase : phase
-    CheckpointResult *-- SessionHandoff : handoff
-    ScaffoldResult *-- ScaffoldFileReport : files
-    TopologyEdge *-- EdgeType : edge_type
-    SpecReadinessReport *-- DiagnosticFinding : diagnostics
-    GauntletReport *-- LayerResult : layers
-    ArchitectureFinding *-- ArchitectureFindingCategory : category
-    ReleaseFinding *-- ReleaseFindingCategory : category
-    AdapterValidationResult *-- ValidationIssue : issues
-    CheckSummary *-- CheckStatus : status
-    TopologyGraph *-- TopologyEdge : edges
-    TopologyGraph *-- BlastRadiusReport : blast_radius
+    ScaffoldFileReport *-- ScaffoldAction : action
     GlossaryDriftReport *-- DiagnosticFinding : avoid_violations
     GlossaryDriftReport *-- DiagnosticFinding : diagnostics
-    ReleaseReadinessReport *-- ReleaseFinding : diagnostics
-    ValidationIssue *-- ValidationSeverity : severity
-    PluginInstallReport *-- PluginTargetInstallReport : targets
-    PluginInstallReport *-- DiscoveredHarness : discovered_harnesses
-    ConfigValidationReport *-- ConfigValidationIssue : issues
-    GauntletConfig *-- PathsConfig : paths
-    GauntletConfig *-- ArchitectureConfig : architecture
-    GauntletConfig *-- CheckpointConfig : checkpoint
-    GauntletConfig *-- MultiAgentConfig : multi_agent
-    GauntletConfig *-- LayerConfig : layers
-    WorkspaceState *-- VcsMetadata : vcs
-    AdrReadinessReport *-- DiagnosticFinding : diagnostics
-    AdapterHookVerdict *-- DecisionVerdict : decision
-    ScaffoldFileReport *-- ScaffoldAction : action
+    DoctorCheckItem *-- DoctorCategory : category
+    DoctorCheckItem *-- DoctorCheckStatus : status
+    DiagnosticFinding *-- FindingType : finding_type
     DoctorReport *-- DoctorCheckItem : checks
     DoctorReport *-- DoctorVerdict : verdict
-    LayerResult *-- LayerExecutionStatus : status
-    LayerResult *-- LayerRequirement : requirement
-    NormalizedToolCall *-- ToolActionType : action_type
-    DiagnosticFinding *-- FindingType : finding_type
-    LayerDefinition *-- LayerRequirement : requirement
+    ArchitectureConfig *-- ArchitectureExemption : exemptions
+    ReleaseFinding *-- ReleaseFindingCategory : category
+    PluginTargetInstallReport *-- PluginInstallStatus : status
+    AdapterValidationResult *-- ValidationIssue : issues
+    CheckpointResult *-- CheckpointPhase : phase
+    CheckpointResult *-- SessionHandoff : handoff
+    TopologyNode *-- NodeType : node_type
+    CheckSummary *-- CheckStatus : status
+    GauntletReport *-- LayerResult : layers
+    AdapterHookVerdict *-- DecisionVerdict : decision
+    PluginInstallReport *-- PluginTargetInstallReport : targets
+    PluginInstallReport *-- DiscoveredHarness : discovered_harnesses
+    DiagnosticReport *-- DiagnosticFinding : findings
+    ArchitectureFinding *-- ArchitectureFindingCategory : category
+    ConfigValidationReport *-- ConfigValidationIssue : issues
     AttestationReport *-- VerificationVerdict : verdict
     AttestationReport *-- AttestationStatus : attestation_status
     AttestationReport *-- TrustDecision : trust_decision
+    NormalizedToolCall *-- ToolActionType : action_type
+    AdrReadinessReport *-- DiagnosticFinding : diagnostics
+    ArchitectureReport *-- ArchitectureFinding : findings
+    MigrationReport *-- MigrationItem : items
+    SpecReadinessReport *-- DiagnosticFinding : diagnostics
+    ConfigValidationIssue *-- ValidationSeverity : severity
+    PolicyDecision *-- DecisionVerdict : verdict
+    LayerResult *-- LayerExecutionStatus : status
+    LayerResult *-- LayerRequirement : requirement
+    TopologyEdge *-- EdgeType : edge_type
+    ScaffoldResult *-- ScaffoldFileReport : files
+    StackProfile *-- LayerConfig : default_layers
     VerificationReport *-- ExecutionOrigin : execution_origin
     VerificationReport *-- VerificationVerdict : verdict
     VerificationReport *-- TaskContract : task_contract
@@ -739,7 +730,16 @@ classDiagram
     VerificationReport *-- CheckSummary : checks
     VerificationReport *-- DiagnosticFinding : diagnostics
     VerificationReport *-- AttestationReport : attestation
-    ConfigValidationIssue *-- ValidationSeverity : severity
+    ReleaseReadinessReport *-- ReleaseFinding : diagnostics
+    PolicyDecision *-- EnforcementContext : context
+    ValidationIssue *-- ValidationSeverity : severity
+    LayerDefinition *-- LayerRequirement : requirement
+    GauntletConfig *-- PathsConfig : paths
+    GauntletConfig *-- ArchitectureConfig : architecture
+    GauntletConfig *-- CheckpointConfig : checkpoint
+    GauntletConfig *-- MultiAgentConfig : multi_agent
+    GauntletConfig *-- LayerConfig : layers
+    TopologyGraph *-- TopologyEdge : edges
+    TopologyGraph *-- BlastRadiusReport : blast_radius
     TaskPackageInfo *-- TaskStatus : status
-    TopologyNode *-- NodeType : node_type
-    ArchitectureReport *-- ArchitectureFinding : findings
+    WorkspaceState *-- VcsMetadata : vcs

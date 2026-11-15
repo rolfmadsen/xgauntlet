@@ -1,20 +1,19 @@
 # Verification Report
 
-**Task ID**: `097-prepare-v0-16-0-release`  
-**Task Title**: Task 097: Prepare Release v0.16.0 (Manifest Sync, Changelog, Archive & Local Tag)  
+**Task ID**: `098-fix-windows-worktree-verbatim-path`  
+**Task Title**: Task 098: Fix Windows Verbatim Path (`\\?\`) in `git worktree add`  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `1cb8d5aa89e266725d4bfe71973cec5ca35bbd315383ddb36d3dedf9dd9ac910`  
-**Timestamp**: `2026-11-15T14:55:00Z`  
-**Head**: `71e8b2d`  
-**Commit**: `71e8b2d`  
+**Source Manifest Digest**: `8d70e51ac766cd1a8a0ede2bf8ad50a794f50913b41738eaf456a0178614de66`  
+**Timestamp**: `2026-11-15T15:07:42Z`  
+**Head**: `6a721c4`  
+**Commit**: `6a721c4`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 — Manifest-paritetstest opdateret til `0.16.0` (`RED`)**: `test_workspace_manifests_synchronized_to_version_0_16_0` i `release_manifest_parity_test.rs` verificerer `0.16.0` på tværs af alle deklarerede manifests (bevist rød før version bump).
-- [x] **AC2 — Manifest-, WASM- & Changelog-synkronisering til `0.16.0`**: `Cargo.toml`, `Cargo.lock`, `package.json`, `packages/cli/package.json`, `.agents/plugins/xgauntlet/{plugin,policy}.json`, `crates/xgauntlet-core/wasm/gauntlet_policy.wasm` og `CHANGELOG.md` (`[0.16.0] - 2026-11-15` med Tasks `093`–`096`) er fuldt synkroniserede.
-- [x] **AC3 — Strict Release Gatekeeper & Gauntlet Grøn**: `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo run -p xgauntlet-cli -- verify --task 097 --save` og `cargo run -p xgauntlet-cli -- check-release` passerer uden fejl.
-- [x] **AC4 — Lokalt Release-Commit & Annoteret Tag `v0.16.0`**: Lokalt release-commit på `main` og annoteret tag `v0.16.0` oprettet med 100% clean working tree (ingen remote `git push` eller `npm publish` udført).
+- [x] **AC1 (RED-test for Windows Verbatim Path Normalization)**: `crates/xgauntlet-cli/tests/worktree_cli_test.rs` verificerer via `strip_windows_verbatim_prefix`, at både drive-paths (`\\?\C:\...` → `C:\...`), UNC-paths (`\\?\UNC\server\share\...` → `\\server\share\...`) og POSIX-stier (`/tmp/...` → `/tmp/...`) normaliseres uden at `git worktree`-argumenter indeholder `\\?\`.
+- [x] **AC2 (Fix i `worktree.rs`)**: `create_task_worktree` og `cleanup_failed_worktree` normaliserer `primary_root` og `worktree_path` via `strip_windows_verbatim_prefix` før `git worktree add` / `remove` og i returværdien `WorktreeCreateResult`.
+- [x] **AC3 (Verification)**: `cargo test -p xgauntlet-cli --test worktree_cli_test` og `cargo run -p xgauntlet-cli -- verify --task 098 --save` passerer alle obligatoriske lag.
 
 ---
 
@@ -22,12 +21,12 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.085s` |
+| `architecture` | `PASSED` | `0` | `0.077s` |
 | `format` | `PASSED` | `0` | `0.272s` |
-| `lint` | `PASSED` | `0` | `0.090s` |
-| `unit` | `PASSED` | `0` | `48.212s` |
-| `npm` | `PASSED` | `0` | `3.374s` |
-| `invariants` | `PASSED` | `0` | `0.055s` |
+| `lint` | `PASSED` | `0` | `0.937s` |
+| `unit` | `PASSED` | `0` | `56.919s` |
+| `npm` | `PASSED` | `0` | `3.388s` |
+| `invariants` | `PASSED` | `0` | `0.060s` |
 | `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---
@@ -267,6 +266,7 @@
 | `sess-a2d1d120` | `Software Engineer` | `DONE` | `a2d1d12` | `2026-11-15T14:55:00Z` | `VALID` |
 | `sess-9d0b4564` | `System Architect` | `SPEC` | `9d0b456` | `2026-11-15T15:05:16Z` | `VALID` |
 | `sess-b34f8fd5` | `TDD Craftsman` | `RED` | `b34f8fd` | `2026-11-15T15:05:43Z` | `VALID` |
+| `sess-6a721c4c` | `TDD Craftsman` | `GREEN` | `6a721c4` | `2026-11-15T15:06:18Z` | `VALID` |
 
 ---
 
@@ -274,6 +274,9 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_ac5_cli_worktree_create_creates_in_repo_worktree_and_binds_task` | `RedCheckpointVerified` | `7bd7a75a3daf4993...` | `2026-11-15T16:05:43+01:00` |
+| `test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task` | `RedCheckpointVerified` | `7bd7a75a3daf4993...` | `2026-11-15T16:05:43+01:00` |
+| `test_strip_windows_verbatim_prefix_normalizes_git_worktree_paths` | `RedCheckpointVerified` | `7bd7a75a3daf4993...` | `2026-11-15T16:05:43+01:00` |
 | `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `02061e3abe6c3d1b...` | `2026-11-15T15:48:52+01:00` |
 | `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `02061e3abe6c3d1b...` | `2026-11-15T15:48:52+01:00` |
 | `test_workspace_manifests_synchronized_to_version_0_16_0` | `RedCheckpointVerified` | `02061e3abe6c3d1b...` | `2026-11-15T15:48:52+01:00` |
@@ -291,7 +294,6 @@
 | `test_ac2_antigravity_system_message_user_markdown_smart_cadence` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
 | `test_ac2_task_none_renders_read_only_banner_everywhere` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
 | `test_ac3_render_box_card_and_agents_md_cadence_truthfulness` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
-| `test_ac5_cli_worktree_create_creates_in_repo_worktree_and_binds_task` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
 | `test_ac1_manifest_excludes_xgauntlet_and_worktrees` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
 | `test_ac1_checkpoint_stage_excludes_previously_tracked_xgauntlet` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
 | `test_ac2_checkpoint_done_leaves_clean_working_tree_when_evidence_tracked` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
@@ -540,7 +542,5 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
-| `test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task` | `InversePreflightVerified` | `7a5b48276a775c44...` | `2026-11-15T12:01:16Z` |
-| `test_strip_windows_verbatim_prefix_normalizes_git_worktree_paths` | `RedCheckpointVerified` | `7bd7a75a3daf4993...` | `2026-11-15T16:05:43+01:00` |
 
 ---
