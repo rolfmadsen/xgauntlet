@@ -259,6 +259,7 @@
 | `sess-c014800a` | `TDD Craftsman` | `REFACTOR` | `c014800` | `2026-11-15T13:34:42Z` | `VALID` |
 | `sess-2c694150` | `Software Engineer` | `DONE` | `2c69415` | `2026-11-15T13:42:27Z` | `VALID` |
 | `sess-31f7f4fc` | `System Architect` | `SPEC` | `31f7f4f` | `2026-11-15T13:58:05Z` | `VALID` |
+| `sess-8b8f2730` | `TDD Craftsman` | `RED` | `8b8f273` | `2026-11-15T13:59:37Z` | `VALID` |
 
 ---
 
@@ -525,5 +526,11 @@
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
 | `test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task` | `InversePreflightVerified` | `7a5b48276a775c44...` | `2026-11-15T12:01:16Z` |
+| `test_cli_topology_export_with_feature_filter` | `RedCheckpointVerified` | `41cc2fbca888a0fa...` | `2026-11-15T14:59:37+01:00` |
+| `test_cli_topology_open_no_browser_writes_pele_viewer_html` | `RedCheckpointVerified` | `41cc2fbca888a0fa...` | `2026-11-15T14:59:37+01:00` |
+| `test_ac1_feature_scoped_mermaid_includes_neighbors_and_excludes_unrelated_features` | `RedCheckpointVerified` | `41cc2fbca888a0fa...` | `2026-11-15T14:59:37+01:00` |
+| `test_ac2_verify_save_syncs_architecture_md_and_feature_diagrams_without_tamper` | `RedCheckpointVerified` | `41cc2fbca888a0fa...` | `2026-11-15T14:59:37+01:00` |
+| `test_ac3_pele_viewer_html_contains_pan_zoom_theme_tokens_and_offline_fallback` | `RedCheckpointVerified` | `41cc2fbca888a0fa...` | `2026-11-15T14:59:37+01:00` |
+| `test_ac4_cockpit_hud_links_include_scoped_feature_diagram_or_architecture_md` | `RedCheckpointVerified` | `41cc2fbca888a0fa...` | `2026-11-15T14:59:37+01:00` |
 
 ---

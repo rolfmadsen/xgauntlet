@@ -240,12 +240,17 @@ pub fn render_blockquote_hud(telemetry: &TaskTelemetry, next_action: Option<&str
             norm
         }
     };
+    let arch_link = telemetry
+        .cockpit
+        .as_ref()
+        .and_then(|c| c.diagram_link.as_deref())
+        .unwrap_or("architecture.md");
 
     format!(
         "> ### 🛡️ [Task: {task_label}] `[{intent}: {phase}]`\n\
          > **Status**: `Phase: {phase}` | `{gauntlet_segment}`{session_segment} | `Git: {}@{}{ahead_str}{wt_suffix} • {git_state}`\n\
          > **Progress**: `Criteria: {}/{} {}` | `Scope: {scope}{oos_suffix}`\n\
-         > **Links**: 📋 [Task]({task_link}) • 📄 [Spec](spec.md) • 📖 [Glossary](CONTEXT.md) • 🏛️ [ADR](docs/adr/README.md) • 🧪 [Evidence](evidence.md)\n\
+         > **Links**: 📋 [Task]({task_link}) • 📄 [Spec](spec.md) • 🗺️ [Arch]({arch_link}) • 📖 [Glossary](CONTEXT.md) • 🏛️ [ADR](docs/adr/README.md) • 🧪 [Evidence](evidence.md)\n\
          > 💡 **Next Action:** {action}",
         telemetry.git.branch,
         telemetry.git.head_oid,

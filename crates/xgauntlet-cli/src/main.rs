@@ -509,6 +509,10 @@ enum TopologyCommands {
         #[arg(short, long, default_value = "mermaid")]
         format: String,
 
+        /// Filter Mermaid diagram to a specific feature slice (plus 1-hop neighbors)
+        #[arg(long)]
+        feature: Option<String>,
+
         /// Path to repository workspace root
         #[arg(short, long, default_value = ".")]
         workspace: std::path::PathBuf,
@@ -516,6 +520,28 @@ enum TopologyCommands {
         /// Detail level: 'conceptual' or 'detailed'
         #[arg(long, default_value = "conceptual")]
         level: String,
+    },
+    /// Open interactive Zero-Daemon Pele HTML diagram viewer in the default browser
+    Open {
+        /// Optional feature slice to scope the diagram to
+        #[arg(long)]
+        feature: Option<String>,
+
+        /// Path to repository workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Detail level: 'conceptual' or 'detailed'
+        #[arg(long, default_value = "conceptual")]
+        level: String,
+
+        /// Write the HTML viewer without launching a browser window
+        #[arg(long)]
+        no_browser: bool,
+
+        /// Custom output path for the generated HTML viewer
+        #[arg(long)]
+        out: Option<std::path::PathBuf>,
     },
 }
 
@@ -1696,11 +1722,31 @@ fn dispatch_command(cli: &Cli) -> anyhow::Result<()> {
             }
             TopologyCommands::Export {
                 format,
+                feature,
                 workspace,
                 level,
             } => {
-                if let Err(err) = run_topology_export(workspace, format, level) {
+                if let Err(err) = run_topology_export(workspace, format, level, feature.as_deref())
+                {
                     eprintln!("🛑 Topology export error: {err}");
+                    std::process::exit(1);
+                }
+            }
+            TopologyCommands::Open {
+                feature,
+                workspace,
+                level,
+                no_browser,
+                out,
+            } => {
+                if let Err(err) = run_topology_open(
+                    workspace,
+                    feature.as_deref(),
+                    level,
+                    *no_browser,
+                    out.as_deref(),
+                ) {
+                    eprintln!("🛑 Topology open error: {err}");
                     std::process::exit(1);
                 }
             }

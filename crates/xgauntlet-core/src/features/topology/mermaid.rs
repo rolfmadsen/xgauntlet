@@ -1,6 +1,6 @@
 //! Deterministic AST to Mermaid class diagram generator.
 
-use super::models::{EdgeType, NodeType, TopologyGraph, TopologyNode};
+use super::models::{EdgeType, NodeType, TopologyError, TopologyGraph, TopologyNode};
 use std::collections::{BTreeMap, BTreeSet};
 
 /// Level of detail for Mermaid class diagram generation.
@@ -31,10 +31,156 @@ impl Default for MermaidExportOptions {
     }
 }
 
+fn is_renderable_node(node: &TopologyNode, options: &MermaidExportOptions) -> bool {
+    let is_domain = if let Some(val) = node.metadata.get("is_domain_model") {
+        val == "true"
+    } else {
+        node.path.ends_with("models.rs")
+            || node.path.contains("/models/")
+            || node.path.contains("\\models\\")
+            || node.path.contains("/domain/")
+            || node.path.contains("\\domain\\")
+    };
+
+    if options.domain_only && options.level == MermaidLevel::Conceptual && !is_domain {
+        return false;
+    }
+
+    // Conceptual domain noise filtering: exclude operational errors and CLI options
+    let is_technical_scaffolding = options.level == MermaidLevel::Conceptual
+        && (node.name.ends_with("Error")
+            || node.name.ends_with("Exception")
+            || node.name.ends_with("Options")
+            || node.name.ends_with("Args")
+            || node.name == "Direction"
+            || node.name == "SemverBump"
+            || node.name == "PlatformTarget");
+
+    if is_technical_scaffolding {
+        return false;
+    }
+
+    matches!(
+        node.node_type,
+        NodeType::Struct | NodeType::Interface | NodeType::Class
+    ) || node.metadata.get("is_enum").map(|v| v.as_str()) == Some("true")
+}
+
+fn collect_renderable_nodes<'a>(
+    graph: &'a TopologyGraph,
+    options: &MermaidExportOptions,
+) -> BTreeMap<String, &'a TopologyNode> {
+    let mut visible_nodes: BTreeMap<String, &'a TopologyNode> = BTreeMap::new();
+    for (id, node) in &graph.nodes {
+        if is_renderable_node(node, options) {
+            visible_nodes.insert(id.clone(), node);
+        }
+    }
+    visible_nodes
+}
+
+fn extract_feature_name_from_path(raw_path: &str) -> Option<String> {
+    let norm = raw_path.replace('\\', "/");
+    let after = if let Some(idx) = norm.find("/features/") {
+        &norm[idx + "/features/".len()..]
+    } else {
+        norm.strip_prefix("features/")?
+    };
+    let feat = after.split('/').next()?.trim();
+    if feat.is_empty() || feat.ends_with(".rs") || feat.ends_with(".ts") || feat.ends_with(".js") {
+        None
+    } else {
+        Some(feat.to_string())
+    }
+}
+
+/// Discovers sorted feature slice names that own at least one renderable domain model.
+pub fn discover_topology_features(
+    graph: &TopologyGraph,
+    options: &MermaidExportOptions,
+) -> Vec<String> {
+    let mut features = BTreeSet::new();
+    for node in collect_renderable_nodes(graph, options).into_values() {
+        if let Some(feat) = extract_feature_name_from_path(&node.path) {
+            features.insert(feat);
+        }
+    }
+    features.into_iter().collect()
+}
+
 /// Exports a TopologyGraph to a deterministic Mermaid classDiagram.
 pub fn export_mermaid_class_diagram(
     graph: &TopologyGraph,
     options: &MermaidExportOptions,
+) -> String {
+    let visible_nodes = collect_renderable_nodes(graph, options);
+    render_nodes_to_mermaid(graph, options, &visible_nodes, None)
+}
+
+/// Exports a deterministic feature-scoped Mermaid classDiagram including 1-hop neighbors.
+pub fn export_feature_mermaid_class_diagram(
+    graph: &TopologyGraph,
+    options: &MermaidExportOptions,
+    feature: &str,
+) -> Result<String, TopologyError> {
+    let target = feature.trim();
+    if target.is_empty() {
+        return Err(TopologyError::ExportError {
+            details: "Feature name cannot be empty.".to_string(),
+        });
+    }
+
+    let all_renderable = collect_renderable_nodes(graph, options);
+    let mut scoped_ids: BTreeSet<String> = BTreeSet::new();
+
+    for (id, node) in &all_renderable {
+        if extract_feature_name_from_path(&node.path).as_deref() == Some(target) {
+            scoped_ids.insert(id.clone());
+        }
+    }
+
+    if scoped_ids.is_empty() {
+        let available = discover_topology_features(graph, options);
+        let hint = if available.is_empty() {
+            "none discovered".to_string()
+        } else {
+            available.join(", ")
+        };
+        return Err(TopologyError::ExportError {
+            details: format!(
+                "Unknown or empty feature slice '{target}'. Available features: {hint}."
+            ),
+        });
+    }
+
+    // Include 1-hop directly connected neighbor models to preserve complete relationships
+    let seed_ids = scoped_ids.clone();
+    for edge in &graph.edges {
+        if seed_ids.contains(&edge.from) && all_renderable.contains_key(&edge.to) {
+            scoped_ids.insert(edge.to.clone());
+        } else if seed_ids.contains(&edge.to) && all_renderable.contains_key(&edge.from) {
+            scoped_ids.insert(edge.from.clone());
+        }
+    }
+
+    let visible_nodes: BTreeMap<String, &TopologyNode> = scoped_ids
+        .into_iter()
+        .filter_map(|id| all_renderable.get(&id).map(|n| (id, *n)))
+        .collect();
+
+    Ok(render_nodes_to_mermaid(
+        graph,
+        options,
+        &visible_nodes,
+        Some(target),
+    ))
+}
+
+fn render_nodes_to_mermaid(
+    graph: &TopologyGraph,
+    options: &MermaidExportOptions,
+    visible_nodes: &BTreeMap<String, &TopologyNode>,
+    feature_scope: Option<&str>,
 ) -> String {
     let mut out = String::new();
     out.push_str("classDiagram\n");
@@ -45,7 +191,17 @@ pub fn export_mermaid_class_diagram(
     };
     out.push_str(&format!("    direction {dir}\n\n"));
 
-    if options.level == MermaidLevel::Conceptual {
+    if let Some(feat) = feature_scope {
+        out.push_str(
+            "    %% ====================================================================\n",
+        );
+        out.push_str(&format!(
+            "    %% 🧩 Feature Slice: {feat} (with 1-hop domain neighbors)\n"
+        ));
+        out.push_str(
+            "    %% ====================================================================\n\n",
+        );
+    } else if options.level == MermaidLevel::Conceptual {
         out.push_str(
             "    %% ====================================================================\n",
         );
@@ -59,49 +215,6 @@ pub fn export_mermaid_class_diagram(
         out.push_str(
             "    %% ====================================================================\n\n",
         );
-    }
-
-    // Collect and filter nodes deterministically
-    let mut visible_nodes: BTreeMap<String, &TopologyNode> = BTreeMap::new();
-
-    for (id, node) in &graph.nodes {
-        let is_domain = if let Some(val) = node.metadata.get("is_domain_model") {
-            val == "true"
-        } else {
-            // Infer from path: models.rs or domain paths (e.g. models.rs or /domain/)
-            node.path.ends_with("models.rs")
-                || node.path.contains("/models/")
-                || node.path.contains("\\models\\")
-                || node.path.contains("/domain/")
-                || node.path.contains("\\domain\\")
-        };
-
-        if options.domain_only && options.level == MermaidLevel::Conceptual && !is_domain {
-            continue;
-        }
-
-        // Conceptual domain noise filtering: exclude operational errors and CLI options
-        let is_technical_scaffolding = options.level == MermaidLevel::Conceptual
-            && (node.name.ends_with("Error")
-                || node.name.ends_with("Exception")
-                || node.name.ends_with("Options")
-                || node.name.ends_with("Args")
-                || node.name == "Direction"
-                || node.name == "SemverBump"
-                || node.name == "PlatformTarget");
-
-        if is_technical_scaffolding {
-            continue;
-        }
-
-        // Only include struct, interface, class, enum
-        if matches!(
-            node.node_type,
-            NodeType::Struct | NodeType::Interface | NodeType::Class
-        ) || node.metadata.get("is_enum").map(|v| v.as_str()) == Some("true")
-        {
-            visible_nodes.insert(id.clone(), node);
-        }
     }
 
     // Render classes/enums/interfaces in alphabetical order of node.name

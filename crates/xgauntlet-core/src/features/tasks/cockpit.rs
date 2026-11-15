@@ -81,6 +81,8 @@ pub struct CockpitTelemetry {
     pub scope_hygiene: ScopeHygieneSummary,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub commits_ahead: Option<usize>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub diagram_link: Option<String>,
 }
 
 /// Workspace telemetry rendered when no active task exists (`Task: NONE`).
@@ -422,7 +424,29 @@ fn path_matches_pattern(path: &str, pattern: &str) -> bool {
 
 fn is_always_allowed_runtime_file(path: &str) -> bool {
     let norm = path.trim_start_matches("./");
-    norm == "verification-report.json" || norm == "evidence.md" || norm.starts_with(".xgauntlet/")
+    norm == "verification-report.json"
+        || norm == "evidence.md"
+        || norm == "architecture.mermaid"
+        || norm == "architecture.md"
+        || norm.starts_with("docs/architecture/")
+        || norm.starts_with(".xgauntlet/")
+}
+
+/// Resolves the fastest `<1ms` diagram Markdown link for a task without AST scanning.
+pub fn resolve_diagram_link(workspace: &Path, feature: Option<&str>) -> Option<String> {
+    if let Some(feat) = feature.map(str::trim).filter(|f| !f.is_empty()) {
+        let rel = format!("docs/architecture/{feat}.md");
+        if workspace.join(&rel).is_file() {
+            return Some(rel);
+        }
+    }
+    if workspace.join("architecture.md").is_file() {
+        return Some("architecture.md".to_string());
+    }
+    if workspace.join("architecture.mermaid").is_file() {
+        return Some("architecture.mermaid".to_string());
+    }
+    None
 }
 
 /// Evaluates dirty working-tree files against the task's declared `scope` and `test_refs`.

@@ -183,7 +183,12 @@ pub fn run_check_spec_context(workspace: &Path, json: bool) -> anyhow::Result<bo
     Ok(report.is_valid)
 }
 
-pub fn run_topology_export(workspace: &Path, format: &str, level: &str) -> anyhow::Result<()> {
+pub fn run_topology_export(
+    workspace: &Path,
+    format: &str,
+    level: &str,
+    feature: Option<&str>,
+) -> anyhow::Result<()> {
     let options = xgauntlet_core::TopologyOptions {
         workspace_root: workspace.to_path_buf(),
         ..Default::default()
@@ -193,20 +198,68 @@ pub fn run_topology_export(workspace: &Path, format: &str, level: &str) -> anyho
     if fmt == "json" {
         println!("{}", graph.export_json()?);
     } else {
-        let mermaid_level = if level.trim().eq_ignore_ascii_case("detailed") {
-            xgauntlet_core::MermaidLevel::Detailed
-        } else {
-            xgauntlet_core::MermaidLevel::Conceptual
-        };
+        let mermaid_level = parse_mermaid_level(level);
         let export_opts = xgauntlet_core::MermaidExportOptions {
             direction: "TB".to_string(),
             level: mermaid_level,
             domain_only: mermaid_level == xgauntlet_core::MermaidLevel::Conceptual,
         };
-        let diagram = xgauntlet_core::export_mermaid_class_diagram(&graph, &export_opts);
+        let diagram = match feature.map(str::trim).filter(|f| !f.is_empty()) {
+            Some(feat) => {
+                xgauntlet_core::export_feature_mermaid_class_diagram(&graph, &export_opts, feat)?
+            }
+            None => xgauntlet_core::export_mermaid_class_diagram(&graph, &export_opts),
+        };
         println!("{diagram}");
     }
     Ok(())
+}
+
+pub fn run_topology_open(
+    workspace: &Path,
+    feature: Option<&str>,
+    level: &str,
+    no_browser: bool,
+    out: Option<&Path>,
+) -> anyhow::Result<()> {
+    let options = xgauntlet_core::TopologyOptions {
+        workspace_root: workspace.to_path_buf(),
+        ..Default::default()
+    };
+    let graph = xgauntlet_core::scan_workspace_topology(&options)?;
+    let mermaid_level = parse_mermaid_level(level);
+    let level_label = if mermaid_level == xgauntlet_core::MermaidLevel::Detailed {
+        "Detailed"
+    } else {
+        "Conceptual"
+    };
+    let export_opts = xgauntlet_core::MermaidExportOptions {
+        direction: "TB".to_string(),
+        level: mermaid_level,
+        domain_only: mermaid_level == xgauntlet_core::MermaidLevel::Conceptual,
+    };
+    let scoped_feat = feature.map(str::trim).filter(|f| !f.is_empty());
+    let diagram = match scoped_feat {
+        Some(feat) => {
+            xgauntlet_core::export_feature_mermaid_class_diagram(&graph, &export_opts, feat)?
+        }
+        None => xgauntlet_core::export_mermaid_class_diagram(&graph, &export_opts),
+    };
+    let html_path =
+        xgauntlet_core::write_pele_viewer_html(workspace, out, &diagram, scoped_feat, level_label)?;
+    println!("🗺️  Pele viewer written to {}", html_path.display());
+    if !no_browser {
+        xgauntlet_core::open_in_browser(&html_path)?;
+    }
+    Ok(())
+}
+
+fn parse_mermaid_level(level: &str) -> xgauntlet_core::MermaidLevel {
+    if level.trim().eq_ignore_ascii_case("detailed") {
+        xgauntlet_core::MermaidLevel::Detailed
+    } else {
+        xgauntlet_core::MermaidLevel::Conceptual
+    }
 }
 
 pub fn resolve_ws(workspace: &Path) -> std::path::PathBuf {

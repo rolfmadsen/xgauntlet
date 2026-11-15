@@ -45,7 +45,7 @@ tags: [specification, architecture, invariants, wasm, rust, npx]
 ## 📐 Architecture & Feature Modules (`Package-by-Feature`)
 
 ### 📊 Visual Domain Model & Architecture Diagram
-- [architecture.mermaid](file:///home/rolfmadsen/Github/xgauntlet/architecture.mermaid): Automatisk genereret og deterministisk synkroniseret Mermaid-klassediagram udledt fra kildekodens forretnings- og domænemodeller ved hver verifikation (`xgauntlet verify --save`).
+- [architecture.md](architecture.md) (GitHub & IDE Markdown-preview med feature-indeks) • [architecture.mermaid](architecture.mermaid) (kanonisk rå Mermaid-kilde): Automatisk genereret og deterministisk synkroniseret ved hver verifikation (`xgauntlet verify --save`), inkl. feature-scoped diagrammer under `docs/architecture/<feature>.md` samt 1-klik lokal Pele-viewer (`xgauntlet topology open`).
 
 - `crates/gauntlet-policy-engine`: Deterministic WebAssembly component implementing `wit/gauntlet_policy.wit`. Structured quote-aware command tokenization, wrapper rejection, fail-closed task scope enforcement (`allowed_scopes`), and test scope isolation (`allowed_test_targets`).
 - `crates/xgauntlet-core/src/features/`:

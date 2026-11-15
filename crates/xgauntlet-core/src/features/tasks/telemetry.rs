@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 
 use crate::features::tasks::cockpit::{
     collect_git_details, evaluate_scope_hygiene, evaluate_verification_summary,
-    evaluate_worktree_summary, format_compact_scope, CockpitTelemetry,
+    evaluate_worktree_summary, format_compact_scope, resolve_diagram_link, CockpitTelemetry,
 };
 use crate::features::tasks::models::TaskStatus;
 use crate::features::tasks::parser::{
@@ -436,11 +436,14 @@ pub fn inspect_task_telemetry_for_session(
         .to_string(),
     );
 
+    let diagram_link = resolve_diagram_link(workspace, info.feature.as_deref());
+
     let cockpit = CockpitTelemetry {
         verification,
         worktree,
         scope_hygiene,
         commits_ahead,
+        diagram_link,
     };
 
     Ok(TaskTelemetry {

@@ -231,14 +231,16 @@ async fn test_ac2_verify_save_syncs_architecture_md_and_feature_diagrams_without
     assert!(!billing_md.contains("FreightParcel"));
 
     // Render helper sanity check
-    let custom_md = render_architecture_markdown("classDiagram\n    class Foo\n", &["billing".into()]);
+    let custom_md =
+        render_architecture_markdown("classDiagram\n    class Foo\n", &["billing".into()]);
     assert!(custom_md.contains("```mermaid"));
     assert!(custom_md.contains("docs/architecture/billing.md"));
 }
 
 #[test]
 fn test_ac3_pele_viewer_html_contains_pan_zoom_theme_tokens_and_offline_fallback() {
-    let mermaid_src = "classDiagram\n    class CustomerInvoice {\n        +invoice_id: String\n    }\n";
+    let mermaid_src =
+        "classDiagram\n    class CustomerInvoice {\n        +invoice_id: String\n    }\n";
     let html = render_pele_viewer_html(mermaid_src, Some("billing"), "Conceptual");
 
     assert!(html.contains("<!DOCTYPE html>"));
@@ -274,7 +276,11 @@ fn test_ac4_cockpit_hud_links_include_scoped_feature_diagram_or_architecture_md(
 
     // Once scoped docs/architecture/billing.md exists, HUD prefers the feature diagram
     fs::create_dir_all(ws.path().join("docs/architecture")).unwrap();
-    fs::write(ws.path().join("docs/architecture/billing.md"), "# Billing\n").unwrap();
+    fs::write(
+        ws.path().join("docs/architecture/billing.md"),
+        "# Billing\n",
+    )
+    .unwrap();
     let telemetry_scoped = inspect_task_telemetry_for_session(ws.path(), Some("001"), None)
         .expect("inspect scoped telemetry");
     let hud_scoped = AntigravityAdapter::render_blockquote_hud(&telemetry_scoped, None);

@@ -96,10 +96,13 @@ pub use features::telemetry::{
     get_phase_directive, render_jit_directive, JitPhaseDirective, PipelinePhase,
 };
 pub use features::topology::{
-    calculate_blast_radius, export_mermaid_class_diagram, find_neighbors, find_shortest_path,
-    load_topology, render_ascii_topology, save_topology, scan_workspace, scan_workspace_topology,
-    BlastRadiusReport, Direction, EdgeType, MermaidExportOptions, MermaidLevel, NodeType,
-    TopologyEdge, TopologyError, TopologyGraph, TopologyNode, TopologyOptions, TOPOLOGY_FILE_PATH,
+    calculate_blast_radius, discover_topology_features, export_feature_mermaid_class_diagram,
+    export_mermaid_class_diagram, find_neighbors, find_shortest_path, load_topology,
+    open_in_browser, render_architecture_markdown, render_ascii_topology,
+    render_feature_architecture_markdown, render_pele_viewer_html, save_topology, scan_workspace,
+    scan_workspace_topology, write_pele_viewer_html, BlastRadiusReport, Direction, EdgeType,
+    MermaidExportOptions, MermaidLevel, NodeType, TopologyEdge, TopologyError, TopologyGraph,
+    TopologyNode, TopologyOptions, TOPOLOGY_FILE_PATH,
 };
 pub use features::wasm::{WasmError, WasmRuntimeHost};
 

@@ -9,7 +9,8 @@
 
 ## 🎯 Purpose & Capability Boundary
 The `adapters` feature translates vendor-specific AI harness tool payloads, lifecycle hooks, and plugin manifests into canonical xGauntlet `CapabilityRequest` operations and fail-closed `AdapterHookVerdict` decisions across all supported harnesses:
-- **Antigravity (`antigravity/`)**: `PreToolUse` gatekeeper normalization, `PreInvocation` `systemMessage` + `metadata.user_markdown` Start-HUD with Smart Kadence (`hud.rs`) and Read-Only `Task: NONE` banner, `wrap_response` blockquote HUD, and `.agents/hooks.json` scaffolding/validation (including `SessionStart`).
+- **Antigravity (`antigravity/`)**: `PreToolUse` gatekeeper normalization, `PreInvocation` `systemMessage` + `metadata.user_markdown` Start-HUD with Smart Kadence (`hud.rs`) and Read-Only `Task: NONE` banner, `wrap_response` blockquote HUD (incl. `🗺️ [Arch]` scoped diagram link), and `.agents/hooks.json` scaffolding/validation (including `SessionStart`).
+- **Visual Diagram**: [docs/architecture/adapters.md](../docs/architecture/adapters.md) • [Full Architecture](../architecture.md)
 - **Claude Code (`claude_code/`)**: `PreToolUse` / `PostToolUse` hook contract, tool payload normalization, and `.claude/settings.json` scaffolding.
 - **OpenAI Codex (`codex/`)**: `PreToolUse` / `PostToolUse` hook contract, function/patch normalization, and `.codex/hooks.json` scaffolding.
 - **Mistral Vibe (`mistral/`)**: `pre_tool` / `post_tool` TOML hook contract and tool payload normalization.
@@ -25,3 +26,4 @@ The `adapters` feature translates vendor-specific AI harness tool payloads, life
 - [Task 088: Worktree-Isolated Multi-Agent & Subagent Supervision](../tasks/archive/088-worktree-isolated-multi-agent-supervision.md)
 - [Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene](../tasks/093-multi-agent-worktree-and-runtime-hygiene.md)
 - [Task 094: Cockpit HUD Truthfulness, Session Resolution & Antigravity Start-HUD Cadence](../tasks/094-cockpit-hud-truthfulness-and-cadence.md)
+- [Task 095: 1-Klik Mermaid DX, Feature-Scoped Diagrammer, Pele Viewer & HUD Links](../tasks/095-mermaid-dx-markdown-scope-and-pele-viewer.md)

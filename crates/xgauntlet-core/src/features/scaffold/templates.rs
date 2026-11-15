@@ -280,7 +280,7 @@ Start-HUD leveres automatisk straks efter brugerprompten via `PreInvocation` (`s
 > ### 🛡️ [Task: <Task Title / ID>] `[<Task Type>: <Phase>]`
 > **Status**: `Phase: <SPEC | RED | GREEN | REFACTOR | GAUNTLET | DONE>` | `Gauntlet: <PASS | FAIL | STALE | NONE>` | `Session: <Optimal|Aging|Saturated> (<N> turns • ~<tok>)` | `Git: <branch>@<oid> (+N) [wt] • <clean | dirty: N files>`
 > **Progress**: `Criteria: X/Y [■■□□□]` | `Scope: <affected paths>` `(evt. ⚠️ M OOS)`
-> **Links**: 📋 [Task](tasks/) • 📄 [Spec](spec.md) • 📖 [Glossary](CONTEXT.md) • 🏛️ [ADR](docs/adr/README.md) • 🧪 [Evidence](evidence.md)
+> **Links**: 📋 [Task](tasks/) • 📄 [Spec](spec.md) • 🗺️ [Arch](architecture.md) • 📖 [Glossary](CONTEXT.md) • 🏛️ [ADR](docs/adr/README.md) • 🧪 [Evidence](evidence.md)
 > 💡 **Next Action:** <kort beskrivelse af næste umiddelbare handling>
 
 ---

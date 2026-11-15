@@ -28,6 +28,7 @@ scope:
   - "specs/adapters.md"
   - "spec.md"
   - "README.md"
+  - "packages/cli/README.md"
   - ".agents/AGENTS.md"
   - "CONTEXT.md"
 test_refs:

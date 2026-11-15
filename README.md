@@ -27,7 +27,7 @@
 
 ---
 
-**Dokumentation**: [Makro-Spec](spec.md) • [Domæne-Glossary](CONTEXT.md) • [Kodestandarder](CODING_STANDARDS.md) • [Arkitektur (ADRs)](docs/adr/) • [Agent-Skills](.agents/plugins/xgauntlet/skills/)  
+**Dokumentation**: [Makro-Spec](spec.md) • [Arkitektur-Diagram](architecture.md) • [Domæne-Glossary](CONTEXT.md) • [Kodestandarder](CODING_STANDARDS.md) • [Arkitektur (ADRs)](docs/adr/) • [Agent-Skills](.agents/plugins/xgauntlet/skills/)  
 **Kildekode & Pakker**: [GitHub](https://github.com/rolfmadsen/xgauntlet) • [NPM Pakke](packages/cli)
 
 ---
@@ -300,7 +300,8 @@ rm -rf ~/.cache/xgauntlet ~/.gemini/config/plugins/xgauntlet ~/.claude/skills/xg
 | `xgauntlet check-spec [-t <id>]` | Validerer opgavepakker i `tasks/` (OKF-format, eksekverbare kriterier, Must NOT og Aristoteles-glossar). |
 | `xgauntlet check-architecture` | Håndhæver kodestruktur, filstørrelser (max 800 linjer kode / 1.000 linjer test) og Feature Architecture-gates. |
 | `xgauntlet check-spec [--context]` | Shift-left opgavespecifikation og to-vejs domæne-drift validering mod CONTEXT.md jf. Aristoteles' formel. |
-| `xgauntlet topology export [--format mermaid\|json] [--level conceptual\|detailed]` | Deterministisk AST-baseret eksport af klasse- og informationsdiagrammer uden LLM-tokens eller baggrundsdæmoner. |
+| `xgauntlet topology export [--format mermaid\|json] [--feature <navn>] [--level conceptual\|detailed]` | Deterministisk AST-baseret eksport af fulde eller feature-scoped klasse- og informationsdiagrammer uden baggrundsdæmoner. |
+| `xgauntlet topology open [--feature <navn>] [--level conceptual\|detailed]` | Åbner en Zero-Daemon interaktiv HTML-viewer med pan/zoom drevet af `obsidianmd/pele` direkte i browseren. |
 | `xgauntlet check-release [--strict]` | Kontrollerer versionsparitet, WASM-synkronisering, changelog og ADR-referencer forud for release. |
 | `xgauntlet check-attestation` | Verificerer Sigstore in-toto/DSSE attestationer lokalt eller remote mod GitHub Releases. |
 | `xgauntlet release bump [patch\|minor\|major]` | Udfører transaktionel SemVer-opgradering med atomisk disk-staging backup og WASM-kompilering. |
@@ -364,13 +365,17 @@ Hvis du har et etableret system med teknisk gæld, skal du **ikke** lave en risi
 xGauntlet bygger en urokkelig, matematisk bro mellem kildekodens konkrete datamodeller og forretningens *Ubiquitous Language* i `CONTEXT.md` jf. Aristoteles' formel (*definitio per genus et differentiam*):
 
 ```bash
-# 1. Eksportér et komplet Mermaid klassediagram direkte fra AST (sub-3ms, zero-daemon, zero-token):
+# 1. Eksportér et komplet eller feature-scoped Mermaid klassediagram direkte fra AST (sub-3ms, zero-daemon, zero-token):
 xgauntlet topology export --format mermaid
+xgauntlet topology export --format mermaid --feature topology
 
-# 2. Inspicér detaljeret teknisk model inkl. interne infrastrukturelle hjælpe-structs:
+# 2. Åbn interaktivt i browseren med pan/zoom via obsidianmd/pele (eller læs architecture.md på GitHub):
+xgauntlet topology open --feature topology
+
+# 3. Inspicér detaljeret teknisk model inkl. interne infrastrukturelle hjælpe-structs:
 xgauntlet topology export --format mermaid --level detailed
 
-# 3. Kør to-vejs shift-left validering mod CONTEXT.md (fanger orphan modeller og forbudte synonymer):
+# 4. Kør to-vejs shift-left validering mod CONTEXT.md (fanger orphan modeller og forbudte synonymer):
 xgauntlet check-spec --context
 ```
 

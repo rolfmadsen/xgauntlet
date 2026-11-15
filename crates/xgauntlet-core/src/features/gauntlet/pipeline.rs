@@ -343,7 +343,7 @@ pub async fn execute_gauntlet_pipeline(
     if options.save_evidence {
         save_verification_report(workspace, &report)?;
 
-        // Automatically sync architecture.mermaid if configured
+        // Automatically sync architecture.mermaid, architecture.md & docs/architecture/<feature>.md if configured
         let config = GauntletConfig::load(workspace).unwrap_or_default();
         let diagram_file = config.paths.diagram_file.trim();
         if !diagram_file.is_empty() {
@@ -359,7 +359,32 @@ pub async fn execute_gauntlet_pipeline(
                 };
                 let diagram =
                     crate::features::topology::export_mermaid_class_diagram(&graph, &export_opts);
-                let _ = std::fs::write(workspace.join(diagram_file), diagram);
+                let _ = std::fs::write(workspace.join(diagram_file), &diagram);
+
+                let features =
+                    crate::features::topology::discover_topology_features(&graph, &export_opts);
+                let arch_dir = workspace.join("docs/architecture");
+                if !features.is_empty() && std::fs::create_dir_all(&arch_dir).is_ok() {
+                    for feat in &features {
+                        if let Ok(feat_diagram) =
+                            crate::features::topology::export_feature_mermaid_class_diagram(
+                                &graph,
+                                &export_opts,
+                                feat,
+                            )
+                        {
+                            let feat_md =
+                                crate::features::topology::render_feature_architecture_markdown(
+                                    feat,
+                                    &feat_diagram,
+                                );
+                            let _ = std::fs::write(arch_dir.join(format!("{feat}.md")), feat_md);
+                        }
+                    }
+                }
+                let arch_md =
+                    crate::features::topology::render_architecture_markdown(&diagram, &features);
+                let _ = std::fs::write(workspace.join("architecture.md"), arch_md);
             }
         }
     }

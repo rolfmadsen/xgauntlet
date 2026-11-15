@@ -51,6 +51,7 @@ pub const EXCLUDED_DIRS: &[&str] = &[
 pub const EXCLUDED_FILES: &[&str] = &[
     ".DS_Store",
     ".coverage",
+    "architecture.md",
     "architecture.mermaid",
     "attestation.bundle",
     "coverage.xml",
@@ -165,6 +166,12 @@ pub fn compute_file_raw_hash(bytes: &[u8]) -> String {
 
 /// Check if a relative path matches exclusion rules.
 pub fn is_excluded(rel_path: &Path) -> bool {
+    let norm = rel_path.to_string_lossy().replace('\\', "/");
+    let norm_trimmed = norm.trim_start_matches("./");
+    if norm_trimmed == "docs/architecture" || norm_trimmed.starts_with("docs/architecture/") {
+        return true;
+    }
+
     for comp in rel_path.components() {
         let s = comp.as_os_str().to_string_lossy();
         if EXCLUDED_DIRS.contains(&s.as_ref()) || s.ends_with(".egg-info") {
