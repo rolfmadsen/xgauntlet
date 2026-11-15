@@ -29,6 +29,7 @@ scope:
 test_refs:
   - "crates/xgauntlet-core/tests/task_093_hygiene_and_coexistence_test.rs"
   - "crates/xgauntlet-core/tests/multi_agent_worktree_test.rs"
+  - "crates/xgauntlet-cli/tests/worktree_cli_test.rs"
 ---
 
 # Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene
