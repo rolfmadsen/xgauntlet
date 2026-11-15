@@ -1168,19 +1168,53 @@ fn dispatch_command(cli: &Cli) -> anyhow::Result<()> {
                 return Ok(());
             }
 
-            let telemetry =
-                match xgauntlet_core::inspect_task_telemetry(&canonical_ws, task.as_deref()) {
-                    Ok(t) => t,
-                    Err(e) => {
-                        if effective_format.starts_with("antigravity") {
-                            let payload = serde_json::json!({ "injectSteps": [] });
-                            println!("{}", serde_json::to_string_pretty(&payload)?);
-                            return Ok(());
-                        } else {
-                            return Err(e.into());
+            let snapshot = match xgauntlet_core::features::tasks::inspect_workspace_cockpit(
+                &canonical_ws,
+                task.as_deref(),
+                None,
+            ) {
+                Ok(s) => s,
+                Err(e) => {
+                    if effective_format.starts_with("antigravity") {
+                        let payload = serde_json::json!({ "injectSteps": [] });
+                        println!("{}", serde_json::to_string_pretty(&payload)?);
+                        return Ok(());
+                    } else {
+                        return Err(e.into());
+                    }
+                }
+            };
+
+            let telemetry = match snapshot {
+                xgauntlet_core::features::tasks::CockpitSnapshot::Active(t) => *t,
+                xgauntlet_core::features::tasks::CockpitSnapshot::Idle(idle) => {
+                    match effective_format.to_ascii_lowercase().as_str() {
+                        "antigravity-hud" | "blockquote" | "hud" => {
+                            println!(
+                                "{}",
+                                xgauntlet_core::features::adapters::antigravity::hud::render_idle_banner(&idle)
+                            );
+                        }
+                        "json" => {
+                            println!("{}", serde_json::to_string_pretty(&*idle)?);
+                        }
+                        "compact-box" | "compact" => {
+                            let snap = xgauntlet_core::features::tasks::CockpitSnapshot::Idle(idle);
+                            println!(
+                                "{}",
+                                xgauntlet_core::features::adapters::antigravity::hud::render_compact_chip(&snap)
+                            );
+                        }
+                        _ => {
+                            println!(
+                                "{}",
+                                xgauntlet_core::features::adapters::antigravity::hud::format_idle_telemetry(&idle)
+                            );
                         }
                     }
-                };
+                    return Ok(());
+                }
+            };
 
             match effective_format.to_ascii_lowercase().as_str() {
                 "antigravity-hook" | "antigravity" => {

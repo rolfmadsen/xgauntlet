@@ -428,14 +428,16 @@ fn test_antigravity_pre_invocation_payload_contract() {
     assert_eq!(inject_steps.len(), 1);
     assert_eq!(
         inject_steps[0]
-            .get("ephemeralMessage")
+            .get("systemMessage")
+            .and_then(|v| v.get("systemMessage"))
             .and_then(|v| v.as_str()),
         Some(ephemeral)
     );
 
     let serialized = serde_json::to_string(&payload).expect("must serialize");
     assert!(serialized.contains("\"injectSteps\""));
-    assert!(serialized.contains("\"ephemeralMessage\""));
+    assert!(serialized.contains("\"systemMessage\""));
+    assert!(serialized.contains("\"user_markdown\""));
     assert!(serialized.contains("[XGAUNTLET COCKPIT TELEMETRY]"));
 }
 
@@ -465,6 +467,7 @@ fn test_antigravity_ephemeral_telemetry_format() {
         evidence: Some("pending".to_string()),
         phase: Some("RED".to_string()),
         session_health: None,
+        cockpit: None,
     };
 
     let ephemeral = AntigravityAdapter::format_ephemeral_telemetry(&telemetry);
@@ -476,12 +479,12 @@ fn test_antigravity_ephemeral_telemetry_format() {
     );
     assert!(ephemeral.contains("Phase: RED"));
     assert!(ephemeral.contains("Invariants: 14/14 PASS"));
-    assert!(ephemeral.contains("Mutation: 100%"));
+    assert!(ephemeral.contains("Mutation: n/a"));
     assert!(
         ephemeral.contains("Git: main@ade8a17 (dirty")
             || ephemeral.contains("Git: main@ade8a17 (dirty: 2 files)")
     );
-    assert!(ephemeral.contains("Drift: 0%"));
+    assert!(ephemeral.contains("Drift: unverified"));
     assert!(ephemeral.contains("Evidence: pending"));
 }
 
@@ -511,6 +514,7 @@ fn test_antigravity_blockquote_hud_rendering() {
         evidence: Some("pending".to_string()),
         phase: Some("RED".to_string()),
         session_health: None,
+        cockpit: None,
     };
 
     let hud = AntigravityAdapter::render_blockquote_hud(&telemetry, Some("Skriv fejlede tests"));
@@ -677,8 +681,8 @@ fn test_antigravity_pre_invocation_hook_interception() {
         "PreInvocation response must contain injectSteps"
     );
     assert!(
-        out.contains("ephemeralMessage"),
-        "PreInvocation response must contain ephemeralMessage"
+        out.contains("systemMessage"),
+        "PreInvocation response must contain systemMessage"
     );
 }
 

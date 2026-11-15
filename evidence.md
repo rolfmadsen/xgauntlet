@@ -249,6 +249,7 @@
 | `sess-8ffbb73e` | `TDD Craftsman` | `REFACTOR` | `8ffbb73` | `2026-11-15T12:01:26Z` | `VALID` |
 | `sess-fa1edabd` | `Software Engineer` | `DONE` | `fa1edab` | `2026-11-15T12:05:26Z` | `VALID` |
 | `sess-1968aa50` | `System Architect` | `SPEC` | `1968aa5` | `2026-11-15T13:20:32Z` | `VALID` |
+| `sess-47d4556a` | `TDD Craftsman` | `RED` | `47d4556` | `2026-11-15T13:22:25Z` | `VALID` |
 
 ---
 
@@ -509,5 +510,11 @@
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
 | `test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task` | `InversePreflightVerified` | `7a5b48276a775c44...` | `2026-11-15T12:01:16Z` |
+| `test_ac1_session_health_token_saturation_thresholds` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
+| `test_ac1_pre_invocation_reads_per_session_health_from_conversation_id` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
+| `test_ac1_truthful_verification_freshness_scope_hygiene_and_worktree` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
+| `test_ac2_antigravity_system_message_user_markdown_smart_cadence` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
+| `test_ac2_task_none_renders_read_only_banner_everywhere` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
+| `test_ac3_render_box_card_and_agents_md_cadence_truthfulness` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
 
 ---

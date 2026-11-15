@@ -934,7 +934,10 @@ fn test_telemetry_and_gatekeeper_payload_schema_compliance_all_four_adapters() {
     let inject_steps = ag_pre_inv["injectSteps"]
         .as_array()
         .expect("injectSteps array");
-    assert_eq!(inject_steps[0]["ephemeralMessage"].as_str(), Some(card));
+    assert_eq!(
+        inject_steps[0]["systemMessage"]["systemMessage"].as_str(),
+        Some(card)
+    );
 
     // PreToolUse gatekeeper payload
     let ag_adapter = get_adapter("antigravity").unwrap();
@@ -1295,6 +1298,7 @@ fn test_render_box_card_multibyte_utf8_exact_64_columns_and_no_panic() {
         evidence: Some("forseglet".to_string()),
         phase: Some("GREEN".to_string()),
         session_health: None,
+        cockpit: None,
     };
 
     // Rendering must NEVER panic on multi-byte UTF-8
@@ -1339,6 +1343,7 @@ fn test_render_blockquote_hud_multibyte_and_redirected_resilience() {
         evidence: Some("pending".to_string()),
         phase: Some("GREEN".to_string()),
         session_health: None,
+        cockpit: None,
     };
 
     // Very long next action with multi-byte characters

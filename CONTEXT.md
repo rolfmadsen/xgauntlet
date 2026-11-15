@@ -119,11 +119,11 @@ _Avoid_: System audit, health check, env sniffer.
 A verified local Git commit, that binds the current workspace state to a specific TDD lifecycle phase (`SPEC`, `RED`, `GREEN`, `REFACTOR`, `GAUNTLET`) after confirming its phase-specific verification invariant.
 _Avoid_: Quick save, commit hook, progress tag.
 
-**Dynamic Response HUD**:
+**Dynamic Response HUD (CockpitTelemetry / IdleWorkspaceTelemetry / CockpitSnapshot)**:
 A real-time telemetry card, that renders verified task progression, Verification Freshness, Worktree Task Binding, Session Health, Git ahead/dirty state, and Scope Hygiene boundaries via harness PreInvocation or state-delta responses.
 _Avoid_: Fabricated pass badge, hardcoded invariant count, redundant tool-loop banner.
 
-**Verification Freshness**:
+**Verification Freshness (VerificationFreshness / VerificationSummary)**:
 An empirical validity classification (`NONE`, `PASS`, `FAIL`, `STALE`), that compares a sealed Verification Report against active task identity, current Git commit OID, and working-tree cleanliness without running full verification builds.
 _Avoid_: Phase guess, hardcoded pass badge, static evidence string.
 
@@ -131,8 +131,8 @@ _Avoid_: Phase guess, hardcoded pass badge, static evidence string.
 A prompt-scoped emission policy, that renders a full Start-HUD via Antigravity PreInvocation metadata on session start or state transitions, collapses to a compact single-line status chip on unchanged user prompts, and suppresses user markdown during internal tool loops.
 _Avoid_: Repeated banner spam, unconditional card, silent blackhole.
 
-**Scope Hygiene**:
-A fast VCS working-tree diagnostic, that partitions uncommitted files against the active task's declared scope patterns to surface out-of-scope edits in real time.
+**Scope Hygiene (ScopeHygieneSummary / WorktreeSummary)**:
+A fast VCS working-tree diagnostic, that partitions uncommitted files against the active task's declared scope patterns and checkout topology to surface out-of-scope edits in real time.
 _Avoid_: Unchecked dirty count, blind git status, late commit failure.
 
 **Task Package Lifecycle**:

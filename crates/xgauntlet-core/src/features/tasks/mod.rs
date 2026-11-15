@@ -3,6 +3,7 @@
 //! Provides OKF v0.2 frontmatter parsing, task package loading,
 //! Aristotelian domain glossary verification, and check-spec gatekeeping.
 
+pub mod cockpit;
 pub mod glossary;
 pub mod lifecycle;
 pub mod models;
@@ -11,6 +12,13 @@ pub mod parser;
 pub mod telemetry;
 pub mod validator;
 pub mod worktree;
+
+pub use cockpit::{
+    collect_git_details, evaluate_scope_hygiene, evaluate_verification_summary,
+    evaluate_worktree_summary, inspect_idle_workspace_telemetry, inspect_workspace_cockpit,
+    CockpitSnapshot, CockpitTelemetry, IdleWorkspaceTelemetry, ScopeHygieneSummary,
+    VerificationFreshness, VerificationSummary, WorktreeSummary,
+};
 
 pub use glossary::validate_glossary_drift;
 pub use lifecycle::{
@@ -32,8 +40,9 @@ pub use parser::{
     resolve_task_contract, resolve_task_file_path, unbind_active_task, TaskError, ACTIVE_TASK_FILE,
 };
 pub use telemetry::{
-    collect_git_telemetry, inspect_task_telemetry, list_workspace_tasks, parse_criteria_progress,
-    CriteriaProgress, GitTelemetry, TaskSummaryItem, TaskTelemetry,
+    collect_git_telemetry, inspect_task_telemetry, inspect_task_telemetry_for_session,
+    list_workspace_tasks, parse_criteria_progress, CriteriaProgress, GitTelemetry, TaskSummaryItem,
+    TaskTelemetry,
 };
 pub use validator::{
     check_adr_frontmatter, check_all_adrs, check_all_tasks, check_task_specification,

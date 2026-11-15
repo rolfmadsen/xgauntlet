@@ -30,10 +30,17 @@ pub enum SessionHealthStatus {
 impl SessionHealthStatus {
     /// Determines health status deterministically from interaction turn count.
     pub fn from_turns(turns: usize) -> Self {
-        match turns {
-            0..=10 => SessionHealthStatus::Optimal,
-            11..=18 => SessionHealthStatus::Aging,
-            _ => SessionHealthStatus::Saturated,
+        Self::from_usage(turns, 0)
+    }
+
+    /// Determines health status deterministically from both interaction turns and estimated tokens.
+    pub fn from_usage(turns: usize, estimated_tokens: usize) -> Self {
+        if turns > 18 || estimated_tokens >= 120_000 {
+            SessionHealthStatus::Saturated
+        } else if turns >= 11 || estimated_tokens >= 60_000 {
+            SessionHealthStatus::Aging
+        } else {
+            SessionHealthStatus::Optimal
         }
     }
 
@@ -89,7 +96,7 @@ pub struct SessionHealth {
 
 impl SessionHealth {
     pub fn new(turns_count: usize, payload_bytes: usize, estimated_tokens: usize) -> Self {
-        let status = SessionHealthStatus::from_turns(turns_count);
+        let status = SessionHealthStatus::from_usage(turns_count, estimated_tokens);
         Self {
             turns_count,
             payload_bytes,
@@ -310,6 +317,50 @@ impl SessionTracker {
     /// Loads active session health if the recorded state matches the requested task_id.
     pub fn load(workspace: &Path, task_id: &str) -> Result<Option<SessionHealth>, std::io::Error> {
         Self::load_for_session(workspace, task_id, None)
+    }
+
+    /// Loads the most recently modified named session in `.xgauntlet/sessions/*.json` matching `task_id`.
+    pub fn load_latest_matching(
+        workspace: &Path,
+        task_id: &str,
+    ) -> Result<Option<SessionHealth>, std::io::Error> {
+        let sessions_dir = workspace.join(SESSION_STATE_DIR);
+        if !sessions_dir.is_dir() {
+            return Ok(None);
+        }
+
+        let mut candidates: Vec<(std::time::SystemTime, SessionTrackerState)> = Vec::new();
+        for entry in fs::read_dir(&sessions_dir)?.flatten() {
+            let path = entry.path();
+            if path.extension().and_then(|e| e.to_str()) != Some("json") {
+                continue;
+            }
+            let Ok(content) = fs::read_to_string(&path) else {
+                continue;
+            };
+            let Ok(state) = serde_json::from_str::<SessionTrackerState>(&content) else {
+                continue;
+            };
+            if task_ids_match(&state.task_id, task_id) {
+                let mtime = entry
+                    .metadata()
+                    .and_then(|m| m.modified())
+                    .unwrap_or(std::time::SystemTime::UNIX_EPOCH);
+                candidates.push((mtime, state));
+            }
+        }
+
+        candidates.sort_by(|a, b| {
+            b.0.cmp(&a.0)
+                .then_with(|| b.1.turns_count.cmp(&a.1.turns_count))
+        });
+        Ok(candidates.into_iter().next().map(|(_, state)| {
+            SessionHealth::new(
+                state.turns_count,
+                state.payload_bytes,
+                state.estimated_tokens,
+            )
+        }))
     }
 
     /// Persists session tracking state for a specific session identifier in `.xgauntlet/sessions/<hash>.json`
@@ -643,5 +694,22 @@ pub fn sync_active_session_for_pre_invocation(
     raw_payload: &str,
 ) -> Option<SessionHealth> {
     let active_task_id = crate::features::tasks::resolve_active_task_id(workspace)?;
+    let is_tool_loop = payload
+        .and_then(|v| v.get("invocationNum").and_then(|n| n.as_u64()))
+        .map(|n| n > 1)
+        .unwrap_or(false);
+    let has_snapshot_data = payload
+        .map(|v| {
+            extract_transcript_path(v).is_some() || extract_explicit_snapshot_tokens(v).is_some()
+        })
+        .unwrap_or(false);
+
+    if is_tool_loop && !has_snapshot_data {
+        let session_id = extract_session_id(payload);
+        return SessionTracker::load_for_session(workspace, &active_task_id, Some(&session_id))
+            .ok()
+            .flatten();
+    }
+
     record_session_from_hook_payload(workspace, &active_task_id, payload, raw_payload).ok()
 }

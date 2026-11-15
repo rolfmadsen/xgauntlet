@@ -12,6 +12,7 @@ use crate::features::adapters::models::{
 };
 use crate::features::policy::ToolActionType;
 
+pub mod hud;
 pub mod telemetry;
 pub mod validation;
 pub mod workspace;
@@ -56,75 +57,19 @@ impl AntigravityAdapter {
     }
 
     /// Formats the canonical Google Antigravity PreInvocation JSON payload on stdout with injectSteps.
-    pub fn format_pre_invocation_payload(ephemeral_message: &str) -> serde_json::Value {
-        if should_suppress_duplicate_telemetry(ephemeral_message) {
+    pub fn format_pre_invocation_payload(system_message: &str) -> serde_json::Value {
+        if should_suppress_duplicate_telemetry(system_message) {
             return serde_json::json!({
                 "injectSteps": []
             });
         }
 
-        serde_json::json!({
-            "injectSteps": [
-                {
-                    "ephemeralMessage": ephemeral_message
-                }
-            ]
-        })
+        hud::format_pre_invocation_system_message(system_message, Some(system_message))
     }
 
-    /// Formats the authoritative telemetry ephemeral message for Google Antigravity PreInvocation.
+    /// Formats TaskTelemetry into truthful model-injected telemetry context.
     pub fn format_ephemeral_telemetry(telemetry: &crate::features::tasks::TaskTelemetry) -> String {
-        let short_id = crate::features::checkpoint::extract_short_task_id(&telemetry.task_id);
-        let task_id_str = if short_id.is_empty() {
-            telemetry.task_id.as_str()
-        } else {
-            short_id
-        };
-        let phase = telemetry.phase.as_deref().unwrap_or("SPEC");
-        let verdict = match phase {
-            "RED" => "FAIL",
-            "GREEN" | "REFACTOR" | "DONE" => "PASS",
-            _ => "PENDING",
-        };
-        let invariants = telemetry.invariants.as_deref().unwrap_or("14/14 PASS");
-        let git_state = if telemetry.git.is_clean {
-            "clean".to_string()
-        } else if telemetry.git.dirty_count > 0 {
-            format!("dirty: {} files", telemetry.git.dirty_count)
-        } else {
-            "dirty".to_string()
-        };
-        let evidence = telemetry.evidence.as_deref().unwrap_or("pending");
-
-        let mut msg = format!(
-            "[XGAUNTLET COCKPIT TELEMETRY]\n\
-             Task: {task_id_str} | Phase: {phase} | Verdict: {verdict}\n\
-             Invariants: {invariants} | Mutation: 100%\n\
-             Git: {}@{} ({git_state}) | Drift: 0%\n\
-             Evidence: {evidence}",
-            telemetry.git.branch, telemetry.git.head_oid
-        );
-
-        if let Some(ref sh) = telemetry.session_health {
-            msg.push_str(&format!("\nSession: {}", sh.format_hud_summary()));
-        }
-
-        if let Some(pipe_phase) = crate::features::telemetry::PipelinePhase::parse_phase(phase) {
-            let jit_rendered =
-                crate::features::telemetry::render_jit_directive(pipe_phase, Some(task_id_str));
-            if !jit_rendered.is_empty() {
-                msg.push_str("\n\n");
-                msg.push_str(&jit_rendered);
-            }
-        }
-
-        if let Some(ref sh) = telemetry.session_health {
-            if sh.status == crate::features::telemetry::SessionHealthStatus::Saturated {
-                msg.push_str("\n\n💡 Anbefaling: Opgaven trækker ud (>18 turns). Forsegl checkpoints og start en frisk session via 'xgauntlet handoff'.");
-            }
-        }
-
-        msg
+        hud::format_ephemeral_telemetry(telemetry)
     }
 
     /// Renders the 5-line human-facing blockquote HUD card with clickable Markdown links.
@@ -132,59 +77,7 @@ impl AntigravityAdapter {
         telemetry: &crate::features::tasks::TaskTelemetry,
         next_action: Option<&str>,
     ) -> String {
-        let short_id = crate::features::checkpoint::extract_short_task_id(&telemetry.task_id);
-        let task_label = if !short_id.is_empty() {
-            if telemetry.title.starts_with("Task ") {
-                telemetry.title.clone()
-            } else {
-                format!("{short_id} - {}", telemetry.title)
-            }
-        } else {
-            telemetry.title.clone()
-        };
-        let intent = telemetry.intent.as_deref().unwrap_or("NEW FEATURE");
-        let phase = telemetry.phase.as_deref().unwrap_or("SPEC");
-        let verdict = match phase {
-            "RED" => "FAIL",
-            "GREEN" | "REFACTOR" | "DONE" => "PASS",
-            _ => "PENDING",
-        };
-        let git_state = if telemetry.git.is_clean {
-            "clean".to_string()
-        } else if telemetry.git.dirty_count > 0 {
-            format!("dirty: {} files", telemetry.git.dirty_count)
-        } else {
-            "dirty".to_string()
-        };
-        let scope = telemetry.scope.as_deref().unwrap_or("crates/*");
-        let action = next_action.unwrap_or("Fortsæt med næste handling jf. TDD-fasen.");
-
-        let session_segment = if let Some(ref sh) = telemetry.session_health {
-            format!(" | `Session: {}`", sh.format_hud_summary())
-        } else {
-            String::new()
-        };
-        let task_link = {
-            let norm = telemetry.file_path.trim().replace('\\', "/");
-            if norm.is_empty() {
-                "tasks/".to_string()
-            } else {
-                norm
-            }
-        };
-
-        format!(
-            "> ### 🛡️ [Task: {task_label}] `[{intent}: {phase}]`\n\
-             > **Status**: `Phase: {phase}` | `Gauntlet: {verdict}`{session_segment} | `Git: {}@{} • {git_state}`\n\
-             > **Progress**: `Criteria: {}/{} {}` | `Scope: {scope}`\n\
-             > **Links**: 📋 [Task]({task_link}) • 📄 [Spec](spec.md) • 📖 [Glossary](CONTEXT.md) • 🏛️ [ADR](docs/adr/README.md) • 🧪 [Evidence](evidence.md)\n\
-             > 💡 **Next Action:** {action}",
-            telemetry.git.branch,
-            telemetry.git.head_oid,
-            telemetry.criteria.completed,
-            telemetry.criteria.total,
-            telemetry.criteria.bar
-        )
+        hud::render_blockquote_hud(telemetry, next_action)
     }
 
     /// Generates or merges the PreInvocation and PreToolUse hook configuration for .agents/hooks.json.
@@ -632,28 +525,11 @@ impl HarnessAdapter for AntigravityAdapter {
             ) {
                 Ok(p) => p,
                 Err(_) => {
-                    let fallback = crate::features::tasks::TaskTelemetry {
-                        task_id: "NONE".to_string(),
-                        title: "No active task".to_string(),
-                        status: crate::features::tasks::TaskStatus::Todo,
-                        intent: None,
-                        criteria: crate::features::tasks::CriteriaProgress {
-                            total: 0,
-                            completed: 0,
-                            pending: 0,
-                            percentage: 0,
-                            bar: "[□□□□□]".to_string(),
-                        },
-                        git: crate::features::tasks::collect_git_telemetry(&effective_ws),
-                        file_path: "tasks/".to_string(),
-                        scope: None,
-                        invariants: Some("14/14 PASS".to_string()),
-                        evidence: Some("pending".to_string()),
-                        phase: Some("SPEC".to_string()),
-                        session_health: None,
-                    };
-                    let ephemeral = Self::format_ephemeral_telemetry(&fallback);
-                    Self::format_pre_invocation_payload(&ephemeral)
+                    let idle =
+                        crate::features::tasks::inspect_idle_workspace_telemetry(&effective_ws);
+                    let sys = hud::format_idle_telemetry(&idle);
+                    let banner = hud::render_idle_banner(&idle);
+                    hud::format_pre_invocation_system_message(&sys, Some(&banner))
                 }
             };
             let json_str = serde_json::to_string_pretty(&out_payload)

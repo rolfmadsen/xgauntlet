@@ -9,6 +9,7 @@ use crate::features::adapters::models::{
 };
 
 pub const VALID_ANTIGRAVITY_EVENTS: &[&str] = &[
+    "SessionStart",
     "PreToolUse",
     "PostToolUse",
     "PreInvocation",

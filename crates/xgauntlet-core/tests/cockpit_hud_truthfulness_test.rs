@@ -182,7 +182,10 @@ fn test_ac1_truthful_verification_freshness_scope_hygiene_and_worktree() {
         &["- [ ] Verify telemetry", "- [x] Done step"],
     );
     git_ok(&primary, &["add", "."]);
-    git_ok(&primary, &["commit", "-m", "feat(094): init workspace [GREEN]"]);
+    git_ok(
+        &primary,
+        &["commit", "-m", "feat(094): init workspace [GREEN]"],
+    );
 
     git_ok(
         &primary,
@@ -537,7 +540,13 @@ fn test_ac2_task_none_renders_read_only_banner_everywhere() {
 fn test_ac3_render_box_card_and_agents_md_cadence_truthfulness() {
     let box_ws = make_temp_dir("box_truth");
     init_git_repo(&box_ws);
-    write_task(&box_ws, "094-hud-truth", "active", &[], &["- [ ] One", "- [x] Two"]);
+    write_task(
+        &box_ws,
+        "094-hud-truth",
+        "active",
+        &[],
+        &["- [ ] One", "- [x] Two"],
+    );
     git_ok(&box_ws, &["add", "."]);
     git_ok(&box_ws, &["commit", "-m", "feat(094): green [GREEN]"]);
     let telemetry = inspect_task_telemetry(&box_ws, None).unwrap();
@@ -566,7 +575,7 @@ fn test_ac3_render_box_card_and_agents_md_cadence_truthfulness() {
     let templates = generate_templates("rust", "hud-demo");
     let scaffolded_agents = templates
         .into_iter()
-        .find(|t| t.relative_path == "AGENTS.md")
+        .find(|t| t.relative_path == ".agents/AGENTS.md")
         .map(|t| t.content)
         .expect("Scaffold templates must include AGENTS.md");
     let repo_agents = fs::read_to_string(

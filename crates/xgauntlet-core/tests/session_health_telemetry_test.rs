@@ -199,6 +199,7 @@ fn test_task_telemetry_integration_and_rendering() {
         evidence: Some("pending".to_string()),
         phase: Some("SPEC".to_string()),
         session_health: Some(health),
+        cockpit: None,
     };
 
     // Verify HUD includes Session:

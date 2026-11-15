@@ -6,7 +6,10 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use super::AntigravityAdapter;
+use super::hud::{
+    format_pre_invocation_system_message, format_snapshot_system_message, render_compact_chip,
+    render_start_hud, structural_hud_fingerprint,
+};
 
 static DEDUP_TMP_COUNTER: AtomicU64 = AtomicU64::new(1);
 
@@ -222,34 +225,153 @@ pub fn should_suppress_duplicate_telemetry_for_session(
     )
 }
 
-/// Synchronizes active task session telemetry (guarding against <1500ms rapid duplicates per workspace+session)
-/// and builds the canonical Antigravity `PreInvocation` JSON payload.
+fn cadence_cache_file(cache_dir: &Path, workspace: &Path, session_id: &str) -> PathBuf {
+    let hash = scope_hash(Some(workspace), Some(session_id));
+    cache_dir.join(format!(
+        "xgauntlet_hud_cadence_{}_{}.json",
+        current_username(),
+        hash
+    ))
+}
+
+fn write_json_atomic(target: &Path, payload: &Value) {
+    let user = current_username();
+    let seq = DEDUP_TMP_COUNTER.fetch_add(1, Ordering::Relaxed);
+    let tmp_dir = target
+        .parent()
+        .map(Path::to_path_buf)
+        .unwrap_or_else(std::env::temp_dir);
+    let tmp_file = tmp_dir.join(format!(
+        "xgauntlet_cadence_{user}.{}.{seq}.tmp",
+        std::process::id()
+    ));
+    if std::fs::write(&tmp_file, payload.to_string()).is_ok() {
+        let _ = std::fs::rename(&tmp_file, target);
+        let _ = std::fs::remove_file(&tmp_file);
+    }
+}
+
+fn extract_invocation_num(stdin_json: Option<&Value>) -> Option<u64> {
+    stdin_json
+        .and_then(|v| v.get("invocationNum"))
+        .and_then(|n| n.as_u64())
+}
+
+fn is_rapid_duplicate_step(cache_file: &Path, invocation_num: Option<u64>) -> bool {
+    if is_test_runtime() {
+        return false;
+    }
+    let Some(val) = read_dedup_cache(cache_file) else {
+        return false;
+    };
+    let last_ts = val
+        .get("timestamp_ms")
+        .and_then(|t| t.as_u64())
+        .unwrap_or(0) as u128;
+    if now_millis().saturating_sub(last_ts) >= 1500 {
+        return false;
+    }
+    let last_inv = val.get("last_invocation_num").and_then(|n| n.as_u64());
+    last_inv == invocation_num
+}
+
+/// Synchronizes session telemetry using an explicit HUD cadence cache directory.
+pub fn prepare_pre_invocation_payload_with_cache_dir(
+    workspace: &Path,
+    explicit_task: Option<&str>,
+    stdin_json: Option<&Value>,
+    raw_stdin: &str,
+    cache_dir: &Path,
+) -> Result<Value, crate::features::tasks::TaskError> {
+    let session_id = crate::features::telemetry::extract_session_id(stdin_json);
+    let invocation_num = extract_invocation_num(stdin_json);
+    let is_user_prompt_turn = invocation_num.map(|n| n <= 1).unwrap_or(true);
+    let cache_file = cadence_cache_file(cache_dir, workspace, &session_id);
+
+    if is_rapid_duplicate_step(&cache_file, invocation_num) {
+        return Ok(serde_json::json!({ "injectSteps": [] }));
+    }
+
+    crate::features::telemetry::sync_active_session_for_pre_invocation(
+        workspace, stdin_json, raw_stdin,
+    );
+
+    let snapshot = crate::features::tasks::inspect_workspace_cockpit(
+        workspace,
+        explicit_task,
+        Some(&session_id),
+    )?;
+    let current_fp = structural_hud_fingerprint(&snapshot);
+    let sys_msg = format_snapshot_system_message(&snapshot);
+
+    let prev = read_dedup_cache(&cache_file);
+    let prev_user_fp = prev
+        .as_ref()
+        .and_then(|v| v.get("user_hud_fp"))
+        .and_then(|s| s.as_str())
+        .map(str::to_string);
+    let prev_model_fp = prev
+        .as_ref()
+        .and_then(|v| v.get("model_fp"))
+        .and_then(|s| s.as_str())
+        .map(str::to_string);
+    let last_ts = prev
+        .as_ref()
+        .and_then(|v| v.get("timestamp_ms"))
+        .and_then(|t| t.as_u64())
+        .unwrap_or(0) as u128;
+
+    let now = now_millis();
+    let model_state_changed = prev_model_fp.as_deref() != Some(current_fp.as_str());
+    let user_hud_changed = prev_user_fp.as_deref() != Some(current_fp.as_str());
+
+    if !is_user_prompt_turn {
+        if !model_state_changed && !is_test_runtime() && now.saturating_sub(last_ts) < 120_000 {
+            return Ok(serde_json::json!({ "injectSteps": [] }));
+        }
+
+        let updated = serde_json::json!({
+            "user_hud_fp": prev_user_fp,
+            "model_fp": current_fp,
+            "timestamp_ms": now,
+            "last_invocation_num": invocation_num,
+        });
+        write_json_atomic(&cache_file, &updated);
+        return Ok(format_pre_invocation_system_message(&sys_msg, None));
+    }
+
+    let user_md = if user_hud_changed {
+        render_start_hud(&snapshot)
+    } else {
+        render_compact_chip(&snapshot)
+    };
+
+    let updated = serde_json::json!({
+        "user_hud_fp": current_fp,
+        "model_fp": current_fp,
+        "timestamp_ms": now,
+        "last_invocation_num": invocation_num,
+    });
+    write_json_atomic(&cache_file, &updated);
+
+    Ok(format_pre_invocation_system_message(
+        &sys_msg,
+        Some(&user_md),
+    ))
+}
+
+/// Synchronizes active task session telemetry and builds the canonical Antigravity `PreInvocation` JSON payload.
 pub fn prepare_pre_invocation_payload(
     workspace: &Path,
     explicit_task: Option<&str>,
     stdin_json: Option<&Value>,
     raw_stdin: &str,
 ) -> Result<Value, crate::features::tasks::TaskError> {
-    let session_id = crate::features::telemetry::extract_session_id(stdin_json);
-    if !is_rapid_duplicate_for_session(workspace, &session_id) {
-        crate::features::telemetry::sync_active_session_for_pre_invocation(
-            workspace, stdin_json, raw_stdin,
-        );
-    }
-
-    let telemetry = crate::features::tasks::inspect_task_telemetry(workspace, explicit_task)?;
-    let ephemeral = AntigravityAdapter::format_ephemeral_telemetry(&telemetry);
-    if should_suppress_duplicate_telemetry_for_session(workspace, &session_id, &ephemeral) {
-        return Ok(serde_json::json!({
-            "injectSteps": []
-        }));
-    }
-
-    Ok(serde_json::json!({
-        "injectSteps": [
-            {
-                "ephemeralMessage": ephemeral
-            }
-        ]
-    }))
+    prepare_pre_invocation_payload_with_cache_dir(
+        workspace,
+        explicit_task,
+        stdin_json,
+        raw_stdin,
+        &std::env::temp_dir(),
+    )
 }

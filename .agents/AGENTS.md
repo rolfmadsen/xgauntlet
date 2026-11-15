@@ -5,14 +5,14 @@ This repository follows the **Evidence-First Development & Clean Craftsmanship**
 ---
 
 ## 📊 Standard Response HUD Protocol
-Vis det transparente Cockpit Task HUD kort (maks. 5 linjer) øverst i svaret **kun** ved **start** (opgave- eller sessionsaktivering), ved **eskalering** (spørgsmål, afklaring eller godkendelse fra brugeren) og ved **afslutning** (`DONE` / `SESSION HANDOFF`). Udelad HUD-kortet på mellemliggende svar uden brugerbeslutning (f.eks. *"afventer baggrundsopgave"* eller rent interne statustrin), mens `PreInvocation`-telemetrien fortsat leveres internt til modellen:
+Start-HUD leveres automatisk straks efter brugerprompten via `PreInvocation` (`systemMessage` + `metadata.user_markdown` med **Smart Kadence**: fuld Start-HUD ved ny session/state-skifte, 1-linjes chip ved uændret prompt, undertrykt i interne tool-loops, og Read-Only banner ved `Task: NONE`). Agenten gengiver derfor **kun** det 5-linjers Cockpit Task HUD kort i sit eget svar ved **faseskift / state-delta**, ved **eskalering / bruger-gate** (Gate 1/Gate 2 eller afklaring) og ved **afslutning (`DONE` / `SESSION HANDOFF`)** — udelad det på uændrede svar uden brugerbeslutning (f.eks. *"afventer baggrundsopgave"* eller rent interne statustrin):
 > ### 🛡️ [Task: <Task Title / ID>] `[<Task Type>: <Phase>]`
-> **Status**: `Phase: <SPEC | RED | GREEN | REFACTOR | GAUNTLET | DONE>` | `Gauntlet: <PASS | FAIL | PENDING>` | `Session: <Optimal|Aging|Saturated> (<N> turns • ~<tok>)` | `Git: <branch>@<oid> • <clean | dirty: N files>`
-> **Progress**: `Criteria: X/Y [■■□□□]` | `Scope: <affected crates/paths>`
+> **Status**: `Phase: <SPEC | RED | GREEN | REFACTOR | GAUNTLET | DONE>` | `Gauntlet: <PASS | FAIL | STALE | NONE>` | `Session: <Optimal|Aging|Saturated> (<N> turns • ~<tok>)` | `Git: <branch>@<oid> (+N) [wt] • <clean | dirty: N files>`
+> **Progress**: `Criteria: X/Y [■■□□□]` | `Scope: <affected paths>` `(evt. ⚠️ M OOS)`
 > **Links**: 📋 [Task](tasks/) • 📄 [Spec](spec.md) • 📖 [Glossary](CONTEXT.md) • 🏛️ [ADR](docs/adr/README.md) • 🧪 [Evidence](evidence.md)
 > 💡 **Next Action:** <kort beskrivelse af næste umiddelbare handling>
 
-*Google Antigravity IDE benytter dette 5-linjers Markdown blockquote-kort med editor-klikbare navigation-links (`tasks/`, `spec.md`, `CONTEXT.md`, `docs/adr/README.md`, `evidence.md`) kombineret med automatisk PreInvocation-telemetri ind i modellens kontekst.*
+*Google Antigravity IDE benytter dette 5-linjers Markdown blockquote-kort med editor-klikbare navigation-links (`tasks/`, `spec.md`, `CONTEXT.md`, `docs/adr/README.md`, `evidence.md`) kombineret med automatisk `PreInvocation`-telemetri (`systemMessage` + `metadata.user_markdown`).*
 
 ---
 
