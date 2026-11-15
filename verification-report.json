@@ -1945,6 +1945,14 @@
         "commit_oid": "71e8b2daf450f13dc70449093120706d47e33bb4",
         "timestamp": "2026-11-15T14:53:42Z",
         "digest": "8bc3b785d4c8e1bd016b026a2967c8109ae15a3a79b874e5dd40e8e1b2c2e23a"
+      },
+      {
+        "session_nonce": "sess-a2d1d120",
+        "role": "Software Engineer",
+        "phase": "DONE",
+        "commit_oid": "a2d1d1204f09f2d64bd40893f38a939630ca7b5c",
+        "timestamp": "2026-11-15T14:55:00Z",
+        "digest": "66b79f0a8c03271f646ff15d222563f1a752ffde46cbb805d8d05b1a4875d265"
       }
     ]
   },
