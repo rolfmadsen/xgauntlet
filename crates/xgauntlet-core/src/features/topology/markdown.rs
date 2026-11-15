@@ -8,13 +8,56 @@ use super::models::TopologyOptions;
 use super::parser::scan_workspace_topology;
 use std::path::Path;
 
+/// Builds a 1-click `https://mermaid.live/view#base64:...` URL encoded deterministically
+/// so Markdown previews without Mermaid extensions can open the diagram directly in a browser.
+pub fn mermaid_live_url(mermaid_source: &str) -> String {
+    let payload = serde_json::json!({
+        "code": mermaid_source.trim_end(),
+        "mermaid": { "theme": "default" },
+        "autoSync": true,
+        "updateEditor": false
+    });
+    let json_bytes = payload.to_string().into_bytes();
+    let encoded = base64_encode(&json_bytes);
+    format!("https://mermaid.live/view#base64:{encoded}")
+}
+
+fn base64_encode(input: &[u8]) -> String {
+    const TABLE: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut out = String::with_capacity(input.len().div_ceil(3) * 4);
+    for chunk in input.chunks(3) {
+        let b0 = chunk[0] as u32;
+        let b1 = *chunk.get(1).unwrap_or(&0) as u32;
+        let b2 = *chunk.get(2).unwrap_or(&0) as u32;
+        let triple = (b0 << 16) | (b1 << 8) | b2;
+        out.push(TABLE[((triple >> 18) & 0x3F) as usize] as char);
+        out.push(TABLE[((triple >> 12) & 0x3F) as usize] as char);
+        if chunk.len() > 1 {
+            out.push(TABLE[((triple >> 6) & 0x3F) as usize] as char);
+        } else {
+            out.push('=');
+        }
+        if chunk.len() > 2 {
+            out.push(TABLE[(triple & 0x3F) as usize] as char);
+        } else {
+            out.push('=');
+        }
+    }
+    out
+}
+
 /// Renders the root `architecture.md` document wrapping the canonical Mermaid diagram
 /// alongside direct links to feature-scoped diagrams under `docs/architecture/`.
 pub fn render_architecture_markdown(mermaid_source: &str, features: &[String]) -> String {
+    let live_url = mermaid_live_url(mermaid_source);
     let mut out = String::new();
     out.push_str("# xGauntlet Domain & Architecture Diagram\n\n");
-    out.push_str("> Automatisk synkroniseret fra kodebasens AST via `xgauntlet verify --save`. ");
-    out.push_str("Kan åbnes direkte med pan/zoom via `xgauntlet topology open`.\n\n");
+    out.push_str(&format!(
+        "🌐 **[Open Interactive Diagram (Mermaid Live)]({live_url})** • 💻 `xgauntlet topology open`\n\n"
+    ));
+    out.push_str(
+        "> Automatisk synkroniseret fra kodebasens AST via `xgauntlet verify --save`.\n\n",
+    );
 
     if !features.is_empty() {
         out.push_str("## 🧩 Feature-Scoped Diagrams\n\n");
@@ -33,16 +76,17 @@ pub fn render_architecture_markdown(mermaid_source: &str, features: &[String]) -
 
 /// Renders a focused `docs/architecture/<feature>.md` Markdown document for one feature slice.
 pub fn render_feature_architecture_markdown(feature: &str, mermaid_source: &str) -> String {
+    let live_url = mermaid_live_url(mermaid_source);
     let mut out = String::new();
     out.push_str(&format!("# Feature Architecture: `{feature}`\n\n"));
     out.push_str(&format!(
-        "← [Full Architecture](../../architecture.md) • 📋 [Feature Spec](../../specs/{feature}.md)\n\n"
+        "🌐 **[Open Interactive Diagram (Mermaid Live)]({live_url})** • ← [Full Architecture](../../architecture.md) • 📋 [Feature Spec](../../specs/{feature}.md)\n\n"
     ));
     out.push_str(&format!(
         "> Scoped domænemodel for `{feature}` (inkl. direkte 1-hop naborelationer). ",
     ));
     out.push_str(&format!(
-        "Åbn interaktivt med `xgauntlet topology open --feature {feature}`.\n\n"
+        "Åbn lokalt med pan/zoom via `xgauntlet topology open --feature {feature}`.\n\n"
     ));
     out.push_str("```mermaid\n");
     out.push_str(mermaid_source.trim_end());

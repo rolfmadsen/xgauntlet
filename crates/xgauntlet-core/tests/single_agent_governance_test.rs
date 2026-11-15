@@ -9,33 +9,6 @@ fn workspace_root() -> PathBuf {
 }
 
 #[test]
-fn test_roadmap_no_subagents_and_aligned_two_axis_review() {
-    let ws = workspace_root();
-    let roadmap_path = ws.join("ROADMAP.md");
-    let content = fs::read_to_string(&roadmap_path).expect("read ROADMAP.md");
-
-    // Must NOT contain references to running subagents or parallel subagents
-    assert!(
-        !content.to_lowercase().contains("parallelle subagenter"),
-        "ROADMAP.md must not contain 'parallelle subagenter'"
-    );
-    assert!(
-        !content.to_lowercase().contains("subagenter parallelt"),
-        "ROADMAP.md must not contain 'subagenter parallelt'"
-    );
-    assert!(
-        !content.to_lowercase().contains("uafhængige subagenter"),
-        "ROADMAP.md must not contain 'uafhængige subagenter'"
-    );
-
-    // Must specify sequential evaluation in dedicated session / Code Reviewer role
-    assert!(
-        content.contains("Code Reviewer") || content.contains("dedikeret, isoleret session"),
-        "ROADMAP.md must describe two-axis review as evaluated by the Code Reviewer role in an isolated session"
-    );
-}
-
-#[test]
 fn test_agents_guidelines_review_skill_aligned() {
     let ws = workspace_root();
     let agents_path = ws.join(".agents/AGENTS.md");

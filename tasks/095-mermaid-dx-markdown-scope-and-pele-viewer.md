@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 095: 1-Klik Mermaid DX, Feature-Scoped Diagrammer, Pele Viewer & HUD Links"
 description: "Forbedrer diagram-DX med auto-synkroniseret Markdown-wrapper (architecture.md), feature-scoped diagrammer (docs/architecture/<feature>.md via --feature), hurtig browser-viewer baseret på obsidianmd/pele (xgauntlet topology open) og direkte 🗺️ [Arch]-links i Cockpit HUD, spec.md, specs/*.md samt README.md."
-status: active
+status: done
 generated: { by: process:antigravity-task-init, at: "2026-11-15T14:57:00Z" }
 tags: [topology, mermaid, pele, dx, markdown, hud, feature-scope, okf]
 feature: topology
@@ -29,6 +29,9 @@ scope:
   - "spec.md"
   - "README.md"
   - "packages/cli/README.md"
+  - "README_OLD.md"
+  - "ROADMAP.md"
+  - "crates/xgauntlet-core/tests/single_agent_governance_test.rs"
   - ".agents/AGENTS.md"
   - "CONTEXT.md"
 test_refs:
@@ -40,7 +43,7 @@ test_refs:
 
 # Task 095: 1-Klik Mermaid DX, Feature-Scoped Diagrammer, Pele Viewer & HUD Links
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🚀 NEW FEATURE`
 **Oprettet**: `2026-11-15`
 
@@ -54,27 +57,31 @@ Gøre arkitektur- og domænediagrammer **1-klik læsbare** direkte i GitHub, IDE
 
 ## 📋 Acceptance Criteria
 
-- [ ] **AC1 (Feature-Scoped Mermaid Eksport)**:
+- [x] **AC1 (Feature-Scoped Mermaid Eksport)**:
   - `export_feature_mermaid_class_diagram` (og `xgauntlet topology export --format mermaid [--feature <navn>] [--level conceptual|detailed]`) understøtter deterministisk feature-filtrering uden at bryde eksisterende `MermaidExportOptions`-kontrakter.
   - Når `feature` er angivet, inkluderes deterministisk alle synlige domænemodeller fra det pågældende feature-slice samt direkte 1-hop tilknyttede nabotyper (`*--`, `..|>`), sorteret alfabetisk uden støj fra uafhængige features.
   - Hvis et ukendt feature-navn angives, returneres en klar, handlingsorienteret fejlbesked på CLI/API frem for et tomt diagram.
 
-- [ ] **AC2 (`architecture.md` & `docs/architecture/<feature>.md` Auto-Sync uden Tamper-Drift)**:
+- [x] **AC2 (`architecture.md` & `docs/architecture/<feature>.md` Auto-Sync uden Tamper-Drift)**:
   - `xgauntlet verify --save` genererer/opdaterer både `architecture.mermaid` (uændret rå Mermaid), `architecture.md` (Markdown-wrapper med ` ```mermaid `-blok + oversigt over feature-diagrammer) og `docs/architecture/<feature>.md` for opdagede features under `architecture.feature_root`.
   - `crates/xgauntlet-core/src/features/evidence/manifest.rs` (`EXCLUDED_FILES` / genererede diagramstier) og `crates/xgauntlet-core/src/features/checkpoint/engine.rs` håndterer `architecture.md` og `docs/architecture/` uden at udløse selvmutations- eller dirty-manifest-falskpositiver.
 
-- [ ] **AC3 (Zero-Daemon Pele HTML-Viewer via `xgauntlet topology open`)**:
+- [x] **AC3 (Zero-Daemon Pele HTML-Viewer via `xgauntlet topology open`)**:
   - `TopologyCommands::Open` (`xgauntlet topology open [--feature <navn>] [--level conceptual|detailed] [--no-browser] [--out <sti>]`) genererer en self-contained statisk HTML-fil (default `.xgauntlet/architecture-viewer.html`) med pan/zoom, dark/light tema (`prefers-color-scheme`), kopier-Mermaid-knap og `obsidianmd/pele` `classDiagram`-rendering (inkl. ren fallback til rå kildetekst hvis browseren kører uden netværk og ingen lokal bundle er tilgængelig).
   - HTML-generatoren overholder WCAG AA kontrast (>= 4.5:1) for UI-kontroller og status-tekst via CSS design-tokens.
   - Med `--no-browser` skrives HTML-filen deterministisk uden at starte OS-browserproces (100% testbar i headless CI).
 
-- [ ] **AC4 (Cockpit HUD `🗺️ [Arch]` Link & `<5ms` Invariant)**:
+- [x] **AC4 (Cockpit HUD `🗺️ [Arch]` Link & `<5ms` Invariant)**:
   - `CockpitTelemetry` / `TaskTelemetry` opløser et letvægts diagram-link (`docs/architecture/<feature>.md` hvis opgavens `feature` er sat og filen findes, ellers `architecture.md`) via et enkelt `Path::exists()`-tjek (`< 1ms`, nul AST-scanning under `PreInvocation`).
   - `AntigravityAdapter::render_blockquote_hud` i `hud.rs` (samt `.agents/AGENTS.md` og `scaffold/templates.rs`) inkluderer `🗺️ [Arch](<link>)` på `Links`-linjen.
 
-- [ ] **AC5 (Dokumentation & Living Specs Sync)**:
+- [x] **AC5 (Dokumentation & Living Specs Sync)**:
   - `spec.md`, `README.md`, `specs/topology.md` og `specs/adapters.md` opdateres med klikbare links til `architecture.md` og relevante `docs/architecture/<feature>.md`-diagrammer.
   - Alle nye/ændrede domænetyper følger `CONTEXT.md` (`xgauntlet check-spec --context`).
+
+- [x] **AC6 (1-Klik Mermaid Live Link i Markdown & Oprydning af `README_OLD.md` / `ROADMAP.md`)**:
+  - `architecture.md` og `docs/architecture/<feature>.md` indeholder øverst et 1-klik `[🌐 Open Interactive Diagram (Mermaid Live)](https://mermaid.live/view#base64:...)`-link, så diagrammet kan åbnes med ét klik direkte fra Antigravity IDE Preview uden udvidelser.
+  - Forældede `README_OLD.md` og `ROADMAP.md` fjernes sammen med `ROADMAP.md`-afhængigheden i `single_agent_governance_test.rs`.
 
 ## 🚫 Must NOT
 - Fjern IKKE `architecture.mermaid` eller bryd bagudkompatibilitet med `[paths] diagram_file` i `gauntlet.toml` og `mermaid_auto_sync_test.rs`.
@@ -86,6 +93,7 @@ Gøre arkitektur- og domænediagrammer **1-klik læsbare** direkte i GitHub, IDE
 
 ## 📝 Revisions
 - 2026-11-15: Oprettet draft-opgavepakke (`SPEC`) efter UX/DX-sparring om Markdown-rendering, feature-opdeling, Pele-viewer og HUD-links.
+- 2026-11-15: Gate 1 godkendt; implementeret `RED → GREEN → REFACTOR → GAUNTLET`, tilføjet 1-klik `https://mermaid.live/view#base64:...` links til Antigravity IDE Preview og fjernet forældede `README_OLD.md` / `ROADMAP.md` (alle 6 obligatoriske lag bestået).
 
 ## 🧪 Verifikation
 - `cargo test --package xgauntlet-core --test mermaid_dx_and_feature_scope_test --test mermaid_auto_sync_test --test cockpit_hud_truthfulness_test`

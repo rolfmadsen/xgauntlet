@@ -220,6 +220,7 @@ async fn test_ac2_verify_save_syncs_architecture_md_and_feature_diagrams_without
         .expect("architecture.md must be generated on verify --save");
     assert!(arch_md.contains("```mermaid"));
     assert!(arch_md.contains("classDiagram"));
+    assert!(arch_md.contains("https://mermaid.live/view#base64:"));
     assert!(arch_md.contains("docs/architecture/billing.md"));
     assert!(arch_md.contains("docs/architecture/shipping.md"));
 
@@ -227,6 +228,7 @@ async fn test_ac2_verify_save_syncs_architecture_md_and_feature_diagrams_without
     let billing_md = fs::read_to_string(ws.path().join("docs/architecture/billing.md"))
         .expect("docs/architecture/billing.md must be generated");
     assert!(billing_md.contains("```mermaid"));
+    assert!(billing_md.contains("https://mermaid.live/view#base64:"));
     assert!(billing_md.contains("CustomerInvoice"));
     assert!(!billing_md.contains("FreightParcel"));
 
