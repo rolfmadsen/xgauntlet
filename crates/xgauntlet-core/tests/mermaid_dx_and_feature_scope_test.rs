@@ -10,8 +10,9 @@ use xgauntlet_core::features::gauntlet::{
 };
 use xgauntlet_core::features::tasks::inspect_task_telemetry_for_session;
 use xgauntlet_core::features::topology::{
-    export_feature_mermaid_class_diagram, render_architecture_markdown, render_pele_viewer_html,
-    scan_workspace_topology, MermaidExportOptions, MermaidLevel, TopologyOptions,
+    export_feature_mermaid_class_diagram, pele_playground_url, render_architecture_markdown,
+    render_pele_viewer_html, scan_workspace_topology, MermaidExportOptions, MermaidLevel,
+    TopologyOptions,
 };
 use xgauntlet_core::AntigravityAdapter;
 
@@ -220,7 +221,8 @@ async fn test_ac2_verify_save_syncs_architecture_md_and_feature_diagrams_without
         .expect("architecture.md must be generated on verify --save");
     assert!(arch_md.contains("```mermaid"));
     assert!(arch_md.contains("classDiagram"));
-    assert!(arch_md.contains("https://mermaid.live/view#base64:"));
+    assert!(arch_md.contains("https://pele.run/playground#source="));
+    assert!(!arch_md.contains("mermaid.live"));
     assert!(arch_md.contains("docs/architecture/billing.md"));
     assert!(arch_md.contains("docs/architecture/shipping.md"));
 
@@ -228,7 +230,8 @@ async fn test_ac2_verify_save_syncs_architecture_md_and_feature_diagrams_without
     let billing_md = fs::read_to_string(ws.path().join("docs/architecture/billing.md"))
         .expect("docs/architecture/billing.md must be generated");
     assert!(billing_md.contains("```mermaid"));
-    assert!(billing_md.contains("https://mermaid.live/view#base64:"));
+    assert!(billing_md.contains("https://pele.run/playground#source="));
+    assert!(!billing_md.contains("mermaid.live"));
     assert!(billing_md.contains("CustomerInvoice"));
     assert!(!billing_md.contains("FreightParcel"));
 
@@ -249,6 +252,10 @@ fn test_ac3_pele_viewer_html_contains_pan_zoom_theme_tokens_and_offline_fallback
     assert!(
         html.contains("pele") || html.contains("obsidianmd/pele"),
         "HTML viewer must integrate Pele renderer"
+    );
+    assert!(
+        html.contains("https://cdn.jsdelivr.net/npm/pele@1/dist/pele.js"),
+        "HTML viewer must import official Pele v1 ESM entrypoint"
     );
     assert!(html.contains("CustomerInvoice"));
     assert!(html.contains("prefers-color-scheme"));
@@ -290,4 +297,15 @@ fn test_ac4_cockpit_hud_links_include_scoped_feature_diagram_or_architecture_md(
         hud_scoped.contains("🗺️ [Arch](docs/architecture/billing.md)"),
         "expected feature-scoped architecture link in HUD:\n{hud_scoped}"
     );
+}
+
+#[test]
+fn test_task096_pele_playground_url_matches_empirical_share_links() {
+    let flowchart_source = "flowchart TD\n  A([Mermaid text]) --> B{Supported?}\n  B -- Yes --> C[Parse]\n  B -- No --> H[Fall back]\n\n  subgraph Pele\n    C --> D[Layout]\n    D --> E[Render]\n  end\n\n  E --> F[(SVG)]\n  F -.-> G[Theme with CSS]\n";
+    let expected_flowchart_url = "https://pele.run/playground#source=flowchart+TD%0A++A%28%5BMermaid+text%5D%29+--%3E+B%7BSupported%3F%7D%0A++B+--+Yes+--%3E+C%5BParse%5D%0A++B+--+No+--%3E+H%5BFall+back%5D%0A%0A++subgraph+Pele%0A++++C+--%3E+D%5BLayout%5D%0A++++D+--%3E+E%5BRender%5D%0A++end%0A%0A++E+--%3E+F%5B%28SVG%29%5D%0A++F+-.-%3E+G%5BTheme+with+CSS%5D%0A";
+    assert_eq!(pele_playground_url(flowchart_source), expected_flowchart_url);
+
+    let class_diagram_source = "---\nconfig:\n  class:\n    hierarchicalNamespaces: false\n---\nclassDiagram\n    namespace Earth.Volcano.Summit {\n        class Crater {\n            +erupt()\n        }\n    }\n    namespace Earth.Volcano.Slope {\n        class LavaFlow {\n            +buildLand()\n        }\n    }\n    namespace Earth {\n        class Hotspot {\n            +meltRock()\n        }\n    }\n    Hotspot --> Crater : feeds\n    Hotspot --> LavaFlow : feeds\n";
+    let expected_class_url = "https://pele.run/playground#source=---%0Aconfig%3A%0A++class%3A%0A++++hierarchicalNamespaces%3A+false%0A---%0AclassDiagram%0A++++namespace+Earth.Volcano.Summit+%7B%0A++++++++class+Crater+%7B%0A++++++++++++%2Berupt%28%29%0A++++++++%7D%0A++++%7D%0A++++namespace+Earth.Volcano.Slope+%7B%0A++++++++class+LavaFlow+%7B%0A++++++++++++%2BbuildLand%28%29%0A++++++++%7D%0A++++%7D%0A++++namespace+Earth+%7B%0A++++++++class+Hotspot+%7B%0A++++++++++++%2BmeltRock%28%29%0A++++++++%7D%0A++++%7D%0A++++Hotspot+--%3E+Crater+%3A+feeds%0A++++Hotspot+--%3E+LavaFlow+%3A+feeds%0A";
+    assert_eq!(pele_playground_url(class_diagram_source), expected_class_url);
 }
