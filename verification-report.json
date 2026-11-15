@@ -4,39 +4,44 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "093-multi-agent-worktree-and-runtime-hygiene",
-    "task_title": "Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene",
-    "task_digest": "d8c712cad0faf0d35a0cbad9913646174086b9cb32b35b94a88ceb6468008072",
+    "task_id": "094-cockpit-hud-truthfulness-and-cadence",
+    "task_title": "Task 094: Cockpit HUD Truthfulness, Session Resolution & Antigravity Start-HUD Cadence",
+    "task_digest": "594033b07b2a5a6759e1310cea845dcd6b659c39a21c463edd442849f562f887",
     "acceptance_criteria": [
-      "**AC1 — `.xgauntlet/` & `.worktrees/` ekskluderet fra Manifest & Checkpoint Staging:**",
-      "**AC2 — Clean Working Tree efter `xgauntlet checkpoint --phase done`:**",
-      "**AC3 — Race-Free Per-Session Telemetri:**",
-      "**AC4 — Antigravity Read-Only Subagenter, `branch`-kloner & Coordinated `inherit` Opt-In:**",
-      "**AC5 — Shared `CARGO_TARGET_DIR` & `xgauntlet worktree create`:**"
+      "`inspect_task_telemetry_for_session(workspace, task_id_or_path, session_id)` slår session-telemetri op via `SessionTracker::load_for_session(..., session_id)` (og når `session_id` er `None`, falder sikkert tilbage til nyeste opgave-matchende fil i `.xgauntlet/sessions/*.json` hvis `.xgauntlet/session_state.json` ikke matcher); `AntigravityAdapter::prepare_pre_invocation_payload` giver det ekstraherede `session_id` videre, så Antigravity-sessioner altid viser aktuel turn- og token-belastning.",
+      "`SessionHealthStatus::from_usage(turns, estimated_tokens)` (brugt af `SessionHealth::new`) kombinerer turns og estimerede tokens deterministisk (`Optimal`: `turns <= 10 && estimated_tokens < 60_000`; `Aging`: `turns >= 11 || estimated_tokens >= 60_000`; `Saturated`: `turns > 18 || estimated_tokens >= 120_000`).",
+      "`TaskTelemetry` beriges (via bagudkompatibelt `#[serde(default, skip_serializing_if = \"Option::is_none\")] pub cockpit: Option<CockpitTelemetry>` samt befolkede `scope`, `invariants` og `evidence`) med hurtige (`<5ms`, ingen fulde builds/rekursiv hashing) og empirisk sande signaler:",
+      "`AntigravityAdapter::format_pre_invocation_payload` og `prepare_pre_invocation_payload` anvender det autoritative Antigravity `injectSteps`-format: `{ \"systemMessage\": { \"systemMessage\": \"<model-kontekst>\", \"metadata\": { \"user_markdown\": \"<Start-HUD markdown>\" } } }` i stedet for forældet `ephemeralMessage`; `adapters/antigravity/validation.rs` anerkender desuden `\"SessionStart\"` i `VALID_ANTIGRAVITY_EVENTS`.",
+      "**Smart Kadence** (scoping per `(workspace, session_id)` med eksplicit testbar cache-dir-seam):",
+      "**`Task: NONE` Read-Only Banner**: Både `xgauntlet telemetry --format antigravity-hook` og `xgauntlet hook antigravity` (`PreInvocation`) anvender én fælles `NoActiveTask`-sti, der returnerer en ærlig, kompakt Read-Only status-banner (Git branch/OID/ahead/dirty/worktree, `Policy: Read-Only / Planning`, draft/done opgaveantal og `verification-report.json` friskhed) underlagt Smart Kadence — aldrig tom `injectSteps: []` eller opdigtet `\"14/14 PASS\"`.",
+      "`AntigravityAdapter::render_blockquote_hud` og `format_ephemeral_telemetry` viser de sande `CockpitTelemetry`-signaler (inkl. `Gauntlet` friskhed, `Scope` + eventuel out-of-scope advarsel, `Worktree` / `Primary`, `ahead` og `Session`), uden falsk `PASS`-gætning.",
+      "`TaskTelemetry::render_box_card()` (Claude Code / Codex / Mistral) erstatter vildledende fallbacks (`\"14/14 PASS\"` -> `\"unverified\"`, `\"crates/*\"` -> `\"unscoped\"`, og udnytter ægte `cockpit`-signaler når sat) under streng overholdelse af 64 synlige tegn pr. linje og 6 linjers total højde.",
+      "`.agents/AGENTS.md` og `crates/xgauntlet-core/src/features/scaffold/templates.rs` (`render_agents_md`) opdateres til at reflektere det opdaterede HUD-design og kadence-protokollen: brugeren får Start-HUD direkte efter prompten via hook (`metadata.user_markdown`), mens agentens egen svar-HUD udelukkende vises ved **state-delta / faseskift**, **eskalering / bruger-gate** eller **afslutning (`DONE` / `🏁 SESSION HANDOFF`)**.",
+      "`crates/xgauntlet-cli` (`xgauntlet telemetry`) spejler den sandfærdige `TaskTelemetry` / `IdleWorkspaceTelemetry` ved både `--format antigravity-hook`, `--format json` og standardtekst."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "303ee0b297ee85a624610d0e03ea123577c7c0ee5cc7cd23168b7086dcd067bd",
-    "source_manifest_digest_pre": "ba57cef8a108e9365ce35e914e98acac8279591d947c41e21045c40af9b1294e",
-    "source_manifest_digest_post": "ba57cef8a108e9365ce35e914e98acac8279591d947c41e21045c40af9b1294e",
+    "source_content_digest": "a6dd86eb05e08858347a071b24e0088a68279cbd9baaf85b1424ef9c5f3535a5",
+    "source_manifest_digest_pre": "3d20fac027a215e28b36da0461bc47d3d244cef2f67a12912fc6077ff029b75b",
+    "source_manifest_digest_post": "3d20fac027a215e28b36da0461bc47d3d244cef2f67a12912fc6077ff029b75b",
     "config_digest": "e489e2296ef0a17dc282c81a9a960ad9a104476b5112461f867dac3a1b3972dc",
-    "task_digest": "d8c712cad0faf0d35a0cbad9913646174086b9cb32b35b94a88ceb6468008072",
-    "policy_digest": "5aa7fa74654e8d5ca87df8ee5d2860ae9ae8cabc722d3faaed6562ee3e3d5dfa",
+    "task_digest": "594033b07b2a5a6759e1310cea845dcd6b659c39a21c463edd442849f562f887",
+    "policy_digest": "9ac6cd943da8455dfe9be61aee84099252cc4efb2ee0f608458196b6536fb46b",
     "check_definitions_digest": "7b85613e7b7c24f03e0db6873ce7a93328152d05b26a6eea242f15f10f6063af",
-    "included_files_count": 319,
+    "included_files_count": 323,
     "vcs": {
       "type": "git",
-      "head": "8ffbb73",
-      "commit": "8ffbb73",
+      "head": "c014800",
+      "commit": "c014800",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-15T12:04:36Z",
-    "finished_at": "2026-11-15T12:05:26Z",
-    "total_duration_seconds": 49.77285597,
+    "started_at": "2026-11-15T13:41:36Z",
+    "finished_at": "2026-11-15T13:42:27Z",
+    "total_duration_seconds": 50.461859205,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -49,16 +54,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.083706663,
+      "duration_seconds": 0.078372774,
       "optional": false,
       "passed": true,
-      "log_digest": "471f9ccbb4f7f0dc5698b445293972a4a47d9e546e09c79fe1bafd7e9b00cc82"
+      "log_digest": "b8d952688a2f578f6c88ea32cdae5487d99b2b4874f9c9382a5c14388be3735e"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.286466057,
+      "duration_seconds": 0.286700739,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -67,43 +72,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.078490703,
+      "duration_seconds": 0.10232819,
       "optional": false,
       "passed": true,
-      "log_digest": "ee1d3fffa2022e962e63e0dbe4d35c9c198450a20c29fc09030f635dbb38bfcd"
+      "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 48.189005492,
+      "duration_seconds": 48.948518194,
       "optional": false,
       "passed": true,
-      "log_digest": "044d8a1652bdd9bab1e088425e1029675210ec347946e383f950083c471d5e13"
+      "log_digest": "da2f7c2663ed5d27ddb8329fe173dd4188ec4486a28f1cbe1aa377d4be3a94b8"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.869832405,
+      "duration_seconds": 0.831119383,
       "optional": false,
       "passed": true,
-      "log_digest": "610ea714fd5a3a67925ce6152cfbd09ff21d37ad01f5d9e7835f0d0575d5ad19"
+      "log_digest": "08224e59efccb4df447d78935a028e67f06b2e0cb21fa21a5a78d5b018741254"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.10349717,
+      "duration_seconds": 0.064715912,
       "optional": false,
       "passed": true,
-      "log_digest": "cef742ea0c53865588b99977cda7c9fe7b54c73d67afd34fa775405d74a618db"
+      "log_digest": "9c54f5b410a96aebd2b0efcc264a86643104a534d6e04a4a4cd675bdb5917f34"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.016532443,
+      "duration_seconds": 0.012825044,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -1834,10 +1839,60 @@
         "commit_oid": "fdc85616242cdf356c5c6ffea4ac6c03baf79063",
         "timestamp": "2026-11-15T13:33:41Z",
         "digest": "83d17a468c0f180e1fcf4ad9d0d7ba79198a7d8a2febc21f4721199fa2290c3b"
+      },
+      {
+        "session_nonce": "sess-c014800a",
+        "role": "TDD Craftsman",
+        "phase": "REFACTOR",
+        "commit_oid": "c014800aec542afc47bc4ab315202c959beda4b6",
+        "timestamp": "2026-11-15T13:34:42Z",
+        "digest": "88e7b39845d2dd76c531f95995c96bde7dbbb918e33aa6fcf867904d5fb75df8"
       }
     ]
   },
   "test_provenance": [
+    {
+      "test_identifier": "test_ac1_session_health_token_saturation_thresholds",
+      "failure_output": "Verified in RED checkpoint commit 47d4556",
+      "failure_digest": "76bd05c31c3b7273735914294dfea44b825b1a842eab62e371570dba748c086d",
+      "verified_at": "2026-11-15T14:22:25+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac1_pre_invocation_reads_per_session_health_from_conversation_id",
+      "failure_output": "Verified in RED checkpoint commit 47d4556",
+      "failure_digest": "76bd05c31c3b7273735914294dfea44b825b1a842eab62e371570dba748c086d",
+      "verified_at": "2026-11-15T14:22:25+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac1_truthful_verification_freshness_scope_hygiene_and_worktree",
+      "failure_output": "Verified in RED checkpoint commit 47d4556",
+      "failure_digest": "76bd05c31c3b7273735914294dfea44b825b1a842eab62e371570dba748c086d",
+      "verified_at": "2026-11-15T14:22:25+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac2_antigravity_system_message_user_markdown_smart_cadence",
+      "failure_output": "Verified in RED checkpoint commit 47d4556",
+      "failure_digest": "76bd05c31c3b7273735914294dfea44b825b1a842eab62e371570dba748c086d",
+      "verified_at": "2026-11-15T14:22:25+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac2_task_none_renders_read_only_banner_everywhere",
+      "failure_output": "Verified in RED checkpoint commit 47d4556",
+      "failure_digest": "76bd05c31c3b7273735914294dfea44b825b1a842eab62e371570dba748c086d",
+      "verified_at": "2026-11-15T14:22:25+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac3_render_box_card_and_agents_md_cadence_truthfulness",
+      "failure_output": "Verified in RED checkpoint commit 47d4556",
+      "failure_digest": "76bd05c31c3b7273735914294dfea44b825b1a842eab62e371570dba748c086d",
+      "verified_at": "2026-11-15T14:22:25+01:00",
+      "status": "red_checkpoint_verified"
+    },
     {
       "test_identifier": "test_ac5_cli_worktree_create_creates_in_repo_worktree_and_binds_task",
       "failure_output": "Verified in RED checkpoint commit cd4dbc8",
@@ -3608,48 +3663,6 @@
       "failure_digest": "7a5b48276a775c44feab4f4677b37e8b13ea274205695d88d32c429ca4f43427",
       "verified_at": "2026-11-15T12:01:16Z",
       "status": "inverse_preflight_verified"
-    },
-    {
-      "test_identifier": "test_ac1_session_health_token_saturation_thresholds",
-      "failure_output": "Verified in RED checkpoint commit 47d4556",
-      "failure_digest": "76bd05c31c3b7273735914294dfea44b825b1a842eab62e371570dba748c086d",
-      "verified_at": "2026-11-15T14:22:25+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ac1_pre_invocation_reads_per_session_health_from_conversation_id",
-      "failure_output": "Verified in RED checkpoint commit 47d4556",
-      "failure_digest": "76bd05c31c3b7273735914294dfea44b825b1a842eab62e371570dba748c086d",
-      "verified_at": "2026-11-15T14:22:25+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ac1_truthful_verification_freshness_scope_hygiene_and_worktree",
-      "failure_output": "Verified in RED checkpoint commit 47d4556",
-      "failure_digest": "76bd05c31c3b7273735914294dfea44b825b1a842eab62e371570dba748c086d",
-      "verified_at": "2026-11-15T14:22:25+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ac2_antigravity_system_message_user_markdown_smart_cadence",
-      "failure_output": "Verified in RED checkpoint commit 47d4556",
-      "failure_digest": "76bd05c31c3b7273735914294dfea44b825b1a842eab62e371570dba748c086d",
-      "verified_at": "2026-11-15T14:22:25+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ac2_task_none_renders_read_only_banner_everywhere",
-      "failure_output": "Verified in RED checkpoint commit 47d4556",
-      "failure_digest": "76bd05c31c3b7273735914294dfea44b825b1a842eab62e371570dba748c086d",
-      "verified_at": "2026-11-15T14:22:25+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ac3_render_box_card_and_agents_md_cadence_truthfulness",
-      "failure_output": "Verified in RED checkpoint commit 47d4556",
-      "failure_digest": "76bd05c31c3b7273735914294dfea44b825b1a842eab62e371570dba748c086d",
-      "verified_at": "2026-11-15T14:22:25+01:00",
-      "status": "red_checkpoint_verified"
     }
   ]
 }

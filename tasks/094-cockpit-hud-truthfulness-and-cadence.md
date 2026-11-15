@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 094: Cockpit HUD Truthfulness, Session Resolution & Antigravity Start-HUD Cadence"
 description: "Gør Cockpit HUD-telemetrien empirisk sandfærdig på tværs af harnesses, retter Task 093's session_id-læsefejl i inspect_task_telemetry, opgraderer Antigravity PreInvocation fra forældet ephemeralMessage til systemMessage + metadata.user_markdown med Smart Kadence (inkl. kompakt Read-Only banner ved Task: NONE) og opdaterer AGENTS.md samt scaffold-skabeloner."
-status: active
+status: done
 intent: enhancement
 generated: { by: process:antigravity-task-init, at: "2026-11-15T14:20:00Z" }
 tags: [hud, telemetry, antigravity, adapters, session-health, ux, dx]
@@ -11,6 +11,7 @@ spec_ref: "specs/telemetry.md"
 scope:
   - "tasks/094-cockpit-hud-truthfulness-and-cadence.md"
   - "CONTEXT.md"
+  - "architecture.mermaid"
   - "spec.md"
   - "specs/telemetry.md"
   - "specs/adapters.md"
@@ -33,7 +34,7 @@ test_refs:
 
 # Task 094: Cockpit HUD Truthfulness, Session Resolution & Antigravity Start-HUD Cadence
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-15`
 
@@ -86,6 +87,7 @@ Følgende eksisterende test-assertions Tester direkte de forældede felter/forma
 
 ## 📝 Revisions
 - 2026-11-15: Oprettet draft-opgavepakke fra UX/DX HUD-review og Discovery Q&A.
+- 2026-11-15: Gate 2 godkendt; alle 6 obligatoriske verifikationslag bestået (`PARTIAL` pga. ikke-installeret valgfri `cargo-mutants`), opgave forseglet og markeret `DONE`.
 
 ## 🧪 Verifikation
 - `cargo test --package xgauntlet-core --test cockpit_hud_truthfulness_test`

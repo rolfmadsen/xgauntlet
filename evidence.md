@@ -1,21 +1,26 @@
 # Verification Report
 
-**Task ID**: `093-multi-agent-worktree-and-runtime-hygiene`  
-**Task Title**: Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene  
+**Task ID**: `094-cockpit-hud-truthfulness-and-cadence`  
+**Task Title**: Task 094: Cockpit HUD Truthfulness, Session Resolution & Antigravity Start-HUD Cadence  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `ba57cef8a108e9365ce35e914e98acac8279591d947c41e21045c40af9b1294e`  
-**Timestamp**: `2026-11-15T12:05:26Z`  
-**Head**: `8ffbb73`  
-**Commit**: `8ffbb73`  
+**Source Manifest Digest**: `3d20fac027a215e28b36da0461bc47d3d244cef2f67a12912fc6077ff029b75b`  
+**Timestamp**: `2026-11-15T13:42:27Z`  
+**Head**: `c014800`  
+**Commit**: `c014800`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 — `.xgauntlet/` & `.worktrees/` ekskluderet fra Manifest & Checkpoint Staging:**
-- [x] **AC2 — Clean Working Tree efter `xgauntlet checkpoint --phase done`:**
-- [x] **AC3 — Race-Free Per-Session Telemetri:**
-- [x] **AC4 — Antigravity Read-Only Subagenter, `branch`-kloner & Coordinated `inherit` Opt-In:**
-- [x] **AC5 — Shared `CARGO_TARGET_DIR` & `xgauntlet worktree create`:**
+- [x] `inspect_task_telemetry_for_session(workspace, task_id_or_path, session_id)` slår session-telemetri op via `SessionTracker::load_for_session(..., session_id)` (og når `session_id` er `None`, falder sikkert tilbage til nyeste opgave-matchende fil i `.xgauntlet/sessions/*.json` hvis `.xgauntlet/session_state.json` ikke matcher); `AntigravityAdapter::prepare_pre_invocation_payload` giver det ekstraherede `session_id` videre, så Antigravity-sessioner altid viser aktuel turn- og token-belastning.
+- [x] `SessionHealthStatus::from_usage(turns, estimated_tokens)` (brugt af `SessionHealth::new`) kombinerer turns og estimerede tokens deterministisk (`Optimal`: `turns <= 10 && estimated_tokens < 60_000`; `Aging`: `turns >= 11 || estimated_tokens >= 60_000`; `Saturated`: `turns > 18 || estimated_tokens >= 120_000`).
+- [x] `TaskTelemetry` beriges (via bagudkompatibelt `#[serde(default, skip_serializing_if = "Option::is_none")] pub cockpit: Option<CockpitTelemetry>` samt befolkede `scope`, `invariants` og `evidence`) med hurtige (`<5ms`, ingen fulde builds/rekursiv hashing) og empirisk sande signaler:
+- [x] `AntigravityAdapter::format_pre_invocation_payload` og `prepare_pre_invocation_payload` anvender det autoritative Antigravity `injectSteps`-format: `{ "systemMessage": { "systemMessage": "<model-kontekst>", "metadata": { "user_markdown": "<Start-HUD markdown>" } } }` i stedet for forældet `ephemeralMessage`; `adapters/antigravity/validation.rs` anerkender desuden `"SessionStart"` i `VALID_ANTIGRAVITY_EVENTS`.
+- [x] **Smart Kadence** (scoping per `(workspace, session_id)` med eksplicit testbar cache-dir-seam):
+- [x] **`Task: NONE` Read-Only Banner**: Både `xgauntlet telemetry --format antigravity-hook` og `xgauntlet hook antigravity` (`PreInvocation`) anvender én fælles `NoActiveTask`-sti, der returnerer en ærlig, kompakt Read-Only status-banner (Git branch/OID/ahead/dirty/worktree, `Policy: Read-Only / Planning`, draft/done opgaveantal og `verification-report.json` friskhed) underlagt Smart Kadence — aldrig tom `injectSteps: []` eller opdigtet `"14/14 PASS"`.
+- [x] `AntigravityAdapter::render_blockquote_hud` og `format_ephemeral_telemetry` viser de sande `CockpitTelemetry`-signaler (inkl. `Gauntlet` friskhed, `Scope` + eventuel out-of-scope advarsel, `Worktree` / `Primary`, `ahead` og `Session`), uden falsk `PASS`-gætning.
+- [x] `TaskTelemetry::render_box_card()` (Claude Code / Codex / Mistral) erstatter vildledende fallbacks (`"14/14 PASS"` -> `"unverified"`, `"crates/*"` -> `"unscoped"`, og udnytter ægte `cockpit`-signaler når sat) under streng overholdelse af 64 synlige tegn pr. linje og 6 linjers total højde.
+- [x] `.agents/AGENTS.md` og `crates/xgauntlet-core/src/features/scaffold/templates.rs` (`render_agents_md`) opdateres til at reflektere det opdaterede HUD-design og kadence-protokollen: brugeren får Start-HUD direkte efter prompten via hook (`metadata.user_markdown`), mens agentens egen svar-HUD udelukkende vises ved **state-delta / faseskift**, **eskalering / bruger-gate** eller **afslutning (`DONE` / `🏁 SESSION HANDOFF`)**.
+- [x] `crates/xgauntlet-cli` (`xgauntlet telemetry`) spejler den sandfærdige `TaskTelemetry` / `IdleWorkspaceTelemetry` ved både `--format antigravity-hook`, `--format json` og standardtekst.
 
 ---
 
@@ -23,13 +28,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.084s` |
-| `format` | `PASSED` | `0` | `0.286s` |
-| `lint` | `PASSED` | `0` | `0.078s` |
-| `unit` | `PASSED` | `0` | `48.189s` |
-| `npm` | `PASSED` | `0` | `0.870s` |
-| `invariants` | `PASSED` | `0` | `0.103s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.017s` |
+| `architecture` | `PASSED` | `0` | `0.078s` |
+| `format` | `PASSED` | `0` | `0.287s` |
+| `lint` | `PASSED` | `0` | `0.102s` |
+| `unit` | `PASSED` | `0` | `48.949s` |
+| `npm` | `PASSED` | `0` | `0.831s` |
+| `invariants` | `PASSED` | `0` | `0.065s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.013s` |
 
 ---
 
@@ -251,6 +256,7 @@
 | `sess-1968aa50` | `System Architect` | `SPEC` | `1968aa5` | `2026-11-15T13:20:32Z` | `VALID` |
 | `sess-47d4556a` | `TDD Craftsman` | `RED` | `47d4556` | `2026-11-15T13:22:25Z` | `VALID` |
 | `sess-fdc85616` | `TDD Craftsman` | `GREEN` | `fdc8561` | `2026-11-15T13:33:41Z` | `VALID` |
+| `sess-c014800a` | `TDD Craftsman` | `REFACTOR` | `c014800` | `2026-11-15T13:34:42Z` | `VALID` |
 
 ---
 
@@ -258,6 +264,12 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_ac1_session_health_token_saturation_thresholds` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
+| `test_ac1_pre_invocation_reads_per_session_health_from_conversation_id` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
+| `test_ac1_truthful_verification_freshness_scope_hygiene_and_worktree` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
+| `test_ac2_antigravity_system_message_user_markdown_smart_cadence` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
+| `test_ac2_task_none_renders_read_only_banner_everywhere` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
+| `test_ac3_render_box_card_and_agents_md_cadence_truthfulness` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
 | `test_ac5_cli_worktree_create_creates_in_repo_worktree_and_binds_task` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
 | `test_ac1_manifest_excludes_xgauntlet_and_worktrees` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
 | `test_ac1_checkpoint_stage_excludes_previously_tracked_xgauntlet` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
@@ -511,11 +523,5 @@
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
 | `test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task` | `InversePreflightVerified` | `7a5b48276a775c44...` | `2026-11-15T12:01:16Z` |
-| `test_ac1_session_health_token_saturation_thresholds` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
-| `test_ac1_pre_invocation_reads_per_session_health_from_conversation_id` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
-| `test_ac1_truthful_verification_freshness_scope_hygiene_and_worktree` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
-| `test_ac2_antigravity_system_message_user_markdown_smart_cadence` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
-| `test_ac2_task_none_renders_read_only_banner_everywhere` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
-| `test_ac3_render_box_card_and_agents_md_cadence_truthfulness` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
 
 ---

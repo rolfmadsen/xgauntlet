@@ -83,7 +83,9 @@ pub fn format_ephemeral_telemetry(telemetry: &TaskTelemetry) -> String {
     let phase = telemetry.phase.as_deref().unwrap_or("SPEC");
     let (verdict, stale_reason) = resolve_gauntlet_verdict(telemetry);
     let verdict_detail = match stale_reason {
-        Some(r) if verdict == "STALE" => format!("{verdict} ({r})"),
+        Some(r) if verdict == "STALE" || (verdict == "PASS" && r == "partial") => {
+            format!("{verdict} ({r})")
+        }
         _ => verdict.to_string(),
     };
 
@@ -200,7 +202,9 @@ pub fn render_blockquote_hud(telemetry: &TaskTelemetry, next_action: Option<&str
     let phase = telemetry.phase.as_deref().unwrap_or("SPEC");
     let (verdict, stale_reason) = resolve_gauntlet_verdict(telemetry);
     let gauntlet_segment = match stale_reason {
-        Some(r) if verdict == "STALE" => format!("Gauntlet: {verdict} ({r})"),
+        Some(r) if verdict == "STALE" || (verdict == "PASS" && r == "partial") => {
+            format!("Gauntlet: {verdict} ({r})")
+        }
         _ => format!("Gauntlet: {verdict}"),
     };
 

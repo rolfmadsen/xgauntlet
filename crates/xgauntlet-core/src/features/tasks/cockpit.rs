@@ -326,8 +326,16 @@ pub fn evaluate_verification_summary(
         }
     }
 
+    let mandatory_failed = report
+        .checks
+        .iter()
+        .any(|c| !c.optional && matches!(c.status, CheckStatus::Failed | CheckStatus::Error));
+
     let (freshness, reason) = match report.verdict {
         VerificationVerdict::Passed => (VerificationFreshness::Pass, None),
+        VerificationVerdict::Partial if !mandatory_failed => {
+            (VerificationFreshness::Pass, Some("partial".to_string()))
+        }
         VerificationVerdict::Failed
         | VerificationVerdict::Error
         | VerificationVerdict::Partial
