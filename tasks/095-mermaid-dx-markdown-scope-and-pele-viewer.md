@@ -18,6 +18,7 @@ scope:
   - "crates/xgauntlet-core/src/features/scaffold/templates.rs"
   - "crates/xgauntlet-core/src/lib.rs"
   - "crates/xgauntlet-cli/src/main.rs"
+  - "crates/xgauntlet-cli/src/checkers.rs"
   - "crates/xgauntlet-cli/src/handlers.rs"
   - "crates/xgauntlet-cli/src/render.rs"
   - "architecture.mermaid"
@@ -33,6 +34,7 @@ test_refs:
   - "crates/xgauntlet-core/tests/mermaid_dx_and_feature_scope_test.rs"
   - "crates/xgauntlet-core/tests/mermaid_auto_sync_test.rs"
   - "crates/xgauntlet-core/tests/cockpit_hud_truthfulness_test.rs"
+  - "crates/xgauntlet-cli/tests/topology_dx_cli_test.rs"
 ---
 
 # Task 095: 1-Klik Mermaid DX, Feature-Scoped Diagrammer, Pele Viewer & HUD Links
@@ -52,7 +54,7 @@ Gøre arkitektur- og domænediagrammer **1-klik læsbare** direkte i GitHub, IDE
 ## 📋 Acceptance Criteria
 
 - [ ] **AC1 (Feature-Scoped Mermaid Eksport)**:
-  - `MermaidExportOptions` understøtter `feature: Option<String>` (og `xgauntlet topology export --format mermaid [--feature <navn>] [--level conceptual|detailed]`).
+  - `export_feature_mermaid_class_diagram` (og `xgauntlet topology export --format mermaid [--feature <navn>] [--level conceptual|detailed]`) understøtter deterministisk feature-filtrering uden at bryde eksisterende `MermaidExportOptions`-kontrakter.
   - Når `feature` er angivet, inkluderes deterministisk alle synlige domænemodeller fra det pågældende feature-slice samt direkte 1-hop tilknyttede nabotyper (`*--`, `..|>`), sorteret alfabetisk uden støj fra uafhængige features.
   - Hvis et ukendt feature-navn angives, returneres en klar, handlingsorienteret fejlbesked på CLI/API frem for et tomt diagram.
 
