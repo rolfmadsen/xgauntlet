@@ -266,6 +266,7 @@
 | `sess-71e8b2da` | `TDD Craftsman` | `GREEN` | `71e8b2d` | `2026-11-15T14:53:42Z` | `VALID` |
 | `sess-a2d1d120` | `Software Engineer` | `DONE` | `a2d1d12` | `2026-11-15T14:55:00Z` | `VALID` |
 | `sess-9d0b4564` | `System Architect` | `SPEC` | `9d0b456` | `2026-11-15T15:05:16Z` | `VALID` |
+| `sess-b34f8fd5` | `TDD Craftsman` | `RED` | `b34f8fd` | `2026-11-15T15:05:43Z` | `VALID` |
 
 ---
 
@@ -540,5 +541,6 @@
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
 | `test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task` | `InversePreflightVerified` | `7a5b48276a775c44...` | `2026-11-15T12:01:16Z` |
+| `test_strip_windows_verbatim_prefix_normalizes_git_worktree_paths` | `RedCheckpointVerified` | `7bd7a75a3daf4993...` | `2026-11-15T16:05:43+01:00` |
 
 ---

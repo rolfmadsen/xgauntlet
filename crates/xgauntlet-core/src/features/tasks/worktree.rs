@@ -68,13 +68,30 @@ fn task_exists_in_git_ref(repo_root: &Path, git_ref: &str, task_path: &Path) -> 
         .unwrap_or(false)
 }
 
+/// Strips the Windows extended-length verbatim path prefix (`\\?\` or `\\?\UNC\`)
+/// returned by `std::fs::canonicalize()` so external `git` CLI invocations never
+/// fail with `//?/C:/...: Invalid argument`.
+pub fn strip_windows_verbatim_prefix(raw: &str) -> String {
+    if let Some(unc) = raw.strip_prefix(r"\\?\UNC\") {
+        format!(r"\\{unc}")
+    } else if let Some(rest) = raw.strip_prefix(r"\\?\") {
+        rest.to_string()
+    } else {
+        raw.to_string()
+    }
+}
+
+fn normalize_git_path(path: &Path) -> PathBuf {
+    PathBuf::from(strip_windows_verbatim_prefix(&path.to_string_lossy()))
+}
+
 fn cleanup_failed_worktree(
     primary_root: &Path,
     worktree_path: &Path,
     branch: &str,
     created_new_branch: bool,
 ) {
-    let wt_str = worktree_path.to_string_lossy().to_string();
+    let wt_str = strip_windows_verbatim_prefix(&worktree_path.to_string_lossy());
     let _ = Command::new("git")
         .args(["worktree", "remove", "--force", &wt_str])
         .current_dir(primary_root)
@@ -101,11 +118,12 @@ pub fn create_task_worktree(
     task_id: &str,
     branch: Option<&str>,
 ) -> Result<WorktreeCreateResult, TaskError> {
-    let primary_root = resolve_primary_repo_root(workspace).unwrap_or_else(|| {
-        workspace
-            .canonicalize()
-            .unwrap_or_else(|_| workspace.to_path_buf())
-    });
+    let primary_root =
+        normalize_git_path(&resolve_primary_repo_root(workspace).unwrap_or_else(|| {
+            workspace
+                .canonicalize()
+                .unwrap_or_else(|_| workspace.to_path_buf())
+        }));
 
     let task_path = resolve_task_file_path(&primary_root, Some(task_id))?;
     let task_content = fs::read_to_string(&task_path)?;
@@ -158,7 +176,7 @@ pub fn create_task_worktree(
     }
     fs::create_dir_all(&worktrees_dir)?;
 
-    let wt_str = worktree_path.to_string_lossy().to_string();
+    let wt_str = strip_windows_verbatim_prefix(&worktree_path.to_string_lossy());
     let created_new_branch = !exists;
     let mut cmd = Command::new("git");
     cmd.current_dir(&primary_root).arg("worktree").arg("add");

@@ -1961,6 +1961,14 @@
         "commit_oid": "9d0b45644ff9177f4b606c736fee2d1e5faf30cc",
         "timestamp": "2026-11-15T15:05:16Z",
         "digest": "63be484b9a07d9ef2d5113ac15a53cbdc8be711c58cf98ba9b35fdc958491603"
+      },
+      {
+        "session_nonce": "sess-b34f8fd5",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "b34f8fd563624a576f7f5bfe2c11b70844b58cba",
+        "timestamp": "2026-11-15T15:05:43Z",
+        "digest": "696b882a4d0733a746cb750c593acc8824a8e2b00a6a040252128a8f8c01670c"
       }
     ]
   },
@@ -3833,6 +3841,13 @@
       "failure_digest": "7a5b48276a775c44feab4f4677b37e8b13ea274205695d88d32c429ca4f43427",
       "verified_at": "2026-11-15T12:01:16Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_strip_windows_verbatim_prefix_normalizes_git_worktree_paths",
+      "failure_output": "Verified in RED checkpoint commit b34f8fd",
+      "failure_digest": "7bd7a75a3daf4993a9f7f4dcf42db7b7db5f7604f50b584245c80a8da123b3f5",
+      "verified_at": "2026-11-15T16:05:43+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }

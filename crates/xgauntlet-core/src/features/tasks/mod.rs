@@ -48,4 +48,4 @@ pub use validator::{
     check_adr_frontmatter, check_all_adrs, check_all_tasks, check_task_specification,
     validate_context_content, validate_context_glossary,
 };
-pub use worktree::{create_task_worktree, WorktreeCreateResult};
+pub use worktree::{create_task_worktree, strip_windows_verbatim_prefix, WorktreeCreateResult};
