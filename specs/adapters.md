@@ -23,3 +23,4 @@ The `adapters` feature translates vendor-specific AI harness tool payloads, life
 
 ## 📋 Relaterede Tasks
 - [Task 088: Worktree-Isolated Multi-Agent & Subagent Supervision](../tasks/archive/088-worktree-isolated-multi-agent-supervision.md)
+- [Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene](../tasks/093-multi-agent-worktree-and-runtime-hygiene.md)

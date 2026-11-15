@@ -149,4 +149,5 @@ target/
 
 # xGauntlet local runtime telemetry & topology cache
 .xgauntlet/
+.worktrees/
 

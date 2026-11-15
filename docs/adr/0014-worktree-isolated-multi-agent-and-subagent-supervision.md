@@ -79,5 +79,12 @@ Vi indfører en **Worktree-Isoleret Multi-Agent & Subagent Arkitektur** baseret 
 - **Positiv**: Muliggør både parallelle selvstændige tasks i worktrees og koordinator + subagent/swarm-arbejdsgange på tværs af Antigravity, Claude Code, Codex og Mistral Vibe.
 - **Positiv**: Eliminerer CWD- og telemetri-kollisioner mellem samtidige sessioner.
 - **Negativ / Trade-off**: Kræver opdatering af WIT-kontrakt (`wit/gauntlet_policy.wit`), rekompilering af den indlejrede WASM-policy-komponent samt opdatering af alle fire adapter-slices og deres kontrakt-tests.
-- **Negativ / Trade-off**: Samtidig skrivning fra flere agenter i *ét* fælles working tree forbliver bevidst uunderstøttet.
+- **Negativ / Trade-off**: Samtidig skrivning fra flere agenter i *ét* fælles working tree forbliver bevidst uunderstøttet som standard (`allow_coordinated_inherit = false`).
+
+## Addendum (2026-11-15, Task 093): Praktisk Antigravity-Sameksistens & Opt-In Coordinated Inherit
+Efter praktiske observationer i større Rust-workspaces (Kant) og Antigravitys orkestrator-dokumentation (`/swarm`, `/boost`, `Subagents`) præciseres fire supplerende regler under dette ADR:
+1. **Bredere Read-Only Subagent Klassifikation:** Ud over `research` klassificeres `browser`, `image-generator` og custom `.agents/agents/<name>.md`-subagenter uden muterende fil-/shell-værktøjer i `tools` som `read_only`.
+2. **`Workspace: "branch"`-Klon Opløsning:** `resolve_effective_workspace` understøtter ud over linked `git worktree` (`.git`-fil) også sikre lokale `git clone`-workspaces (bekræftet via `.git/objects/info/alternates` eller matching `remote.origin.url` mod parent-repoet).
+3. **Opt-In Coordinated `inherit` (`[multi_agent] allow_coordinated_inherit = true`):** Da Antigravitys `/boost` og standard-`/swarm` bruger `inherit` med eksplicit fil-ejerskab og serialiseret `@verifier`-join, kan et projekt i `gauntlet.toml` aktivere `allow_coordinated_inherit = true`. Standard forbliver `false` (streng `4040`-spærre).
+4. **Shared `CARGO_TARGET_DIR` & Race-Free `.xgauntlet/sessions/`:** Linked worktrees kan via `[multi_agent] share_cargo_target_dir = true` dele primary-repoets `target/`-mappe, og samtidige `PreInvocation`-sessioner isoleres atomisk i `.xgauntlet/sessions/<hash>.json`.
 

@@ -239,7 +239,7 @@ _Avoid_: Chat summary, handoff note, session dump.
 A side-effect-free diagnostic subsystem, that inspects host platform prerequisites, Git repository health, governance files, and stack toolchains.
 _Avoid_: Env sniffer, health daemon, system probe.
 
-**Config (GauntletConfig / PathsConfig / ConfigValidationIssue / ConfigValidationReport / ConfigError / ValidationSeverity / ValidationIssue)**:
+**Config (GauntletConfig / PathsConfig / MultiAgentConfig / ConfigValidationIssue / ConfigValidationReport / ConfigError / ValidationSeverity / ValidationIssue)**:
 A declarative repository configuration model (`gauntlet.toml`), that specifies stack profiles, document paths, architectural boundaries, and verification layers.
 _Avoid_: Dotfile settings, ad-hoc preferences, global registry.
 
