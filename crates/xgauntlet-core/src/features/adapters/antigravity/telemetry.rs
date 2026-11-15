@@ -165,25 +165,12 @@ fn suppress_and_update_in_file(cache_file: &Path, message: &str) -> bool {
         }
     }
 
-    let user = current_username();
     let payload = serde_json::json!({
         "digest": current_digest,
         "state_key": current_state_key,
         "timestamp_ms": now,
     });
-    let seq = DEDUP_TMP_COUNTER.fetch_add(1, Ordering::Relaxed);
-    let tmp_dir = cache_file
-        .parent()
-        .map(Path::to_path_buf)
-        .unwrap_or_else(std::env::temp_dir);
-    let tmp_file = tmp_dir.join(format!(
-        "xgauntlet_telemetry_dedup_{user}.{}.{seq}.tmp",
-        std::process::id()
-    ));
-    if std::fs::write(&tmp_file, payload.to_string()).is_ok() {
-        let _ = std::fs::rename(&tmp_file, cache_file);
-        let _ = std::fs::remove_file(&tmp_file);
-    }
+    write_json_atomic(cache_file, &payload);
     false
 }
 
