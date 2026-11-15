@@ -193,3 +193,23 @@ fn test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active
 
     let _ = fs::remove_dir_all(&repo);
 }
+
+#[test]
+fn test_strip_windows_verbatim_prefix_normalizes_git_worktree_paths() {
+    use xgauntlet_core::features::tasks::strip_windows_verbatim_prefix;
+
+    assert_eq!(
+        strip_windows_verbatim_prefix(
+            r"\\?\C:\Users\runneradmin\AppData\Local\Temp\repo\.worktrees\093"
+        ),
+        r"C:\Users\runneradmin\AppData\Local\Temp\repo\.worktrees\093"
+    );
+    assert_eq!(
+        strip_windows_verbatim_prefix(r"\\?\UNC\server\share\repo\.worktrees\093"),
+        r"\\server\share\repo\.worktrees\093"
+    );
+    assert_eq!(
+        strip_windows_verbatim_prefix("/tmp/repo/.worktrees/093"),
+        "/tmp/repo/.worktrees/093"
+    );
+}
