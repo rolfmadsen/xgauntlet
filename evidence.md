@@ -1,22 +1,19 @@
 # Verification Report
 
-**Task ID**: `095-mermaid-dx-markdown-scope-and-pele-viewer`  
-**Task Title**: Task 095: 1-Klik Mermaid DX, Feature-Scoped Diagrammer, Pele Viewer & HUD Links  
+**Task ID**: `096-pele-playground-links-and-cdn-v1`  
+**Task Title**: Task 096: Pele Playground 1-Klik Links & Official Pele v1 CDN Import  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `46927f8c24f4397b2680fa4ef241ea7f70b777b308510b983a3d17a964b6617a`  
-**Timestamp**: `2026-11-15T14:16:57Z`  
-**Head**: `1abd353`  
-**Commit**: `1abd353`  
+**Source Manifest Digest**: `6df48c9b1d1cf6f340236b0a5518d0eb70af1bdd07a653de1bf6706b2926f21b`  
+**Timestamp**: `2026-11-15T14:35:05Z`  
+**Head**: `fb27972`  
+**Commit**: `fb27972`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (Feature-Scoped Mermaid Eksport)**:
-- [x] **AC2 (`architecture.md` & `docs/architecture/<feature>.md` Auto-Sync uden Tamper-Drift)**:
-- [x] **AC3 (Zero-Daemon Pele HTML-Viewer via `xgauntlet topology open`)**:
-- [x] **AC4 (Cockpit HUD `🗺️ [Arch]` Link & `<5ms` Invariant)**:
-- [x] **AC5 (Dokumentation & Living Specs Sync)**:
-- [x] **AC6 (1-Klik Mermaid Live Link i Markdown & Oprydning af `README_OLD.md` / `ROADMAP.md`)**:
+- [x] **AC1 (Deterministisk `pele.run/playground#source=...` Encoder i Zero-Dependency Rust)**:
+- [x] **AC2 (Pele Playground Links i `architecture.md` & `docs/architecture/<feature>.md`)**:
+- [x] **AC3 (Officiel Pele `@1/dist/pele.js` CDN-import i `viewer.rs`)**:
 
 ---
 
@@ -24,13 +21,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.071s` |
-| `format` | `PASSED` | `0` | `0.285s` |
-| `lint` | `PASSED` | `0` | `0.881s` |
-| `unit` | `PASSED` | `0` | `52.023s` |
-| `npm` | `PASSED` | `0` | `0.832s` |
-| `invariants` | `PASSED` | `0` | `0.070s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.012s` |
+| `architecture` | `PASSED` | `0` | `0.075s` |
+| `format` | `PASSED` | `0` | `0.265s` |
+| `lint` | `PASSED` | `0` | `0.101s` |
+| `unit` | `PASSED` | `0` | `48.795s` |
+| `npm` | `PASSED` | `0` | `0.858s` |
+| `invariants` | `PASSED` | `0` | `0.082s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.017s` |
 
 ---
 
@@ -261,6 +258,7 @@
 | `sess-e7e8eada` | `Software Engineer` | `DONE` | `e7e8ead` | `2026-11-15T14:16:57Z` | `VALID` |
 | `sess-dfa4e0d2` | `System Architect` | `SPEC` | `dfa4e0d` | `2026-11-15T14:31:10Z` | `VALID` |
 | `sess-1373b73c` | `TDD Craftsman` | `RED` | `1373b73` | `2026-11-15T14:31:48Z` | `VALID` |
+| `sess-fb279729` | `TDD Craftsman` | `GREEN` | `fb27972` | `2026-11-15T14:32:23Z` | `VALID` |
 
 ---
 
@@ -268,12 +266,13 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_ac1_feature_scoped_mermaid_includes_neighbors_and_excludes_unrelated_features` | `RedCheckpointVerified` | `f65110f9386ed29e...` | `2026-11-15T15:31:48+01:00` |
+| `test_ac2_verify_save_syncs_architecture_md_and_feature_diagrams_without_tamper` | `RedCheckpointVerified` | `f65110f9386ed29e...` | `2026-11-15T15:31:48+01:00` |
+| `test_ac3_pele_viewer_html_contains_pan_zoom_theme_tokens_and_offline_fallback` | `RedCheckpointVerified` | `f65110f9386ed29e...` | `2026-11-15T15:31:48+01:00` |
+| `test_ac4_cockpit_hud_links_include_scoped_feature_diagram_or_architecture_md` | `RedCheckpointVerified` | `f65110f9386ed29e...` | `2026-11-15T15:31:48+01:00` |
+| `test_task096_pele_playground_url_matches_empirical_share_links` | `RedCheckpointVerified` | `f65110f9386ed29e...` | `2026-11-15T15:31:48+01:00` |
 | `test_cli_topology_export_with_feature_filter` | `RedCheckpointVerified` | `41cc2fbca888a0fa...` | `2026-11-15T14:59:37+01:00` |
 | `test_cli_topology_open_no_browser_writes_pele_viewer_html` | `RedCheckpointVerified` | `41cc2fbca888a0fa...` | `2026-11-15T14:59:37+01:00` |
-| `test_ac1_feature_scoped_mermaid_includes_neighbors_and_excludes_unrelated_features` | `RedCheckpointVerified` | `41cc2fbca888a0fa...` | `2026-11-15T14:59:37+01:00` |
-| `test_ac2_verify_save_syncs_architecture_md_and_feature_diagrams_without_tamper` | `RedCheckpointVerified` | `41cc2fbca888a0fa...` | `2026-11-15T14:59:37+01:00` |
-| `test_ac3_pele_viewer_html_contains_pan_zoom_theme_tokens_and_offline_fallback` | `RedCheckpointVerified` | `41cc2fbca888a0fa...` | `2026-11-15T14:59:37+01:00` |
-| `test_ac4_cockpit_hud_links_include_scoped_feature_diagram_or_architecture_md` | `RedCheckpointVerified` | `41cc2fbca888a0fa...` | `2026-11-15T14:59:37+01:00` |
 | `test_ac1_session_health_token_saturation_thresholds` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
 | `test_ac1_pre_invocation_reads_per_session_health_from_conversation_id` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
 | `test_ac1_truthful_verification_freshness_scope_hygiene_and_worktree` | `RedCheckpointVerified` | `76bd05c31c3b7273...` | `2026-11-15T14:22:25+01:00` |
@@ -533,6 +532,5 @@
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
 | `test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task` | `InversePreflightVerified` | `7a5b48276a775c44...` | `2026-11-15T12:01:16Z` |
-| `test_task096_pele_playground_url_matches_empirical_share_links` | `RedCheckpointVerified` | `f65110f9386ed29e...` | `2026-11-15T15:31:48+01:00` |
 
 ---

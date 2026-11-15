@@ -303,9 +303,15 @@ fn test_ac4_cockpit_hud_links_include_scoped_feature_diagram_or_architecture_md(
 fn test_task096_pele_playground_url_matches_empirical_share_links() {
     let flowchart_source = "flowchart TD\n  A([Mermaid text]) --> B{Supported?}\n  B -- Yes --> C[Parse]\n  B -- No --> H[Fall back]\n\n  subgraph Pele\n    C --> D[Layout]\n    D --> E[Render]\n  end\n\n  E --> F[(SVG)]\n  F -.-> G[Theme with CSS]\n";
     let expected_flowchart_url = "https://pele.run/playground#source=flowchart+TD%0A++A%28%5BMermaid+text%5D%29+--%3E+B%7BSupported%3F%7D%0A++B+--+Yes+--%3E+C%5BParse%5D%0A++B+--+No+--%3E+H%5BFall+back%5D%0A%0A++subgraph+Pele%0A++++C+--%3E+D%5BLayout%5D%0A++++D+--%3E+E%5BRender%5D%0A++end%0A%0A++E+--%3E+F%5B%28SVG%29%5D%0A++F+-.-%3E+G%5BTheme+with+CSS%5D%0A";
-    assert_eq!(pele_playground_url(flowchart_source), expected_flowchart_url);
+    assert_eq!(
+        pele_playground_url(flowchart_source),
+        expected_flowchart_url
+    );
 
     let class_diagram_source = "---\nconfig:\n  class:\n    hierarchicalNamespaces: false\n---\nclassDiagram\n    namespace Earth.Volcano.Summit {\n        class Crater {\n            +erupt()\n        }\n    }\n    namespace Earth.Volcano.Slope {\n        class LavaFlow {\n            +buildLand()\n        }\n    }\n    namespace Earth {\n        class Hotspot {\n            +meltRock()\n        }\n    }\n    Hotspot --> Crater : feeds\n    Hotspot --> LavaFlow : feeds\n";
     let expected_class_url = "https://pele.run/playground#source=---%0Aconfig%3A%0A++class%3A%0A++++hierarchicalNamespaces%3A+false%0A---%0AclassDiagram%0A++++namespace+Earth.Volcano.Summit+%7B%0A++++++++class+Crater+%7B%0A++++++++++++%2Berupt%28%29%0A++++++++%7D%0A++++%7D%0A++++namespace+Earth.Volcano.Slope+%7B%0A++++++++class+LavaFlow+%7B%0A++++++++++++%2BbuildLand%28%29%0A++++++++%7D%0A++++%7D%0A++++namespace+Earth+%7B%0A++++++++class+Hotspot+%7B%0A++++++++++++%2BmeltRock%28%29%0A++++++++%7D%0A++++%7D%0A++++Hotspot+--%3E+Crater+%3A+feeds%0A++++Hotspot+--%3E+LavaFlow+%3A+feeds%0A";
-    assert_eq!(pele_playground_url(class_diagram_source), expected_class_url);
+    assert_eq!(
+        pele_playground_url(class_diagram_source),
+        expected_class_url
+    );
 }

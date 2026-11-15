@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 096: Pele Playground 1-Klik Links & Official Pele v1 CDN Import"
 description: "Udskifter mermaid.live-links i architecture.md og docs/architecture/*.md med hurtige Pele Playground URL'er (https://pele.run/playground#source=...) og opgraderer den lokale Pele HTML-viewer i viewer.rs til den officielle @1/dist/pele.js CDN-indgang."
-status: active
+status: done
 generated: { by: process:antigravity-task-init, at: "2026-11-15T15:30:00Z" }
 tags: [topology, pele, mermaid, markdown, dx, okf]
 feature: topology
@@ -21,7 +21,7 @@ test_refs:
 
 # Task 096: Pele Playground 1-Klik Links & Official Pele v1 CDN Import
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-15`
 
@@ -33,15 +33,15 @@ Udnytte **Pele** (`obsidianmd/pele`, væsentligt hurtigere end Mermaids standard
 
 ## 📋 Acceptance Criteria
 
-- [ ] **AC1 (Deterministisk `pele.run/playground#source=...` Encoder i Zero-Dependency Rust)**:
+- [x] **AC1 (Deterministisk `pele.run/playground#source=...` Encoder i Zero-Dependency Rust)**:
   - `crates/xgauntlet-core/src/features/topology/markdown.rs` udstiller `pele_playground_url(mermaid_source: &str) -> String` (re-eksporteret via `topology/mod.rs`), som koder Mermaid-kildetekst med standard WHATWG `application/x-www-form-urlencoded` (`' '` → `'+'`, `A-Z`/`a-z`/`0-9`/`*`/`-`/`.`/`_` uændrede, øvrige UTF-8 bytes som `%XX` i store hex-tegn) efter præfikset `https://pele.run/playground#source=`.
   - Enhedstest/accepttest verificerer 100% byte-nøjagtigt match mod det empiriske `Copy share link`-eksempel fra [pele.run/playground](https://pele.run/playground).
 
-- [ ] **AC2 (Pele Playground Links i `architecture.md` & `docs/architecture/<feature>.md`)**:
+- [x] **AC2 (Pele Playground Links i `architecture.md` & `docs/architecture/<feature>.md`)**:
   - `render_architecture_markdown` og `render_feature_architecture_markdown` indsætter øverst et `[🌐 Open Interactive Diagram (Pele Playground)](https://pele.run/playground#source=...)`-link og fjerner `mermaid.live`-afhængigheden (inkl. ubrugt `base64_encode`).
   - `xgauntlet verify --save` synkroniserer [architecture.md](../architecture.md) og samtlige `docs/architecture/<feature>.md` med Pele Playground-links uden selvmutations- eller manifest-fejl.
 
-- [ ] **AC3 (Officiel Pele `@1/dist/pele.js` CDN-import i `viewer.rs`)**:
+- [x] **AC3 (Officiel Pele `@1/dist/pele.js` CDN-import i `viewer.rs`)**:
   - `render_pele_viewer_html` i `crates/xgauntlet-core/src/features/topology/viewer.rs` importerer ESM-modulet fra `https://cdn.jsdelivr.net/npm/pele@1/dist/pele.js` og bevarer `pele.render(source)`, pan/zoom, WCAG AA tokens og offline fallback.
 
 ## 🚫 Must NOT
@@ -52,6 +52,7 @@ Udnytte **Pele** (`obsidianmd/pele`, væsentligt hurtigere end Mermaids standard
 
 ## 📝 Revisions
 - 2026-11-15: Oprettet OKF v0.2 opgavepakke efter verifikation af det empiriske `pele.run/playground#source=...` format og `pele.run/api`-CDN-stien.
+- 2026-11-15: Gate 1 godkendt; implementeret zero-dependency `pele_playground_url`, skiftet `architecture.md` + `docs/architecture/*.md` til `pele.run/playground#source=...`, og opgraderet `viewer.rs` til `https://cdn.jsdelivr.net/npm/pele@1/dist/pele.js`.
 
 ## 🧪 Verifikation
 - `cargo test --package xgauntlet-core --test mermaid_dx_and_feature_scope_test`

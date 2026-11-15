@@ -4,40 +4,37 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "095-mermaid-dx-markdown-scope-and-pele-viewer",
-    "task_title": "Task 095: 1-Klik Mermaid DX, Feature-Scoped Diagrammer, Pele Viewer & HUD Links",
-    "task_digest": "300378fd18a0f35799ea94a44adb6ee216a5a74a0666afc28d73038576262a61",
+    "task_id": "096-pele-playground-links-and-cdn-v1",
+    "task_title": "Task 096: Pele Playground 1-Klik Links & Official Pele v1 CDN Import",
+    "task_digest": "1ce89a1fff94a9ae0231096f70cab6ae08ce4a39981d50f17640825a571f22dc",
     "acceptance_criteria": [
-      "**AC1 (Feature-Scoped Mermaid Eksport)**:",
-      "**AC2 (`architecture.md` & `docs/architecture/<feature>.md` Auto-Sync uden Tamper-Drift)**:",
-      "**AC3 (Zero-Daemon Pele HTML-Viewer via `xgauntlet topology open`)**:",
-      "**AC4 (Cockpit HUD `🗺️ [Arch]` Link & `<5ms` Invariant)**:",
-      "**AC5 (Dokumentation & Living Specs Sync)**:",
-      "**AC6 (1-Klik Mermaid Live Link i Markdown & Oprydning af `README_OLD.md` / `ROADMAP.md`)**:"
+      "**AC1 (Deterministisk `pele.run/playground#source=...` Encoder i Zero-Dependency Rust)**:",
+      "**AC2 (Pele Playground Links i `architecture.md` & `docs/architecture/<feature>.md`)**:",
+      "**AC3 (Officiel Pele `@1/dist/pele.js` CDN-import i `viewer.rs`)**:"
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "557a8c3712e43ccdc88fb509b66dd058c538641c3369cceaf37d5faed84013df",
-    "source_manifest_digest_pre": "46927f8c24f4397b2680fa4ef241ea7f70b777b308510b983a3d17a964b6617a",
-    "source_manifest_digest_post": "46927f8c24f4397b2680fa4ef241ea7f70b777b308510b983a3d17a964b6617a",
+    "source_content_digest": "181961cc66b793bf6be14afc11f93ee22d2c24bdc6cea520ad2f682c3e073a7f",
+    "source_manifest_digest_pre": "6df48c9b1d1cf6f340236b0a5518d0eb70af1bdd07a653de1bf6706b2926f21b",
+    "source_manifest_digest_post": "6df48c9b1d1cf6f340236b0a5518d0eb70af1bdd07a653de1bf6706b2926f21b",
     "config_digest": "e489e2296ef0a17dc282c81a9a960ad9a104476b5112461f867dac3a1b3972dc",
-    "task_digest": "300378fd18a0f35799ea94a44adb6ee216a5a74a0666afc28d73038576262a61",
+    "task_digest": "1ce89a1fff94a9ae0231096f70cab6ae08ce4a39981d50f17640825a571f22dc",
     "policy_digest": "ee5dd372caf0dcddb566e02533a23316b876681da866bf3d4a20f32af57012ef",
     "check_definitions_digest": "7b85613e7b7c24f03e0db6873ce7a93328152d05b26a6eea242f15f10f6063af",
-    "included_files_count": 325,
+    "included_files_count": 326,
     "vcs": {
       "type": "git",
-      "head": "1abd353",
-      "commit": "1abd353",
+      "head": "fb27972",
+      "commit": "fb27972",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-15T14:16:02Z",
-    "finished_at": "2026-11-15T14:16:57Z",
-    "total_duration_seconds": 54.316352028,
+    "started_at": "2026-11-15T14:34:15Z",
+    "finished_at": "2026-11-15T14:35:05Z",
+    "total_duration_seconds": 50.343281163,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -50,7 +47,7 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.0709677,
+      "duration_seconds": 0.074919581,
       "optional": false,
       "passed": true,
       "log_digest": "29d01285336226d25089fd4ec1cfbaa6e3a13608605ea8479b7774c7767d7a94"
@@ -59,7 +56,7 @@
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.284828385,
+      "duration_seconds": 0.265178651,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -68,43 +65,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.88090373,
+      "duration_seconds": 0.101409141,
       "optional": false,
       "passed": true,
-      "log_digest": "cae11bd785d82820edec21537165dff7d3750093d2342180ec4001c3c9e62429"
+      "log_digest": "8c233a54790c4800d3dd585436af679aa838da259bfdb129412e2d51cdb75cdc"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 52.023267434,
+      "duration_seconds": 48.794767401,
       "optional": false,
       "passed": true,
-      "log_digest": "243b18202479208d2855873f2b84b915e082fa266723da86634c42c94484ae15"
+      "log_digest": "3a04a55b4399e538e0b13be0da7ee9014311f1ef96c67d02510838793471d16c"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.831931455,
+      "duration_seconds": 0.857703592,
       "optional": false,
       "passed": true,
-      "log_digest": "666e9ac1bb4877991e3a7fea2499af58be5594116b6f8f62493b7a18f24af4d3"
+      "log_digest": "3aac29e73c1d0aac00381b6f9587a4a134564aed2d1224499f7c9e5c32316c61"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.070315205,
+      "duration_seconds": 0.081749983,
       "optional": false,
       "passed": true,
-      "log_digest": "8c23c12d00c089d7437ce08eca3503d26879213b796b3ceb71dc2c2663d57e15"
+      "log_digest": "9c54f5b410a96aebd2b0efcc264a86643104a534d6e04a4a4cd675bdb5917f34"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.011767741,
+      "duration_seconds": 0.017127643,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -1907,10 +1904,53 @@
         "commit_oid": "1373b73cbf06c42f8a50dfc3e81da0573ccb9c21",
         "timestamp": "2026-11-15T14:31:48Z",
         "digest": "8de812cdc7f46da121b30739c6ba191c84a84a00dfa737a6866ba9eee3fe8128"
+      },
+      {
+        "session_nonce": "sess-fb279729",
+        "role": "TDD Craftsman",
+        "phase": "GREEN",
+        "commit_oid": "fb279729cb61a4bc228259448e7768f5684544a2",
+        "timestamp": "2026-11-15T14:32:23Z",
+        "digest": "627c990e8a602c65737820a38a2e3989d43976711d7c382cbb46da5721ec96c4"
       }
     ]
   },
   "test_provenance": [
+    {
+      "test_identifier": "test_ac1_feature_scoped_mermaid_includes_neighbors_and_excludes_unrelated_features",
+      "failure_output": "Verified in RED checkpoint commit 1373b73",
+      "failure_digest": "f65110f9386ed29e1e9798a0a31462da8faa3717710abbc1cd848f9036afbc6f",
+      "verified_at": "2026-11-15T15:31:48+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac2_verify_save_syncs_architecture_md_and_feature_diagrams_without_tamper",
+      "failure_output": "Verified in RED checkpoint commit 1373b73",
+      "failure_digest": "f65110f9386ed29e1e9798a0a31462da8faa3717710abbc1cd848f9036afbc6f",
+      "verified_at": "2026-11-15T15:31:48+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac3_pele_viewer_html_contains_pan_zoom_theme_tokens_and_offline_fallback",
+      "failure_output": "Verified in RED checkpoint commit 1373b73",
+      "failure_digest": "f65110f9386ed29e1e9798a0a31462da8faa3717710abbc1cd848f9036afbc6f",
+      "verified_at": "2026-11-15T15:31:48+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_ac4_cockpit_hud_links_include_scoped_feature_diagram_or_architecture_md",
+      "failure_output": "Verified in RED checkpoint commit 1373b73",
+      "failure_digest": "f65110f9386ed29e1e9798a0a31462da8faa3717710abbc1cd848f9036afbc6f",
+      "verified_at": "2026-11-15T15:31:48+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_task096_pele_playground_url_matches_empirical_share_links",
+      "failure_output": "Verified in RED checkpoint commit 1373b73",
+      "failure_digest": "f65110f9386ed29e1e9798a0a31462da8faa3717710abbc1cd848f9036afbc6f",
+      "verified_at": "2026-11-15T15:31:48+01:00",
+      "status": "red_checkpoint_verified"
+    },
     {
       "test_identifier": "test_cli_topology_export_with_feature_filter",
       "failure_output": "Verified in RED checkpoint commit 8b8f273",
@@ -1920,34 +1960,6 @@
     },
     {
       "test_identifier": "test_cli_topology_open_no_browser_writes_pele_viewer_html",
-      "failure_output": "Verified in RED checkpoint commit 8b8f273",
-      "failure_digest": "41cc2fbca888a0fad7045315aabd3edcc4d854f6d23430c36b74b1ddda648abd",
-      "verified_at": "2026-11-15T14:59:37+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ac1_feature_scoped_mermaid_includes_neighbors_and_excludes_unrelated_features",
-      "failure_output": "Verified in RED checkpoint commit 8b8f273",
-      "failure_digest": "41cc2fbca888a0fad7045315aabd3edcc4d854f6d23430c36b74b1ddda648abd",
-      "verified_at": "2026-11-15T14:59:37+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ac2_verify_save_syncs_architecture_md_and_feature_diagrams_without_tamper",
-      "failure_output": "Verified in RED checkpoint commit 8b8f273",
-      "failure_digest": "41cc2fbca888a0fad7045315aabd3edcc4d854f6d23430c36b74b1ddda648abd",
-      "verified_at": "2026-11-15T14:59:37+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ac3_pele_viewer_html_contains_pan_zoom_theme_tokens_and_offline_fallback",
-      "failure_output": "Verified in RED checkpoint commit 8b8f273",
-      "failure_digest": "41cc2fbca888a0fad7045315aabd3edcc4d854f6d23430c36b74b1ddda648abd",
-      "verified_at": "2026-11-15T14:59:37+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_ac4_cockpit_hud_links_include_scoped_feature_diagram_or_architecture_md",
       "failure_output": "Verified in RED checkpoint commit 8b8f273",
       "failure_digest": "41cc2fbca888a0fad7045315aabd3edcc4d854f6d23430c36b74b1ddda648abd",
       "verified_at": "2026-11-15T14:59:37+01:00",
@@ -3765,13 +3777,6 @@
       "failure_digest": "7a5b48276a775c44feab4f4677b37e8b13ea274205695d88d32c429ca4f43427",
       "verified_at": "2026-11-15T12:01:16Z",
       "status": "inverse_preflight_verified"
-    },
-    {
-      "test_identifier": "test_task096_pele_playground_url_matches_empirical_share_links",
-      "failure_output": "Verified in RED checkpoint commit 1373b73",
-      "failure_digest": "f65110f9386ed29e1e9798a0a31462da8faa3717710abbc1cd848f9036afbc6f",
-      "verified_at": "2026-11-15T15:31:48+01:00",
-      "status": "red_checkpoint_verified"
     }
   ]
 }
