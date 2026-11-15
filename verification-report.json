@@ -6,7 +6,7 @@
   "task_contract": {
     "task_id": "097-prepare-v0-16-0-release",
     "task_title": "Task 097: Prepare Release v0.16.0 (Manifest Sync, Changelog, Archive & Local Tag)",
-    "task_digest": "d4c016a54bc329bb664117a0d810b6ee46818db0aadbe8da58c95947ba7b9293",
+    "task_digest": "0a0265205b135d74bfac951746518d7ce54c1ec7c65235baf255622fffcc0973",
     "acceptance_criteria": [
       "**AC1 — Manifest-paritetstest opdateret til `0.16.0` (`RED`)**: `test_workspace_manifests_synchronized_to_version_0_16_0` i `release_manifest_parity_test.rs` verificerer `0.16.0` på tværs af alle deklarerede manifests (bevist rød før version bump).",
       "**AC2 — Manifest-, WASM- & Changelog-synkronisering til `0.16.0`**: `Cargo.toml`, `Cargo.lock`, `package.json`, `packages/cli/package.json`, `.agents/plugins/xgauntlet/{plugin,policy}.json`, `crates/xgauntlet-core/wasm/gauntlet_policy.wasm` og `CHANGELOG.md` (`[0.16.0] - 2026-11-15` med Tasks `093`–`096`) er fuldt synkroniserede.",
@@ -17,30 +17,30 @@
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "2693034e469a874e7b988d0de51be733e27251095f1bdcec3d6a535e7c1e4ffc",
-    "source_manifest_digest_pre": "01a4160d23716e73757bce1bdaed01cd67fc9a562e02b0fd4b55b8890e11a7ad",
-    "source_manifest_digest_post": "01a4160d23716e73757bce1bdaed01cd67fc9a562e02b0fd4b55b8890e11a7ad",
+    "source_content_digest": "7600d78b12285050d5e077e1ffd2f751ca69e473c0641661f4507565be90cc70",
+    "source_manifest_digest_pre": "1cb8d5aa89e266725d4bfe71973cec5ca35bbd315383ddb36d3dedf9dd9ac910",
+    "source_manifest_digest_post": "1cb8d5aa89e266725d4bfe71973cec5ca35bbd315383ddb36d3dedf9dd9ac910",
     "config_digest": "e5aad495b0ed71b7e6af13d7b4e0cc049a88d506df0c301e233549f7bb3e1acb",
-    "task_digest": "d4c016a54bc329bb664117a0d810b6ee46818db0aadbe8da58c95947ba7b9293",
+    "task_digest": "0a0265205b135d74bfac951746518d7ce54c1ec7c65235baf255622fffcc0973",
     "policy_digest": "ee5dd372caf0dcddb566e02533a23316b876681da866bf3d4a20f32af57012ef",
     "check_definitions_digest": "7b85613e7b7c24f03e0db6873ce7a93328152d05b26a6eea242f15f10f6063af",
     "included_files_count": 327,
     "vcs": {
       "type": "git",
-      "head": "0de5dbb",
-      "commit": "0de5dbb",
+      "head": "71e8b2d",
+      "commit": "71e8b2d",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-15T14:52:07Z",
-    "finished_at": "2026-11-15T14:53:08Z",
-    "total_duration_seconds": 61.04508788,
+    "started_at": "2026-11-15T14:54:07Z",
+    "finished_at": "2026-11-15T14:55:00Z",
+    "total_duration_seconds": 52.238750844,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
       "platform": "linux",
-      "version": "0.15.1"
+      "version": "0.16.0"
     }
   },
   "checks": [
@@ -48,16 +48,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.191815814,
+      "duration_seconds": 0.084767085,
       "optional": false,
       "passed": true,
-      "log_digest": "bb6687f32d8285e230fc91ce7ee5db7f8f9d88d83a69e83ba303e6ad33f83109"
+      "log_digest": "29d01285336226d25089fd4ec1cfbaa6e3a13608605ea8479b7774c7767d7a94"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.302868818,
+      "duration_seconds": 0.272340739,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -66,43 +66,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.252824102,
+      "duration_seconds": 0.090430833,
       "optional": false,
       "passed": true,
-      "log_digest": "b9a371c8eb00a5adb68864aaeb2be535805715b9046df5279dceaccdac445207"
+      "log_digest": "99f71393b9903dca098310bb446022a4bdee195ea9996f351a787195555210a6"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 54.457060065,
+      "duration_seconds": 48.212395203,
       "optional": false,
       "passed": true,
-      "log_digest": "9052b1666f0fd08620d163a2453e3f35ace8ffe067e8b7b2b21b4e026eeae74d"
+      "log_digest": "a70a9490aacc9066d5272b42a8676b58452526284de1744c0d392de42285fbfc"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 3.530762855,
+      "duration_seconds": 3.374319663,
       "optional": false,
       "passed": true,
-      "log_digest": "918650ec1d0544b6fafeb6581205c9c76da71ddaf7e6ba1cb4c55b52d9bfcbd8"
+      "log_digest": "f8bafa51c7308562a4e5ab03390fe0642284618fabcf1f6e7e3ac102376b989a"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.100192073,
+      "duration_seconds": 0.054801402,
       "optional": false,
       "passed": true,
-      "log_digest": "903b65d90bb54b6de307e932e6baef7ab51a0095765042e9c613920cacb64c6a"
+      "log_digest": "9c54f5b410a96aebd2b0efcc264a86643104a534d6e04a4a4cd675bdb5917f34"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.013310564,
+      "duration_seconds": 0.010358315,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -1937,6 +1937,14 @@
         "commit_oid": "0de5dbbf7b28c3403ac7a3acc3e5dd1f41f71062",
         "timestamp": "2026-11-15T14:48:52Z",
         "digest": "233a9999f00b9a119b9305f35f459cf1c3bfccce2427278306e9d317416eeec2"
+      },
+      {
+        "session_nonce": "sess-71e8b2da",
+        "role": "TDD Craftsman",
+        "phase": "GREEN",
+        "commit_oid": "71e8b2daf450f13dc70449093120706d47e33bb4",
+        "timestamp": "2026-11-15T14:53:42Z",
+        "digest": "8bc3b785d4c8e1bd016b026a2967c8109ae15a3a79b874e5dd40e8e1b2c2e23a"
       }
     ]
   },

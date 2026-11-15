@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 097: Prepare Release v0.16.0 (Manifest Sync, Changelog, Archive & Local Tag)"
 description: "Klargør minor release v0.16.0 (SemVer for additive features i Tasks 093–096) med manifester, CHANGELOG.md, WASM-policy, arkivering af afsluttede tasks, streng release-gatekeeper og lokalt annoteret Git tag v0.16.0 klar til brugerens git push."
-status: active
+status: done
 intent: enhancement
 feature: release
 spec_ref: "specs/release.md"
@@ -34,7 +34,7 @@ test_refs:
 
 # Task 097: Prepare Release v0.16.0 (Manifest Sync, Changelog, Archive & Local Tag)
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-15`
 

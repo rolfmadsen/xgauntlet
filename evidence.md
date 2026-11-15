@@ -4,10 +4,10 @@
 **Task Title**: Task 097: Prepare Release v0.16.0 (Manifest Sync, Changelog, Archive & Local Tag)  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `01a4160d23716e73757bce1bdaed01cd67fc9a562e02b0fd4b55b8890e11a7ad`  
-**Timestamp**: `2026-11-15T14:53:08Z`  
-**Head**: `0de5dbb`  
-**Commit**: `0de5dbb`  
+**Source Manifest Digest**: `1cb8d5aa89e266725d4bfe71973cec5ca35bbd315383ddb36d3dedf9dd9ac910`  
+**Timestamp**: `2026-11-15T14:55:00Z`  
+**Head**: `71e8b2d`  
+**Commit**: `71e8b2d`  
 
 ## Acceptance Criteria
 
@@ -22,13 +22,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `1.192s` |
-| `format` | `PASSED` | `0` | `0.303s` |
-| `lint` | `PASSED` | `0` | `1.253s` |
-| `unit` | `PASSED` | `0` | `54.457s` |
-| `npm` | `PASSED` | `0` | `3.531s` |
-| `invariants` | `PASSED` | `0` | `0.100s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.013s` |
+| `architecture` | `PASSED` | `0` | `0.085s` |
+| `format` | `PASSED` | `0` | `0.272s` |
+| `lint` | `PASSED` | `0` | `0.090s` |
+| `unit` | `PASSED` | `0` | `48.212s` |
+| `npm` | `PASSED` | `0` | `3.374s` |
+| `invariants` | `PASSED` | `0` | `0.055s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.010s` |
 
 ---
 
@@ -263,6 +263,7 @@
 | `sess-59922502` | `Software Engineer` | `DONE` | `5992250` | `2026-11-15T14:35:05Z` | `VALID` |
 | `sess-b0019aa3` | `System Architect` | `SPEC` | `b0019aa` | `2026-11-15T14:48:24Z` | `VALID` |
 | `sess-0de5dbbf` | `TDD Craftsman` | `RED` | `0de5dbb` | `2026-11-15T14:48:52Z` | `VALID` |
+| `sess-71e8b2da` | `TDD Craftsman` | `GREEN` | `71e8b2d` | `2026-11-15T14:53:42Z` | `VALID` |
 
 ---
 
