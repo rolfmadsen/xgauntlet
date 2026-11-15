@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 099: Prepare Patch Release v0.16.1 (Windows Worktree Fix)"
 description: "Klargør patch release v0.16.1 efter Task 098 Windows worktree verbatim-path fix med manifester, CHANGELOG.md, arkivering af Tasks 097–098, WASM-policy og streng release-gatekeeper."
-status: active
+status: done
 intent: enhancement
 feature: release
 spec_ref: "specs/release.md"
@@ -33,7 +33,7 @@ test_refs:
 
 # Task 099: Prepare Patch Release v0.16.1 (Windows Worktree Fix)
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-15`
 
