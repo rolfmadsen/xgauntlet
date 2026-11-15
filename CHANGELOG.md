@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.1] - 2026-11-15
+
+### 🐛 Fixed
+- **Windows `git worktree add` Verbatim Path Failure (`Task 098`, `crates/xgauntlet-core/src/features/tasks/worktree.rs`, `crates/xgauntlet-cli/tests/worktree_cli_test.rs`)**:
+  - Added `strip_windows_verbatim_prefix` and `normalize_git_path` to strip `\\?\` and `\\?\UNC\` extended-length prefixes returned by `std::fs::canonicalize()` before passing `primary_root` / `worktree_path` to `git worktree add` and `git worktree remove`, fixing Windows CI failure (`//?/C:/.../.git: Invalid argument`).
+
 ## [0.16.0] - 2026-11-15
 
 ### 🚀 Added & Enhanced

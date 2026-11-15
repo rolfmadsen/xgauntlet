@@ -41,10 +41,10 @@ test_refs:
 Klargøre patch release **xGauntlet v0.16.1** med Windows `worktree create` verbatim-path rettelsen fra Task 098, så `git push origin main v0.16.1` udløser grøn Windows/Linux/macOS CI + GitHub Release + npmjs.
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 — Manifest-paritetstest opdateret til `0.16.1` (`RED`)**: `test_workspace_manifests_synchronized_to_version_0_16_1` i `release_manifest_parity_test.rs` validerer `0.16.1` (bevist rød før version bump).
-- [ ] **AC2 — Manifest-, WASM- & Changelog-synkronisering til `0.16.1`**: Alle manifests, `gauntlet_policy.wasm` og `CHANGELOG.md` (`[0.16.1] - 2026-11-15` med Task `098`) er synkroniserede.
-- [ ] **AC3 — Release Gatekeeper & Gauntlet Grøn**: `cargo test --workspace`, `cargo run -p xgauntlet-cli -- check-release` og `checkpoint --phase done` passerer uden fejl.
-- [ ] **AC4 — Klar til `git tag v0.16.1` & `git push`**: Clean working tree og forseglet evidens klar til brugerens `git tag` + `git push origin main v0.16.1`.
+- [x] **AC1 — Manifest-paritetstest opdateret til `0.16.1` (`RED`)**: `test_workspace_manifests_synchronized_to_version_0_16_1` i `release_manifest_parity_test.rs` validerer `0.16.1` (bevist rød før version bump).
+- [x] **AC2 — Manifest-, WASM- & Changelog-synkronisering til `0.16.1`**: Alle manifests, `gauntlet_policy.wasm` og `CHANGELOG.md` (`[0.16.1] - 2026-11-15` med Task `098`) er synkroniserede.
+- [x] **AC3 — Release Gatekeeper & Gauntlet Grøn**: `cargo test --workspace`, `cargo run -p xgauntlet-cli -- check-release` og `checkpoint --phase done` passerer uden fejl.
+- [x] **AC4 — Klar til `git tag v0.16.1` & `git push`**: Clean working tree og forseglet evidens klar til brugerens `git tag` + `git push origin main v0.16.1`.
 
 ## 🚫 Must NOT
 - Foretag IKKE `git push`, `npm publish` eller destruktive git resets (ADR 0003).

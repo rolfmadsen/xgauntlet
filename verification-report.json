@@ -4,37 +4,38 @@
   "execution_origin": "LOCAL",
   "verdict": "PARTIAL",
   "task_contract": {
-    "task_id": "098-fix-windows-worktree-verbatim-path",
-    "task_title": "Task 098: Fix Windows Verbatim Path (`\\\\?\\`) in `git worktree add`",
-    "task_digest": "6884bc7912595732baee010dc7b238c019ab78b3846e45b0725f9ff795e8f1d4",
+    "task_id": "099-prepare-v0-16-1-release",
+    "task_title": "Task 099: Prepare Patch Release v0.16.1 (Windows Worktree Fix)",
+    "task_digest": "7310d22889a5c9a370fa9c860bf81b9cd8f3cb9a8e773af704a75ea916d3f58b",
     "acceptance_criteria": [
-      "**AC1 (RED-test for Windows Verbatim Path Normalization)**: `crates/xgauntlet-cli/tests/worktree_cli_test.rs` verificerer via `strip_windows_verbatim_prefix`, at både drive-paths (`\\\\?\\C:\\...` → `C:\\...`), UNC-paths (`\\\\?\\UNC\\server\\share\\...` → `\\\\server\\share\\...`) og POSIX-stier (`/tmp/...` → `/tmp/...`) normaliseres uden at `git worktree`-argumenter indeholder `\\\\?\\`.",
-      "**AC2 (Fix i `worktree.rs`)**: `create_task_worktree` og `cleanup_failed_worktree` normaliserer `primary_root` og `worktree_path` via `strip_windows_verbatim_prefix` før `git worktree add` / `remove` og i returværdien `WorktreeCreateResult`.",
-      "**AC3 (Verification)**: `cargo test -p xgauntlet-cli --test worktree_cli_test` og `cargo run -p xgauntlet-cli -- verify --task 098 --save` passerer alle obligatoriske lag."
+      "**AC1 — Manifest-paritetstest opdateret til `0.16.1` (`RED`)**: `test_workspace_manifests_synchronized_to_version_0_16_1` i `release_manifest_parity_test.rs` validerer `0.16.1` (bevist rød før version bump).",
+      "**AC2 — Manifest-, WASM- & Changelog-synkronisering til `0.16.1`**: Alle manifests, `gauntlet_policy.wasm` og `CHANGELOG.md` (`[0.16.1] - 2026-11-15` med Task `098`) er synkroniserede.",
+      "**AC3 — Release Gatekeeper & Gauntlet Grøn**: `cargo test --workspace`, `cargo run -p xgauntlet-cli -- check-release` og `checkpoint --phase done` passerer uden fejl.",
+      "**AC4 — Klar til `git tag v0.16.1` & `git push`**: Clean working tree og forseglet evidens klar til brugerens `git tag` + `git push origin main v0.16.1`."
     ],
     "unresolved_criteria": []
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "04d6b5005652bde53a9247422e2ec8835ec70c3af643dbee442c6dff72c3ebc3",
-    "source_manifest_digest_pre": "8d70e51ac766cd1a8a0ede2bf8ad50a794f50913b41738eaf456a0178614de66",
-    "source_manifest_digest_post": "8d70e51ac766cd1a8a0ede2bf8ad50a794f50913b41738eaf456a0178614de66",
-    "config_digest": "e5aad495b0ed71b7e6af13d7b4e0cc049a88d506df0c301e233549f7bb3e1acb",
-    "task_digest": "6884bc7912595732baee010dc7b238c019ab78b3846e45b0725f9ff795e8f1d4",
+    "source_content_digest": "7319bd2f9ed6db0d25e553d04ba4da930fd6fbfdb0666ba5aa02e79aa42878f7",
+    "source_manifest_digest_pre": "223c8f8387f5945908814e5fbd67b1b5665159b506a0258a565d7f4e62e4ba9d",
+    "source_manifest_digest_post": "223c8f8387f5945908814e5fbd67b1b5665159b506a0258a565d7f4e62e4ba9d",
+    "config_digest": "fc2ed6d06c14975b1beba3ce2444234e886f2607cbb3eb4ee5fa513dce1403d0",
+    "task_digest": "7310d22889a5c9a370fa9c860bf81b9cd8f3cb9a8e773af704a75ea916d3f58b",
     "policy_digest": "ee5dd372caf0dcddb566e02533a23316b876681da866bf3d4a20f32af57012ef",
     "check_definitions_digest": "7b85613e7b7c24f03e0db6873ce7a93328152d05b26a6eea242f15f10f6063af",
-    "included_files_count": 328,
+    "included_files_count": 329,
     "vcs": {
       "type": "git",
-      "head": "6a721c4",
-      "commit": "6a721c4",
+      "head": "9cc144e",
+      "commit": "9cc144e",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-15T15:06:40Z",
-    "finished_at": "2026-11-15T15:07:42Z",
-    "total_duration_seconds": 61.806913426,
+    "started_at": "2026-11-15T15:08:53Z",
+    "finished_at": "2026-11-15T15:10:02Z",
+    "total_duration_seconds": 68.751393097,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -47,16 +48,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.0772035,
+      "duration_seconds": 4.8533329290000005,
       "optional": false,
       "passed": true,
-      "log_digest": "29d01285336226d25089fd4ec1cfbaa6e3a13608605ea8479b7774c7767d7a94"
+      "log_digest": "a03d79a1dfb535f2c4e314ec0c6d57d64ded7e599a726bccdf0fb1e949c3c70b"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.271547679,
+      "duration_seconds": 0.331654427,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -65,43 +66,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.936621212,
+      "duration_seconds": 2.818532854,
       "optional": false,
       "passed": true,
-      "log_digest": "bf47bfa16748d99d2fcb7c5b66bcefabe41e11ce96fa57c5d87a153eeeb78233"
+      "log_digest": "a81dff283f4b86d146c8925082c5a8b5711d021f8621e98d7454dfbffc19c753"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 56.918827486,
+      "duration_seconds": 56.760734758,
       "optional": false,
       "passed": true,
-      "log_digest": "f67e02afda7f3f4ee55e0c81874494c61d123f08ecfe6233ddbba380792c2999"
+      "log_digest": "f45057523f2fcb1870a674ec0fc5e0d72162e55547566112c5e9750738d829f0"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 3.388486845,
+      "duration_seconds": 3.614985903,
       "optional": false,
       "passed": true,
-      "log_digest": "060308d37e3635da4308795af29ddc16ba401fe31dab56d48367a3b521ec7511"
+      "log_digest": "ff82b98a97e249af8d8cf174f8b8daafa8905850c97fc88ed0c754db31221de5"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.059716589,
+      "duration_seconds": 0.165024891,
       "optional": false,
       "passed": true,
-      "log_digest": "9c54f5b410a96aebd2b0efcc264a86643104a534d6e04a4a4cd675bdb5917f34"
+      "log_digest": "c312ad316a7967c409c20b3f5df2cfe96ffe24f99a04133f99d4b69a3bff6ea2"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.009649416,
+      "duration_seconds": 0.013422651,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -1992,10 +1993,46 @@
         "commit_oid": "74c671e6d92cb354c91f35d4fb7ed4b70643d01c",
         "timestamp": "2026-11-15T15:08:10Z",
         "digest": "cfe5e10d644881ae572d720f18faf4ea0c181b8de96c8dba1e5a8f3707d8d62b"
+      },
+      {
+        "session_nonce": "sess-9cc144e4",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "9cc144e45b2c504ab5c2b05e8f85d46cc5f578d3",
+        "timestamp": "2026-11-15T15:08:34Z",
+        "digest": "1a403faa839e1b64bb28a2fea7bfba06290e96447bf7ae765119052b3cf00ff7"
       }
     ]
   },
   "test_provenance": [
+    {
+      "test_identifier": "test_extract_declared_versions_includes_plugin_and_policy",
+      "failure_output": "Verified in RED checkpoint commit 9cc144e",
+      "failure_digest": "5622c8ceda5ccd95dfb45fa06c4c73300a3dad7f6a22139e2115c35b28e1d388",
+      "verified_at": "2026-11-15T16:08:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_update_manifest_versions_bumps_plugin_and_policy",
+      "failure_output": "Verified in RED checkpoint commit 9cc144e",
+      "failure_digest": "5622c8ceda5ccd95dfb45fa06c4c73300a3dad7f6a22139e2115c35b28e1d388",
+      "verified_at": "2026-11-15T16:08:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_workspace_manifests_synchronized_to_version_0_16_1",
+      "failure_output": "Verified in RED checkpoint commit 9cc144e",
+      "failure_digest": "5622c8ceda5ccd95dfb45fa06c4c73300a3dad7f6a22139e2115c35b28e1d388",
+      "verified_at": "2026-11-15T16:08:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_npm_cli_readme_identical_to_root_readme",
+      "failure_output": "Verified in RED checkpoint commit 9cc144e",
+      "failure_digest": "5622c8ceda5ccd95dfb45fa06c4c73300a3dad7f6a22139e2115c35b28e1d388",
+      "verified_at": "2026-11-15T16:08:34+01:00",
+      "status": "red_checkpoint_verified"
+    },
     {
       "test_identifier": "test_ac5_cli_worktree_create_creates_in_repo_worktree_and_binds_task",
       "failure_output": "Verified in RED checkpoint commit b34f8fd",
@@ -2018,28 +2055,7 @@
       "status": "red_checkpoint_verified"
     },
     {
-      "test_identifier": "test_extract_declared_versions_includes_plugin_and_policy",
-      "failure_output": "Verified in RED checkpoint commit 0de5dbb",
-      "failure_digest": "02061e3abe6c3d1b86519c3b9081e40577251d120de9f29c2880f509911dce29",
-      "verified_at": "2026-11-15T15:48:52+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_update_manifest_versions_bumps_plugin_and_policy",
-      "failure_output": "Verified in RED checkpoint commit 0de5dbb",
-      "failure_digest": "02061e3abe6c3d1b86519c3b9081e40577251d120de9f29c2880f509911dce29",
-      "verified_at": "2026-11-15T15:48:52+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
       "test_identifier": "test_workspace_manifests_synchronized_to_version_0_16_0",
-      "failure_output": "Verified in RED checkpoint commit 0de5dbb",
-      "failure_digest": "02061e3abe6c3d1b86519c3b9081e40577251d120de9f29c2880f509911dce29",
-      "verified_at": "2026-11-15T15:48:52+01:00",
-      "status": "red_checkpoint_verified"
-    },
-    {
-      "test_identifier": "test_npm_cli_readme_identical_to_root_readme",
       "failure_output": "Verified in RED checkpoint commit 0de5dbb",
       "failure_digest": "02061e3abe6c3d1b86519c3b9081e40577251d120de9f29c2880f509911dce29",
       "verified_at": "2026-11-15T15:48:52+01:00",
@@ -3872,6 +3888,5 @@
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
     }
-  ],
-  "proof_mode": "fast_track_red_to_done"
+  ]
 }
