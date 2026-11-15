@@ -22,6 +22,9 @@ scope:
   - "crates/xgauntlet-core/tests/release_manifest_parity_test.rs"
   - "specs/**"
   - "README.md"
+  - "architecture.mermaid"
+  - "architecture.md"
+  - "docs/architecture/**"
   - "verification-report.json"
   - "evidence.md"
 test_refs:
@@ -43,10 +46,10 @@ Klargøre minor release **xGauntlet v0.16.0** (SemVer for de additive features o
 3. Validere hele workspaces test- og lint-suite samt `xgauntlet check-release`, forsegle Task 097 (`DONE`), og oprette lokalt annoteret tag `v0.16.0` med clean working tree (strengt lokalt iht. ADR 0003).
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 — Manifest-paritetstest opdateret til `0.16.0` (`RED`)**: `test_workspace_manifests_synchronized_to_version_0_16_0` i `release_manifest_parity_test.rs` verificerer `0.16.0` på tværs af alle deklarerede manifests (bevist rød før version bump).
-- [ ] **AC2 — Manifest-, WASM- & Changelog-synkronisering til `0.16.0`**: `Cargo.toml`, `Cargo.lock`, `package.json`, `packages/cli/package.json`, `.agents/plugins/xgauntlet/{plugin,policy}.json`, `crates/xgauntlet-core/wasm/gauntlet_policy.wasm` og `CHANGELOG.md` (`[0.16.0] - 2026-11-15` med Tasks `093`–`096`) er fuldt synkroniserede.
-- [ ] **AC3 — Strict Release Gatekeeper & Gauntlet Grøn**: `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo run -p xgauntlet-cli -- verify --task 097 --save` og `cargo run -p xgauntlet-cli -- check-release` passerer uden fejl.
-- [ ] **AC4 — Lokalt Release-Commit & Annoteret Tag `v0.16.0`**: Lokalt release-commit på `main` og annoteret tag `v0.16.0` oprettet med 100% clean working tree (ingen remote `git push` eller `npm publish` udført).
+- [x] **AC1 — Manifest-paritetstest opdateret til `0.16.0` (`RED`)**: `test_workspace_manifests_synchronized_to_version_0_16_0` i `release_manifest_parity_test.rs` verificerer `0.16.0` på tværs af alle deklarerede manifests (bevist rød før version bump).
+- [x] **AC2 — Manifest-, WASM- & Changelog-synkronisering til `0.16.0`**: `Cargo.toml`, `Cargo.lock`, `package.json`, `packages/cli/package.json`, `.agents/plugins/xgauntlet/{plugin,policy}.json`, `crates/xgauntlet-core/wasm/gauntlet_policy.wasm` og `CHANGELOG.md` (`[0.16.0] - 2026-11-15` med Tasks `093`–`096`) er fuldt synkroniserede.
+- [x] **AC3 — Strict Release Gatekeeper & Gauntlet Grøn**: `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo run -p xgauntlet-cli -- verify --task 097 --save` og `cargo run -p xgauntlet-cli -- check-release` passerer uden fejl.
+- [x] **AC4 — Lokalt Release-Commit & Annoteret Tag `v0.16.0`**: Lokalt release-commit på `main` og annoteret tag `v0.16.0` oprettet med 100% clean working tree (ingen remote `git push` eller `npm publish` udført).
 
 ## 🚫 Must NOT
 - Foretag IKKE `git push`, `npm publish` eller andre remote publication-handlinger (ADR 0003).

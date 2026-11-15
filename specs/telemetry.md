@@ -27,6 +27,6 @@ The `telemetry` feature delivers zero-daemon, deterministic Just-In-Time (JIT) p
 - [Task 044: Session Health, Turn & Token Telemetry](../tasks/archive/044-session-health-turn-and-token-telemetry.md)
 - [Task 085: HUD Start/End Protocol & Active Session Telemetry Wiring](../tasks/archive/085-hud-start-end-protocol-and-session-telemetry-wiring.md)
 - [Task 088: Worktree-Isolated Multi-Agent & Subagent Supervision](../tasks/archive/088-worktree-isolated-multi-agent-supervision.md)
-- [Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene](../tasks/093-multi-agent-worktree-and-runtime-hygiene.md)
-- [Task 094: Cockpit HUD Truthfulness, Session Resolution & Antigravity Start-HUD Cadence](../tasks/094-cockpit-hud-truthfulness-and-cadence.md)
+- [Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene](../tasks/archive/093-multi-agent-worktree-and-runtime-hygiene.md)
+- [Task 094: Cockpit HUD Truthfulness, Session Resolution & Antigravity Start-HUD Cadence](../tasks/archive/094-cockpit-hud-truthfulness-and-cadence.md)
 

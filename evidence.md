@@ -1,19 +1,20 @@
 # Verification Report
 
-**Task ID**: `096-pele-playground-links-and-cdn-v1`  
-**Task Title**: Task 096: Pele Playground 1-Klik Links & Official Pele v1 CDN Import  
+**Task ID**: `097-prepare-v0-16-0-release`  
+**Task Title**: Task 097: Prepare Release v0.16.0 (Manifest Sync, Changelog, Archive & Local Tag)  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `6df48c9b1d1cf6f340236b0a5518d0eb70af1bdd07a653de1bf6706b2926f21b`  
-**Timestamp**: `2026-11-15T14:35:05Z`  
-**Head**: `fb27972`  
-**Commit**: `fb27972`  
+**Source Manifest Digest**: `01a4160d23716e73757bce1bdaed01cd67fc9a562e02b0fd4b55b8890e11a7ad`  
+**Timestamp**: `2026-11-15T14:53:08Z`  
+**Head**: `0de5dbb`  
+**Commit**: `0de5dbb`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (Deterministisk `pele.run/playground#source=...` Encoder i Zero-Dependency Rust)**:
-- [x] **AC2 (Pele Playground Links i `architecture.md` & `docs/architecture/<feature>.md`)**:
-- [x] **AC3 (Officiel Pele `@1/dist/pele.js` CDN-import i `viewer.rs`)**:
+- [x] **AC1 — Manifest-paritetstest opdateret til `0.16.0` (`RED`)**: `test_workspace_manifests_synchronized_to_version_0_16_0` i `release_manifest_parity_test.rs` verificerer `0.16.0` på tværs af alle deklarerede manifests (bevist rød før version bump).
+- [x] **AC2 — Manifest-, WASM- & Changelog-synkronisering til `0.16.0`**: `Cargo.toml`, `Cargo.lock`, `package.json`, `packages/cli/package.json`, `.agents/plugins/xgauntlet/{plugin,policy}.json`, `crates/xgauntlet-core/wasm/gauntlet_policy.wasm` og `CHANGELOG.md` (`[0.16.0] - 2026-11-15` med Tasks `093`–`096`) er fuldt synkroniserede.
+- [x] **AC3 — Strict Release Gatekeeper & Gauntlet Grøn**: `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo run -p xgauntlet-cli -- verify --task 097 --save` og `cargo run -p xgauntlet-cli -- check-release` passerer uden fejl.
+- [x] **AC4 — Lokalt Release-Commit & Annoteret Tag `v0.16.0`**: Lokalt release-commit på `main` og annoteret tag `v0.16.0` oprettet med 100% clean working tree (ingen remote `git push` eller `npm publish` udført).
 
 ---
 
@@ -21,13 +22,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.075s` |
-| `format` | `PASSED` | `0` | `0.265s` |
-| `lint` | `PASSED` | `0` | `0.101s` |
-| `unit` | `PASSED` | `0` | `48.795s` |
-| `npm` | `PASSED` | `0` | `0.858s` |
-| `invariants` | `PASSED` | `0` | `0.082s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.017s` |
+| `architecture` | `PASSED` | `0` | `1.192s` |
+| `format` | `PASSED` | `0` | `0.303s` |
+| `lint` | `PASSED` | `0` | `1.253s` |
+| `unit` | `PASSED` | `0` | `54.457s` |
+| `npm` | `PASSED` | `0` | `3.531s` |
+| `invariants` | `PASSED` | `0` | `0.100s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.013s` |
 
 ---
 
@@ -261,6 +262,7 @@
 | `sess-fb279729` | `TDD Craftsman` | `GREEN` | `fb27972` | `2026-11-15T14:32:23Z` | `VALID` |
 | `sess-59922502` | `Software Engineer` | `DONE` | `5992250` | `2026-11-15T14:35:05Z` | `VALID` |
 | `sess-b0019aa3` | `System Architect` | `SPEC` | `b0019aa` | `2026-11-15T14:48:24Z` | `VALID` |
+| `sess-0de5dbbf` | `TDD Craftsman` | `RED` | `0de5dbb` | `2026-11-15T14:48:52Z` | `VALID` |
 
 ---
 
@@ -268,6 +270,10 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `02061e3abe6c3d1b...` | `2026-11-15T15:48:52+01:00` |
+| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `02061e3abe6c3d1b...` | `2026-11-15T15:48:52+01:00` |
+| `test_workspace_manifests_synchronized_to_version_0_16_0` | `RedCheckpointVerified` | `02061e3abe6c3d1b...` | `2026-11-15T15:48:52+01:00` |
+| `test_npm_cli_readme_identical_to_root_readme` | `RedCheckpointVerified` | `02061e3abe6c3d1b...` | `2026-11-15T15:48:52+01:00` |
 | `test_ac1_feature_scoped_mermaid_includes_neighbors_and_excludes_unrelated_features` | `RedCheckpointVerified` | `f65110f9386ed29e...` | `2026-11-15T15:31:48+01:00` |
 | `test_ac2_verify_save_syncs_architecture_md_and_feature_diagrams_without_tamper` | `RedCheckpointVerified` | `f65110f9386ed29e...` | `2026-11-15T15:31:48+01:00` |
 | `test_ac3_pele_viewer_html_contains_pan_zoom_theme_tokens_and_offline_fallback` | `RedCheckpointVerified` | `f65110f9386ed29e...` | `2026-11-15T15:31:48+01:00` |
@@ -290,10 +296,7 @@
 | `test_ac4_workspace_branch_clone_resolved_safely` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
 | `test_ac4_allow_coordinated_inherit_opt_in_via_gauntlet_toml` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
 | `test_ac5_shared_cargo_target_dir_injected_in_linked_worktree` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
-| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `ba527e94e163d490...` | `2026-11-14T23:06:22+01:00` |
-| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `ba527e94e163d490...` | `2026-11-14T23:06:22+01:00` |
 | `test_workspace_manifests_synchronized_to_version_0_15_1` | `RedCheckpointVerified` | `ba527e94e163d490...` | `2026-11-14T23:06:22+01:00` |
-| `test_npm_cli_readme_identical_to_root_readme` | `RedCheckpointVerified` | `ba527e94e163d490...` | `2026-11-14T23:06:22+01:00` |
 | `test_cli_check_attestation_help` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
 | `test_cli_check_attestation_help_within_1mb_stack_limit` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |
 | `test_cli_check_attestation_fails_closed_on_missing_bundle` | `RedCheckpointVerified` | `297134ee5038f8b5...` | `2026-11-14T22:52:26+01:00` |

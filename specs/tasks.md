@@ -25,5 +25,5 @@ The `tasks` feature owns OKF v0.2 task parsing, specification readiness validati
 - [Task 079: Recursive Task Subdirectories & Auto-Archiving in tasks/](../tasks/archive/079-recursive-task-subdirectories-and-archiving.md)
 - [Task 087: Archive Terminal Task Statuses (Deprecated, Superseded, Rejected)](../tasks/archive/087-archive-terminal-task-statuses.md)
 - [Task 088: Worktree-Isolated Multi-Agent & Subagent Supervision](../tasks/archive/088-worktree-isolated-multi-agent-supervision.md)
-- [Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene](../tasks/093-multi-agent-worktree-and-runtime-hygiene.md)
+- [Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene](../tasks/archive/093-multi-agent-worktree-and-runtime-hygiene.md)
 

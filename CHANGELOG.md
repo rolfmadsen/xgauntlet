@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-11-15
+
+### 🚀 Added & Enhanced
+- **Multi-Agent Worktree Workflow, Coexistence & Runtime Hygiene (`Task 093`, `crates/xgauntlet-core`, `crates/xgauntlet-cli`)**:
+  - Excluded `.xgauntlet/` and `.worktrees/` from `verify` manifests and `checkpoint` staging to guarantee clean working trees after `checkpoint --phase done`, isolated per-session telemetry under `.xgauntlet/sessions/`, extended branch/worktree resolution, and added opt-in coordinated inherit coexistence, shared `CARGO_TARGET_DIR`, and `xgauntlet worktree create`.
+- **Cockpit HUD Truthfulness & Antigravity Smart Start-HUD (`Task 094`, `crates/xgauntlet-core`, `.agents/`)**:
+  - Fixed `session_id`-aware lookup in `inspect_task_telemetry`, grounded Cockpit HUD telemetry in empirical signals (`VerificationFreshness`, Scope Hygiene out-of-scope dirty counts, `commits_ahead`), and upgraded Antigravity `PreInvocation` to `systemMessage` + `metadata.user_markdown` with Smart Kadence and a compact Read-Only `Task: NONE` banner.
+- **1-Click Mermaid DX, Feature-Scoped Diagrams & Pele Integration (`Task 095`, `Task 096`, `crates/xgauntlet-core/src/features/topology/`, `docs/architecture/`)**:
+  - Added auto-synced `architecture.md` and feature-scoped `docs/architecture/<feature>.md` slices (`xgauntlet topology export --feature <name>`), Zero-Daemon static HTML viewer (`xgauntlet topology open`) powered by `obsidianmd/pele` (`https://cdn.jsdelivr.net/npm/pele@1/dist/pele.js`), `🗺️ [Arch]` Cockpit HUD links, and deterministic 1-click `https://pele.run/playground#source=...` links (`pele_playground_url`).
+
+### 🧹 Removed
+- **Obsolete Root Docs (`Task 095`)**:
+  - Removed legacy `README_OLD.md` and `ROADMAP.md` alongside obsolete governance test assertions.
+
 ## [0.15.1] - 2026-11-14
 
 ### 🐛 Fixed

@@ -26,4 +26,4 @@ The `topology` feature provides sub-5ms deterministic code topology analysis, AS
 - [Task 071: Domain AST Field & Relationship Extraction for Mermaid](../tasks/archive/071-domain-ast-mermaid-fields-and-relationships.md)
 - [Task 074: Domain Relationship Completeness and Trait Realization](../tasks/archive/074-domain-relationship-completeness-and-trait-realization.md)
 - [Task 075: Domain Orphan Resolution and AST Symbol Unification](../tasks/archive/075-domain-orphan-resolution-and-ast-symbol-unification.md)
-- [Task 095: 1-Klik Mermaid DX, Feature-Scoped Diagrammer, Pele Viewer & HUD Links](../tasks/095-mermaid-dx-markdown-scope-and-pele-viewer.md)
+- [Task 095: 1-Klik Mermaid DX, Feature-Scoped Diagrammer, Pele Viewer & HUD Links](../tasks/archive/095-mermaid-dx-markdown-scope-and-pele-viewer.md)
