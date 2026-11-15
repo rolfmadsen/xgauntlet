@@ -258,7 +258,7 @@ pub fn render_pele_viewer_html(
 
     try {{
       // Render synchronously via obsidianmd/pele (MIT, zero runtime deps)
-      const pele = await import('https://cdn.jsdelivr.net/npm/pele/+esm');
+      const pele = await import('https://cdn.jsdelivr.net/npm/pele@1/dist/pele.js');
       const t0 = performance.now();
       const result = pele.render(source);
       const dt = (performance.now() - t0).toFixed(2);

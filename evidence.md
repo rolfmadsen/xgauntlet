@@ -260,6 +260,7 @@
 | `sess-1abd353d` | `TDD Craftsman` | `REFACTOR` | `1abd353` | `2026-11-15T14:06:34Z` | `VALID` |
 | `sess-e7e8eada` | `Software Engineer` | `DONE` | `e7e8ead` | `2026-11-15T14:16:57Z` | `VALID` |
 | `sess-dfa4e0d2` | `System Architect` | `SPEC` | `dfa4e0d` | `2026-11-15T14:31:10Z` | `VALID` |
+| `sess-1373b73c` | `TDD Craftsman` | `RED` | `1373b73` | `2026-11-15T14:31:48Z` | `VALID` |
 
 ---
 
@@ -532,5 +533,6 @@
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
 | `test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task` | `InversePreflightVerified` | `7a5b48276a775c44...` | `2026-11-15T12:01:16Z` |
+| `test_task096_pele_playground_url_matches_empirical_share_links` | `RedCheckpointVerified` | `f65110f9386ed29e...` | `2026-11-15T15:31:48+01:00` |
 
 ---

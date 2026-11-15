@@ -14,7 +14,8 @@ pub mod traversal;
 pub mod viewer;
 
 pub use markdown::{
-    render_architecture_markdown, render_feature_architecture_markdown, sync_workspace_diagrams,
+    pele_playground_url, render_architecture_markdown, render_feature_architecture_markdown,
+    sync_workspace_diagrams,
 };
 pub use mermaid::{
     discover_topology_features, export_feature_mermaid_class_diagram, export_mermaid_class_diagram,
