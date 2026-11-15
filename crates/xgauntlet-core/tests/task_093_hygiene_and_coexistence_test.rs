@@ -4,7 +4,9 @@ use std::process::Command;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use xgauntlet_core::features::adapters::{get_adapter, AntigravityAdapter};
-use xgauntlet_core::features::checkpoint::{run_checkpoint, stage_workspace_changes, CheckpointOptions, CheckpointPhase};
+use xgauntlet_core::features::checkpoint::{
+    run_checkpoint, stage_workspace_changes, CheckpointOptions, CheckpointPhase,
+};
 use xgauntlet_core::features::config::GauntletConfig;
 use xgauntlet_core::features::evidence::{
     compute_workspace_manifest, load_verification_report, save_verification_report,
@@ -150,7 +152,11 @@ async fn test_ac2_checkpoint_done_leaves_clean_working_tree_when_evidence_tracke
 
     fs::create_dir_all(ws.join("src")).unwrap();
     fs::create_dir_all(ws.join("tests")).unwrap();
-    fs::write(ws.join("src/lib.rs"), "pub fn add(a: i32, b: i32) -> i32 { a }\n").unwrap();
+    fs::write(
+        ws.join("src/lib.rs"),
+        "pub fn add(a: i32, b: i32) -> i32 { a }\n",
+    )
+    .unwrap();
     fs::write(ws.join("tests/bug_test.rs"), "#[test] fn t() {}\n").unwrap();
     fs::write(ws.join("gauntlet.toml"), "stack = \"rust\"\n").unwrap();
     write_active_task(&ws, "093-clean", "src/lib.rs", "tests/bug_test.rs", "bug");
@@ -162,22 +168,38 @@ async fn test_ac2_checkpoint_done_leaves_clean_working_tree_when_evidence_tracke
     git_ok(&ws, &["commit", "-m", "init tracked evidence"]);
 
     // Simulate RED commit
-    fs::write(ws.join("tests/bug_test.rs"), "#[test] fn t() { assert_eq!(2, 1 + 1); }\n").unwrap();
+    fs::write(
+        ws.join("tests/bug_test.rs"),
+        "#[test] fn t() { assert_eq!(2, 1 + 1); }\n",
+    )
+    .unwrap();
     git_ok(&ws, &["add", "."]);
-    git_ok(&ws, &["commit", "-m", "test(093-clean): failing test [RED]"]);
+    git_ok(
+        &ws,
+        &["commit", "-m", "test(093-clean): failing test [RED]"],
+    );
 
     // Minimal fix for DONE
-    fs::write(ws.join("src/lib.rs"), "pub fn add(a: i32, b: i32) -> i32 { a + b }\n").unwrap();
+    fs::write(
+        ws.join("src/lib.rs"),
+        "pub fn add(a: i32, b: i32) -> i32 { a + b }\n",
+    )
+    .unwrap();
 
     let opts = CheckpointOptions::new(CheckpointPhase::Done, &ws)
         .with_task_id("093-clean")
         .with_skip_verify(true);
-    let res = run_checkpoint(&opts).await.expect("DONE checkpoint must succeed");
+    let res = run_checkpoint(&opts)
+        .await
+        .expect("DONE checkpoint must succeed");
 
     let report = load_verification_report(&ws).expect("verification-report.json must exist");
     let lineage = report.lineage.expect("lineage must be recorded");
     assert!(
-        lineage.entries.iter().any(|e| Some(&e.commit_oid) == res.commit_oid.as_ref()),
+        lineage
+            .entries
+            .iter()
+            .any(|e| Some(&e.commit_oid) == res.commit_oid.as_ref()),
         "lineage must still record the DONE commit OID"
     );
 
@@ -195,7 +217,8 @@ fn test_ac3_per_session_files_isolated_and_reset_preserves_other_tasks() {
     let ws = make_temp_dir("session_files");
 
     let h1 = record_session_turn_for_session(&ws, "093-task", "swarm-worker-1", 100, None).unwrap();
-    let h2 = record_session_turn_for_session(&ws, "094-other", "other-session-2", 200, None).unwrap();
+    let h2 =
+        record_session_turn_for_session(&ws, "094-other", "other-session-2", 200, None).unwrap();
     assert_eq!(h1.turns_count, 1);
     assert_eq!(h2.turns_count, 1);
 
@@ -205,7 +228,10 @@ fn test_ac3_per_session_files_isolated_and_reset_preserves_other_tasks() {
         "Explicit session IDs must persist under .xgauntlet/sessions/ to prevent shared-file write races"
     );
     let file_count = fs::read_dir(&sessions_dir).unwrap().count();
-    assert_eq!(file_count, 2, "Expected 2 isolated per-session telemetry files");
+    assert_eq!(
+        file_count, 2,
+        "Expected 2 isolated per-session telemetry files"
+    );
 
     // Resetting task 093-task must NOT wipe 094-other's session
     reset_session_health(&ws, "093-task").unwrap();
@@ -244,7 +270,10 @@ fn test_ac4_read_only_browser_and_custom_md_subagents_allowed_without_task() {
         }
     });
     let (code, out) = ag.handle_hook(&ws, &browser_payload.to_string());
-    assert_eq!(code, 0, "browser subagent must be allowed as read_only: {out}");
+    assert_eq!(
+        code, 0,
+        "browser subagent must be allowed as read_only: {out}"
+    );
 
     // 2. Custom read-only .agents/agents/code-auditor.md -> allowed without active task
     let auditor_payload = serde_json::json!({
@@ -255,7 +284,10 @@ fn test_ac4_read_only_browser_and_custom_md_subagents_allowed_without_task() {
         }
     });
     let (code, out) = ag.handle_hook(&ws, &auditor_payload.to_string());
-    assert_eq!(code, 0, "read-only custom .md subagent must be allowed: {out}");
+    assert_eq!(
+        code, 0,
+        "read-only custom .md subagent must be allowed: {out}"
+    );
 
     // 3. Mutating custom subagent in inherit with default config -> still denied (4040)
     write_active_task(&ws, "093-ro", "crates/**", "tests/t.rs", "feature");
@@ -267,7 +299,10 @@ fn test_ac4_read_only_browser_and_custom_md_subagents_allowed_without_task() {
         }
     });
     let (code, out) = ag.handle_hook(&ws, &coder_payload.to_string());
-    assert_ne!(code, 0, "mutating custom subagent in inherit must remain denied by default: {out}");
+    assert_ne!(
+        code, 0,
+        "mutating custom subagent in inherit must remain denied by default: {out}"
+    );
 
     let _ = fs::remove_dir_all(&ws);
 }
@@ -286,11 +321,7 @@ fn test_ac4_workspace_branch_clone_resolved_safely() {
 
     git_ok(
         &root,
-        &[
-            "clone",
-            parent.to_str().unwrap(),
-            clone.to_str().unwrap(),
-        ],
+        &["clone", parent.to_str().unwrap(), clone.to_str().unwrap()],
     );
 
     let payload = serde_json::json!({
@@ -364,14 +395,14 @@ async fn test_ac5_shared_cargo_target_dir_injected_in_linked_worktree() {
     .unwrap();
     git_ok(&repo, &["add", "."]);
     git_ok(&repo, &["commit", "-m", "init"]);
-    git_ok(&repo, &["worktree", "add", "-b", "task/093", wt.to_str().unwrap()]);
+    git_ok(
+        &repo,
+        &["worktree", "add", "-b", "task/093", wt.to_str().unwrap()],
+    );
 
     let layer = LayerDefinition::new(
         "cargo-env-probe",
-        vec![
-            "cargo".to_string(),
-            "--version".to_string(),
-        ],
+        vec!["cargo".to_string(), "--version".to_string()],
     );
     // Use a shell/python-free cross-platform check or sh -c on unix to inspect CARGO_TARGET_DIR when command is cargo-prefixed or layer runner runs in worktree:
     #[cfg(unix)]

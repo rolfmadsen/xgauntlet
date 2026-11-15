@@ -269,6 +269,11 @@ enum Commands {
         #[command(subcommand)]
         command: TaskCommands,
     },
+    /// Isolated per-task git worktree management inside `.worktrees/<task-id>/`
+    Worktree {
+        #[command(subcommand)]
+        command: WorktreeCommands,
+    },
     /// Dynamic response HUD telemetry card and harness hook stream
     Telemetry {
         /// Explicit task identifier (e.g. '016' or '016-claude-code-hud-adapter')
@@ -632,6 +637,27 @@ pub(crate) enum TaskCommands {
         workspace: std::path::PathBuf,
 
         /// Output unbinding result in structured JSON format
+        #[arg(long)]
+        json: bool,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+pub(crate) enum WorktreeCommands {
+    /// Create an isolated `.worktrees/<task-id>/` git worktree and bind `.xgauntlet/active_task`
+    Create {
+        /// Task identifier (e.g. '093' or '093-multi-agent-worktree-and-runtime-hygiene')
+        task: String,
+
+        /// Explicit branch name (defaults to `task/<short-id>`)
+        #[arg(short, long)]
+        branch: Option<String>,
+
+        /// Path to repository or git worktree workspace root
+        #[arg(short, long, default_value = ".")]
+        workspace: std::path::PathBuf,
+
+        /// Output worktree creation details in structured JSON format
         #[arg(long)]
         json: bool,
     },
@@ -1072,6 +1098,7 @@ fn dispatch_command(cli: &Cli) -> anyhow::Result<()> {
             }
         }
         Some(Commands::Task { command }) => handle_task_command(command)?,
+        Some(Commands::Worktree { command }) => handle_worktree_command(command)?,
 
         Some(Commands::Telemetry {
             task,

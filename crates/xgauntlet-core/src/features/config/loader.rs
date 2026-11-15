@@ -156,6 +156,16 @@ pub fn parse_toml(content: &str) -> Result<GauntletConfig, ConfigError> {
                     }
                     _ => {}
                 }
+            } else if current_section == "multi_agent" {
+                match key {
+                    "allow_coordinated_inherit" => {
+                        config.multi_agent.allow_coordinated_inherit = parse_bool_val(val)
+                    }
+                    "share_cargo_target_dir" => {
+                        config.multi_agent.share_cargo_target_dir = parse_bool_val(val)
+                    }
+                    _ => {}
+                }
             } else if current_section == "paths" {
                 match key {
                     "tasks_dir" => config.paths.tasks_dir = parse_str_val(val),
@@ -286,6 +296,17 @@ pub fn render_toml(config: &GauntletConfig) -> String {
         ));
     }
     out.push('\n');
+
+    if config.multi_agent.allow_coordinated_inherit || config.multi_agent.share_cargo_target_dir {
+        out.push_str("[multi_agent]\n");
+        if config.multi_agent.allow_coordinated_inherit {
+            out.push_str("allow_coordinated_inherit = true\n");
+        }
+        if config.multi_agent.share_cargo_target_dir {
+            out.push_str("share_cargo_target_dir = true\n");
+        }
+        out.push('\n');
+    }
 
     for ex in &config.architecture.exemptions {
         out.push_str("[[architecture.exemptions]]\n");

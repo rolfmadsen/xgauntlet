@@ -95,6 +95,7 @@ pub fn default_config_for_stack_and_workspace(
         paths: PathsConfig::default(),
         architecture: ArchitectureConfig::default(),
         checkpoint: super::models::CheckpointConfig::default(),
+        multi_agent: super::models::MultiAgentConfig::default(),
         layers,
     }
 }

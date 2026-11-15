@@ -268,6 +268,15 @@ impl Default for CheckpointConfig {
     }
 }
 
+/// Configuration for multi-agent delegation coexistence and worktree target sharing.
+#[derive(Debug, Clone, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
+pub struct MultiAgentConfig {
+    #[serde(default)]
+    pub allow_coordinated_inherit: bool,
+    #[serde(default)]
+    pub share_cargo_target_dir: bool,
+}
+
 /// Root gauntlet configuration.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct GauntletConfig {
@@ -285,6 +294,8 @@ pub struct GauntletConfig {
     pub architecture: ArchitectureConfig,
     #[serde(default)]
     pub checkpoint: CheckpointConfig,
+    #[serde(default)]
+    pub multi_agent: MultiAgentConfig,
     #[serde(default)]
     pub layers: Vec<LayerConfig>,
 }

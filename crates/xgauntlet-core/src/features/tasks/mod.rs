@@ -10,6 +10,7 @@ pub mod okf;
 pub mod parser;
 pub mod telemetry;
 pub mod validator;
+pub mod worktree;
 
 pub use glossary::validate_glossary_drift;
 pub use lifecycle::{
@@ -38,3 +39,4 @@ pub use validator::{
     check_adr_frontmatter, check_all_adrs, check_all_tasks, check_task_specification,
     validate_context_content, validate_context_glossary,
 };
+pub use worktree::{create_task_worktree, WorktreeCreateResult};

@@ -244,6 +244,7 @@
 | `sess-395ba280` | `TDD Craftsman` | `RED` | `395ba28` | `2026-11-14T22:06:22Z` | `VALID` |
 | `sess-c49fc87f` | `Software Engineer` | `DONE` | `c49fc87` | `2026-11-14T22:11:56Z` | `VALID` |
 | `sess-1b5c6d9c` | `System Architect` | `SPEC` | `1b5c6d9` | `2026-11-15T11:38:23Z` | `VALID` |
+| `sess-cd4dbc8d` | `TDD Craftsman` | `RED` | `cd4dbc8` | `2026-11-15T11:40:04Z` | `VALID` |
 
 ---
 
@@ -494,5 +495,14 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_ac5_cli_worktree_create_creates_in_repo_worktree_and_binds_task` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
+| `test_ac1_manifest_excludes_xgauntlet_and_worktrees` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
+| `test_ac1_checkpoint_stage_excludes_previously_tracked_xgauntlet` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
+| `test_ac2_checkpoint_done_leaves_clean_working_tree_when_evidence_tracked` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
+| `test_ac3_per_session_files_isolated_and_reset_preserves_other_tasks` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
+| `test_ac4_read_only_browser_and_custom_md_subagents_allowed_without_task` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
+| `test_ac4_workspace_branch_clone_resolved_safely` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
+| `test_ac4_allow_coordinated_inherit_opt_in_via_gauntlet_toml` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
+| `test_ac5_shared_cargo_target_dir_injected_in_linked_worktree` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
 
 ---

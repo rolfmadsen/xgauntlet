@@ -1,6 +1,6 @@
 //! Multi-layer verification runner executing commands with timeouts and exit codes.
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Stdio;
 use std::time::{Duration, Instant};
 use tokio::io::AsyncReadExt;
@@ -9,6 +9,40 @@ use tokio::process::Command;
 use super::models::{
     GauntletReport, LayerDefinition, LayerExecutionStatus, LayerRequirement, LayerResult,
 };
+use crate::features::adapters::workspace::resolve_primary_repo_root;
+use crate::features::config::GauntletConfig;
+
+/// Resolves a shared `CARGO_TARGET_DIR` pointing to `<primary_repo_root>/target` when
+/// running inside a linked git worktree with `multi_agent.share_cargo_target_dir = true`
+/// and no explicit `CARGO_TARGET_DIR` set in the environment.
+fn resolve_shared_cargo_target_dir(cwd: &Path) -> Option<PathBuf> {
+    let already_set = std::env::var("CARGO_TARGET_DIR")
+        .map(|val| !val.trim().is_empty())
+        .unwrap_or(false);
+    if already_set {
+        return None;
+    }
+
+    let config = GauntletConfig::load(cwd).ok()?;
+    if !config.multi_agent.share_cargo_target_dir {
+        return None;
+    }
+
+    if !cwd.join(".git").is_file() {
+        return None;
+    }
+
+    let primary_root = resolve_primary_repo_root(cwd)?;
+    let canon_primary = primary_root
+        .canonicalize()
+        .unwrap_or_else(|_| primary_root.clone());
+    let canon_cwd = cwd.canonicalize().unwrap_or_else(|_| cwd.to_path_buf());
+    if canon_primary == canon_cwd {
+        return None;
+    }
+
+    Some(canon_primary.join("target"))
+}
 
 /// Executes a single verification layer and captures output, exit code, and execution status.
 pub async fn execute_layer(layer: &LayerDefinition, cwd: &Path) -> LayerResult {
@@ -30,6 +64,9 @@ pub async fn execute_layer(layer: &LayerDefinition, cwd: &Path) -> LayerResult {
         cmd.args(&layer.command[1..]);
     }
     cmd.current_dir(cwd);
+    if let Some(shared_target_dir) = resolve_shared_cargo_target_dir(cwd) {
+        cmd.env("CARGO_TARGET_DIR", shared_target_dir);
+    }
     cmd.stdout(Stdio::piped());
     cmd.stderr(Stdio::piped());
 

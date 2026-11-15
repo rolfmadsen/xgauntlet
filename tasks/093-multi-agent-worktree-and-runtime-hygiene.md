@@ -18,6 +18,8 @@ scope:
   - "crates/xgauntlet-core/src/features/config/**"
   - "crates/xgauntlet-core/src/features/tasks/**"
   - "crates/xgauntlet-core/src/features/gauntlet/**"
+  - "crates/gauntlet-policy-engine/src/**"
+  - "crates/xgauntlet-core/wasm/gauntlet_policy.wasm"
   - "crates/xgauntlet-cli/src/**"
   - "docs/adr/0014-worktree-isolated-multi-agent-and-subagent-supervision.md"
   - "specs/adapters.md"

@@ -11,8 +11,8 @@ pub mod validation;
 pub use loader::{load_config, load_config_from_str, parse_json, parse_toml, render_toml};
 pub use models::{
     ArchitectureConfig, ArchitectureExemption, ConfigError, ConfigValidationIssue,
-    ConfigValidationReport, GauntletConfig, LayerConfig, PathsConfig, StackProfile,
-    ValidationSeverity,
+    ConfigValidationReport, GauntletConfig, LayerConfig, MultiAgentConfig, PathsConfig,
+    StackProfile, ValidationSeverity,
 };
 pub use profiles::{
     default_config_for_stack, default_config_for_stack_and_workspace, detect_composite_typescript,

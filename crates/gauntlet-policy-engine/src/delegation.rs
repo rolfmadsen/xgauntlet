@@ -38,13 +38,15 @@ fn is_read_only_lifecycle(payload: &Value) -> bool {
 /// Evaluates an agent delegation capability request inside the pure policy engine.
 pub fn evaluate_delegation(req: &CapabilityRequest, ctx: &EnforcementContext) -> PolicyDecision {
     let parsed_payload = serde_json::from_str::<Value>(&req.payload_json).ok();
-    if let Some(ref payload) = parsed_payload {
-        if has_shared_inherit_swarm_add(&req.raw_tool_name, payload) {
-            return PolicyDecision {
-                verdict: DecisionVerdict::Deny,
-                reason: "Concurrent mutating worker in shared 'inherit' workspace is prohibited (ADR 0014). Specify workspace: \"share\" or \"branch\".".into(),
-                reason_code: 4040,
-            };
+    if req.target_resource != "coordinated_inherit" {
+        if let Some(ref payload) = parsed_payload {
+            if has_shared_inherit_swarm_add(&req.raw_tool_name, payload) {
+                return PolicyDecision {
+                    verdict: DecisionVerdict::Deny,
+                    reason: "Concurrent mutating worker in shared 'inherit' workspace is prohibited (ADR 0014). Specify workspace: \"share\" or \"branch\".".into(),
+                    reason_code: 4040,
+                };
+            }
         }
     }
 
@@ -59,7 +61,7 @@ pub fn evaluate_delegation(req: &CapabilityRequest, ctx: &EnforcementContext) ->
             reason: "Concurrent mutating agent delegation in shared 'inherit' workspace is prohibited (ADR 0014). Use an isolated worktree (`share`, `branch`, or `worktree`).".into(),
             reason_code: 4040,
         },
-        "isolated" => {
+        "isolated" | "coordinated_inherit" => {
             if ctx.read_only {
                 return PolicyDecision {
                     verdict: DecisionVerdict::Deny,
@@ -70,13 +72,18 @@ pub fn evaluate_delegation(req: &CapabilityRequest, ctx: &EnforcementContext) ->
             if !ctx.has_active_task {
                 return PolicyDecision {
                     verdict: DecisionVerdict::Deny,
-                    reason: "Isolated mutating agent delegation requires an active task (ADR 0014).".into(),
+                    reason: "Mutating agent delegation requires an active task (ADR 0014).".into(),
                     reason_code: 4034,
                 };
             }
             PolicyDecision {
                 verdict: DecisionVerdict::Allow,
-                reason: "Isolated worktree mutating agent delegation allowed under active task.".into(),
+                reason: if req.target_resource == "coordinated_inherit" {
+                    "Coordinated inherit-mode multi-agent delegation allowed under active task."
+                        .into()
+                } else {
+                    "Isolated worktree mutating agent delegation allowed under active task.".into()
+                },
                 reason_code: 2007,
             }
         }

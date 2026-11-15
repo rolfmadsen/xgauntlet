@@ -50,13 +50,91 @@ fn resolve_git_common_dir(dir: &Path) -> Option<PathBuf> {
     None
 }
 
-/// Verifies that `candidate` belongs to the exact same Git repository as `base_ws` (primary repo or sibling worktree).
+/// Resolves the primary repository root directory from a linked `git worktree` (or the repo itself).
+pub fn resolve_primary_repo_root(dir: &Path) -> Option<PathBuf> {
+    let common_dir = resolve_git_common_dir(dir)?;
+    if common_dir.file_name().and_then(|s| s.to_str()) == Some(".git") {
+        return common_dir.parent().map(|p| p.to_path_buf());
+    }
+    None
+}
+
+fn is_local_clone_of(base_ws: &Path, base_common: &Path, candidate: &Path) -> bool {
+    let cand_git = candidate.join(".git");
+    if !cand_git.is_dir() {
+        return false;
+    }
+
+    // 1. Check .git/objects/info/alternates pointing at base repo objects
+    let alternates = cand_git.join("objects/info/alternates");
+    if alternates.is_file() {
+        if let Ok(content) = fs::read_to_string(&alternates) {
+            if let Ok(base_objects) = base_common.join("objects").canonicalize() {
+                for line in content.lines() {
+                    let trimmed = line.trim();
+                    if trimmed.is_empty() || trimmed.starts_with('#') {
+                        continue;
+                    }
+                    let alt_path = Path::new(trimmed);
+                    let resolved = if alt_path.is_absolute() {
+                        alt_path.to_path_buf()
+                    } else {
+                        cand_git.join("objects").join(alt_path)
+                    };
+                    if let Ok(canon) = resolved.canonicalize() {
+                        if canon == base_objects {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // 2. Check .git/config [remote "origin"] url matching canonicalized base_ws
+    let git_config = cand_git.join("config");
+    if git_config.is_file() {
+        if let (Ok(content), Ok(canon_base)) =
+            (fs::read_to_string(&git_config), base_ws.canonicalize())
+        {
+            let mut in_origin = false;
+            for raw_line in content.lines() {
+                let line = raw_line.trim();
+                if line.starts_with('[') && line.ends_with(']') {
+                    in_origin = line.eq_ignore_ascii_case("[remote \"origin\"]");
+                    continue;
+                }
+                if in_origin {
+                    if let Some((k, v)) = line.split_once('=') {
+                        if k.trim().eq_ignore_ascii_case("url") {
+                            let url_raw = v.trim();
+                            let url_path_str = url_raw.strip_prefix("file://").unwrap_or(url_raw);
+                            let url_path = Path::new(url_path_str);
+                            if let Ok(canon_url) = url_path.canonicalize() {
+                                if canon_url == canon_base {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    false
+}
+
+/// Verifies that `candidate` belongs to the exact same Git repository as `base_ws`
+/// (primary repo, linked git worktree, or local `Workspace: "branch"` clone of `base_ws`).
 pub fn is_same_git_repo_worktree(base_ws: &Path, candidate: &Path) -> bool {
     match (
         resolve_git_common_dir(base_ws),
         resolve_git_common_dir(candidate),
     ) {
-        (Some(base_common), Some(cand_common)) => base_common == cand_common,
+        (Some(base_common), Some(cand_common)) => {
+            base_common == cand_common || is_local_clone_of(base_ws, &base_common, candidate)
+        }
         _ => false,
     }
 }

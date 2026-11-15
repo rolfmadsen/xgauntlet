@@ -343,6 +343,45 @@ pub(crate) fn handle_task_command(command: &crate::TaskCommands) -> anyhow::Resu
     Ok(())
 }
 
+pub(crate) fn handle_worktree_command(command: &crate::WorktreeCommands) -> anyhow::Result<()> {
+    let resolve_ws = |workspace: &std::path::Path| -> std::path::PathBuf {
+        if workspace.is_absolute() {
+            workspace.to_path_buf()
+        } else {
+            std::env::current_dir()
+                .map(|c| c.join(workspace))
+                .unwrap_or_else(|_| workspace.to_path_buf())
+        }
+    };
+
+    match command {
+        crate::WorktreeCommands::Create {
+            task,
+            branch,
+            workspace,
+            json,
+        } => {
+            let ws = resolve_ws(workspace);
+            let res = xgauntlet_core::features::tasks::create_task_worktree(
+                &ws,
+                task,
+                branch.as_deref(),
+            )?;
+            if *json {
+                println!("{}", serde_json::to_string_pretty(&res)?);
+            } else {
+                println!(
+                    "🌿 Created task worktree '{}' on branch '{}' (bound to '{}')",
+                    res.worktree_path.display(),
+                    res.branch,
+                    res.bound_active_task
+                );
+            }
+        }
+    }
+    Ok(())
+}
+
 pub fn render_task_archive_summary(res: &xgauntlet_core::TaskArchiveResult) {
     if res.dry_run {
         println!("[DRY RUN] Task archive preview:");

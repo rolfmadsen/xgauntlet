@@ -1,7 +1,8 @@
 //! Orchestrator for Phase-Bound TDD Checkpoint operations.
 
 use super::git::{
-    compose_commit_message, ensure_git_dir_writable, execute_git_commit, stage_workspace_changes,
+    compose_commit_message, ensure_git_dir_writable, execute_git_commit,
+    seal_tracked_evidence_files, stage_workspace_changes,
 };
 use super::models::{CheckpointError, CheckpointOptions, CheckpointResult};
 use super::preflight::run_preflight_check;
@@ -226,6 +227,10 @@ pub async fn run_checkpoint(
     }
 
     let _ = crate::features::evidence::save_verification_report(&options.workspace, &report);
+
+    if options.phase == super::models::CheckpointPhase::Done {
+        seal_tracked_evidence_files(&options.workspace, &task_id)?;
+    }
 
     let (next_phase, autonomous_transition) = match options.phase {
         super::models::CheckpointPhase::Red => (Some("green".to_string()), true),

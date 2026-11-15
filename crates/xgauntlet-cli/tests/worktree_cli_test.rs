@@ -63,7 +63,13 @@ fn test_ac5_cli_worktree_create_creates_in_repo_worktree_and_binds_task() {
     let bin = env!("CARGO_BIN_EXE_xgauntlet");
 
     let out = Command::new(bin)
-        .args(["worktree", "create", "093", "--workspace", repo.to_str().unwrap()])
+        .args([
+            "worktree",
+            "create",
+            "093",
+            "--workspace",
+            repo.to_str().unwrap(),
+        ])
         .output()
         .expect("failed to execute xgauntlet worktree create");
 

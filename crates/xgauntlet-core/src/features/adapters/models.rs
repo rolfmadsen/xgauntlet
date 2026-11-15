@@ -217,6 +217,30 @@ pub trait HarnessAdapter: Send + Sync {
             }
         }
 
+        if req.action_type == ToolActionType::Delegate && req.target_resource == "shared_inherit" {
+            if req.raw_tool_name.eq_ignore_ascii_case("invoke_subagent") {
+                if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&req.payload_json) {
+                    let type_name = parsed
+                        .get("TypeName")
+                        .or_else(|| parsed.get("type_name"))
+                        .or_else(|| parsed.get("type"))
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("");
+                    if super::delegation::is_custom_read_only_subagent(workspace, type_name) {
+                        req.target_resource = "read_only".to_string();
+                    }
+                }
+            }
+            if req.target_resource == "shared_inherit" {
+                let allow_inherit = crate::features::config::GauntletConfig::load(workspace)
+                    .map(|c| c.multi_agent.allow_coordinated_inherit)
+                    .unwrap_or(false);
+                if allow_inherit {
+                    req.target_resource = "coordinated_inherit".to_string();
+                }
+            }
+        }
+
         let ctx = EnforcementContext::from_workspace(workspace, false);
 
         // Execute deterministic WebAssembly policy engine in-memory (ADR 0007)

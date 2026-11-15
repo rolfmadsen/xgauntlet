@@ -71,6 +71,34 @@ pub fn stage_workspace_changes(workspace: &Path) -> Result<Vec<String>, Checkpoi
         ));
     }
 
+    let has_head = Command::new("git")
+        .args(["rev-parse", "--verify", "--quiet", "HEAD"])
+        .current_dir(workspace)
+        .status()
+        .map(|s| s.success())
+        .unwrap_or(false);
+
+    if has_head {
+        let _ = Command::new("git")
+            .args(["reset", "-q", "HEAD", "--", ".xgauntlet", ".worktrees"])
+            .current_dir(workspace)
+            .status();
+    } else {
+        let _ = Command::new("git")
+            .args([
+                "rm",
+                "--cached",
+                "-r",
+                "-q",
+                "--ignore-unmatch",
+                "--",
+                ".xgauntlet",
+                ".worktrees",
+            ])
+            .current_dir(workspace)
+            .status();
+    }
+
     let diff_output = Command::new("git")
         .args(["diff", "--cached", "--name-only"])
         .current_dir(workspace)
@@ -90,6 +118,63 @@ pub fn stage_workspace_changes(workspace: &Path) -> Result<Vec<String>, Checkpoi
         .collect();
 
     Ok(staged_files)
+}
+
+/// Seals tracked verification evidence files (`verification-report.json`, `evidence.md`) in a
+/// follow-up local commit if post-commit lineage updates left them dirty.
+pub fn seal_tracked_evidence_files(
+    workspace: &Path,
+    task_id: &str,
+) -> Result<Option<String>, CheckpointError> {
+    let mut dirty_tracked = Vec::new();
+    for candidate in ["verification-report.json", "evidence.md"] {
+        if !workspace.join(candidate).is_file() {
+            continue;
+        }
+        let tracked = Command::new("git")
+            .args(["ls-files", "--error-unmatch", "--", candidate])
+            .current_dir(workspace)
+            .output()
+            .map(|o| o.status.success())
+            .unwrap_or(false);
+        if !tracked {
+            continue;
+        }
+        let status_out = Command::new("git")
+            .args(["status", "--porcelain", "--", candidate])
+            .current_dir(workspace)
+            .output()
+            .map_err(|e| CheckpointError::GitError(format!("Failed to check git status: {e}")))?;
+        if status_out.status.success()
+            && !String::from_utf8_lossy(&status_out.stdout)
+                .trim()
+                .is_empty()
+        {
+            dirty_tracked.push(candidate);
+        }
+    }
+
+    if dirty_tracked.is_empty() {
+        return Ok(None);
+    }
+
+    let mut add_cmd = Command::new("git");
+    add_cmd.args(["add", "--"]);
+    add_cmd.args(&dirty_tracked);
+    let add_status = add_cmd
+        .current_dir(workspace)
+        .status()
+        .map_err(|e| CheckpointError::GitError(format!("Failed to stage evidence files: {e}")))?;
+    if !add_status.success() {
+        return Err(CheckpointError::GitError(
+            "Failed to stage post-commit evidence files".to_string(),
+        ));
+    }
+
+    let short_id = extract_short_task_id(task_id);
+    let msg = format!("chore({short_id}): seal post-commit evidence [EVIDENCE]");
+    let oid = execute_git_commit(workspace, &msg, false)?;
+    Ok(Some(oid))
 }
 
 /// Executes a local git commit and returns the generated commit OID hash.

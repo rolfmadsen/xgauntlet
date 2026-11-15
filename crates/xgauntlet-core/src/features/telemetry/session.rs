@@ -5,11 +5,16 @@
 //! or background daemons.
 
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 
 pub const SESSION_STATE_FILE: &str = ".xgauntlet/session_state.json";
+pub const SESSION_STATE_DIR: &str = ".xgauntlet/sessions";
+
+static ATOMIC_WRITE_COUNTER: AtomicU64 = AtomicU64::new(1);
 
 /// Categorization of session health based on interaction turns and cognitive load.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -197,14 +202,47 @@ fn read_session_store(workspace: &Path) -> Result<Option<MultiSessionStore>, std
     Ok(None)
 }
 
-fn write_session_store(workspace: &Path, store: &MultiSessionStore) -> Result<(), std::io::Error> {
-    let state_path = workspace.join(SESSION_STATE_FILE);
-    if let Some(parent) = state_path.parent() {
+fn write_bytes_atomic(target: &Path, content: &[u8]) -> Result<(), std::io::Error> {
+    if let Some(parent) = target.parent() {
         fs::create_dir_all(parent)?;
     }
-    let json = serde_json::to_string_pretty(store).map_err(std::io::Error::other)?;
-    fs::write(state_path, json)?;
+    let seq = ATOMIC_WRITE_COUNTER.fetch_add(1, Ordering::Relaxed);
+    let tmp_name = format!(
+        ".{}.tmp.{}.{}",
+        target
+            .file_name()
+            .and_then(|s| s.to_str())
+            .unwrap_or("state"),
+        std::process::id(),
+        seq
+    );
+    let tmp_path = target.with_file_name(tmp_name);
+    fs::write(&tmp_path, content)?;
+    fs::rename(&tmp_path, target)?;
     Ok(())
+}
+
+fn explicit_session_file(workspace: &Path, session_id: &str) -> PathBuf {
+    let hex = format!("{:x}", Sha256::digest(session_id.trim().as_bytes()));
+    let prefix: String = hex.chars().take(16).collect();
+    workspace
+        .join(SESSION_STATE_DIR)
+        .join(format!("{prefix}.json"))
+}
+
+fn task_ids_match(stored_task_id: &str, requested_task_id: &str) -> bool {
+    if stored_task_id == requested_task_id {
+        return true;
+    }
+    let short_target = crate::features::checkpoint::extract_short_task_id(requested_task_id);
+    let short_stored = crate::features::checkpoint::extract_short_task_id(stored_task_id);
+    !short_target.is_empty() && short_target == short_stored
+}
+
+fn write_session_store(workspace: &Path, store: &MultiSessionStore) -> Result<(), std::io::Error> {
+    let state_path = workspace.join(SESSION_STATE_FILE);
+    let json = serde_json::to_string_pretty(store).map_err(std::io::Error::other)?;
+    write_bytes_atomic(&state_path, json.as_bytes())
 }
 
 /// File-based session state tracker.
@@ -217,6 +255,29 @@ impl SessionTracker {
         task_id: &str,
         session_id: Option<&str>,
     ) -> Result<Option<SessionHealth>, std::io::Error> {
+        let explicit_key = session_id
+            .map(str::trim)
+            .filter(|s| !s.is_empty() && *s != "default");
+
+        if let Some(key) = explicit_key {
+            let sess_path = explicit_session_file(workspace, key);
+            if sess_path.is_file() {
+                if let Ok(content) = fs::read_to_string(&sess_path) {
+                    if let Ok(state) = serde_json::from_str::<SessionTrackerState>(&content) {
+                        return if task_ids_match(&state.task_id, task_id) {
+                            Ok(Some(SessionHealth::new(
+                                state.turns_count,
+                                state.payload_bytes,
+                                state.estimated_tokens,
+                            )))
+                        } else {
+                            Ok(None)
+                        };
+                    }
+                }
+            }
+        }
+
         let Some(store) = read_session_store(workspace)? else {
             return Ok(None);
         };
@@ -235,10 +296,7 @@ impl SessionTracker {
             return Ok(None);
         };
 
-        let short_target = crate::features::checkpoint::extract_short_task_id(task_id);
-        let short_stored = crate::features::checkpoint::extract_short_task_id(&state.task_id);
-
-        if state.task_id == task_id || (!short_target.is_empty() && short_target == short_stored) {
+        if task_ids_match(&state.task_id, task_id) {
             Ok(Some(SessionHealth::new(
                 state.turns_count,
                 state.payload_bytes,
@@ -254,20 +312,23 @@ impl SessionTracker {
         Self::load_for_session(workspace, task_id, None)
     }
 
-    /// Persists session tracking state for a specific session identifier in `.xgauntlet/session_state.json`.
+    /// Persists session tracking state for a specific session identifier in `.xgauntlet/sessions/<hash>.json`
+    /// or `.xgauntlet/session_state.json` for default/legacy single-session callers.
     pub fn save_for_session(
         workspace: &Path,
         session_id: &str,
         state: &SessionTrackerState,
     ) -> Result<(), std::io::Error> {
+        let trimmed = session_id.trim();
+        if !trimmed.is_empty() && trimmed != "default" {
+            let sess_path = explicit_session_file(workspace, trimmed);
+            let json = serde_json::to_string_pretty(state).map_err(std::io::Error::other)?;
+            return write_bytes_atomic(&sess_path, json.as_bytes());
+        }
+
         let mut store = read_session_store(workspace)?.unwrap_or_default();
-        let key = if session_id.trim().is_empty() {
-            "default".to_string()
-        } else {
-            session_id.trim().to_string()
-        };
-        store.active_session_id = key.clone();
-        store.sessions.insert(key, state.clone());
+        store.active_session_id = "default".to_string();
+        store.sessions.insert("default".to_string(), state.clone());
         write_session_store(workspace, &store)
     }
 
@@ -336,11 +397,39 @@ pub fn record_session_turn(
     )
 }
 
-/// Resets session health state for the active task.
-pub fn reset_session_health(workspace: &Path, _task_id: &str) -> Result<(), std::io::Error> {
+/// Resets session health state for the given task without wiping sessions bound to other tasks.
+pub fn reset_session_health(workspace: &Path, task_id: &str) -> Result<(), std::io::Error> {
     let state_path = workspace.join(SESSION_STATE_FILE);
-    if state_path.exists() {
-        fs::remove_file(state_path)?;
+    if state_path.is_file() {
+        if let Ok(Some(mut store)) = read_session_store(workspace) {
+            store
+                .sessions
+                .retain(|_, s| !task_ids_match(&s.task_id, task_id));
+            if store.sessions.is_empty() {
+                fs::remove_file(&state_path)?;
+            } else {
+                write_session_store(workspace, &store)?;
+            }
+        } else {
+            fs::remove_file(&state_path)?;
+        }
+    }
+
+    let sessions_dir = workspace.join(SESSION_STATE_DIR);
+    if sessions_dir.is_dir() {
+        for entry in fs::read_dir(&sessions_dir)?.flatten() {
+            let p = entry.path();
+            if p.extension().and_then(|e| e.to_str()) != Some("json") {
+                continue;
+            }
+            if let Ok(content) = fs::read_to_string(&p) {
+                if let Ok(state) = serde_json::from_str::<SessionTrackerState>(&content) {
+                    if task_ids_match(&state.task_id, task_id) {
+                        let _ = fs::remove_file(&p);
+                    }
+                }
+            }
+        }
     }
     Ok(())
 }

@@ -39,6 +39,8 @@ pub const EXCLUDED_DIRS: &[&str] = &[
     ".ruff_cache",
     ".venv",
     ".vscode",
+    ".worktrees",
+    ".xgauntlet",
     "__pycache__",
     "target",
     "node_modules",
