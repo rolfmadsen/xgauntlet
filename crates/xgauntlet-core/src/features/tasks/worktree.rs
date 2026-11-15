@@ -9,7 +9,9 @@ use serde::{Deserialize, Serialize};
 use crate::features::adapters::workspace::resolve_primary_repo_root;
 use crate::features::checkpoint::extract_short_task_id;
 use crate::features::policy::has_path_traversal;
-use crate::features::tasks::parser::{bind_active_task, resolve_task_file_path, TaskError};
+use crate::features::tasks::parser::{
+    bind_active_task, is_task_active, resolve_task_file_path, TaskError,
+};
 
 /// Summary returned after creating and binding an in-repo task worktree.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -46,6 +48,52 @@ fn branch_exists(repo_root: &Path, branch: &str) -> Result<bool, TaskError> {
     Ok(status.success())
 }
 
+fn task_exists_in_git_ref(repo_root: &Path, git_ref: &str, task_path: &Path) -> bool {
+    let canon_root = repo_root
+        .canonicalize()
+        .unwrap_or_else(|_| repo_root.to_path_buf());
+    let canon_task = task_path
+        .canonicalize()
+        .unwrap_or_else(|_| task_path.to_path_buf());
+    let Ok(rel) = canon_task.strip_prefix(&canon_root) else {
+        return false;
+    };
+    let rel_unix = rel.to_string_lossy().replace('\\', "/");
+    let spec = format!("{git_ref}:{rel_unix}");
+    Command::new("git")
+        .args(["cat-file", "-e", &spec])
+        .current_dir(repo_root)
+        .status()
+        .map(|s| s.success())
+        .unwrap_or(false)
+}
+
+fn cleanup_failed_worktree(
+    primary_root: &Path,
+    worktree_path: &Path,
+    branch: &str,
+    created_new_branch: bool,
+) {
+    let wt_str = worktree_path.to_string_lossy().to_string();
+    let _ = Command::new("git")
+        .args(["worktree", "remove", "--force", &wt_str])
+        .current_dir(primary_root)
+        .status();
+    if worktree_path.exists() {
+        let _ = fs::remove_dir_all(worktree_path);
+    }
+    let _ = Command::new("git")
+        .args(["worktree", "prune"])
+        .current_dir(primary_root)
+        .status();
+    if created_new_branch {
+        let _ = Command::new("git")
+            .args(["branch", "-D", branch])
+            .current_dir(primary_root)
+            .status();
+    }
+}
+
 /// Creates `.worktrees/<short_id>/` inside the primary repository root for `task_id`
 /// and binds `.xgauntlet/active_task` inside the new worktree.
 pub fn create_task_worktree(
@@ -60,6 +108,13 @@ pub fn create_task_worktree(
     });
 
     let task_path = resolve_task_file_path(&primary_root, Some(task_id))?;
+    let task_content = fs::read_to_string(&task_path)?;
+    if !is_task_active(&task_content) {
+        return Err(TaskError::InvalidSpecification(format!(
+            "Task '{task_id}' is not ACTIVE and cannot be bound to a worktree"
+        )));
+    }
+
     let canonical_id = task_path
         .file_stem()
         .and_then(|s| s.to_str())
@@ -80,8 +135,20 @@ pub fn create_task_worktree(
         None => format!("task/{short_id}"),
     };
 
+    let exists = branch_exists(&primary_root, &target_branch)?;
+    let source_ref = if exists {
+        target_branch.as_str()
+    } else {
+        "HEAD"
+    };
+    if !task_exists_in_git_ref(&primary_root, source_ref, &task_path) {
+        return Err(TaskError::InvalidSpecification(format!(
+            "Task file '{}' must be committed to '{source_ref}' before creating a worktree",
+            task_path.display()
+        )));
+    }
+
     let worktrees_dir = primary_root.join(".worktrees");
-    fs::create_dir_all(&worktrees_dir)?;
     let worktree_path = worktrees_dir.join(&short_id);
     if worktree_path.exists() {
         return Err(TaskError::InvalidSpecification(format!(
@@ -89,9 +156,10 @@ pub fn create_task_worktree(
             worktree_path.display()
         )));
     }
+    fs::create_dir_all(&worktrees_dir)?;
 
     let wt_str = worktree_path.to_string_lossy().to_string();
-    let exists = branch_exists(&primary_root, &target_branch)?;
+    let created_new_branch = !exists;
     let mut cmd = Command::new("git");
     cmd.current_dir(&primary_root).arg("worktree").arg("add");
     if exists {
@@ -103,13 +171,25 @@ pub fn create_task_worktree(
     let output = cmd.output()?;
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
+        cleanup_failed_worktree(&primary_root, &worktree_path, &target_branch, false);
         return Err(TaskError::InvalidSpecification(format!(
             "git worktree add failed: {}",
             stderr.trim()
         )));
     }
 
-    let bound_active_task = bind_active_task(&worktree_path, &canonical_id)?;
+    let bound_active_task = match bind_active_task(&worktree_path, &canonical_id) {
+        Ok(id) => id,
+        Err(err) => {
+            cleanup_failed_worktree(
+                &primary_root,
+                &worktree_path,
+                &target_branch,
+                created_new_branch,
+            );
+            return Err(err);
+        }
+    };
 
     Ok(WorktreeCreateResult {
         task_id: canonical_id,

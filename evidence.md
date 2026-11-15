@@ -245,6 +245,7 @@
 | `sess-c49fc87f` | `Software Engineer` | `DONE` | `c49fc87` | `2026-11-14T22:11:56Z` | `VALID` |
 | `sess-1b5c6d9c` | `System Architect` | `SPEC` | `1b5c6d9` | `2026-11-15T11:38:23Z` | `VALID` |
 | `sess-cd4dbc8d` | `TDD Craftsman` | `RED` | `cd4dbc8` | `2026-11-15T11:40:04Z` | `VALID` |
+| `sess-3e65552f` | `TDD Craftsman` | `GREEN` | `3e65552` | `2026-11-15T11:47:40Z` | `VALID` |
 
 ---
 
@@ -504,5 +505,6 @@
 | `test_ac4_workspace_branch_clone_resolved_safely` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
 | `test_ac4_allow_coordinated_inherit_opt_in_via_gauntlet_toml` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
 | `test_ac5_shared_cargo_target_dir_injected_in_linked_worktree` | `RedCheckpointVerified` | `d91924fd15ae68f6...` | `2026-11-15T12:40:04+01:00` |
+| `test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task` | `InversePreflightVerified` | `7a5b48276a775c44...` | `2026-11-15T12:01:16Z` |
 
 ---

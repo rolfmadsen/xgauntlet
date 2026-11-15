@@ -90,3 +90,106 @@ fn test_ac5_cli_worktree_create_creates_in_repo_worktree_and_binds_task() {
 
     let _ = fs::remove_dir_all(&repo);
 }
+
+#[test]
+fn test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task()
+{
+    let repo = make_temp_repo("rollback");
+    let bin = env!("CARGO_BIN_EXE_xgauntlet");
+
+    // 1. Committed DONE task must be rejected before creating .worktrees/094 or branch task/094
+    fs::write(
+        repo.join("tasks/094-done-task.md"),
+        "---\n\
+         type: Task Package\n\
+         title: \"Task 094: Done\"\n\
+         description: \"Completed task\"\n\
+         status: done\n\
+         generated: { by: process:test, at: \"2026-11-15T12:00:00Z\" }\n\
+         tags: [test]\n\
+         scope: [\"src/**\"]\n\
+         test_refs: [\"tests/done_test.rs\"]\n\
+         ---\n\n\
+         # Task 094: Done\n\n\
+         **Status**: `DONE`\n",
+    )
+    .unwrap();
+    run_git(&repo, &["add", "tasks/094-done-task.md"]);
+    run_git(&repo, &["commit", "-m", "add done task"]);
+
+    let out_done = Command::new(bin)
+        .args([
+            "worktree",
+            "create",
+            "094",
+            "--workspace",
+            repo.to_str().unwrap(),
+        ])
+        .output()
+        .expect("failed to execute worktree create for done task");
+    assert!(
+        !out_done.status.success(),
+        "DONE task must be rejected by worktree create"
+    );
+    assert!(
+        !repo.join(".worktrees/094").exists(),
+        "Rejected DONE task must not leave .worktrees/094 behind"
+    );
+    let branch_done = Command::new("git")
+        .args(["show-ref", "--verify", "--quiet", "refs/heads/task/094"])
+        .current_dir(&repo)
+        .status()
+        .unwrap();
+    assert!(
+        !branch_done.success(),
+        "Rejected DONE task must not create branch task/094"
+    );
+
+    // 2. Untracked ACTIVE task must also fail closed without leaving .worktrees/095 or branch task/095
+    fs::write(
+        repo.join("tasks/095-untracked-task.md"),
+        "---\n\
+         type: Task Package\n\
+         title: \"Task 095: Untracked\"\n\
+         description: \"Untracked task\"\n\
+         status: active\n\
+         generated: { by: process:test, at: \"2026-11-15T12:00:00Z\" }\n\
+         tags: [test]\n\
+         scope: [\"src/**\"]\n\
+         test_refs: [\"tests/untracked_test.rs\"]\n\
+         ---\n\n\
+         # Task 095: Untracked\n\n\
+         **Status**: `ACTIVE`\n",
+    )
+    .unwrap();
+
+    let out_untracked = Command::new(bin)
+        .args([
+            "worktree",
+            "create",
+            "095",
+            "--workspace",
+            repo.to_str().unwrap(),
+        ])
+        .output()
+        .expect("failed to execute worktree create for untracked task");
+    assert!(
+        !out_untracked.status.success(),
+        "Untracked task must be rejected by worktree create"
+    );
+    assert!(
+        !repo.join(".worktrees/095").exists(),
+        "Rejected untracked task must not leave .worktrees/095 behind"
+    );
+    let branch_untracked = Command::new("git")
+        .args(["show-ref", "--verify", "--quiet", "refs/heads/task/095"])
+        .current_dir(&repo)
+        .status()
+        .unwrap();
+    assert!(
+        !branch_untracked.success(),
+        "Rejected untracked task must not create branch task/095"
+    );
+
+    let _ = fs::remove_dir_all(&repo);
+}

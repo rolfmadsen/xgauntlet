@@ -383,6 +383,26 @@ fn test_ac4_allow_coordinated_inherit_opt_in_via_gauntlet_toml() {
 
 #[tokio::test]
 async fn test_ac5_shared_cargo_target_dir_injected_in_linked_worktree() {
+    // If an outer runner (e.g. `xgauntlet verify` inside a linked worktree) already exported
+    // `CARGO_TARGET_DIR`, re-run this exact test in a clean child process with `CARGO_TARGET_DIR`
+    // removed instead of mutating process-global environment variables across threads.
+    if std::env::var_os("CARGO_TARGET_DIR").is_some() {
+        let status = std::process::Command::new(std::env::current_exe().unwrap())
+            .env_remove("CARGO_TARGET_DIR")
+            .args([
+                "--exact",
+                "test_ac5_shared_cargo_target_dir_injected_in_linked_worktree",
+                "--nocapture",
+            ])
+            .status()
+            .expect("re-exec AC5 test with CARGO_TARGET_DIR removed");
+        assert!(
+            status.success(),
+            "clean-env child execution of AC5 test must succeed"
+        );
+        return;
+    }
+
     let root = make_temp_dir("shared_target");
     let repo = root.join("repo");
     let wt = root.join("wt");

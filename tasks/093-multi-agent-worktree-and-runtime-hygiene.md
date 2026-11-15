@@ -63,19 +63,19 @@ At bringe [Task 088](archive/088-worktree-isolated-multi-agent-supervision.md) o
 
 ## 📋 Acceptance Criteria
 
-- [ ] **AC1 — `.xgauntlet/` & `.worktrees/` ekskluderet fra Manifest & Checkpoint Staging:**
+- [x] **AC1 — `.xgauntlet/` & `.worktrees/` ekskluderet fra Manifest & Checkpoint Staging:**
   - `EXCLUDED_DIRS` i `crates/xgauntlet-core/src/features/evidence/manifest.rs` indeholder `".xgauntlet"` og `".worktrees"`; ændringer i `.xgauntlet/session_state.json`, `.xgauntlet/sessions/*` eller `.worktrees/**` udløser aldrig `[xgauntlet-self-mutation]`.
   - `stage_workspace_changes` i `crates/xgauntlet-core/src/features/checkpoint/git.rs` ekskluderer `.xgauntlet/` og `.worktrees/` fra `git add -A`, selv hvis filer tidligere har været tracked i Git.
-- [ ] **AC2 — Clean Working Tree efter `xgauntlet checkpoint --phase done`:**
+- [x] **AC2 — Clean Working Tree efter `xgauntlet checkpoint --phase done`:**
   - `run_checkpoint` bevarer `SessionLineageEntry` med `DONE`-commit-OID i `verification-report.json` og `evidence.md`, og forsegler automatisk tracked `verification-report.json`/`evidence.md` hvis de er modified efter `DONE`-committet, så `git status --porcelain` er tom bagefter.
-- [ ] **AC3 — Race-Free Per-Session Telemetri:**
+- [x] **AC3 — Race-Free Per-Session Telemetri:**
   - Eksplicitte `session_id`-kald til `record_session_turn_for_session` / `record_session_snapshot_for_session` skriver atomisk til `.xgauntlet/sessions/<hash>.json` uden at overskrive samtidige sessioner.
   - `reset_session_health` fjerner kun legacy `.xgauntlet/session_state.json` (eller den relevante sessions data) og sletter ikke andre aktive sessioners tilstand.
-- [ ] **AC4 — Antigravity Read-Only Subagenter, `branch`-kloner & Coordinated `inherit` Opt-In:**
+- [x] **AC4 — Antigravity Read-Only Subagenter, `branch`-kloner & Coordinated `inherit` Opt-In:**
   - `classify_delegation_tool` / adapter-normalisering tillader `invoke_subagent` med `TypeName` = `"research"`, `"browser"`, `"image-generator"` samt custom `.agents/agents/<name>.md` uden muterende værktøjer som `read_only`.
   - `resolve_effective_workspace` genkender lokale `Workspace: "branch"`-kloner (delte Git-alternates eller `origin`-sti mod parent repo), og afviser fortsat fremmede repos fail-closed.
   - `GauntletConfig.multi_agent.allow_coordinated_inherit` (default `false`) tillader ved `true` koordineret `inherit`-delegation under en aktiv task (mens `false` bevarer `4040`).
-- [ ] **AC5 — Shared `CARGO_TARGET_DIR` & `xgauntlet worktree create`:**
+- [x] **AC5 — Shared `CARGO_TARGET_DIR` & `xgauntlet worktree create`:**
   - `GauntletConfig.multi_agent.share_cargo_target_dir` peger automatisk `CARGO_TARGET_DIR` mod primary repoets `target/` ved `cargo`-kørsler i linked worktrees, når `CARGO_TARGET_DIR` ikke allerede er sat.
   - `xgauntlet worktree create <task-id>` opretter en linked git worktree under `.worktrees/<task-id>/` og binder `.xgauntlet/active_task` til `<task-id>`.
   - `check-spec -t 093`, `check-spec --context`, `check-adr --all`, `cargo test --workspace` og `xgauntlet verify` passerer.
