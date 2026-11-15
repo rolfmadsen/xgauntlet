@@ -9,7 +9,7 @@
 
 ## 🎯 Purpose & Capability Boundary
 The `adapters` feature translates vendor-specific AI harness tool payloads, lifecycle hooks, and plugin manifests into canonical xGauntlet `CapabilityRequest` operations and fail-closed `AdapterHookVerdict` decisions across all supported harnesses:
-- **Antigravity (`antigravity/`)**: `PreToolUse` gatekeeper normalization, `PreInvocation` cockpit telemetry + deduplication, `wrap_response` 5-line blockquote HUD, and `.agents/hooks.json` scaffolding.
+- **Antigravity (`antigravity/`)**: `PreToolUse` gatekeeper normalization, `PreInvocation` `systemMessage` + `metadata.user_markdown` Start-HUD with Smart Kadence (`hud.rs`) and Read-Only `Task: NONE` banner, `wrap_response` blockquote HUD, and `.agents/hooks.json` scaffolding/validation (including `SessionStart`).
 - **Claude Code (`claude_code/`)**: `PreToolUse` / `PostToolUse` hook contract, tool payload normalization, and `.claude/settings.json` scaffolding.
 - **OpenAI Codex (`codex/`)**: `PreToolUse` / `PostToolUse` hook contract, function/patch normalization, and `.codex/hooks.json` scaffolding.
 - **Mistral Vibe (`mistral/`)**: `pre_tool` / `post_tool` TOML hook contract and tool payload normalization.
@@ -24,3 +24,4 @@ The `adapters` feature translates vendor-specific AI harness tool payloads, life
 ## 📋 Relaterede Tasks
 - [Task 088: Worktree-Isolated Multi-Agent & Subagent Supervision](../tasks/archive/088-worktree-isolated-multi-agent-supervision.md)
 - [Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene](../tasks/093-multi-agent-worktree-and-runtime-hygiene.md)
+- [Task 094: Cockpit HUD Truthfulness, Session Resolution & Antigravity Start-HUD Cadence](../tasks/094-cockpit-hud-truthfulness-and-cadence.md)
