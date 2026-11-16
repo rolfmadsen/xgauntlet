@@ -104,7 +104,6 @@ async fn test_done_checkpoint_refreshes_evidence_digests_without_drift() {
     let report = load_verification_report(ws).expect("verification-report.json must load");
     let manifest = compute_workspace_manifest(ws, None).expect("manifest must compute");
 
-    verify_workspace_state_match(&report, &manifest).expect(
-        "verification-report.json must match post-DONE workspace manifest with zero drift",
-    );
+    verify_workspace_state_match(&report, &manifest)
+        .expect("verification-report.json must match post-DONE workspace manifest with zero drift");
 }

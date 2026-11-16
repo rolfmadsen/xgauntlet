@@ -1,20 +1,18 @@
 # Verification Report
 
-**Task ID**: `101-prepare-v0-16-2-release`  
-**Task Title**: Task 101: Prepare Patch Release v0.16.2 (Auto-Unbind & Hook Deadlock Fix)  
+**Task ID**: `102-refresh-post-done-evidence-digests`  
+**Task Title**: Task 102: Refresh verification-report.json digests after mark_task_done in DONE checkpoint  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `ce2778499b866b2c139be932b843f64c31fd00285c19d9bf2e362a4f7c33e846`  
-**Timestamp**: `2026-11-16T06:56:02Z`  
-**Head**: `4dac709`  
-**Commit**: `4dac709`  
+**Source Manifest Digest**: `64aef19f485b85748e8a125a716e96333962c0d1def5e931f819d89c2ec97143`  
+**Timestamp**: `2026-11-16T07:26:04Z`  
+**Head**: `aa8d968`  
+**Commit**: `aa8d968`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 — Manifest-paritetstest opdateret til `0.16.2` (`RED`)**: `test_workspace_manifests_synchronized_to_version_0_16_2` i `release_manifest_parity_test.rs` validerer `0.16.2` (bevist rød før version bump).
-- [x] **AC2 — Manifest-, WASM- & Changelog-synkronisering til `0.16.2`**: Alle manifests, `gauntlet_policy.wasm`, `Cargo.lock` og `CHANGELOG.md` (`[0.16.2] - 2026-11-16` med Task `100`) er synkroniserede, og afsluttede Tasks `099`–`100` er arkiveret i `tasks/archive/`.
-- [x] **AC3 — Release Gatekeeper & Gauntlet Grøn**: `cargo test --workspace`, `cargo run -p xgauntlet-cli -- check-release` og `checkpoint --phase done` passerer uden fejl.
-- [x] **AC4 — Klar til `git push origin main v0.16.2`**: Clean working tree, lokal annoteret tag `v0.16.2` og forseglet evidens klar til brugerens `git push` til GitHub og npmjs.
+- [x] **AC1 — Zero-drift post-DONE `verification-report.json`**: Når `run_checkpoint` gennemfører `CheckpointPhase::Done` med preflight (`!skip_verify`), opdateres `verification-report.json` (og `evidence.md`) før `seal_tracked_evidence_files`, så `verify_workspace_state_match(&report, &compute_workspace_manifest(...))` passerer uden `source_drift` eller `task_drift`.
+- [x] **AC2 — Strict Release Gatekeeper Grøn**: `cargo run -p xgauntlet-cli -- check-release --strict` og `cargo test --workspace` passerer med exit code `0`.
 
 ---
 
@@ -22,13 +20,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.081s` |
-| `format` | `PASSED` | `0` | `0.283s` |
-| `lint` | `PASSED` | `0` | `0.080s` |
-| `unit` | `PASSED` | `0` | `56.809s` |
-| `npm` | `PASSED` | `0` | `3.385s` |
-| `invariants` | `PASSED` | `0` | `0.060s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.011s` |
+| `architecture` | `PASSED` | `0` | `0.073s` |
+| `format` | `PASSED` | `0` | `0.277s` |
+| `lint` | `PASSED` | `0` | `0.095s` |
+| `unit` | `PASSED` | `0` | `52.430s` |
+| `npm` | `PASSED` | `0` | `3.404s` |
+| `invariants` | `PASSED` | `0` | `0.059s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.014s` |
 
 ---
 
@@ -281,6 +279,7 @@
 | `sess-a313025c` | `System Architect` | `SPEC` | `a313025` | `2026-11-16T06:45:53Z` | `VALID` |
 | `sess-4dac7092` | `TDD Craftsman` | `GREEN` | `4dac709` | `2026-11-16T06:54:46Z` | `VALID` |
 | `sess-b7ff3986` | `Software Engineer` | `DONE` | `b7ff398` | `2026-11-16T06:56:02Z` | `VALID` |
+| `sess-aa8d9683` | `TDD Craftsman` | `RED` | `aa8d968` | `2026-11-16T07:23:50Z` | `VALID` |
 
 ---
 
@@ -288,6 +287,7 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_done_checkpoint_refreshes_evidence_digests_without_drift` | `RedCheckpointVerified` | `fe29378ad620b5af...` | `2026-11-16T08:23:50+01:00` |
 | `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `e74b5761be9dab92...` | `2026-11-16T07:47:04+01:00` |
 | `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `e74b5761be9dab92...` | `2026-11-16T07:47:04+01:00` |
 | `test_workspace_manifests_synchronized_to_version_0_16_2` | `RedCheckpointVerified` | `e74b5761be9dab92...` | `2026-11-16T07:47:04+01:00` |

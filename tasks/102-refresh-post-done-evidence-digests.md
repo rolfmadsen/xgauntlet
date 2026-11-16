@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 102: Refresh verification-report.json digests after mark_task_done in DONE checkpoint"
 description: "Opdater verification-report.json workspace_state og task_digest efter mark_task_done og commit i checkpoint --phase done, så xgauntlet check-release --strict passerer uden drift i CI."
-status: active
+status: done
 intent: bug
 generated: { by: process:antigravity-task-init, at: "2026-11-16T08:10:00Z" }
 tags: [checkpoint, evidence, release, drift, bugfix]
@@ -14,7 +14,7 @@ test_refs:
 
 # Task 102: Refresh verification-report.json digests after mark_task_done in DONE checkpoint
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🐛 BUG FIX`
 **Oprettet**: `2026-11-16`
 
@@ -22,8 +22,8 @@ test_refs:
 Eliminere falsk `Workspace state drift detected` (`source_manifest_digest_post` og `task_digest`) i `xgauntlet check-release --strict` efter `xgauntlet checkpoint --phase done`, hvor `mark_task_done` ændrer `tasks/<id>.md` efter preflight-verifikationen blev kørt.
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 — Zero-drift post-DONE `verification-report.json`**: Når `run_checkpoint` gennemfører `CheckpointPhase::Done` med preflight (`!skip_verify`), opdateres `verification-report.json` (og `evidence.md`) før `seal_tracked_evidence_files`, så `verify_workspace_state_match(&report, &compute_workspace_manifest(...))` passerer uden `source_drift` eller `task_drift`.
-- [ ] **AC2 — Strict Release Gatekeeper Grøn**: `cargo run -p xgauntlet-cli -- check-release --strict` og `cargo test --workspace` passerer med exit code `0`.
+- [x] **AC1 — Zero-drift post-DONE `verification-report.json`**: Når `run_checkpoint` gennemfører `CheckpointPhase::Done` med preflight (`!skip_verify`), opdateres `verification-report.json` (og `evidence.md`) før `seal_tracked_evidence_files`, så `verify_workspace_state_match(&report, &compute_workspace_manifest(...))` passerer uden `source_drift` eller `task_drift`.
+- [x] **AC2 — Strict Release Gatekeeper Grøn**: `cargo run -p xgauntlet-cli -- check-release --strict` og `cargo test --workspace` passerer med exit code `0`.
 
 ## 🚫 Must NOT
 - Må IKKE svække `verify_self_mutation` under `execute_gauntlet_pipeline` eller omgå `verify_workspace_state_match` i `check-release --strict`.

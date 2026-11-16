@@ -227,6 +227,31 @@ pub async fn run_checkpoint(
         }
     }
 
+    if options.phase == super::models::CheckpointPhase::Done && !options.skip_verify {
+        if let Ok(post_manifest) =
+            crate::features::evidence::compute_workspace_manifest(&options.workspace, None)
+        {
+            report.task_contract.task_digest = post_manifest.task_digest.clone();
+            report.workspace_state.source_content_digest = post_manifest.source_content_digest;
+            report.workspace_state.source_manifest_digest_post =
+                post_manifest.source_manifest_digest;
+            report.workspace_state.task_digest = post_manifest.task_digest;
+            report.workspace_state.config_digest = post_manifest.config_digest;
+            report.workspace_state.policy_digest = post_manifest.policy_digest;
+            report.workspace_state.included_files_count = post_manifest.included_files_count;
+            if let Some(ref mut vcs) = report.workspace_state.vcs {
+                let short_oid = if commit_oid.len() >= 7 {
+                    &commit_oid[..7]
+                } else {
+                    &commit_oid
+                };
+                vcs.head = short_oid.to_string();
+                vcs.commit = short_oid.to_string();
+                vcs.is_dirty = false;
+            }
+        }
+    }
+
     let _ = crate::features::evidence::save_verification_report(&options.workspace, &report);
 
     if options.phase == super::models::CheckpointPhase::Done {
