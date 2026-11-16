@@ -27,15 +27,15 @@
     "included_files_count": 331,
     "vcs": {
       "type": "git",
-      "head": "5d74d22",
-      "commit": "5d74d22",
+      "head": "4dac709",
+      "commit": "4dac709",
       "is_dirty": true
     }
   },
   "execution_metadata": {
-    "started_at": "2026-11-16T06:52:47Z",
-    "finished_at": "2026-11-16T06:54:02Z",
-    "total_duration_seconds": 75.125689359,
+    "started_at": "2026-11-16T06:55:01Z",
+    "finished_at": "2026-11-16T06:56:02Z",
+    "total_duration_seconds": 60.846655052,
     "environment": {
       "arch": "x86_64",
       "engine": "xgauntlet-core",
@@ -48,16 +48,16 @@
       "name": "architecture",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.931838972,
+      "duration_seconds": 0.080609135,
       "optional": false,
       "passed": true,
-      "log_digest": "0d587014b6ced8d39da7c8fc470a9c1c922a557dae59a230cec8b88a6b823c7a"
+      "log_digest": "29d01285336226d25089fd4ec1cfbaa6e3a13608605ea8479b7774c7767d7a94"
     },
     {
       "name": "format",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.288569775,
+      "duration_seconds": 0.283069418,
       "optional": false,
       "passed": true,
       "log_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -66,43 +66,43 @@
       "name": "lint",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 1.205209571,
+      "duration_seconds": 0.08041729,
       "optional": false,
       "passed": true,
-      "log_digest": "c174287fb40603c1c2216d7d27a19043f3ab63f674c961a4f094808800399026"
+      "log_digest": "ee1d3fffa2022e962e63e0dbe4d35c9c198450a20c29fc09030f635dbb38bfcd"
     },
     {
       "name": "unit",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 67.981487873,
+      "duration_seconds": 56.808759257,
       "optional": false,
       "passed": true,
-      "log_digest": "92688060e9f284134500db2d61f0efc1c4e9379e155fdb75a28c5bf726066679"
+      "log_digest": "647134b3484c6b4e76f3951ee63bb06cec521450eceea89430f80a754ba2d639"
     },
     {
       "name": "npm",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 3.431182762,
+      "duration_seconds": 3.384779144,
       "optional": false,
       "passed": true,
-      "log_digest": "55a85bddf7b85d8991d59ff90f35a4a2d9432c7a7723014a6181e43373d9b2a5"
+      "log_digest": "56d9dd98e6a9823d4ec61d7635108456f07b0d83c9bbf3b6d257109823d169ee"
     },
     {
       "name": "invariants",
       "status": "PASSED",
       "exit_code": 0,
-      "duration_seconds": 0.109517046,
+      "duration_seconds": 0.059727881,
       "optional": false,
       "passed": true,
-      "log_digest": "5d0c642d7e08501782402e57d65280f55998c6ce2356e3ef490bdfc6d50ecf8e"
+      "log_digest": "3b0b8e619098c9bfcb4da951760577fecc339649ee8e8dc230120aad036ab140"
     },
     {
       "name": "mutation-testing-gauntlet",
       "status": "FAILED",
       "exit_code": 101,
-      "duration_seconds": 0.008846632,
+      "duration_seconds": 0.011163151,
       "optional": true,
       "passed": false,
       "log_digest": "4377b390db43ddec7fcce57909ac790697cf993187ba4672470519e3678f26e3"
@@ -2065,6 +2065,14 @@
         "commit_oid": "a313025c56a0fad0bd5b566c9fade503c6801a77",
         "timestamp": "2026-11-16T06:45:53Z",
         "digest": "043f3d2d5cbc2664b94a49ff76fddce8507468fa539dece39b142c859079632f"
+      },
+      {
+        "session_nonce": "sess-4dac7092",
+        "role": "TDD Craftsman",
+        "phase": "GREEN",
+        "commit_oid": "4dac7092a345234d3430ece75d46b607859d2b55",
+        "timestamp": "2026-11-16T06:54:46Z",
+        "digest": "31f40d6fd157b990a769fa06733ad1377bd1412e43450e8418789b1375d9528e"
       }
     ]
   },

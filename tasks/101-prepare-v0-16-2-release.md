@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 101: Prepare Patch Release v0.16.2 (Auto-Unbind & Hook Deadlock Fix)"
 description: "Klargør patch release v0.16.2 efter Task 100 auto-unbind af DONE active_task og deadlock-fri PreToolUse-policy med manifester, CHANGELOG.md, arkivering af Tasks 099–100, WASM-policy og streng release-gatekeeper."
-status: active
+status: done
 intent: enhancement
 feature: release
 spec_ref: "specs/release.md"
@@ -33,7 +33,7 @@ test_refs:
 
 # Task 101: Prepare Patch Release v0.16.2 (Auto-Unbind & Hook Deadlock Fix)
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🔄 ENHANCEMENT`
 **Oprettet**: `2026-11-16`
 
