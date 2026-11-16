@@ -27,4 +27,4 @@ The `adapters` feature translates vendor-specific AI harness tool payloads, life
 - [Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene](../tasks/archive/093-multi-agent-worktree-and-runtime-hygiene.md)
 - [Task 094: Cockpit HUD Truthfulness, Session Resolution & Antigravity Start-HUD Cadence](../tasks/archive/094-cockpit-hud-truthfulness-and-cadence.md)
 - [Task 095: 1-Klik Mermaid DX, Feature-Scoped Diagrammer, Pele Viewer & HUD Links](../tasks/archive/095-mermaid-dx-markdown-scope-and-pele-viewer.md)
-- [Task 100: Auto-unbind done active_task and prevent hook deadlock on Task NONE](../tasks/100-auto-unbind-done-task-and-avoid-hook-deadlock.md)
+- [Task 100: Auto-unbind done active_task and prevent hook deadlock on Task NONE](../tasks/archive/100-auto-unbind-done-task-and-avoid-hook-deadlock.md)

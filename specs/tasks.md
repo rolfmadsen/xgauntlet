@@ -26,5 +26,5 @@ The `tasks` feature owns OKF v0.2 task parsing, specification readiness validati
 - [Task 087: Archive Terminal Task Statuses (Deprecated, Superseded, Rejected)](../tasks/archive/087-archive-terminal-task-statuses.md)
 - [Task 088: Worktree-Isolated Multi-Agent & Subagent Supervision](../tasks/archive/088-worktree-isolated-multi-agent-supervision.md)
 - [Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene](../tasks/archive/093-multi-agent-worktree-and-runtime-hygiene.md)
-- [Task 100: Auto-unbind done active_task and prevent hook deadlock on Task NONE](../tasks/100-auto-unbind-done-task-and-avoid-hook-deadlock.md)
+- [Task 100: Auto-unbind done active_task and prevent hook deadlock on Task NONE](../tasks/archive/100-auto-unbind-done-task-and-avoid-hook-deadlock.md)
 

@@ -41,10 +41,10 @@ test_refs:
 Klargøre patch release **xGauntlet v0.16.2** med auto-unbind af afsluttet `.xgauntlet/active_task`, stale-binding recovery-diagnostik og deadlock-fri `PreToolUse`-policy fra Task 100, så `git push origin main v0.16.2` udløser GitHub Release og npmjs-publicering.
 
 ## 📋 Acceptance Criteria
-- [ ] **AC1 — Manifest-paritetstest opdateret til `0.16.2` (`RED`)**: `test_workspace_manifests_synchronized_to_version_0_16_2` i `release_manifest_parity_test.rs` validerer `0.16.2` (bevist rød før version bump).
-- [ ] **AC2 — Manifest-, WASM- & Changelog-synkronisering til `0.16.2`**: Alle manifests, `gauntlet_policy.wasm`, `Cargo.lock` og `CHANGELOG.md` (`[0.16.2] - 2026-11-16` med Task `100`) er synkroniserede, og afsluttede Tasks `099`–`100` er arkiveret i `tasks/archive/`.
-- [ ] **AC3 — Release Gatekeeper & Gauntlet Grøn**: `cargo test --workspace`, `cargo run -p xgauntlet-cli -- check-release` og `checkpoint --phase done` passerer uden fejl.
-- [ ] **AC4 — Klar til `git push origin main v0.16.2`**: Clean working tree, lokal annoteret tag `v0.16.2` og forseglet evidens klar til brugerens `git push` til GitHub og npmjs.
+- [x] **AC1 — Manifest-paritetstest opdateret til `0.16.2` (`RED`)**: `test_workspace_manifests_synchronized_to_version_0_16_2` i `release_manifest_parity_test.rs` validerer `0.16.2` (bevist rød før version bump).
+- [x] **AC2 — Manifest-, WASM- & Changelog-synkronisering til `0.16.2`**: Alle manifests, `gauntlet_policy.wasm`, `Cargo.lock` og `CHANGELOG.md` (`[0.16.2] - 2026-11-16` med Task `100`) er synkroniserede, og afsluttede Tasks `099`–`100` er arkiveret i `tasks/archive/`.
+- [x] **AC3 — Release Gatekeeper & Gauntlet Grøn**: `cargo test --workspace`, `cargo run -p xgauntlet-cli -- check-release` og `checkpoint --phase done` passerer uden fejl.
+- [x] **AC4 — Klar til `git push origin main v0.16.2`**: Clean working tree, lokal annoteret tag `v0.16.2` og forseglet evidens klar til brugerens `git push` til GitHub og npmjs.
 
 ## 🚫 Must NOT
 - Foretag IKKE `git push`, `npm publish` eller destruktive git resets (ADR 0003).
@@ -55,3 +55,4 @@ Klargøre patch release **xGauntlet v0.16.2** med auto-unbind af afsluttet `.xga
 ## 🧪 Verifikation
 - `cargo test -p xgauntlet-core --test release_manifest_parity_test`
 - `cargo run -p xgauntlet-cli -- check-release`
+

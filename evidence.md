@@ -1,20 +1,20 @@
 # Verification Report
 
-**Task ID**: `100-auto-unbind-done-task-and-avoid-hook-deadlock`  
-**Task Title**: Task 100: Auto-unbind done active_task and prevent hook deadlock on Task NONE  
+**Task ID**: `101-prepare-v0-16-2-release`  
+**Task Title**: Task 101: Prepare Patch Release v0.16.2 (Auto-Unbind & Hook Deadlock Fix)  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `d2a09cb37b435825dc0a866f74922e485053e20fb0154a0dbe44c21996345eae`  
-**Timestamp**: `2026-11-16T06:42:14Z`  
-**Head**: `1aab8de`  
-**Commit**: `1aab8de`  
+**Source Manifest Digest**: `ce2778499b866b2c139be932b843f64c31fd00285c19d9bf2e362a4f7c33e846`  
+**Timestamp**: `2026-11-16T06:54:02Z`  
+**Head**: `5d74d22`  
+**Commit**: `5d74d22`  
 
 ## Acceptance Criteria
 
-- [x] **AC1 (Auto-unbind ved `DONE`)**: Når `xgauntlet checkpoint --phase done` gennemføres med succes (`run_checkpoint` i `crates/xgauntlet-core/src/features/checkpoint/engine.rs`), fjernes `.xgauntlet/active_task` automatisk, hvis den bundne opgave i `.xgauntlet/active_task` matcher den afsluttede `task_id` (eller kort-ID). Hvis commit/checkpoint fejler og rulles tilbage, bevares bindingen uændret.
-- [x] **AC2 (Robust diagnosticering & recovery ved terminal binding)**: Når `.xgauntlet/active_task` peger på en opgave med terminal status (`DONE`, `COMPLETED`, `DEPRECATED`, `SUPERSEDED`, `REJECTED`) eller en manglende opgave, bevares fail-closed task-resolution i `resolve_active_task_path` (ADR 0014), mens `hook` (`stderr`), `cockpit` / `PreInvocation` HUD og task-resolution eksponerer en tydelig advarsel og den præcise recovery-kommando (`xgauntlet task unbind` eller `xgauntlet task bind --task <aktiv-id>`). *(Alternativt, hvis automatisk fallback vælges, skal ADR 0014 og `test_worktree_local_active_task_binding_overrides_highest_number` eksplicit revideres først.)*
-- [x] **AC3 (Deadlock-fri `PreToolUse` & WASM Policy Component)**: I `crates/gauntlet-policy-engine/src/command.rs` (og den rekompilerede `crates/xgauntlet-core/wasm/gauntlet_policy.wasm`) tillades følgende ufarlige kommandoer via Structured Command Tokenization uden aktiv Task (`has_active_task: false`), både som `xgauntlet ...`, `npx xgauntlet ...` og `cargo run -p xgauntlet-cli -- ...` uden shell-metategn:
-- [x] **AC4 (Living Feature Specs & Verification Gauntlet)**: `specs/tasks.md`, `specs/checkpoint.md` og `specs/adapters.md` opdateres ved behov med link til Task 100, `gauntlet_policy.wasm` er rekompileret og synkroniseret, og `cargo test --workspace`, `cargo clippy --all-targets -- -D warnings` samt `xgauntlet verify` passerer.
+- [x] **AC1 — Manifest-paritetstest opdateret til `0.16.2` (`RED`)**: `test_workspace_manifests_synchronized_to_version_0_16_2` i `release_manifest_parity_test.rs` validerer `0.16.2` (bevist rød før version bump).
+- [x] **AC2 — Manifest-, WASM- & Changelog-synkronisering til `0.16.2`**: Alle manifests, `gauntlet_policy.wasm`, `Cargo.lock` og `CHANGELOG.md` (`[0.16.2] - 2026-11-16` med Task `100`) er synkroniserede, og afsluttede Tasks `099`–`100` er arkiveret i `tasks/archive/`.
+- [x] **AC3 — Release Gatekeeper & Gauntlet Grøn**: `cargo test --workspace`, `cargo run -p xgauntlet-cli -- check-release` og `checkpoint --phase done` passerer uden fejl.
+- [x] **AC4 — Klar til `git push origin main v0.16.2`**: Clean working tree, lokal annoteret tag `v0.16.2` og forseglet evidens klar til brugerens `git push` til GitHub og npmjs.
 
 ---
 
@@ -22,13 +22,13 @@
 
 | Check Name | Status | Exit Code | Duration (s) |
 |---|---|---|---|
-| `architecture` | `PASSED` | `0` | `0.075s` |
-| `format` | `PASSED` | `0` | `0.278s` |
-| `lint` | `PASSED` | `0` | `0.135s` |
-| `unit` | `PASSED` | `0` | `48.720s` |
-| `npm` | `PASSED` | `0` | `3.360s` |
-| `invariants` | `PASSED` | `0` | `0.055s` |
-| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.014s` |
+| `architecture` | `PASSED` | `0` | `1.932s` |
+| `format` | `PASSED` | `0` | `0.289s` |
+| `lint` | `PASSED` | `0` | `1.205s` |
+| `unit` | `PASSED` | `0` | `67.981s` |
+| `npm` | `PASSED` | `0` | `3.431s` |
+| `invariants` | `PASSED` | `0` | `0.110s` |
+| `mutation-testing-gauntlet` | `FAILED` | `101` | `0.009s` |
 
 ---
 
@@ -286,6 +286,10 @@
 
 | Test Identifier | Status | Baseline Failure Digest | Verified At |
 |---|---|---|---|
+| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `e74b5761be9dab92...` | `2026-11-16T07:47:04+01:00` |
+| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `e74b5761be9dab92...` | `2026-11-16T07:47:04+01:00` |
+| `test_workspace_manifests_synchronized_to_version_0_16_2` | `RedCheckpointVerified` | `e74b5761be9dab92...` | `2026-11-16T07:47:04+01:00` |
+| `test_npm_cli_readme_identical_to_root_readme` | `RedCheckpointVerified` | `e74b5761be9dab92...` | `2026-11-16T07:47:04+01:00` |
 | `test_models_and_conventions` | `RedCheckpointVerified` | `1e90fafc723d3019...` | `2026-11-16T07:34:14+01:00` |
 | `test_compose_commit_message_variations` | `RedCheckpointVerified` | `1e90fafc723d3019...` | `2026-11-16T07:34:14+01:00` |
 | `test_checkpoint_fails_without_active_task` | `RedCheckpointVerified` | `1e90fafc723d3019...` | `2026-11-16T07:34:14+01:00` |
@@ -333,10 +337,7 @@
 | `test_empty_scope_with_test_targets_strictly_isolates_test_files` | `RedCheckpointVerified` | `1e90fafc723d3019...` | `2026-11-16T07:34:14+01:00` |
 | `test_task_084_ac1_readonly_inspection_and_chains_without_active_task` | `RedCheckpointVerified` | `1e90fafc723d3019...` | `2026-11-16T07:34:14+01:00` |
 | `test_task_100_ac3_recovery_and_inspection_commands_allowed_without_active_task` | `RedCheckpointVerified` | `1e90fafc723d3019...` | `2026-11-16T07:34:14+01:00` |
-| `test_extract_declared_versions_includes_plugin_and_policy` | `RedCheckpointVerified` | `5622c8ceda5ccd95...` | `2026-11-15T16:08:34+01:00` |
-| `test_update_manifest_versions_bumps_plugin_and_policy` | `RedCheckpointVerified` | `5622c8ceda5ccd95...` | `2026-11-15T16:08:34+01:00` |
 | `test_workspace_manifests_synchronized_to_version_0_16_1` | `RedCheckpointVerified` | `5622c8ceda5ccd95...` | `2026-11-15T16:08:34+01:00` |
-| `test_npm_cli_readme_identical_to_root_readme` | `RedCheckpointVerified` | `5622c8ceda5ccd95...` | `2026-11-15T16:08:34+01:00` |
 | `test_ac5_cli_worktree_create_creates_in_repo_worktree_and_binds_task` | `RedCheckpointVerified` | `7bd7a75a3daf4993...` | `2026-11-15T16:05:43+01:00` |
 | `test_ac5_cli_worktree_create_fails_closed_without_git_pollution_on_non_active_or_untracked_task` | `RedCheckpointVerified` | `7bd7a75a3daf4993...` | `2026-11-15T16:05:43+01:00` |
 | `test_strip_windows_verbatim_prefix_normalizes_git_worktree_paths` | `RedCheckpointVerified` | `7bd7a75a3daf4993...` | `2026-11-15T16:05:43+01:00` |

@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.2] - 2026-11-16
+
+### 🐛 Fixed
+- **Auto-Unbind Done `.xgauntlet/active_task` & Deadlock-Free `PreToolUse` on `Task: NONE` (`Task 100`, `crates/xgauntlet-core`, `crates/gauntlet-policy-engine`)**:
+  - Added `unbind_active_task_if_matching` in `tasks/parser.rs` and wired it into `checkpoint/engine.rs` so `xgauntlet checkpoint --phase done` automatically removes `.xgauntlet/active_task` when it matches the completed task (while preserving the binding on checkpoint failure/rollback or mismatched explicit task IDs).
+  - Preserved fail-closed task resolution in `resolve_active_task_path` (`ADR 0014`) while adding `StaleTaskBinding` diagnostics and exact `xgauntlet task unbind` / `xgauntlet task bind --task <id>` recovery hints across task resolution, `IdleWorkspaceTelemetry` (`cockpit.rs`), `PreInvocation` HUD (`hud.rs`), and `PreToolUse` denial messages (`stderr`) across all four harness adapters (`antigravity`, `claude_code`, `codex`, `mistral`).
+  - Updated `crates/gauntlet-policy-engine/src/command.rs` and recompiled `crates/xgauntlet-core/wasm/gauntlet_policy.wasm` so `status`, `telemetry`, `task list`, `task status`, `task unbind`, and `task bind` are permitted without an active task (`has_active_task: false`) across `xgauntlet`, `npx xgauntlet`, and `cargo run -p xgauntlet-cli --` without shell metacharacters.
+
 ## [0.16.1] - 2026-11-15
 
 ### 🐛 Fixed

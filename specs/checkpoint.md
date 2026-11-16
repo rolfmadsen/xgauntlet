@@ -30,5 +30,5 @@ The `checkpoint` feature enforces phase-bound TDD invariant verification (`SPEC`
 - [Task 064: Static Checkpoint Commands and Harness Auto-Allow](../tasks/archive/064-static-checkpoint-commands-and-harness-auto-allow.md)
 - [Task 084: Reduce Policy Hook, Done-Transition & Sandbox Checkpoint Friction](../tasks/archive/084-reduce-policy-and-checkpoint-sandbox-friction.md)
 - [Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene](../tasks/archive/093-multi-agent-worktree-and-runtime-hygiene.md)
-- [Task 100: Auto-unbind done active_task and prevent hook deadlock on Task NONE](../tasks/100-auto-unbind-done-task-and-avoid-hook-deadlock.md)
+- [Task 100: Auto-unbind done active_task and prevent hook deadlock on Task NONE](../tasks/archive/100-auto-unbind-done-task-and-avoid-hook-deadlock.md)
 
