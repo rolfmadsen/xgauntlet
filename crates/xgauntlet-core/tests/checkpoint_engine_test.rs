@@ -922,8 +922,8 @@ optional = false
     // Case 2: Mismatched .xgauntlet/active_task (099) must NOT be removed when finishing 084 explicitly
     fs::write(&active_task_file, "099-other-active\n").unwrap();
     fs::write(temp.path().join("crates/seed.txt"), "green-mismatch").unwrap();
-    let explicit_opts =
-        CheckpointOptions::new(CheckpointPhase::Done, temp.path()).with_task_id("084-done-transition");
+    let explicit_opts = CheckpointOptions::new(CheckpointPhase::Done, temp.path())
+        .with_task_id("084-done-transition");
     run_checkpoint(&explicit_opts)
         .await
         .expect("Explicit DONE checkpoint for 084 should succeed");

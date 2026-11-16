@@ -196,7 +196,7 @@ pub fn format_recovery_hint(task_id: &str, verdict: &AdapterHookVerdict) -> Stri
         "Destructive operations and remote push are strictly prohibited by ADR 0003".to_string()
     } else if verdict.reason.contains("read-only") {
         "Mutations are prohibited during read-only phase".to_string()
-    } else if matches!(verdict.reason_code, Some(4031 | 4032 | 4033)) {
+    } else if matches!(verdict.reason_code, Some(4031..=4033)) {
         "Create or activate a task in tasks/ (or run 'xgauntlet task bind --task <id>') before modifying files".to_string()
     } else {
         "Adhere to active task scope and invariants in CONTEXT.md and spec.md".to_string()
@@ -209,7 +209,7 @@ pub fn format_recovery_hint_for_workspace(
     task_id: &str,
     verdict: &AdapterHookVerdict,
 ) -> String {
-    if task_id == "NONE" || matches!(verdict.reason_code, Some(4031 | 4032 | 4033 | 4034)) {
+    if task_id == "NONE" || matches!(verdict.reason_code, Some(4031..=4034)) {
         if let Some(stale) = crate::features::tasks::parser::inspect_stale_task_binding(workspace) {
             return format!("⚠️ {}", stale.warning_message());
         }

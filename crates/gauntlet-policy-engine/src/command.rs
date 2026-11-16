@@ -257,9 +257,9 @@ fn is_safe_xgauntlet_invocation(args: &[String]) -> bool {
         return false;
     };
     if sub == "task" {
-        return args
-            .get(1)
-            .is_some_and(|task_sub| matches!(task_sub.as_str(), "list" | "status" | "unbind" | "bind"));
+        return args.get(1).is_some_and(|task_sub| {
+            matches!(task_sub.as_str(), "list" | "status" | "unbind" | "bind")
+        });
     }
     is_safe_xgauntlet_subcommand(sub)
 }

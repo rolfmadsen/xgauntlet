@@ -9,7 +9,7 @@
 
 ## 🎯 Purpose & Capability Boundary
 The `checkpoint` feature enforces phase-bound TDD invariant verification (`SPEC`, `RED`, `GREEN`, `REFACTOR`, `DONE`) and creates atomic, strictly local conventional Git commits:
-- **Orchestrator (`engine.rs`)**: `run_checkpoint(options)` resolves the target task, enforces `scope` / `test_refs` commit boundaries via `validate_staged_files_scope`, executes local commits, generates `SessionHandoff` cards on `DONE`, and appends `SessionLineageEntry` and test provenance into `verification-report.json`.
+- **Orchestrator (`engine.rs`)**: `run_checkpoint(options)` resolves the target task, enforces `scope` / `test_refs` commit boundaries via `validate_staged_files_scope`, executes local commits, automatically unbinds matching `.xgauntlet/active_task` bindings after successful `DONE` sealing (preserving bindings on failure/rollback), generates `SessionHandoff` cards on `DONE`, and appends `SessionLineageEntry` and test provenance into `verification-report.json`.
 - **Pre-Flight Engine (`preflight.rs`)**: `run_preflight_check(options)` validates phase-specific invariants before commit creation:
   - `SPEC`: Validates OKF v0.2 task specification readiness (`check_task_specification`).
   - `RED`: Runs scoped `test_refs` targets (`resolve_preflight_test_layers`) and verifies that expected test assertions fail rather than production syntax/manifest errors.
@@ -30,4 +30,5 @@ The `checkpoint` feature enforces phase-bound TDD invariant verification (`SPEC`
 - [Task 064: Static Checkpoint Commands and Harness Auto-Allow](../tasks/archive/064-static-checkpoint-commands-and-harness-auto-allow.md)
 - [Task 084: Reduce Policy Hook, Done-Transition & Sandbox Checkpoint Friction](../tasks/archive/084-reduce-policy-and-checkpoint-sandbox-friction.md)
 - [Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene](../tasks/archive/093-multi-agent-worktree-and-runtime-hygiene.md)
+- [Task 100: Auto-unbind done active_task and prevent hook deadlock on Task NONE](../tasks/100-auto-unbind-done-task-and-avoid-hook-deadlock.md)
 

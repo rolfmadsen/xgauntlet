@@ -184,20 +184,24 @@ impl StaleTaskBinding {
     }
 }
 
-fn find_fallback_active_task_id(workspace: &Path) -> Option<String> {
+fn find_highest_active_task_path(workspace: &Path) -> Option<PathBuf> {
     let tasks_dir = workspace.join("tasks");
     let paths = collect_task_files(&tasks_dir);
     for path in paths.into_iter().rev() {
         if let Ok(content) = fs::read_to_string(&path) {
             if is_task_active(&content) {
-                return path
-                    .file_stem()
-                    .and_then(|s| s.to_str())
-                    .map(|s| s.to_string());
+                return Some(path);
             }
         }
     }
     None
+}
+
+fn find_fallback_active_task_id(workspace: &Path) -> Option<String> {
+    find_highest_active_task_path(workspace)?
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .map(|s| s.to_string())
 }
 
 /// Inspects `.xgauntlet/active_task` and returns stale-binding diagnostics if it points to a terminal/inactive or missing task.
@@ -212,29 +216,26 @@ pub fn inspect_stale_task_binding(workspace: &Path) -> Option<StaleTaskBinding> 
         return None;
     }
 
-    match resolve_task_file_path(workspace, Some(bound_id)) {
-        Ok(path) => match fs::read_to_string(&path) {
-            Ok(content) if is_task_active(&content) => None,
-            Ok(content) => Some(StaleTaskBinding {
+    if let Ok(path) = resolve_task_file_path(workspace, Some(bound_id)) {
+        if let Ok(content) = fs::read_to_string(&path) {
+            if is_task_active(&content) {
+                return None;
+            }
+            return Some(StaleTaskBinding {
                 bound_id: bound_id.to_string(),
                 status: Some(parse_task_status(&content)),
                 missing: false,
                 suggested_active_id: find_fallback_active_task_id(workspace),
-            }),
-            Err(_) => Some(StaleTaskBinding {
-                bound_id: bound_id.to_string(),
-                status: None,
-                missing: true,
-                suggested_active_id: find_fallback_active_task_id(workspace),
-            }),
-        },
-        Err(_) => Some(StaleTaskBinding {
-            bound_id: bound_id.to_string(),
-            status: None,
-            missing: true,
-            suggested_active_id: find_fallback_active_task_id(workspace),
-        }),
+            });
+        }
     }
+
+    Some(StaleTaskBinding {
+        bound_id: bound_id.to_string(),
+        status: None,
+        missing: true,
+        suggested_active_id: find_fallback_active_task_id(workspace),
+    })
 }
 
 fn normalize_binding_token(raw: &str) -> String {
@@ -256,10 +257,7 @@ fn binding_matches_task_id(workspace: &Path, bound_raw: &str, finished_task_id: 
         return true;
     }
 
-    let bound_short = bound
-        .split_once('-')
-        .map(|(p, _)| p)
-        .unwrap_or(&bound);
+    let bound_short = bound.split_once('-').map(|(p, _)| p).unwrap_or(&bound);
     let finished_short = finished
         .split_once('-')
         .map(|(p, _)| p)
@@ -317,18 +315,7 @@ pub fn resolve_active_task_path(workspace: &Path) -> Option<PathBuf> {
         }
     }
 
-    let tasks_dir = workspace.join("tasks");
-    let paths = collect_task_files(&tasks_dir);
-
-    for path in paths.into_iter().rev() {
-        if let Ok(content) = fs::read_to_string(&path) {
-            if is_task_active(&content) {
-                return Some(path);
-            }
-        }
-    }
-
-    None
+    find_highest_active_task_path(workspace)
 }
 
 /// Binds a specific active task identifier to the given workspace/worktree via `.xgauntlet/active_task`.

@@ -14,7 +14,7 @@ The `adapters` feature translates vendor-specific AI harness tool payloads, life
 - **Claude Code (`claude_code/`)**: `PreToolUse` / `PostToolUse` hook contract, tool payload normalization, and `.claude/settings.json` scaffolding.
 - **OpenAI Codex (`codex/`)**: `PreToolUse` / `PostToolUse` hook contract, function/patch normalization, and `.codex/hooks.json` scaffolding.
 - **Mistral Vibe (`mistral/`)**: `pre_tool` / `post_tool` TOML hook contract and tool payload normalization.
-- **Shared Adapter Contract (`models.rs`, `workspace.rs`, `delegation.rs`)**: Payload-aware git worktree resolution (`resolve_effective_workspace` verifying matching git common-dir), unified multi-harness agent delegation classification (`classify_delegation_tool` → `ToolActionType::Delegate`), path sanitization (`WorkspaceRelativePath`), trusted `EnforcementContext` derivation, and embedded WASM policy evaluation.
+- **Shared Adapter Contract (`models.rs`, `workspace.rs`, `delegation.rs`)**: Payload-aware git worktree resolution (`resolve_effective_workspace` verifying matching git common-dir), unified multi-harness agent delegation classification (`classify_delegation_tool` → `ToolActionType::Delegate`), path sanitization (`WorkspaceRelativePath`), trusted `EnforcementContext` derivation, stale `.xgauntlet/active_task` recovery hints (`format_recovery_hint_for_workspace` and `PreInvocation` HUD diagnostics), and embedded WASM policy evaluation permitting deadlock-free inspection/recovery commands (`status`, `telemetry`, `task list|status|unbind|bind`) under `Task: NONE`.
 
 ## 🚫 Invariants
 - Never trust caller-supplied authority parameters (`has_active_task`, `read_only`, `allowed_scopes`) from hook payloads ([ADR 0006](../docs/adr/0006-multi-harness-policy-adapter-contract.md)).
@@ -27,3 +27,4 @@ The `adapters` feature translates vendor-specific AI harness tool payloads, life
 - [Task 093: Multi-Agent Worktree Workflow, Coexistence Policy & Runtime/Evidence Hygiene](../tasks/archive/093-multi-agent-worktree-and-runtime-hygiene.md)
 - [Task 094: Cockpit HUD Truthfulness, Session Resolution & Antigravity Start-HUD Cadence](../tasks/archive/094-cockpit-hud-truthfulness-and-cadence.md)
 - [Task 095: 1-Klik Mermaid DX, Feature-Scoped Diagrammer, Pele Viewer & HUD Links](../tasks/archive/095-mermaid-dx-markdown-scope-and-pele-viewer.md)
+- [Task 100: Auto-unbind done active_task and prevent hook deadlock on Task NONE](../tasks/100-auto-unbind-done-task-and-avoid-hook-deadlock.md)
