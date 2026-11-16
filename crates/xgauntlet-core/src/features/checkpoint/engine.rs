@@ -231,6 +231,10 @@ pub async fn run_checkpoint(
 
     if options.phase == super::models::CheckpointPhase::Done {
         seal_tracked_evidence_files(&options.workspace, &task_id)?;
+        crate::features::tasks::parser::unbind_active_task_if_matching(
+            &options.workspace,
+            &task_id,
+        )?;
     }
 
     let (next_phase, autonomous_transition) = match options.phase {

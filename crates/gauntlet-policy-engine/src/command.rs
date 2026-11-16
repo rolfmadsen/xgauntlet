@@ -237,7 +237,9 @@ pub fn has_unsafe_chained_executable(segments: &[Vec<String>]) -> bool {
 fn is_safe_xgauntlet_subcommand(sub: &str) -> bool {
     matches!(
         sub,
-        "verify"
+        "status"
+            | "telemetry"
+            | "verify"
             | "doctor"
             | "check-evidence"
             | "check-spec"
@@ -250,16 +252,25 @@ fn is_safe_xgauntlet_subcommand(sub: &str) -> bool {
     )
 }
 
+fn is_safe_xgauntlet_invocation(args: &[String]) -> bool {
+    let Some(sub) = args.first().map(|s| s.as_str()) else {
+        return false;
+    };
+    if sub == "task" {
+        return args
+            .get(1)
+            .is_some_and(|task_sub| matches!(task_sub.as_str(), "list" | "status" | "unbind" | "bind"));
+    }
+    is_safe_xgauntlet_subcommand(sub)
+}
+
 fn is_safe_cargo_run_xgauntlet(args: &[String]) -> bool {
     let mut i = 0;
     let mut targets_xgauntlet_cli = false;
     while i < args.len() {
         let arg = args[i].as_str();
         if arg == "--" {
-            return targets_xgauntlet_cli
-                && args
-                    .get(i + 1)
-                    .is_some_and(|sub| is_safe_xgauntlet_subcommand(sub));
+            return targets_xgauntlet_cli && is_safe_xgauntlet_invocation(&args[i + 1..]);
         }
         if arg == "-p" || arg == "--package" {
             let Some(pkg) = args.get(i + 1) else {
@@ -333,11 +344,9 @@ pub fn is_safe_command_segment(tokens: &[String]) -> bool {
                 false
             }
         }
-        "xgauntlet" => tokens
-            .get(1)
-            .is_some_and(|sub| is_safe_xgauntlet_subcommand(sub)),
+        "xgauntlet" => is_safe_xgauntlet_invocation(&tokens[1..]),
         "npx" if tokens.len() > 2 && tokens[1] == "xgauntlet" => {
-            is_safe_xgauntlet_subcommand(&tokens[2])
+            is_safe_xgauntlet_invocation(&tokens[2..])
         }
         _ => false,
     }

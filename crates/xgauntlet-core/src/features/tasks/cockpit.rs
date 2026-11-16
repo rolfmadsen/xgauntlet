@@ -14,7 +14,9 @@ use crate::features::adapters::workspace::resolve_primary_repo_root;
 use crate::features::checkpoint::extract_short_task_id;
 use crate::features::evidence::{load_verification_report, CheckStatus, VerificationVerdict};
 use crate::features::tasks::models::TaskStatus;
-use crate::features::tasks::parser::ACTIVE_TASK_FILE;
+use crate::features::tasks::parser::{
+    inspect_stale_task_binding, StaleTaskBinding, ACTIVE_TASK_FILE,
+};
 use crate::features::tasks::telemetry::{
     inspect_task_telemetry_for_session, list_workspace_tasks, GitTelemetry, TaskTelemetry,
 };
@@ -98,6 +100,8 @@ pub struct IdleWorkspaceTelemetry {
     pub policy_mode: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub latest_draft_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stale_binding: Option<StaleTaskBinding>,
 }
 
 /// Unified cockpit snapshot supporting both active tasks and idle Read-Only workspaces.
@@ -388,7 +392,6 @@ pub fn evaluate_worktree_summary(
         .filter(|s| !s.is_empty());
     let active_task_bound = match (bound_raw, active_task_id) {
         (Some(ref bound), Some(tid)) => task_ids_equivalent(bound, tid),
-        (Some(_), None) => true,
         _ => false,
     };
 
@@ -527,6 +530,8 @@ pub fn inspect_idle_workspace_telemetry(workspace: &Path) -> IdleWorkspaceTeleme
         }
     }
 
+    let stale_binding = inspect_stale_task_binding(workspace);
+
     IdleWorkspaceTelemetry {
         git,
         worktree,
@@ -536,6 +541,7 @@ pub fn inspect_idle_workspace_telemetry(workspace: &Path) -> IdleWorkspaceTeleme
         done_tasks,
         policy_mode: "Read-Only / Planning".to_string(),
         latest_draft_id,
+        stale_binding,
     }
 }
 

@@ -170,12 +170,32 @@ pub fn format_idle_telemetry(idle: &IdleWorkspaceTelemetry) -> String {
         .map(|id| format!(" (seneste draft: {id})"))
         .unwrap_or_default();
 
+    let (stale_line, pointer_line) = if let Some(ref stale) = idle.stale_binding {
+        (
+            format!(
+                "\n⚠️ Stale Binding: .xgauntlet/active_task -> '{}' ({}).",
+                stale.bound_id,
+                stale.status_label()
+            ),
+            format!(
+                "Read-Only active due to stale binding. Run 'xgauntlet task unbind' or 'xgauntlet task bind --task {}'.",
+                stale.bind_target_hint()
+            ),
+        )
+    } else {
+        (
+            String::new(),
+            "Read-Only active. Use discover/spec to create or activate a task in tasks/."
+                .to_string(),
+        )
+    };
+
     format!(
         "[XGAUNTLET COCKPIT TELEMETRY]\n\
          Task: NONE | Policy: {} | Gauntlet: {}\n\
          Git: {}@{}{ahead_str} ({git_state}) | Checkout: {}\n\
-         Backlog: {} draft{draft_hint}, {} done tasks\n\
-         Pointer: Read-Only active. Use discover/spec to create or activate a task in tasks/.",
+         Backlog: {} draft{draft_hint}, {} done tasks{stale_line}\n\
+         Pointer: {pointer_line}",
         idle.policy_mode,
         idle.verification.freshness.as_str(),
         idle.git.branch,
@@ -270,10 +290,30 @@ pub fn render_idle_banner(idle: &IdleWorkspaceTelemetry) -> String {
         String::new()
     };
 
+    let (stale_row, next_action) = if let Some(ref stale) = idle.stale_binding {
+        (
+            format!(
+                "\n> ⚠️ **Stale Binding**: `.xgauntlet/active_task` peger på `{}` ({}).",
+                stale.bound_id,
+                stale.status_label()
+            ),
+            format!(
+                "Kør `xgauntlet task unbind` eller `xgauntlet task bind --task {}` for at gendanne aktiv task-opløsning.",
+                stale.bind_target_hint()
+            ),
+        )
+    } else {
+        (
+            String::new(),
+            "Brug `discover` / `spec` til at oprette eller aktivere en opgave i `tasks/`."
+                .to_string(),
+        )
+    };
+
     format!(
         "> ### 🛡️ [Task: NONE] `[{}]`\n\
-         > **Status**: `Policy: {}` | `Gauntlet: {}` | `Backlog: {} draft, {} done` | `Git: {}@{}{ahead_str}{wt_suffix} • {git_state}`\n\
-         > 💡 **Next Action:** Brug `discover` / `spec` til at oprette eller aktivere en opgave i `tasks/`.",
+         > **Status**: `Policy: {}` | `Gauntlet: {}` | `Backlog: {} draft, {} done` | `Git: {}@{}{ahead_str}{wt_suffix} • {git_state}`{stale_row}\n\
+         > 💡 **Next Action:** {next_action}",
         idle.policy_mode,
         idle.policy_mode,
         idle.verification.freshness.as_str(),
@@ -331,8 +371,18 @@ pub fn render_compact_chip(snapshot: &CockpitSnapshot) -> String {
         CockpitSnapshot::Idle(i) => {
             let ahead_str = format_ahead_suffix(i.commits_ahead);
             let git_state = format_git_state(&i.git);
+            let stale_part = i
+                .stale_binding
+                .as_ref()
+                .map(|s| {
+                    format!(
+                        " • ⚠️ Stale binding: `{}` (`xgauntlet task unbind`)",
+                        s.bound_id
+                    )
+                })
+                .unwrap_or_default();
             format!(
-                "> 🛡️ `Task: NONE` • `Read-Only` • Gauntlet: `{}` • Backlog: `{} draft` • Git: `{}@{}{ahead_str} {git_state}`",
+                "> 🛡️ `Task: NONE` • `Read-Only` • Gauntlet: `{}` • Backlog: `{} draft` • Git: `{}@{}{ahead_str} {git_state}`{stale_part}",
                 i.verification.freshness.as_str(),
                 i.draft_tasks,
                 i.git.branch,
@@ -386,14 +436,20 @@ pub fn structural_hud_fingerprint(snapshot: &CockpitSnapshot) -> String {
             )
         }
         CockpitSnapshot::Idle(i) => {
+            let stale_key = i
+                .stale_binding
+                .as_ref()
+                .map(|s| format!("{}:{}", s.bound_id, s.status_label()))
+                .unwrap_or_else(|| "none".to_string());
             format!(
-                "idle|{}|{}|drafts:{}|done:{}|{}|clean:{}",
+                "idle|{}|{}|drafts:{}|done:{}|{}|clean:{}|stale:{}",
                 i.verification.freshness.as_str(),
                 i.worktree.checkout_label,
                 i.draft_tasks,
                 i.done_tasks,
                 i.git.branch,
-                i.git.is_clean
+                i.git.is_clean,
+                stale_key
             )
         }
     }

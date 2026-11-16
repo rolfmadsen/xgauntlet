@@ -289,8 +289,11 @@ impl HarnessAdapter for MistralAdapter {
                         .as_ref()
                         .and_then(|t| t.phase.as_deref())
                         .unwrap_or("SPEC");
-                    let recovery =
-                        crate::features::adapters::format_recovery_hint(task_id, &verdict);
+                    let recovery = crate::features::adapters::format_recovery_hint_for_workspace(
+                        &effective_ws,
+                        task_id,
+                        &verdict,
+                    );
                     let formatted_denial = crate::features::adapters::format_policy_denial(
                         tool_name,
                         task_id,

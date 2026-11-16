@@ -274,6 +274,7 @@
 | `sess-60fda5fc` | `TDD Craftsman` | `GREEN` | `60fda5f` | `2026-11-15T15:10:24Z` | `VALID` |
 | `sess-2e580fcd` | `Software Engineer` | `DONE` | `2e580fc` | `2026-11-15T15:11:39Z` | `VALID` |
 | `sess-0890123e` | `System Architect` | `SPEC` | `0890123` | `2026-11-16T06:32:13Z` | `VALID` |
+| `sess-84a7ff12` | `TDD Craftsman` | `RED` | `84a7ff1` | `2026-11-16T06:34:14Z` | `VALID` |
 
 ---
 
@@ -550,5 +551,9 @@
 | `test_scaffold_init_composite_typescript_generates_tsc_b` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_scaffold_init_standard_typescript_generates_tsc_no_emit` | `RedCheckpointVerified` | `ccdb618c81ed206d...` | `2026-10-25T17:21:56+01:00` |
 | `test_canonical_pre_invocation_cmd_single_source_of_truth` | `InversePreflightVerified` | `e63e0e0ec71fb4c6...` | `2026-10-25T19:39:49Z` |
+| `test_task_100_ac1_done_checkpoint_auto_unbinds_matching_active_task` | `RedCheckpointVerified` | `1e90fafc723d3019...` | `2026-11-16T07:34:14+01:00` |
+| `test_task_100_hook_allows_unbind_and_warns_on_stale_binding` | `RedCheckpointVerified` | `1e90fafc723d3019...` | `2026-11-16T07:34:14+01:00` |
+| `test_task_100_ac2_stale_binding_diagnostics_and_recovery_hints` | `RedCheckpointVerified` | `1e90fafc723d3019...` | `2026-11-16T07:34:14+01:00` |
+| `test_task_100_ac3_recovery_and_inspection_commands_allowed_without_active_task` | `RedCheckpointVerified` | `1e90fafc723d3019...` | `2026-11-16T07:34:14+01:00` |
 
 ---

@@ -2025,6 +2025,14 @@
         "commit_oid": "0890123e8c687e9d8cfd29130fa34418eeb645c1",
         "timestamp": "2026-11-16T06:32:13Z",
         "digest": "5af31457b8ce3a6667aef05c0941051f6a7ebb81d95f8c8dc880c52a61d26819"
+      },
+      {
+        "session_nonce": "sess-84a7ff12",
+        "role": "TDD Craftsman",
+        "phase": "RED",
+        "commit_oid": "84a7ff125839bde7243d8dac602fad6a8560467b",
+        "timestamp": "2026-11-16T06:34:14Z",
+        "digest": "b18968379c7591aacdbee559056bb758ea5225e2798e19db7626522404afde4d"
       }
     ]
   },
@@ -3911,6 +3919,34 @@
       "failure_digest": "e63e0e0ec71fb4c652b42099573c22736d702427917c0a9ad0ccac9247b511ca",
       "verified_at": "2026-10-25T19:39:49Z",
       "status": "inverse_preflight_verified"
+    },
+    {
+      "test_identifier": "test_task_100_ac1_done_checkpoint_auto_unbinds_matching_active_task",
+      "failure_output": "Verified in RED checkpoint commit 84a7ff1",
+      "failure_digest": "1e90fafc723d3019a90758386803080bb5be49b062fa4ebfbf75be09547c93b2",
+      "verified_at": "2026-11-16T07:34:14+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_task_100_hook_allows_unbind_and_warns_on_stale_binding",
+      "failure_output": "Verified in RED checkpoint commit 84a7ff1",
+      "failure_digest": "1e90fafc723d3019a90758386803080bb5be49b062fa4ebfbf75be09547c93b2",
+      "verified_at": "2026-11-16T07:34:14+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_task_100_ac2_stale_binding_diagnostics_and_recovery_hints",
+      "failure_output": "Verified in RED checkpoint commit 84a7ff1",
+      "failure_digest": "1e90fafc723d3019a90758386803080bb5be49b062fa4ebfbf75be09547c93b2",
+      "verified_at": "2026-11-16T07:34:14+01:00",
+      "status": "red_checkpoint_verified"
+    },
+    {
+      "test_identifier": "test_task_100_ac3_recovery_and_inspection_commands_allowed_without_active_task",
+      "failure_output": "Verified in RED checkpoint commit 84a7ff1",
+      "failure_digest": "1e90fafc723d3019a90758386803080bb5be49b062fa4ebfbf75be09547c93b2",
+      "verified_at": "2026-11-16T07:34:14+01:00",
+      "status": "red_checkpoint_verified"
     }
   ]
 }

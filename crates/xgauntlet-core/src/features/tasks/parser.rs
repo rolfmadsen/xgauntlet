@@ -145,6 +145,157 @@ pub fn collect_task_files(tasks_dir: &Path) -> Vec<PathBuf> {
 /// Relative path to the worktree-local active task binding file.
 pub const ACTIVE_TASK_FILE: &str = ".xgauntlet/active_task";
 
+/// Diagnostic snapshot when `.xgauntlet/active_task` points to a terminal or missing task.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct StaleTaskBinding {
+    pub bound_id: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub status: Option<TaskStatus>,
+    pub missing: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub suggested_active_id: Option<String>,
+}
+
+impl StaleTaskBinding {
+    /// Returns a concise human-readable reason describing why the binding is stale.
+    pub fn status_label(&self) -> String {
+        if self.missing {
+            "missing".to_string()
+        } else if let Some(status) = self.status {
+            format!("status: {}", status.as_str())
+        } else {
+            "inactive".to_string()
+        }
+    }
+
+    /// Returns the suggested `xgauntlet task bind --task <id>` target or placeholder.
+    pub fn bind_target_hint(&self) -> &str {
+        self.suggested_active_id.as_deref().unwrap_or("<aktiv-id>")
+    }
+
+    /// Returns an actionable warning with exact recovery commands (`unbind` / `bind`).
+    pub fn warning_message(&self) -> String {
+        format!(
+            "Stale .xgauntlet/active_task binding '{}' ({}). Run 'xgauntlet task unbind' or 'xgauntlet task bind --task {}'.",
+            self.bound_id,
+            self.status_label(),
+            self.bind_target_hint()
+        )
+    }
+}
+
+fn find_fallback_active_task_id(workspace: &Path) -> Option<String> {
+    let tasks_dir = workspace.join("tasks");
+    let paths = collect_task_files(&tasks_dir);
+    for path in paths.into_iter().rev() {
+        if let Ok(content) = fs::read_to_string(&path) {
+            if is_task_active(&content) {
+                return path
+                    .file_stem()
+                    .and_then(|s| s.to_str())
+                    .map(|s| s.to_string());
+            }
+        }
+    }
+    None
+}
+
+/// Inspects `.xgauntlet/active_task` and returns stale-binding diagnostics if it points to a terminal/inactive or missing task.
+pub fn inspect_stale_task_binding(workspace: &Path) -> Option<StaleTaskBinding> {
+    let binding_path = workspace.join(ACTIVE_TASK_FILE);
+    if !binding_path.is_file() {
+        return None;
+    }
+    let raw = fs::read_to_string(&binding_path).ok()?;
+    let bound_id = raw.trim();
+    if bound_id.is_empty() {
+        return None;
+    }
+
+    match resolve_task_file_path(workspace, Some(bound_id)) {
+        Ok(path) => match fs::read_to_string(&path) {
+            Ok(content) if is_task_active(&content) => None,
+            Ok(content) => Some(StaleTaskBinding {
+                bound_id: bound_id.to_string(),
+                status: Some(parse_task_status(&content)),
+                missing: false,
+                suggested_active_id: find_fallback_active_task_id(workspace),
+            }),
+            Err(_) => Some(StaleTaskBinding {
+                bound_id: bound_id.to_string(),
+                status: None,
+                missing: true,
+                suggested_active_id: find_fallback_active_task_id(workspace),
+            }),
+        },
+        Err(_) => Some(StaleTaskBinding {
+            bound_id: bound_id.to_string(),
+            status: None,
+            missing: true,
+            suggested_active_id: find_fallback_active_task_id(workspace),
+        }),
+    }
+}
+
+fn normalize_binding_token(raw: &str) -> String {
+    let trimmed = raw.trim().replace('\\', "/");
+    let without_dir = trimmed.strip_prefix("tasks/").unwrap_or(&trimmed);
+    without_dir
+        .strip_suffix(".md")
+        .unwrap_or(without_dir)
+        .to_string()
+}
+
+fn binding_matches_task_id(workspace: &Path, bound_raw: &str, finished_task_id: &str) -> bool {
+    let bound = normalize_binding_token(bound_raw);
+    let finished = normalize_binding_token(finished_task_id);
+    if bound.is_empty() || finished.is_empty() {
+        return false;
+    }
+    if bound.eq_ignore_ascii_case(&finished) {
+        return true;
+    }
+
+    let bound_short = bound
+        .split_once('-')
+        .map(|(p, _)| p)
+        .unwrap_or(&bound);
+    let finished_short = finished
+        .split_once('-')
+        .map(|(p, _)| p)
+        .unwrap_or(&finished);
+
+    if (!bound.contains('-') || !finished.contains('-'))
+        && !bound_short.is_empty()
+        && bound_short.eq_ignore_ascii_case(finished_short)
+    {
+        return true;
+    }
+
+    if let (Ok(bound_path), Ok(finished_path)) = (
+        resolve_task_file_path(workspace, Some(&bound)),
+        resolve_task_file_path(workspace, Some(&finished)),
+    ) {
+        return bound_path == finished_path;
+    }
+
+    false
+}
+
+/// Removes `.xgauntlet/active_task` if its bound identifier matches `task_id` (canonical or short ID).
+pub fn unbind_active_task_if_matching(workspace: &Path, task_id: &str) -> Result<bool, TaskError> {
+    let binding_path = workspace.join(ACTIVE_TASK_FILE);
+    if !binding_path.is_file() {
+        return Ok(false);
+    }
+    let raw = fs::read_to_string(&binding_path)?;
+    if binding_matches_task_id(workspace, &raw, task_id) {
+        unbind_active_task(workspace)
+    } else {
+        Ok(false)
+    }
+}
+
 /// Resolves the path of the worktree-bound active task (`.xgauntlet/active_task`) or falls back to the highest-numbered active task across `tasks/**`.
 ///
 /// Fail-closed: if `.xgauntlet/active_task` exists with a non-empty identifier that does not resolve to an `ACTIVE` task, returns `None` instead of falling back.
@@ -292,6 +443,10 @@ pub fn resolve_task_file_path(
 
     if let Some(active_path) = resolve_active_task_path(workspace) {
         return Ok(active_path);
+    }
+
+    if let Some(stale) = inspect_stale_task_binding(workspace) {
+        return Err(TaskError::TaskNotFound(stale.warning_message()));
     }
 
     Err(TaskError::TaskNotFound(
