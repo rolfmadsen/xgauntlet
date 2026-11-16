@@ -484,3 +484,51 @@ fn test_hook_blocks_command_injection_and_unscoped_git_commit_without_task() {
         );
     }
 }
+
+#[test]
+fn test_task_100_hook_allows_unbind_and_warns_on_stale_binding() {
+    let ws = TempWorkspace::new("task_100_hook_recovery");
+    let tasks_dir = ws.path().join("tasks");
+    fs::create_dir_all(&tasks_dir).unwrap();
+    fs::write(
+        tasks_dir.join("157-done.md"),
+        "---\ntype: Task Package\ntitle: \"Task 157\"\nstatus: done\n---\n\n# Task 157\n\n**Status**: `DONE`\n\n## 🎯 Formål\nDone.\n\n## 📋 Acceptance Criteria\n- [x] Done\n\n## 🚫 Must NOT\n- None.\n",
+    )
+    .unwrap();
+    fs::create_dir_all(ws.path().join(".xgauntlet")).unwrap();
+    fs::write(ws.path().join(".xgauntlet/active_task"), "157-done\n").unwrap();
+
+    let adapter = AntigravityAdapter;
+
+    for safe_cmd in [
+        "xgauntlet status",
+        "xgauntlet telemetry",
+        "xgauntlet task list",
+        "xgauntlet task status",
+        "xgauntlet task unbind",
+        "xgauntlet task bind --task 158",
+    ] {
+        let payload = json!({
+            "hookEventName": "PreToolUse",
+            "tool_name": "run_command",
+            "parameters": { "CommandLine": safe_cmd }
+        });
+        let (code, output) = adapter.handle_hook(ws.path(), &payload.to_string());
+        assert_eq!(
+            code, 0,
+            "PreToolUse must not deadlock on '{safe_cmd}' with stale active_task: {output}"
+        );
+    }
+
+    let blocked_write = json!({
+        "hookEventName": "PreToolUse",
+        "tool_name": "write_to_file",
+        "parameters": { "TargetFile": "src/main.rs", "CodeContent": "fn main() {}" }
+    });
+    let (code, output) = adapter.handle_hook(ws.path(), &blocked_write.to_string());
+    assert_ne!(code, 0, "Source write with stale binding must be denied");
+    assert!(
+        output.contains("157-done") && output.contains("xgauntlet task unbind"),
+        "Denial must warn about stale binding '157-done' and suggest 'xgauntlet task unbind': {output}"
+    );
+}

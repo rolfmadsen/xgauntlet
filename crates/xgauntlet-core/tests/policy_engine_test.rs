@@ -590,3 +590,84 @@ fn test_task_084_ac1_readonly_inspection_and_chains_without_active_task() {
         );
     }
 }
+
+#[test]
+fn test_task_100_ac3_recovery_and_inspection_commands_allowed_without_active_task() {
+    let mut engine = WasmPolicyEngine::new().unwrap();
+    let no_task_ctx = EnforcementContext {
+        workspace_id: "ws-100".into(),
+        has_active_task: false,
+        active_task_id: String::new(),
+        read_only: false,
+        ..Default::default()
+    };
+
+    let allowed_cmds = [
+        "xgauntlet status",
+        "xgauntlet telemetry",
+        "xgauntlet telemetry --format json",
+        "xgauntlet task list",
+        "xgauntlet task status",
+        "xgauntlet task status -t 100",
+        "xgauntlet task unbind",
+        "xgauntlet task bind --task 100",
+        "npx xgauntlet status",
+        "npx xgauntlet telemetry",
+        "npx xgauntlet task list",
+        "npx xgauntlet task status",
+        "npx xgauntlet task unbind",
+        "npx xgauntlet task bind --task 100",
+        "cargo run -p xgauntlet-cli -- status",
+        "cargo run -p xgauntlet-cli -- telemetry",
+        "cargo run -p xgauntlet-cli -- task list",
+        "cargo run -p xgauntlet-cli -- task status",
+        "cargo run -p xgauntlet-cli -- task unbind",
+        "cargo run -p xgauntlet-cli -- task bind --task 100",
+    ];
+
+    for cmd in allowed_cmds {
+        let req = CapabilityRequest {
+            action_type: ToolActionType::ExecuteCommand,
+            raw_tool_name: "run_command".into(),
+            target_resource: cmd.into(),
+            payload_json: "{}".into(),
+        };
+        let decision = engine.evaluate(&req, &no_task_ctx).unwrap();
+        assert_eq!(
+            decision.verdict,
+            DecisionVerdict::Allow,
+            "Recovery/inspection command '{}' MUST be allowed without active task (got {:?}: {})",
+            cmd,
+            decision.verdict,
+            decision.reason
+        );
+        assert_eq!(decision.reason_code, 2004);
+    }
+
+    let denied_cmds = [
+        "xgauntlet task archive",
+        "xgauntlet task new rogue-task",
+        "npx xgauntlet task archive",
+        "cargo run -p xgauntlet-cli -- task new rogue",
+        "xgauntlet task unbind && rm -rf src",
+        "xgauntlet task bind --task $(whoami)",
+        "xgauntlet status; id",
+        "env xgauntlet task unbind",
+    ];
+
+    for cmd in denied_cmds {
+        let req = CapabilityRequest {
+            action_type: ToolActionType::ExecuteCommand,
+            raw_tool_name: "run_command".into(),
+            target_resource: cmd.into(),
+            payload_json: "{}".into(),
+        };
+        let decision = engine.evaluate(&req, &no_task_ctx).unwrap();
+        assert_eq!(
+            decision.verdict,
+            DecisionVerdict::Deny,
+            "Unsafe/non-recovery command '{}' MUST remain denied without active task",
+            cmd
+        );
+    }
+}

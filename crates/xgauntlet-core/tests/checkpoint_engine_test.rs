@@ -864,3 +864,95 @@ fn test_task_085_ac2_xgauntlet_runtime_dir_gitignored_and_exempt_from_scope_chec
         "Repository .gitignore must ignore .xgauntlet/ so session_state.json never dirties git status"
     );
 }
+
+#[tokio::test]
+async fn test_task_100_ac1_done_checkpoint_auto_unbinds_matching_active_task() {
+    let temp = TempDir::new("task_100_auto_unbind");
+    init_git_repo(temp.path());
+    setup_mock_glossary(temp.path());
+    setup_mock_task(temp.path(), "084-done-transition", "active");
+    setup_mock_task(temp.path(), "099-other-active", "active");
+    for id in ["084-done-transition", "099-other-active"] {
+        let p = temp.path().join(format!("tasks/{id}.md"));
+        let txt = fs::read_to_string(&p).unwrap().replace("- [ ]", "- [x]");
+        fs::write(&p, txt).unwrap();
+    }
+
+    let passing_config = r#"
+stack = "rust"
+save_evidence = true
+[[layers]]
+name = "unit"
+command = ["true"]
+optional = false
+"#;
+    fs::write(temp.path().join("gauntlet.toml"), passing_config).unwrap();
+
+    fs::create_dir_all(temp.path().join("crates")).unwrap();
+    fs::write(temp.path().join("crates/seed.txt"), "red").unwrap();
+    Command::new("git")
+        .args(["add", "-A"])
+        .current_dir(temp.path())
+        .status()
+        .unwrap();
+    Command::new("git")
+        .args(["commit", "-m", "test(084): add failing test [RED]"])
+        .current_dir(temp.path())
+        .status()
+        .unwrap();
+
+    // Case 1: Rollback on NothingToCommit/ScopeViolation must preserve .xgauntlet/active_task
+    let active_task_file = temp.path().join(".xgauntlet/active_task");
+    fs::create_dir_all(active_task_file.parent().unwrap()).unwrap();
+    fs::write(&active_task_file, "084-done-transition\n").unwrap();
+
+    fs::write(temp.path().join("outside_scope.txt"), "oops").unwrap();
+    let failed_opts = CheckpointOptions::new(CheckpointPhase::Done, temp.path());
+    let err = run_checkpoint(&failed_opts).await;
+    assert!(
+        err.is_err(),
+        "DONE checkpoint with out-of-scope file must fail"
+    );
+    assert!(
+        active_task_file.is_file(),
+        "Failed/rolled-back DONE checkpoint MUST preserve .xgauntlet/active_task"
+    );
+    fs::remove_file(temp.path().join("outside_scope.txt")).unwrap();
+
+    // Case 2: Mismatched .xgauntlet/active_task (099) must NOT be removed when finishing 084 explicitly
+    fs::write(&active_task_file, "099-other-active\n").unwrap();
+    fs::write(temp.path().join("crates/seed.txt"), "green-mismatch").unwrap();
+    let explicit_opts =
+        CheckpointOptions::new(CheckpointPhase::Done, temp.path()).with_task_id("084-done-transition");
+    run_checkpoint(&explicit_opts)
+        .await
+        .expect("Explicit DONE checkpoint for 084 should succeed");
+    assert!(
+        active_task_file.is_file(),
+        "DONE checkpoint for 084 must NOT remove .xgauntlet/active_task bound to 099"
+    );
+
+    // Case 3: Matching short ID or full ID in .xgauntlet/active_task MUST be auto-unbound on DONE
+    fs::write(temp.path().join("crates/seed.txt"), "red-99").unwrap();
+    Command::new("git")
+        .args(["add", "-A"])
+        .current_dir(temp.path())
+        .status()
+        .unwrap();
+    Command::new("git")
+        .args(["commit", "-m", "test(099): add failing test [RED]"])
+        .current_dir(temp.path())
+        .status()
+        .unwrap();
+
+    fs::write(&active_task_file, "099\n").unwrap();
+    fs::write(temp.path().join("crates/seed.txt"), "green-99").unwrap();
+    let matching_opts = CheckpointOptions::new(CheckpointPhase::Done, temp.path());
+    run_checkpoint(&matching_opts)
+        .await
+        .expect("Matching DONE checkpoint for 099 should succeed");
+    assert!(
+        !active_task_file.exists(),
+        "Successful DONE checkpoint MUST automatically remove matching .xgauntlet/active_task"
+    );
+}

@@ -378,3 +378,91 @@ fn test_session_telemetry_isolated_per_session_id() {
 
     let _ = fs::remove_dir_all(&ws);
 }
+
+#[test]
+fn test_task_100_ac2_stale_binding_diagnostics_and_recovery_hints() {
+    use xgauntlet_core::features::adapters::antigravity::hud::{
+        format_idle_telemetry, render_idle_banner,
+    };
+    use xgauntlet_core::features::tasks::{
+        bind_active_task, inspect_idle_workspace_telemetry, resolve_task_file_path,
+    };
+
+    let root = make_temp_dir("stale_binding_diag");
+    assert!(Command::new("git")
+        .args(["init"])
+        .current_dir(&root)
+        .status()
+        .unwrap()
+        .success());
+    fs::write(root.join("gauntlet.toml"), "stack = \"rust\"\n").unwrap();
+    write_done_task(&root, "157-done-scaling");
+    write_active_task(&root, "158-next-feature", "crates/**");
+
+    // Verify bind_active_task fails closed for terminal/missing tasks
+    assert!(bind_active_task(&root, "157-done-scaling").is_err());
+    assert!(bind_active_task(&root, "999-missing").is_err());
+
+    // Simulate stale .xgauntlet/active_task pointing to DONE task 157
+    fs::create_dir_all(root.join(".xgauntlet")).unwrap();
+    fs::write(root.join(".xgauntlet/active_task"), "157-done-scaling\n").unwrap();
+
+    // 1. Fail-closed ADR 0014 preservation
+    assert_eq!(resolve_active_task_id(&root), None);
+
+    // 2. Task resolution error surfaces warning + recovery command
+    let err = resolve_task_file_path(&root, None).unwrap_err();
+    let err_msg = err.to_string();
+    assert!(
+        err_msg.contains("157-done-scaling") && err_msg.contains("xgauntlet task unbind"),
+        "Task resolution error must warn about stale binding and suggest 'xgauntlet task unbind', got: {err_msg}"
+    );
+    assert!(
+        err_msg.contains("xgauntlet task bind --task"),
+        "Task resolution error must suggest 'xgauntlet task bind --task', got: {err_msg}"
+    );
+
+    // 3. Cockpit idle telemetry & PreInvocation HUD expose warning and recovery commands
+    let idle = inspect_idle_workspace_telemetry(&root);
+    assert!(
+        !idle.worktree.active_task_bound,
+        "Stale binding must not report active_task_bound = true"
+    );
+    let idle_json = serde_json::to_value(&idle).unwrap();
+    assert!(
+        idle_json.get("stale_binding").is_some(),
+        "Idle telemetry must expose stale_binding diagnostics, got: {idle_json}"
+    );
+
+    let sys_msg = format_idle_telemetry(&idle);
+    assert!(
+        sys_msg.contains("157-done-scaling")
+            && sys_msg.contains("xgauntlet task unbind")
+            && sys_msg.contains("xgauntlet task bind --task 158-next-feature"),
+        "PreInvocation systemMessage must expose stale binding warning and recovery commands, got:\n{sys_msg}"
+    );
+
+    let banner = render_idle_banner(&idle);
+    assert!(
+        banner.contains("157-done-scaling") && banner.contains("xgauntlet task unbind"),
+        "PreInvocation idle banner must expose stale binding warning and unbind command, got:\n{banner}"
+    );
+
+    // 4. Hook denial output (printed to stderr by CLI) exposes stale binding recovery
+    let ag = get_adapter("antigravity").unwrap();
+    let write_payload = serde_json::json!({
+        "hookEventName": "PreToolUse",
+        "toolCall": {
+            "name": "write_to_file",
+            "args": { "TargetFile": "crates/lib.rs", "CodeContent": "" }
+        }
+    });
+    let (code, hook_out) = ag.handle_hook(&root, &write_payload.to_string());
+    assert_ne!(code, 0);
+    assert!(
+        hook_out.contains("157-done-scaling") && hook_out.contains("xgauntlet task unbind"),
+        "PreToolUse hook denial must warn about stale active_task and suggest 'xgauntlet task unbind', got:\n{hook_out}"
+    );
+
+    let _ = fs::remove_dir_all(&root);
+}
