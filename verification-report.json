@@ -6,7 +6,7 @@
   "task_contract": {
     "task_id": "102-refresh-post-done-evidence-digests",
     "task_title": "Task 102: Refresh verification-report.json digests after mark_task_done in DONE checkpoint",
-    "task_digest": "5b1562f50e6afcd60c7a34d5c305b49bfd6e7684c1584d090700f94c850ef6a4",
+    "task_digest": "bf487c4a22066b5c7a7db01af25ca5e4af2faf5bcd77cdbd8c8ca9f6e018b5af",
     "acceptance_criteria": [
       "**AC1 — Zero-drift post-DONE `verification-report.json`**: Når `run_checkpoint` gennemfører `CheckpointPhase::Done` med preflight (`!skip_verify`), opdateres `verification-report.json` (og `evidence.md`) før `seal_tracked_evidence_files`, så `verify_workspace_state_match(&report, &compute_workspace_manifest(...))` passerer uden `source_drift` eller `task_drift`.",
       "**AC2 — Strict Release Gatekeeper Grøn**: `cargo run -p xgauntlet-cli -- check-release --strict` og `cargo test --workspace` passerer med exit code `0`."
@@ -15,19 +15,19 @@
   },
   "workspace_state": {
     "manifest_version": "1.0",
-    "source_content_digest": "5841e19cfac841774ce1546631e963c60119c28d32b70ffb1b486370bd6f4277",
+    "source_content_digest": "2a4e1451250a2dcfcbe5536193d1ff7c72261642f873e772e753448f1cc5c6b1",
     "source_manifest_digest_pre": "64aef19f485b85748e8a125a716e96333962c0d1def5e931f819d89c2ec97143",
-    "source_manifest_digest_post": "64aef19f485b85748e8a125a716e96333962c0d1def5e931f819d89c2ec97143",
+    "source_manifest_digest_post": "22d49447bd3d973c44f5f43239aab85ffacd2ccf9e279bd4e05bc703ca8f083e",
     "config_digest": "7e0b46f5e31c7789a80e9169264de5964b23abdc36c1df218eb6805d5a076e6f",
-    "task_digest": "5b1562f50e6afcd60c7a34d5c305b49bfd6e7684c1584d090700f94c850ef6a4",
+    "task_digest": "bf487c4a22066b5c7a7db01af25ca5e4af2faf5bcd77cdbd8c8ca9f6e018b5af",
     "policy_digest": "ee5dd372caf0dcddb566e02533a23316b876681da866bf3d4a20f32af57012ef",
     "check_definitions_digest": "7b85613e7b7c24f03e0db6873ce7a93328152d05b26a6eea242f15f10f6063af",
     "included_files_count": 333,
     "vcs": {
       "type": "git",
-      "head": "aa8d968",
-      "commit": "aa8d968",
-      "is_dirty": true
+      "head": "1cae38b",
+      "commit": "1cae38b",
+      "is_dirty": false
     }
   },
   "execution_metadata": {
@@ -2087,6 +2087,14 @@
         "commit_oid": "aa8d9683d59ffd037da4a24074568afb114ccf84",
         "timestamp": "2026-11-16T07:23:50Z",
         "digest": "a0376df925699a0df637bace4fe840218d6e048aa2e6a7c8eee54b215f90550e"
+      },
+      {
+        "session_nonce": "sess-1cae38bb",
+        "role": "Software Engineer",
+        "phase": "DONE",
+        "commit_oid": "1cae38bb46f727fc12b0f00a0338861432552adf",
+        "timestamp": "2026-11-16T07:26:05Z",
+        "digest": "3fcd1570cef914683fb3cbc73f35268b19adea3bb0403c21b0eb62ddf9b23296"
       }
     ]
   },

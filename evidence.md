@@ -4,10 +4,10 @@
 **Task Title**: Task 102: Refresh verification-report.json digests after mark_task_done in DONE checkpoint  
 **Verdict**: `PARTIAL`  
 **Execution Origin**: `LOCAL`  
-**Source Manifest Digest**: `64aef19f485b85748e8a125a716e96333962c0d1def5e931f819d89c2ec97143`  
+**Source Manifest Digest**: `22d49447bd3d973c44f5f43239aab85ffacd2ccf9e279bd4e05bc703ca8f083e`  
 **Timestamp**: `2026-11-16T07:26:04Z`  
-**Head**: `aa8d968`  
-**Commit**: `aa8d968`  
+**Head**: `1cae38b`  
+**Commit**: `1cae38b`  
 
 ## Acceptance Criteria
 
@@ -280,6 +280,7 @@
 | `sess-4dac7092` | `TDD Craftsman` | `GREEN` | `4dac709` | `2026-11-16T06:54:46Z` | `VALID` |
 | `sess-b7ff3986` | `Software Engineer` | `DONE` | `b7ff398` | `2026-11-16T06:56:02Z` | `VALID` |
 | `sess-aa8d9683` | `TDD Craftsman` | `RED` | `aa8d968` | `2026-11-16T07:23:50Z` | `VALID` |
+| `sess-1cae38bb` | `Software Engineer` | `DONE` | `1cae38b` | `2026-11-16T07:26:05Z` | `VALID` |
 
 ---
 
