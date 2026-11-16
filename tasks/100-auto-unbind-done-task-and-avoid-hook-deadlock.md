@@ -2,7 +2,7 @@
 type: Task Package
 title: "Task 100: Auto-unbind done active_task and prevent hook deadlock on Task NONE"
 description: "Ryd .xgauntlet/active_task automatisk ved checkpoint --phase done, eksponer tydelig recovery-vejledning ved terminal Worktree Task Binding, og undgå at PreToolUse-hooken blokerer task bind/unbind/status/list og telemetry ved Task: NONE."
-status: active
+status: done
 intent: bug
 feature: tasks
 spec_ref: "specs/tasks.md"
@@ -29,7 +29,7 @@ test_refs:
 
 # Task 100: Auto-unbind done active_task and prevent hook deadlock on Task NONE
 
-**Status**: `ACTIVE`
+**Status**: `DONE`
 **Intent**: `🐛 BUG FIX`
 **Oprettet**: `2026-11-15`
 
